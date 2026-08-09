@@ -1,0 +1,105 @@
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
+
+.navbar {
+  position: sticky;   // se queda pegado arriba al hacer scroll
+  top: 0;
+  z-index: 50;
+  background: v.$surface;
+  border-bottom: 1px solid v.$border;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  &__brand {
+    font-family: v.$font-display;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: v.$text;
+    &:hover { text-decoration: none; }
+  }
+
+  &__prompt {
+    color: v.$accent; // el "prompt" de terminal ">_"  es el detalle de marca
+    margin-right: 2px;
+  }
+
+  // --- Botón hamburguesa: 3 barritas con CSS puro, sin librerías ---
+  &__toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    @include m.focus-ring;
+
+    span {
+      display: block;
+      height: 2px;
+      background: v.$text;
+      border-radius: 2px;
+      transition: transform 0.2s ease, opacity 0.2s ease; // animación mínima y funcional
+    }
+
+    // Solo se muestra en pantallas menores al breakpoint de tablet
+    @include m.from(v.$bp-tablet) {
+      display: none;
+    }
+  }
+
+  // --- Menú de links ---
+  &__links {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-5;
+
+    a {
+      color: v.$text-muted;
+      font-weight: 500;
+      font-size: 0.95rem;
+
+      &.active { color: v.$accent; } // resalta la ruta activa (routerLinkActive)
+      &:hover { color: v.$text; text-decoration: none; }
+    }
+
+    // --- Mobile: el menú se convierte en panel desplegable ---
+    @media (max-width: (v.$bp-tablet - 1px)) {
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      background: v.$surface;
+      border-bottom: 1px solid v.$border;
+      // Oculto por defecto, sin usar display:none (así la transición se ve suave)
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+
+      &.is-open {
+        max-height: 320px; // suficiente para mostrar todos los links
+      }
+
+      a, button {
+        padding: v.$sp-4 v.$sp-4;
+        border-top: 1px solid v.$border;
+        text-align: left;
+        width: 100%;
+      }
+    }
+  }
+
+  &__logout {
+    padding: v.$sp-2 v.$sp-4;
+  }
+}

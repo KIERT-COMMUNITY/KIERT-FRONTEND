@@ -1,0 +1,43 @@
+// ============================================================
+// TOKENS DE DISEÑO DE KIERT
+// Un solo archivo con toda la paleta/tipografía/espaciados.
+// Si mañana quieres cambiar el "look" de toda la web, se hace aquí.
+// ============================================================
+
+// --- Color: paleta "terminal / hacker" pero disciplinada (no genérica) ---
+$bg:            #0d1117; // fondo principal, azul-negro (no negro puro)
+$surface:       #131a22; // tarjetas, navbar
+$surface-alt:   #1b232c; // hover / inputs
+$border:        #26313c; // líneas divisorias sutiles
+$text:          #e6edf3; // texto principal
+$text-muted:    #8b98a5; // texto secundario
+$accent:        #2dd4bf; // teal: color de marca, botones primarios, links
+$accent-dark:   #17b6a4;
+$accent-alt:    #f0b429; // ámbar: highlights, "insignias", avisos
+$danger:        #f85149; // errores
+$success:       #3fb950; // confirmaciones
+
+// --- Tipografía ---
+$font-display: 'JetBrains Mono', 'Courier New', monospace; // titulares, marca, "prompt"
+$font-body:    'Inter', -apple-system, sans-serif;          // texto de lectura
+
+// --- Espaciado (escala de 4px) ---
+$sp-1: 4px;
+$sp-2: 8px;
+$sp-3: 12px;
+$sp-4: 16px;
+$sp-5: 24px;
+$sp-6: 32px;
+$sp-7: 48px;
+$sp-8: 64px;
+
+// --- Bordes y sombras ---
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 16px;
+$shadow-card: 0 4px 20px rgba(0, 0, 0, 0.35);
+
+// --- Breakpoints (para responsive con mixins, ver _mixins.scss) ---
+$bp-mobile: 480px;
+$bp-tablet: 768px;
+$bp-desktop: 1100px;

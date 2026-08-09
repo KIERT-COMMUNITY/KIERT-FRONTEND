@@ -1,0 +1,42 @@
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
+
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: v.$sp-4;
+  // Fondo sutil: degradado muy suave, no una imagen pesada (mantenemos "liviano")
+  background:
+    radial-gradient(circle at 20% 20%, rgba(45, 212, 191, 0.06), transparent 40%),
+    v.$bg;
+}
+
+.auth-card {
+  @include m.card;
+  width: 100%;
+  max-width: 400px;
+  padding: v.$sp-6 v.$sp-5;
+
+  &__brand {
+    display: block;
+    text-align: center;
+    font-family: v.$font-display;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: v.$text;
+    &:hover { text-decoration: none; }
+  }
+
+  &__prompt { color: v.$accent; }
+
+  &__tagline {
+    text-align: center;
+    color: v.$text-muted;
+    font-family: v.$font-display;
+    font-size: 0.75rem;
+    margin-top: v.$sp-2;
+    margin-bottom: v.$sp-6;
+  }
+}

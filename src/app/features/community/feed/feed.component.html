@@ -1,0 +1,34 @@
+<div class="feed-head">
+  <div>
+    <h1>Comunidad</h1>
+    <p class="feed-sub">Casos, dudas e historias reales para ayudarse entre todos.</p>
+  </div>
+  <a routerLink="/comunidad/nueva-publicacion" class="btn btn--primary">+ Publicar</a>
+</div>
+
+<!-- Chips de filtro: recorre "filtros" con @for -->
+<div class="feed-filters">
+  @for (f of filtros; track f.valor) {
+    <button
+      type="button"
+      class="chip"
+      [class.chip--active]="filtroActivo() === f.valor"
+      (click)="cambiarFiltro(f.valor)"
+    >
+      {{ f.etiqueta }}
+    </button>
+  }
+</div>
+
+@if (cargando()) {
+  <p class="feed-estado">Cargando publicaciones...</p>
+} @else if (postsFiltrados().length === 0) {
+  <p class="feed-estado">Todavía no hay publicaciones en esta categoría.</p>
+} @else {
+  <div class="feed-grid">
+    <!-- track post.id: ayuda a Angular a identificar cada tarjeta y no re-renderizar todo -->
+    @for (post of postsFiltrados(); track post.id) {
+      <kiert-post-card [post]="post"></kiert-post-card>
+    }
+  </div>
+}

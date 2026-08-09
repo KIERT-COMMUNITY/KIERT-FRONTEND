@@ -1,0 +1,155 @@
+// ============================================================
+// styles.scss -> hoja de estilos GLOBAL de toda la app.
+// Se referencia una sola vez en angular.json ("styles").
+// Aquí van: reset, tipografía base, utilidades globales (botones, inputs).
+// Los estilos de CADA componente van en su propio archivo .scss (encapsulados).
+// ============================================================
+@use 'styles/variables' as v;
+@use 'styles/mixins' as m;
+
+// --- Reset básico: quita márgenes/paddings por defecto del navegador ---
+* {
+  box-sizing: border-box; // el padding/border no agranda el ancho real del elemento
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  scroll-behavior: smooth; // scroll suave al navegar por anclas (#seccion)
+}
+
+body {
+  background: v.$bg;
+  color: v.$text;
+  font-family: v.$font-body;
+  font-size: 16px;
+  line-height: 1.5;
+  // Evita "parpadeo" de fuente y mejora legibilidad en pantallas retina
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: v.$font-display; // titulares en monospace = identidad "terminal"
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+a {
+  color: v.$accent;
+  text-decoration: none;
+  @include m.focus-ring;
+
+  &:hover { text-decoration: underline; }
+}
+
+img { max-width: 100%; display: block; } // imágenes nunca se salen de su contenedor
+
+// --- Utilidades globales reutilizables en toda la app ---
+
+// Contenedor centrado con ancho máximo, usado en cada página
+.container {
+  width: 100%;
+  max-width: v.$bp-desktop;
+  margin-inline: auto; // centra horizontalmente
+  padding-inline: v.$sp-4;
+}
+
+// Botón base: todos los botones de la app parten de esta clase
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$sp-2;
+  font-family: v.$font-body;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: v.$sp-3 v.$sp-5;
+  border-radius: v.$radius-sm;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease; // animación mínima
+  @include m.focus-ring;
+
+  &:active { transform: scale(0.97); } // micro-feedback al hacer click, sin exagerar
+
+  &--primary {
+    background: v.$accent;
+    color: #04211d;
+    &:hover { background: v.$accent-dark; }
+  }
+
+  &--ghost {
+    background: transparent;
+    border-color: v.$border;
+    color: v.$text;
+    &:hover { background: v.$surface-alt; }
+  }
+
+  &--danger {
+    background: transparent;
+    border-color: v.$danger;
+    color: v.$danger;
+    &:hover { background: rgba(248, 81, 73, 0.1); }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Campo de formulario base (inputs, textarea)
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$sp-2;
+  margin-bottom: v.$sp-4;
+
+  label {
+    font-size: 0.85rem;
+    color: v.$text-muted;
+    font-weight: 600;
+  }
+
+  input, textarea {
+    background: v.$surface-alt;
+    border: 1px solid v.$border;
+    border-radius: v.$radius-sm;
+    padding: v.$sp-3;
+    color: v.$text;
+    font-family: v.$font-body;
+    font-size: 0.95rem;
+    @include m.focus-ring;
+
+    &::placeholder { color: v.$text-muted; }
+    &.is-invalid { border-color: v.$danger; } // se marca en rojo si el form es inválido
+  }
+
+  .error-msg {
+    color: v.$danger;
+    font-size: 0.8rem;
+  }
+}
+
+// Etiqueta pequeña tipo "insignia" (ej: categoría de un post)
+.badge {
+  display: inline-block;
+  font-family: v.$font-display;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(45, 212, 191, 0.12);
+  color: v.$accent;
+  border: 1px solid rgba(45, 212, 191, 0.3);
+}
+
+// Clase utilitaria para ocultar visualmente pero mantener accesible a lectores de pantalla
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}

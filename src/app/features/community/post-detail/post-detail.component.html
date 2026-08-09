@@ -1,0 +1,52 @@
+@if (cargando()) {
+  <p class="estado">Cargando publicación...</p>
+} @else if (!post()) {
+  <p class="estado">Esta publicación no existe o fue eliminada.</p>
+} @else {
+  <article class="post-detail">
+    <span class="badge">{{ post()!.categoria }}</span>
+    <h1>{{ post()!.titulo }}</h1>
+    <p class="post-detail__autor">Publicado por &#64;{{ post()!.autor.nombreUsuario }}</p>
+    <p class="post-detail__desc">{{ post()!.descripcion }}</p>
+
+    <!-- Adjuntos: archivos o links, según el tipo -->
+    @if (post()!.adjuntos.length > 0) {
+      <div class="post-detail__adjuntos">
+        <h4>Adjuntos</h4>
+        @for (a of post()!.adjuntos; track a.id) {
+          <a [href]="a.url" target="_blank" rel="noopener" class="adjunto">
+            {{ a.tipo === 'archivo' ? '📎' : '🔗' }} {{ a.nombre }}
+          </a>
+        }
+      </div>
+    }
+  </article>
+
+  <section class="comentarios">
+    <h3>Comentarios ({{ comentarios().length }})</h3>
+
+    <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
+      <div class="field">
+        <textarea
+          formControlName="contenido"
+          rows="3"
+          placeholder="Escribe algo que ayude a esta persona..."
+        ></textarea>
+      </div>
+      <button type="submit" class="btn btn--primary" [disabled]="enviandoComentario()">
+        {{ enviandoComentario() ? 'Enviando...' : 'Comentar' }}
+      </button>
+    </form>
+
+    <div class="comentarios__lista">
+      @for (c of comentarios(); track c.id) {
+        <div class="comentario">
+          <p class="comentario__autor">&#64;{{ c.autor.nombreUsuario }}</p>
+          <p>{{ c.contenido }}</p>
+        </div>
+      } @empty {
+        <p class="estado">Sé el primero en comentar.</p>
+      }
+    </div>
+  </section>
+}

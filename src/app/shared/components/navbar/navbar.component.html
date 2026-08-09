@@ -1,0 +1,31 @@
+<!-- header con clase condicional: agrega "is-open" al menú cuando menuAbierto() es true -->
+<header class="navbar">
+  <div class="navbar__inner container">
+
+    <a routerLink="/comunidad" class="navbar__brand">
+      <span class="navbar__prompt">&gt;_</span>kiert
+    </a>
+
+    <!-- Botón hamburguesa: solo visible en celular/tablet (ver .scss) -->
+    <button
+      class="navbar__toggle"
+      type="button"
+      (click)="alternarMenu()"
+      [attr.aria-expanded]="menuAbierto()"
+      aria-label="Abrir menú de navegación"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- [class.is-open]: clase CSS que se activa/desactiva según el signal -->
+    <nav class="navbar__links" [class.is-open]="menuAbierto()">
+      <a routerLink="/comunidad" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="cerrarMenu()">Comunidad</a>
+      <a routerLink="/comunidad/nueva-publicacion" routerLinkActive="active" (click)="cerrarMenu()">Publicar</a>
+      <a routerLink="/chat" routerLinkActive="active" (click)="cerrarMenu()">Chat</a>
+      <a routerLink="/perfil" routerLinkActive="active" (click)="cerrarMenu()">Perfil</a>
+      <button class="btn btn--ghost navbar__logout" (click)="cerrarSesion()">Cerrar sesión</button>
+    </nav>
+  </div>
+</header>

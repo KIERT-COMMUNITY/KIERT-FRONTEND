@@ -1,0 +1,47 @@
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
+
+.page-title { margin-bottom: v.$sp-5; }
+
+.profile-card {
+  @include m.card;
+  padding: v.$sp-6;
+  max-width: 420px;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-inline: auto;
+  margin-bottom: v.$sp-4;
+  background: v.$surface-alt;
+  border: 2px solid v.$accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: v.$font-display;
+  font-size: 2rem;
+  color: v.$accent;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.profile-upload-btn {
+  display: inline-block;
+  margin-bottom: v.$sp-5;
+}
+
+.profile-info {
+  text-align: left;
+  border-top: 1px solid v.$border;
+  padding-top: v.$sp-4;
+  display: flex;
+  flex-direction: column;
+  gap: v.$sp-2;
+  font-size: 0.9rem;
+
+  span { color: v.$text-muted; margin-right: v.$sp-2; }
+}

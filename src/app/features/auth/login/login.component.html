@@ -1,0 +1,49 @@
+<h1 class="form-title">Iniciar sesión</h1>
+
+<!-- (ngSubmit) se dispara al enviar el form (click en botón o Enter) -->
+<form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+
+  <div class="field">
+    <label for="email">Correo electrónico</label>
+    <input
+      id="email"
+      type="email"
+      formControlName="email"
+      placeholder="tucorreo@ejemplo.com"
+      [class.is-invalid]="email.invalid && email.touched"
+      autocomplete="email"
+    >
+    <!-- Solo se muestra el error si el campo fue tocado Y es inválido -->
+    @if (email.invalid && email.touched) {
+      <span class="error-msg">Ingresa un correo válido.</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="password">Contraseña</label>
+    <input
+      id="password"
+      type="password"
+      formControlName="password"
+      placeholder="••••••••"
+      [class.is-invalid]="password.invalid && password.touched"
+      autocomplete="current-password"
+    >
+    @if (password.invalid && password.touched) {
+      <span class="error-msg">Mínimo 8 caracteres.</span>
+    }
+  </div>
+
+  @if (errorMsg()) {
+    <p class="form-alert">{{ errorMsg() }}</p>
+  }
+
+  <button type="submit" class="btn btn--primary form-submit" [disabled]="cargando()">
+    {{ cargando() ? 'Ingresando...' : 'Ingresar' }}
+  </button>
+</form>
+
+<div class="form-links">
+  <a routerLink="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
+  <a routerLink="/registro">Crear una cuenta</a>
+</div>

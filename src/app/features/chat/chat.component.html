@@ -1,0 +1,50 @@
+<div class="chat-layout" [class.chat-layout--con-activo]="chatActivo()">
+
+  <!-- Panel izquierdo: lista de conversaciones -->
+  <aside class="chat-lista">
+    <h2>Mensajes</h2>
+    @for (c of conversaciones(); track c.usuarioId) {
+      <a
+        [routerLink]="['/chat', c.usuarioId]"
+        class="chat-item"
+        [class.chat-item--activo]="chatActivo()?.usuarioId === c.usuarioId"
+      >
+        <div class="chat-item__avatar">{{ c.nombreUsuario.charAt(0) }}</div>
+        <div class="chat-item__info">
+          <strong>&#64;{{ c.nombreUsuario }}</strong>
+          <span>{{ c.ultimoMensaje }}</span>
+        </div>
+        @if (c.noLeidos > 0) {
+          <span class="chat-item__badge">{{ c.noLeidos }}</span>
+        }
+      </a>
+    } @empty {
+      <p class="chat-estado">Aún no tienes conversaciones.</p>
+    }
+  </aside>
+
+  <!-- Panel derecho: hilo de mensajes del chat activo -->
+  <section class="chat-hilo">
+    @if (!chatActivo()) {
+      <p class="chat-estado">Elige una conversación para empezar a chatear.</p>
+    } @else {
+      <header class="chat-hilo__head">
+        <a routerLink="/chat" class="chat-hilo__volver">&larr;</a>
+        <strong>&#64;{{ chatActivo()!.nombreUsuario }}</strong>
+      </header>
+
+      <div class="chat-hilo__mensajes">
+        @for (m of mensajes(); track m.id) {
+          <div class="mensaje" [class.mensaje--propio]="m.propio">
+            {{ m.contenido }}
+          </div>
+        }
+      </div>
+
+      <form class="chat-hilo__form" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
+        <input formControlName="contenido" placeholder="Escribe un mensaje..." autocomplete="off">
+        <button type="submit" class="btn btn--primary">Enviar</button>
+      </form>
+    }
+  </section>
+</div>

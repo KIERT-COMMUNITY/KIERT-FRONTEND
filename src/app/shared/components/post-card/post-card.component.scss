@@ -1,0 +1,55 @@
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
+
+.post-card {
+  @include m.card;
+  display: block;
+  padding: v.$sp-5;
+  color: v.$text;
+  transition: border-color 0.15s ease, transform 0.1s ease; // animación mínima al pasar el mouse
+
+  &:hover {
+    text-decoration: none;
+    border-color: v.$accent;
+    transform: translateY(-2px);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: v.$sp-3;
+  }
+
+  &__autor {
+    font-family: v.$font-display;
+    font-size: 0.8rem;
+    color: v.$text-muted;
+  }
+
+  &__titulo {
+    font-size: 1.05rem;
+    margin-bottom: v.$sp-2;
+  }
+
+  &__desc {
+    color: v.$text-muted;
+    font-size: 0.9rem;
+    // Recorta la descripción a 2 líneas para que todas las tarjetas midan parecido
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__foot {
+    display: flex;
+    gap: v.$sp-4;
+    margin-top: v.$sp-4;
+  }
+
+  &__meta {
+    font-size: 0.8rem;
+    color: v.$text-muted;
+  }
+}

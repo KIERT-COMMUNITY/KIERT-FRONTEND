@@ -1,0 +1,52 @@
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
+@use '../../auth/auth-forms' as *; // reutiliza .form-alert de los estilos de auth
+
+.page-title { font-size: 1.3rem; }
+.page-sub { color: v.$text-muted; margin-top: v.$sp-1; margin-bottom: v.$sp-6; font-size: 0.9rem; }
+
+.post-form {
+  @include m.card;
+  padding: v.$sp-6;
+  max-width: 640px;
+
+  select {
+    background: v.$surface-alt;
+    border: 1px solid v.$border;
+    border-radius: v.$radius-sm;
+    padding: v.$sp-3;
+    color: v.$text;
+    width: 100%;
+  }
+
+  input[type="file"] {
+    color: v.$text-muted;
+    font-size: 0.85rem;
+  }
+}
+
+.archivos-lista {
+  list-style: none;
+  margin-top: v.$sp-3;
+  display: flex;
+  flex-direction: column;
+  gap: v.$sp-2;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    background: v.$surface-alt;
+    padding: v.$sp-2 v.$sp-3;
+    border-radius: v.$radius-sm;
+
+    button {
+      background: none;
+      border: none;
+      color: v.$danger;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+  }
+}

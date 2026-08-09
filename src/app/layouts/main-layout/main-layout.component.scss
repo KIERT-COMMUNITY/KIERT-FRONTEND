@@ -1,0 +1,6 @@
+@use '../../../styles/variables' as v;
+
+.main-content {
+  min-height: calc(100vh - 64px - 120px); // resta alto de navbar + footer aprox, evita "salto" al cargar
+  padding-block: v.$sp-6;
+}

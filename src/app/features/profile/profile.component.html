@@ -1,0 +1,24 @@
+<h1 class="page-title">Mi perfil</h1>
+
+<div class="profile-card">
+  <div class="profile-avatar">
+    <!-- Prioridad: previsualización local > foto guardada > inicial del nombre -->
+    @if (previsualizacion()) {
+      <img [src]="previsualizacion()" alt="Vista previa de la foto de perfil">
+    } @else if (auth.usuario()?.fotoPerfilUrl) {
+      <img [src]="auth.usuario()!.fotoPerfilUrl" alt="Foto de perfil">
+    } @else {
+      <span>{{ auth.usuario()?.nombreUsuario?.charAt(0) }}</span>
+    }
+  </div>
+
+  <label class="btn btn--ghost profile-upload-btn">
+    {{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}
+    <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden>
+  </label>
+
+  <div class="profile-info">
+    <p><span>Usuario:</span> &#64;{{ auth.usuario()?.nombreUsuario }}</p>
+    <p><span>Correo:</span> {{ auth.usuario()?.email }}</p>
+  </div>
+</div>

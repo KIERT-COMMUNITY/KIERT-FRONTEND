@@ -1,0 +1,65 @@
+@use '../../../../styles/variables' as v;
+
+.feed-head {
+  display: flex;
+  flex-direction: column;
+  gap: v.$sp-4;
+  margin-bottom: v.$sp-5;
+
+  @media (min-width: v.$bp-tablet) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.feed-sub {
+  color: v.$text-muted;
+  font-size: 0.9rem;
+  margin-top: v.$sp-1;
+}
+
+.feed-filters {
+  display: flex;
+  gap: v.$sp-2;
+  overflow-x: auto;      // en celular, los chips se pueden deslizar horizontal
+  padding-bottom: v.$sp-2;
+  margin-bottom: v.$sp-5;
+}
+
+.chip {
+  flex-shrink: 0;
+  font-family: v.$font-display;
+  font-size: 0.75rem;
+  padding: v.$sp-2 v.$sp-4;
+  border-radius: 999px;
+  border: 1px solid v.$border;
+  background: v.$surface;
+  color: v.$text-muted;
+  cursor: pointer;
+
+  &--active {
+    background: v.$accent;
+    border-color: v.$accent;
+    color: #04211d;
+  }
+}
+
+.feed-estado {
+  color: v.$text-muted;
+  text-align: center;
+  padding: v.$sp-8 0;
+}
+
+.feed-grid {
+  display: grid;
+  gap: v.$sp-4;
+  grid-template-columns: 1fr; // 1 columna en celular
+
+  @media (min-width: v.$bp-tablet) {
+    grid-template-columns: repeat(2, 1fr); // 2 columnas en tablet
+  }
+  @media (min-width: v.$bp-desktop) {
+    grid-template-columns: repeat(3, 1fr); // 3 columnas en escritorio
+  }
+}

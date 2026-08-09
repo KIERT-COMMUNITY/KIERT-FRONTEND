@@ -1,0 +1,18 @@
+<!-- routerLink dinámico: /comunidad/{{ id del post }} -->
+<a class="post-card" [routerLink]="['/comunidad', post().id]">
+  <div class="post-card__head">
+    <span class="badge">{{ etiquetas[post().categoria] }}</span>
+    <span class="post-card__autor">&#64;{{ post().autor.nombreUsuario }}</span>
+  </div>
+
+  <h3 class="post-card__titulo">{{ post().titulo }}</h3>
+  <p class="post-card__desc">{{ post().descripcion }}</p>
+
+  <div class="post-card__foot">
+    <!-- @if: solo se muestra el ícono de adjuntos si el post tiene alguno -->
+    @if (post().adjuntos.length > 0) {
+      <span class="post-card__meta">📎 {{ post().adjuntos.length }}</span>
+    }
+    <span class="post-card__meta">💬 {{ post().totalComentarios }}</span>
+  </div>
+</a>

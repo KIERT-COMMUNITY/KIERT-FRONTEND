@@ -1,0 +1,21 @@
+@use '../../../../styles/variables' as v;
+
+.footer {
+  border-top: 1px solid v.$border;
+  padding-block: v.$sp-5;
+  margin-top: v.$sp-8;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: v.$sp-2;
+    font-size: 0.8rem;
+    color: v.$text-muted;
+    font-family: v.$font-display;
+
+    @media (min-width: v.$bp-tablet) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+}
