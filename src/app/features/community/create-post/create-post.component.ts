@@ -19,9 +19,10 @@ export class CreatePostComponent implements OnInit {
   archivosSeleccionados = signal<File[]>([]);
   estaLogueado = signal<boolean>(false);
 
+  // ✅ Sin emojis
   categorias = [
     { valor: 'caso-hacking', etiqueta: 'Caso de Hacking' },
-    { valor: 'ayuda', etiqueta: 'Piden Ayuda' },
+    { valor: 'ayuda', etiqueta: 'Pedir Ayuda' },
     { valor: 'historia', etiqueta: 'Historia' },
     { valor: 'otro', etiqueta: 'Otro' },
   ];
@@ -43,7 +44,7 @@ export class CreatePostComponent implements OnInit {
   ngOnInit(): void {
     this.estaLogueado.set(this.authService.estaLogueado());
     if (!this.estaLogueado()) {
-      this.errorMsg.set('Debes iniciar sesión para publicar');
+      this.errorMsg.set('Debes iniciar sesion para publicar');
       setTimeout(() => this.router.navigate(['/login']), 2000);
     }
   }
@@ -58,7 +59,7 @@ export class CreatePostComponent implements OnInit {
     const validos = Array.from(input.files).filter((f) => f.size <= 10 * 1024 * 1024);
     
     if (validos.length !== input.files.length) {
-      this.errorMsg.set('Algunos archivos exceden el límite de 10MB');
+      this.errorMsg.set('Algunos archivos exceden el limite de 10MB');
       setTimeout(() => this.errorMsg.set(null), 3000);
     }
     
@@ -69,7 +70,6 @@ export class CreatePostComponent implements OnInit {
     this.archivosSeleccionados.update((lista) => lista.filter((f) => f.name !== nombre));
   }
 
-  // ✅ Publicar - El backend sube los archivos a Cloudinary
   publicar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -79,7 +79,7 @@ export class CreatePostComponent implements OnInit {
     }
 
     if (!this.authService.estaLogueado()) {
-      this.errorMsg.set('Debes iniciar sesión para publicar');
+      this.errorMsg.set('Debes iniciar sesion para publicar');
       setTimeout(() => this.router.navigate(['/login']), 2000);
       return;
     }
@@ -94,45 +94,18 @@ export class CreatePostComponent implements OnInit {
     formData.append('descripcion', datos.descripcion!);
     if (datos.link) formData.append('link', datos.link);
     
-    // ✅ Agregar archivos al FormData (el backend los subirá a Cloudinary)
     this.archivosSeleccionados().forEach((archivo) => {
       formData.append('archivos', archivo);
     });
 
-    console.log('📤 Enviando post con', this.archivosSeleccionados().length, 'archivo(s)');
-
     this.postService.crear(formData).subscribe({
       next: (nuevoPost) => {
-        console.log('✅ Post creado exitosamente:', nuevoPost);
         this.publicando.set(false);
         this.router.navigate(['/comunidad', nuevoPost.id]);
       },
       error: (error) => {
-        console.error('❌ Error al publicar:', error);
-        
-        let mensajeError = 'No se pudo publicar. Intenta nuevamente.';
-        
-        if (error.status === 0) {
-          mensajeError = 'Error de conexión con el servidor. Verifica que el backend esté corriendo.';
-        } else if (error.status === 401) {
-          mensajeError = 'Sesión expirada. Inicia sesión nuevamente.';
-          this.authService.logout();
-          setTimeout(() => this.router.navigate(['/login']), 1500);
-        } else if (error.status === 403) {
-          mensajeError = 'No tienes permiso para publicar.';
-        } else if (error.status === 400) {
-          mensajeError = 'Datos inválidos. Revisa el formulario.';
-          if (error.error?.errors) {
-            const errores = error.error.errors.map((e: any) => e.message).join(', ');
-            mensajeError = 'Errores: ' + errores;
-          }
-        } else if (error.error?.mensaje) {
-          mensajeError = error.error.mensaje;
-        } else if (error.message) {
-          mensajeError = error.message;
-        }
-        
-        this.errorMsg.set(mensajeError);
+        console.error('Error al publicar:', error);
+        this.errorMsg.set('No se pudo publicar. Intenta nuevamente.');
         this.publicando.set(false);
       },
     });

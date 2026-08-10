@@ -1,5 +1,4 @@
-// footer.component.ts -> pie de página simple, se repite en todas las pantallas
-// internas (se incluye una sola vez desde main-layout).
+// footer.component.ts
 import { Component } from '@angular/core';
 
 @Component({
@@ -9,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
-  anioActual = new Date().getFullYear(); // se muestra dinámico en el HTML
+  anioActual = new Date().getFullYear();
 }

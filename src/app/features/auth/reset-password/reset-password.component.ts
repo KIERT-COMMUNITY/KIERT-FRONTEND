@@ -1,7 +1,7 @@
 // reset-password.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';  // ✅ Solo Router, no RouterLink
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -14,7 +14,7 @@ function contraseñasIgualesValidator(grupo: AbstractControl): ValidationErrors 
 @Component({
   selector: 'kiert-reset-password',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],  // ✅ Sin RouterLink
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
 })
@@ -53,8 +53,6 @@ export class ResetPasswordComponent implements OnInit {
     if (!tokenParam) {
       this.errorMsg.set('El enlace no es válido o expiró.');
     }
-    
-    console.log('🔑 Token de recuperación:', tokenParam ? 'Presente' : 'No encontrado');
   }
 
   enviar(): void {
@@ -79,31 +77,21 @@ export class ResetPasswordComponent implements OnInit {
     this.cargando.set(true);
     this.errorMsg.set(null);
 
-    console.log('🔄 Restableciendo contraseña...');
-
     this.auth.restablecerContrasena(tokenValue, password!).subscribe({
       next: () => {
-        console.log('✅ Contraseña restablecida exitosamente');
         this.exito.set(true);
         this.cargando.set(false);
-        
-        setTimeout(() => {
-          this.irAlLogin();
-        }, 3000);
+        setTimeout(() => this.irAlLogin(), 3000);
       },
       error: (error) => {
-        console.error('❌ Error al restablecer contraseña:', error);
-        
         let mensaje = 'El enlace expiró o ya fue usado. Solicita uno nuevo.';
-        
         if (error.status === 400) {
           mensaje = error.error?.mensaje || 'El enlace no es válido.';
         } else if (error.status === 404) {
-          mensaje = 'Token no encontrado. Solicita un nuevo enlace de recuperación.';
+          mensaje = 'Token no encontrado. Solicita un nuevo enlace.';
         } else if (error.error?.mensaje) {
           mensaje = error.error.mensaje;
         }
-        
         this.errorMsg.set(mensaje);
         this.cargando.set(false);
       },

@@ -6,7 +6,7 @@
 
 import 'zone.js';
 
-// ✅ Polyfills adicionales por si fallan los del index.html
+// Polyfills adicionales por si fallan los del index.html
 if (typeof (window as any).global === 'undefined') {
   (window as any).global = window;
 }

@@ -1,65 +1,394 @@
-@use '../../../../styles/variables' as v;
+// feed.component.scss - Anuncios más pequeños
+.feed-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 16px;
+}
 
+// ========== LOGO ==========
+.feed-logo-section {
+  text-align: center;
+  padding: 16px 0 12px;
+  border-bottom: 1px solid #26313c;
+  margin-bottom: 16px;
+}
+
+.feed-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.feed-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  background: transparent;
+  border: none;
+}
+
+.feed-logo-prompt {
+  color: #2dd4bf;
+}
+
+.feed-logo-name {
+  color: #e6edf3;
+}
+
+.feed-logo-desc {
+  color: #8b98a5;
+  font-size: 0.65rem;
+  margin: 2px 0 0;
+  opacity: 0.6;
+}
+
+// ========== HEADER ==========
 .feed-head {
   display: flex;
   flex-direction: column;
-  gap: v.$sp-4;
-  margin-bottom: v.$sp-5;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #131a22;
+  border-radius: 10px;
+  border: 1px solid #26313c;
 
-  @media (min-width: v.$bp-tablet) {
+  @media (min-width: 768px) {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    padding: 16px 20px;
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #e6edf3;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: #2dd4bf;
+    color: #0d1117;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      opacity: 0.85;
+      transform: translateY(-2px);
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+    }
+
+    .btn-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
   }
 }
 
 .feed-sub {
-  color: v.$text-muted;
-  font-size: 0.9rem;
-  margin-top: v.$sp-1;
+  color: #8b98a5;
+  font-size: 0.8rem;
+  margin: 2px 0 0;
 }
 
-.feed-filters {
+// ========== ESTADOS ==========
+.feed-estado {
   display: flex;
-  gap: v.$sp-2;
-  overflow-x: auto;      // en celular, los chips se pueden deslizar horizontal
-  padding-bottom: v.$sp-2;
-  margin-bottom: v.$sp-5;
-}
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  color: #8b98a5;
+  text-align: center;
+  background: #131a22;
+  border-radius: 10px;
+  border: 1px solid #26313c;
+  min-height: 150px;
 
-.chip {
-  flex-shrink: 0;
-  font-family: v.$font-display;
-  font-size: 0.75rem;
-  padding: v.$sp-2 v.$sp-4;
-  border-radius: 999px;
-  border: 1px solid v.$border;
-  background: v.$surface;
-  color: v.$text-muted;
-  cursor: pointer;
-
-  &--active {
-    background: v.$accent;
-    border-color: v.$accent;
-    color: #04211d;
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #26313c;
+    border-top-color: #2dd4bf;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
   }
 }
 
-.feed-estado {
-  color: v.$text-muted;
-  text-align: center;
-  padding: v.$sp-8 0;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .feed-grid {
-  display: grid;
-  gap: v.$sp-4;
-  grid-template-columns: 1fr; // 1 columna en celular
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-  @media (min-width: v.$bp-tablet) {
-    grid-template-columns: repeat(2, 1fr); // 2 columnas en tablet
+// ========== BANNER DE ANUNCIO PEQUEÑO ==========
+.ad-banner {
+  margin-top: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+
+  &:hover {
+    transform: scale(1.01);
   }
-  @media (min-width: v.$bp-desktop) {
-    grid-template-columns: repeat(3, 1fr); // 3 columnas en escritorio
+}
+
+.ad-banner-link {
+  display: block;
+  text-decoration: none;
+}
+
+.ad-banner-img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  display: block;
+}
+
+// ========== CARRUSEL DE ANUNCIOS PEQUEÑOS ==========
+.ad-carousel {
+  margin-top: 12px;
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+.ad-carousel-track {
+  display: flex;
+  gap: 8px;
+  animation: scrollAds 20s linear infinite;
+  width: max-content;
+}
+
+.ad-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #1b232c;
+  border: 1px solid #26313c;
+  border-radius: 6px;
+  min-width: 100px;
+  transition: all 0.3s;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: #2dd4bf;
+    transform: scale(1.03);
+  }
+}
+
+.ad-card-img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.ad-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 4px 2px 2px;
+}
+
+.ad-card-text {
+  font-size: 0.6rem;
+  color: #e6edf3;
+  white-space: nowrap;
+}
+
+.ad-card-tag {
+  font-size: 0.5rem;
+  color: #0d1117;
+  background: #2dd4bf;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  display: inline-block;
+  width: fit-content;
+}
+
+@keyframes scrollAds {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+// ========== ANUNCIO HORIZONTAL PEQUEÑO ==========
+.ad-footer {
+  margin-top: 16px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #1b232c, #131a22);
+  border: 1px solid #26313c;
+  border-radius: 8px;
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: #2dd4bf;
+    box-shadow: 0 2px 12px rgba(45, 212, 191, 0.08);
+  }
+}
+
+.ad-footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ad-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ad-footer-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.ad-footer-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.ad-footer-title {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #e6edf3;
+}
+
+.ad-footer-desc {
+  font-size: 0.6rem;
+  color: #8b98a5;
+}
+
+.ad-footer-btn {
+  padding: 4px 14px;
+  background: #2dd4bf;
+  color: #0d1117;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.7rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: none;
+  }
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 480px) {
+  .feed-container {
+    padding: 6px;
+  }
+
+  .feed-logo-section {
+    padding: 12px 0 8px;
+  }
+
+  .feed-logo {
+    font-size: 1rem;
+  }
+
+  .feed-logo-img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .feed-head {
+    padding: 10px 12px;
+    border-radius: 0;
+  }
+
+  .feed-head h1 {
+    font-size: 1rem;
+  }
+
+  .feed-head .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+
+  .ad-banner-img {
+    height: 60px;
+  }
+
+  .ad-card {
+    min-width: 80px;
+    padding: 3px 6px;
+  }
+
+  .ad-card-img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ad-card-text {
+    font-size: 0.5rem;
+  }
+
+  .ad-card-tag {
+    font-size: 0.45rem;
+    padding: 1px 4px;
+  }
+
+  .ad-footer {
+    padding: 6px 10px;
+  }
+
+  .ad-footer-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .ad-footer-title {
+    font-size: 0.65rem;
+  }
+
+  .ad-footer-desc {
+    font-size: 0.55rem;
+  }
+
+  .ad-footer-btn {
+    font-size: 0.6rem;
+    padding: 3px 10px;
   }
 }

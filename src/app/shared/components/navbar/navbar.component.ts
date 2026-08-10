@@ -1,5 +1,4 @@
-// navbar.component.ts -> barra superior, visible en toda la comunidad.
-// Contiene el menú hamburguesa para celular (RF pedido explícitamente).
+// navbar.component.ts
 import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,17 +11,16 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './navbar.component.scss',
 })
 export class NavbarComponent {
-  // signal booleano: controla si el menú está abierto en pantallas chicas
   menuAbierto = signal(false);
 
   constructor(public auth: AuthService) {}
 
   alternarMenu(): void {
-    this.menuAbierto.update((valor) => !valor); // invierte true/false
+    this.menuAbierto.update((valor) => !valor);
   }
 
   cerrarMenu(): void {
-    this.menuAbierto.set(false); // se llama al hacer click en un link, para que el menú se cierre solo
+    this.menuAbierto.set(false);
   }
 
   cerrarSesion(): void {

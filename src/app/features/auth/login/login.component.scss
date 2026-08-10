@@ -1,1 +1,205 @@
-@use '../auth-forms' as *;
+// login.component.scss - Sin marco gigante
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: #0d1117;
+  // ✅ SIN min-height: 100vh - el contenido se adapta naturalmente
+}
+
+// ========== HEADER ==========
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  display: block;
+  margin: 0 auto 6px;
+}
+
+.login-header-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.login-prompt {
+  color: #2dd4bf;
+}
+
+.login-name {
+  color: #e6edf3;
+}
+
+.login-desc {
+  color: #8b98a5;
+  font-size: 0.7rem;
+  margin: 4px 0 0;
+  opacity: 0.6;
+}
+
+// ========== FORMULARIO ==========
+.login-form {
+  width: 100%;
+  max-width: 300px;
+}
+
+// ========== CAMPOS ==========
+.field {
+  margin-bottom: 10px;
+
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #e6edf3;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    border-radius: 0;
+
+    &::placeholder {
+      color: #8b98a5;
+      opacity: 0.3;
+      font-size: 0.8rem;
+    }
+
+    &:focus {
+      outline: none;
+      border-bottom-color: #2dd4bf;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    &.is-invalid {
+      border-bottom-color: #f85149;
+    }
+  }
+
+  .error-msg {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.65rem;
+    color: #f85149;
+  }
+}
+
+// ========== OPCIONES ==========
+.field-options {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+
+  .forgot-link {
+    font-size: 0.7rem;
+    color: #8b98a5;
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #2dd4bf;
+    }
+  }
+}
+
+// ========== ALERTA ==========
+.form-alert {
+  padding: 6px 12px;
+  background: rgba(248, 81, 73, 0.06);
+  border: 1px solid #f85149;
+  color: #f85149;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+// ========== BOTON ==========
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  background: #2dd4bf;
+  color: #0d1117;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(45, 212, 191, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========== REGISTRO ==========
+.register-link {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #8b98a5;
+  margin-top: 14px;
+
+  a {
+    color: #2dd4bf;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 480px) {
+  .login-page {
+    padding: 20px 16px;
+  }
+
+  .login-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .login-header-text {
+    font-size: 1.1rem;
+  }
+
+  .login-desc {
+    font-size: 0.65rem;
+  }
+
+  .login-form {
+    max-width: 100%;
+  }
+
+  .field input {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+
+  .login-btn {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+}

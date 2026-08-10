@@ -1,21 +1,20 @@
-// forgot-password.component.ts -> pantalla "olvidé mi contraseña".
-// Paso 1 del flujo: el usuario ingresa su correo y el backend le envía
-// un link con un token temporal (ese link abre reset-password con ?token=...).
+// forgot-password.component.ts
 import { Component, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'kiert-forgot-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
 })
 export class ForgotPasswordComponent {
   cargando = signal(false);
-  enviado = signal(false); // true cuando el backend ya confirmó el envío del correo
+  enviado = signal(false);
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -33,10 +32,14 @@ export class ForgotPasswordComponent {
     this.cargando.set(true);
 
     this.auth.solicitarRecuperacion(this.form.getRawValue().email!).subscribe({
-      // Por seguridad, se muestra el mismo mensaje exista o no ese correo
-      // (así nadie puede "adivinar" qué correos están registrados)
-      next: () => { this.enviado.set(true); this.cargando.set(false); },
-      error: () => { this.enviado.set(true); this.cargando.set(false); },
+      next: () => { 
+        this.enviado.set(true); 
+        this.cargando.set(false); 
+      },
+      error: () => { 
+        this.enviado.set(true); 
+        this.cargando.set(false); 
+      },
     });
   }
 }

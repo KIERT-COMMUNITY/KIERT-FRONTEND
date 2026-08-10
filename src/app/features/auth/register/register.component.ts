@@ -1,11 +1,10 @@
-// register.component.ts -> formulario de registro de un nuevo usuario.
+// register.component.ts
 import { Component, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { CommonModule } from '@angular/common';
 
-// Validador personalizado: compara "password" y "confirmarPassword".
-// En Angular, un validador de grupo recibe el FormGroup completo (no un solo control).
 function contraseñasIgualesValidator(grupo: AbstractControl): ValidationErrors | null {
   const pass = grupo.get('password')?.value;
   const confirm = grupo.get('confirmarPassword')?.value;
@@ -15,7 +14,7 @@ function contraseñasIgualesValidator(grupo: AbstractControl): ValidationErrors 
 @Component({
   selector: 'kiert-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -27,11 +26,10 @@ export class RegisterComponent {
     {
       nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
       email: ['', [Validators.required, Validators.email]],
-      // pattern exige al menos: 1 mayúscula, 1 número y 8 caracteres -> contraseña "segura"
       password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/)]],
       confirmarPassword: ['', [Validators.required]],
     },
-    { validators: contraseñasIgualesValidator } // validador a nivel de todo el grupo
+    { validators: contraseñasIgualesValidator }
   );
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {}
@@ -54,7 +52,6 @@ export class RegisterComponent {
     this.auth.registro({ nombreUsuario: nombreUsuario!, email: email!, password: password! }).subscribe({
       next: () => this.router.navigate(['/comunidad']),
       error: (err) => {
-        // 409 = correo o usuario ya existe (código sugerido para el backend)
         this.errorMsg.set(err.status === 409 ? 'Ese correo o usuario ya está registrado.' : 'No se pudo crear la cuenta.');
         this.cargando.set(false);
       },

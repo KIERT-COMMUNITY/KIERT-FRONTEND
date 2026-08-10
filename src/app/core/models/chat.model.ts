@@ -1,9 +1,9 @@
-// chat.model.ts -> forma de una conversación y un mensaje de chat.
+// chat.model.ts
 export interface Conversacion {
   usuarioId: number;
   nombreUsuario: string;
   fotoPerfilUrl?: string;
-  ultimoMensaje: string;
+  ultimoMensaje?: string;
   ultimaConexion?: string;
   noLeidos: number;
 }
@@ -13,5 +13,20 @@ export interface Mensaje {
   emisorId: number;
   contenido: string;
   fechaEnvio: string;
-  propio: boolean; // true si el mensaje lo envió el usuario logueado (para alinearlo a la derecha)
+  propio: boolean;
+}
+
+export interface SolicitudContacto {
+  id: number;
+  usuarioId: number;
+  nombreUsuario: string;
+  fotoPerfilUrl?: string;
+  estado: 'pendiente' | 'aceptada' | 'rechazada';
+  fechaSolicitud: string;
+}
+
+export interface UsuarioDisponible {
+  id: number;
+  nombreUsuario: string;
+  fotoPerfilUrl?: string;
 }

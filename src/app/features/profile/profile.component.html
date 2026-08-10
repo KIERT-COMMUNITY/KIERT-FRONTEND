@@ -1,24 +1,152 @@
-<h1 class="page-title">Mi perfil</h1>
-
-<div class="profile-card">
-  <div class="profile-avatar">
-    <!-- Prioridad: previsualización local > foto guardada > inicial del nombre -->
-    @if (previsualizacion()) {
-      <img [src]="previsualizacion()" alt="Vista previa de la foto de perfil">
-    } @else if (auth.usuario()?.fotoPerfilUrl) {
-      <img [src]="auth.usuario()!.fotoPerfilUrl" alt="Foto de perfil">
-    } @else {
-      <span>{{ auth.usuario()?.nombreUsuario?.charAt(0) }}</span>
-    }
+<!-- profile.component.html - Perfil moderno -->
+<div class="profile-container">
+  
+  <!-- ========== HEADER ========== -->
+  <div class="profile-header">
+    <h1 class="page-title">Mi Perfil</h1>
+    <div class="profile-header__actions">
+      <button class="btn-secondary" (click)="toggleEditar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        {{ editando() ? 'Cancelar' : 'Editar perfil' }}
+      </button>
+    </div>
   </div>
 
-  <label class="btn btn--ghost profile-upload-btn">
-    {{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}
-    <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden>
-  </label>
+  <!-- ========== MENSAJES ========== -->
+  @if (errorMsg()) {
+    <div class="alert alert-error">
+      {{ errorMsg() }}
+      <button (click)="errorMsg.set(null)">✕</button>
+    </div>
+  }
+  @if (exitoMsg()) {
+    <div class="alert alert-success">
+      {{ exitoMsg() }}
+      <button (click)="exitoMsg.set(null)">✕</button>
+    </div>
+  }
 
-  <div class="profile-info">
-    <p><span>Usuario:</span> &#64;{{ auth.usuario()?.nombreUsuario }}</p>
-    <p><span>Correo:</span> {{ auth.usuario()?.email }}</p>
+  <!-- ========== CARD PRINCIPAL ========== -->
+  <div class="profile-card">
+    
+    <!-- ========== AVATAR ========== -->
+    <div class="profile-avatar-container">
+      <div class="profile-avatar">
+        @if (previsualizacion()) {
+          <img [src]="previsualizacion()" alt="Vista previa">
+        } @else if (fotoPerfil()) {
+          <img [src]="fotoPerfil()!" alt="Foto de perfil">
+        } @else {
+          <span class="profile-avatar__inicial">{{ inicial() }}</span>
+        }
+        @if (subiendoFoto()) {
+          <div class="profile-avatar__loading">
+            <div class="spinner-small"></div>
+          </div>
+        }
+      </div>
+      
+      <label class="btn-upload">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        {{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}
+        <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden>
+      </label>
+    </div>
+
+    <!-- ========== INFORMACIÓN ========== -->
+    <div class="profile-info">
+      <div class="profile-info__item">
+        <span class="profile-info__label">Usuario</span>
+        @if (editando()) {
+          <input 
+            type="text" 
+            class="profile-info__input"
+            formControlName="nombreUsuario"
+            [class.is-invalid]="formEditar.get('nombreUsuario')?.invalid && formEditar.get('nombreUsuario')?.touched"
+          >
+          @if (formEditar.get('nombreUsuario')?.invalid && formEditar.get('nombreUsuario')?.touched) {
+            <span class="profile-info__error">3-20 caracteres</span>
+          }
+        } @else {
+          <span class="profile-info__value">&#64;{{ nombreCompleto() }}</span>
+        }
+      </div>
+
+      <div class="profile-info__item">
+        <span class="profile-info__label">Correo</span>
+        @if (editando()) {
+          <input 
+            type="email" 
+            class="profile-info__input"
+            formControlName="email"
+            [class.is-invalid]="formEditar.get('email')?.invalid && formEditar.get('email')?.touched"
+          >
+          @if (formEditar.get('email')?.invalid && formEditar.get('email')?.touched) {
+            <span class="profile-info__error">Email inválido</span>
+          }
+        } @else {
+          <span class="profile-info__value">{{ email() }}</span>
+        }
+      </div>
+
+      <!-- ========== BOTONES DE EDICIÓN ========== -->
+      @if (editando()) {
+        <div class="profile-info__actions">
+          <button class="btn-save" (click)="guardarCambios()" [disabled]="cargando()">
+            {{ cargando() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+          <button class="btn-cancel" (click)="toggleEditar()">Cancelar</button>
+        </div>
+      }
+    </div>
+
+    <!-- ========== ESTADÍSTICAS ========== -->
+    <div class="profile-stats">
+      <div class="profile-stats__item">
+        <span class="profile-stats__number">{{ totalPosts() }}</span>
+        <span class="profile-stats__label">Publicaciones</span>
+      </div>
+      <div class="profile-stats__item">
+        <span class="profile-stats__number">{{ totalComentarios() }}</span>
+        <span class="profile-stats__label">Comentarios</span>
+      </div>
+      <div class="profile-stats__item">
+        <span class="profile-stats__number">{{ totalConversaciones() }}</span>
+        <span class="profile-stats__label">Conversaciones</span>
+      </div>
+    </div>
+
+    <!-- ========== ACCIONES ========== -->
+    <div class="profile-actions">
+      <button class="btn-action" (click)="irAlChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        Mensajes
+      </button>
+      <button class="btn-action" routerLink="/comunidad">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4v16h16"/>
+          <path d="M8 12l4-4 4 4"/>
+          <path d="M12 8v8"/>
+        </svg>
+        Mis publicaciones
+      </button>
+      <button class="btn-action btn-danger" (click)="logout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Cerrar sesión
+      </button>
+    </div>
   </div>
 </div>

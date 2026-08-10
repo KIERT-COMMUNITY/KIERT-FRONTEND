@@ -1,7 +1,7 @@
 @use '../../../../styles/variables' as v;
 @use '../../../../styles/mixins' as m;
 
-// ✅ ESTILOS DE CARGA Y ERROR
+// ========== LOADING ==========
 .loading-container, .error-container {
   @include m.card;
   padding: v.$sp-6;
@@ -23,11 +23,12 @@
   to { transform: rotate(360deg); }
 }
 
-// ✅ POST DETALLE
+// ========== POST DETALLE ==========
 .post-detail {
   @include m.card;
   padding: v.$sp-6;
   margin-bottom: v.$sp-6;
+  border-radius: v.$radius-lg;
 
   // HEADER
   &__header {
@@ -47,7 +48,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: v.$accent;
+    background: linear-gradient(135deg, v.$accent, v.$accent-dark);
     color: v.$bg;
     display: flex;
     align-items: center;
@@ -70,7 +71,7 @@
   }
 
   &__badge {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: v.$accent;
     background: rgba(45, 212, 191, 0.1);
     padding: v.$sp-1 v.$sp-2;
@@ -100,7 +101,7 @@
     margin-bottom: v.$sp-4;
   }
 
-  // ✅ GALERÍA DE IMÁGENES (estilo Instagram)
+  // GALERÍA
   &__galeria {
     display: grid;
     grid-template-columns: 1fr;
@@ -114,6 +115,7 @@
       
       .post-detail__imagen:first-child {
         grid-column: span 2;
+        grid-row: span 2;
       }
     }
   }
@@ -124,6 +126,7 @@
     overflow: hidden;
     background: v.$surface-alt;
     aspect-ratio: 16/9;
+    border-radius: v.$radius-sm;
 
     img {
       width: 100%;
@@ -135,25 +138,9 @@
         transform: scale(1.03);
       }
     }
-
-    .imagen-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 2rem;
-      font-weight: 700;
-      pointer-events: none;
-    }
   }
 
-  // ✅ ADJUNTOS
+  // ADJUNTOS
   &__adjuntos {
     margin-top: v.$sp-4;
     padding-top: v.$sp-4;
@@ -199,14 +186,9 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .adjunto-peso {
-      font-size: 0.7rem;
-      color: v.$text-muted;
-    }
   }
 
-  // ✅ ESTADÍSTICAS
+  // ESTADÍSTICAS
   &__stats {
     display: flex;
     gap: v.$sp-5;
@@ -228,14 +210,30 @@
   }
 }
 
-// ✅ COMENTARIOS (estilo Facebook)
+// ========== COMENTARIOS ==========
 .comentarios {
   @include m.card;
   padding: v.$sp-6;
+  border-radius: v.$radius-lg;
 
-  h3 {
-    font-size: 1.1rem;
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-2;
     margin-bottom: v.$sp-4;
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    &__count {
+      font-size: 0.8rem;
+      color: v.$text-muted;
+      background: v.$surface-alt;
+      padding: v.$sp-1 v.$sp-2;
+      border-radius: v.$radius-sm;
+    }
   }
 
   &__form {
@@ -249,13 +247,19 @@
     background: v.$surface-alt;
     border-radius: v.$radius-lg;
     padding: v.$sp-2;
+    border: 1px solid v.$border;
+    transition: border-color 0.2s;
+
+    &:focus-within {
+      border-color: v.$accent;
+    }
   }
 
   &__avatar-mini {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: v.$accent;
+    background: linear-gradient(135deg, v.$accent, v.$accent-dark);
     color: v.$bg;
     display: flex;
     align-items: center;
@@ -277,20 +281,25 @@
     &::placeholder {
       color: v.$text-muted;
     }
+
+    &:disabled {
+      opacity: 0.5;
+    }
   }
 
   &__btn {
-    padding: v.$sp-2 v.$sp-4;
+    padding: v.$sp-2 v.$sp-5;
     background: v.$accent;
     color: v.$bg;
     border: none;
     border-radius: v.$radius-sm;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
 
     &:hover:not(:disabled) {
       opacity: 0.8;
+      transform: scale(1.02);
     }
 
     &:disabled {
@@ -315,12 +324,19 @@
 .comentario {
   display: flex;
   gap: v.$sp-3;
+  padding: v.$sp-3;
+  border-radius: v.$radius-sm;
+  transition: background 0.2s;
+
+  &:hover {
+    background: v.$surface-alt;
+  }
 
   &__avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: v.$accent;
+    background: linear-gradient(135deg, v.$accent, v.$accent-dark);
     color: v.$bg;
     display: flex;
     align-items: center;
@@ -358,7 +374,7 @@
   }
 }
 
-// ✅ Responsive
+// ========== RESPONSIVE ==========
 @media (max-width: v.$bp-tablet) {
   .post-detail {
     padding: v.$sp-4;
@@ -371,10 +387,6 @@
       &.galeria-multiple {
         grid-template-columns: 1fr;
       }
-    }
-
-    &__imagen {
-      aspect-ratio: 16/10;
     }
   }
 
@@ -400,15 +412,6 @@
 
     &__desc {
       font-size: 0.9rem;
-    }
-
-    &__imagen {
-      aspect-ratio: 16/9;
-    }
-
-    &__stats {
-      flex-wrap: wrap;
-      gap: v.$sp-3;
     }
   }
 

@@ -1,34 +1,121 @@
-<div class="feed-head">
-  <div>
-    <h1>Comunidad</h1>
-    <p class="feed-sub">Casos, dudas e historias reales para ayudarse entre todos.</p>
+<!-- feed.component.html -->
+<div class="feed-container">
+  
+  <!-- LOGO DEL SITIO -->
+  <div class="feed-logo-section">
+    <div class="feed-logo">
+      <img src="/assets/logokiert.png" alt="Kiert" class="feed-logo-img">
+      <div class="feed-logo-text">
+        <span class="feed-logo-prompt">&gt;_</span>
+        <span class="feed-logo-name">kiert</span>
+      </div>
+    </div>
+    <p class="feed-logo-desc">Comunidad para compartir casos y ayudarse</p>
   </div>
-  <a routerLink="/comunidad/nueva-publicacion" class="btn btn--primary">+ Publicar</a>
-</div>
 
-<!-- Chips de filtro: recorre "filtros" con @for -->
-<div class="feed-filters">
-  @for (f of filtros; track f.valor) {
-    <button
-      type="button"
-      class="chip"
-      [class.chip--active]="filtroActivo() === f.valor"
-      (click)="cambiarFiltro(f.valor)"
-    >
-      {{ f.etiqueta }}
-    </button>
+  <!-- HEADER DEL FEED -->
+  <div class="feed-head">
+    <div class="feed-head__info">
+      <h1>Comunidad</h1>
+      <p class="feed-sub">Casos, dudas e historias reales para ayudarse entre todos.</p>
+    </div>
+    <a routerLink="/comunidad/nueva-publicacion" class="btn btn--primary">
+      <span class="btn-icon">+</span> Publicar
+    </a>
+  </div>
+
+  <!-- CONTENIDO -->
+  @if (cargando()) {
+    <div class="feed-estado">
+      <div class="spinner"></div>
+      <p>Cargando publicaciones...</p>
+    </div>
+  } @else if (posts().length === 0) {
+    <div class="feed-estado feed-estado--empty">
+      <p>Todavia no hay publicaciones. Se el primero en publicar.</p>
+    </div>
+  } @else {
+    <div class="feed-grid">
+      @for (post of posts(); track post.id) {
+        <kiert-post-card [post]="post"></kiert-post-card>
+      }
+    </div>
   }
-</div>
 
-@if (cargando()) {
-  <p class="feed-estado">Cargando publicaciones...</p>
-} @else if (postsFiltrados().length === 0) {
-  <p class="feed-estado">Todavía no hay publicaciones en esta categoría.</p>
-} @else {
-  <div class="feed-grid">
-    <!-- track post.id: ayuda a Angular a identificar cada tarjeta y no re-renderizar todo -->
-    @for (post of postsFiltrados(); track post.id) {
-      <kiert-post-card [post]="post"></kiert-post-card>
-    }
+  <!-- BANNER DE ANUNCIO PEQUEÑO -->
+  <div class="ad-banner">
+    <a href="#" class="ad-banner-link">
+      <img src="/assets/images/anuncio/anuncio1.png" alt="Anuncio" class="ad-banner-img">
+    </a>
   </div>
-}
+
+  <!-- CARRUSEL DE ANUNCIOS PEQUEÑOS -->
+  <div class="ad-carousel">
+    <div class="ad-carousel-track">
+      <div class="ad-card">
+        <img src="/assets/images/anuncio/anuncio-1.jpg" alt="Anuncio 1" class="ad-card-img">
+        <div class="ad-card-info">
+          <span class="ad-card-text">Oferta</span>
+          <span class="ad-card-tag">50%</span>
+        </div>
+      </div>
+      <div class="ad-card">
+        <img src="/assets/images/anuncio/anuncio-2.jpg" alt="Anuncio 2" class="ad-card-img">
+        <div class="ad-card-info">
+          <span class="ad-card-text">Curso</span>
+          <span class="ad-card-tag">Gratis</span>
+        </div>
+      </div>
+      <div class="ad-card">
+        <img src="/assets/images/anuncio/anuncio-3.jpg" alt="Anuncio 3" class="ad-card-img">
+        <div class="ad-card-info">
+          <span class="ad-card-text">Juego</span>
+          <span class="ad-card-tag">Popular</span>
+        </div>
+      </div>
+      <div class="ad-card">
+        <img src="/assets/images/anuncio/anuncio-4.jpg" alt="Anuncio 4" class="ad-card-img">
+        <div class="ad-card-info">
+          <span class="ad-card-text">App</span>
+          <span class="ad-card-tag">Gratis</span>
+        </div>
+      </div>
+      <div class="ad-card">
+        <img src="/assets/images/anuncio/anuncio-5.jpg" alt="Anuncio 5" class="ad-card-img">
+        <div class="ad-card-info">
+          <span class="ad-card-text">Oportunidad</span>
+          <span class="ad-card-tag">Urgente</span>
+        </div>
+      </div>
+      <!-- DUPLICADO PARA EFECTO INFINITO -->
+      <div class="ad-card">
+        <img src="/assets/images/anuncio/anuncio-1.jpg" alt="Anuncio 1" class="ad-card-img">
+        <div class="ad-card-info">
+          <span class="ad-card-text">Oferta</span>
+          <span class="ad-card-tag">50%</span>
+        </div>
+      </div>
+      <div class="ad-card">
+        <img src="/assets/images/anuncio/anuncio-2.jpg" alt="Anuncio 2" class="ad-card-img">
+        <div class="ad-card-info">
+          <span class="ad-card-text">Curso</span>
+          <span class="ad-card-tag">Gratis</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANUNCIO HORIZONTAL PEQUEÑO (PIE) -->
+  <div class="ad-footer">
+    <div class="ad-footer-content">
+      <div class="ad-footer-left">
+        <img src="/assets/images/anuncio/banner-1.jpg" alt="Anuncio" class="ad-footer-img">
+        <div class="ad-footer-text">
+          <span class="ad-footer-title">Publicidad</span>
+          <span class="ad-footer-desc">Contacta para anunciar</span>
+        </div>
+      </div>
+      <a href="#" class="ad-footer-btn">Contactar</a>
+    </div>
+  </div>
+</div>

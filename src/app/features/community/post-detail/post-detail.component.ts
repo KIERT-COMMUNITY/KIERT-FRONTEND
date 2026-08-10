@@ -1,4 +1,4 @@
-// post-detail.component.ts - Actualizado con métodos para imágenes
+// post-detail.component.ts
 import { Component, OnInit, input, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -15,8 +15,7 @@ import { Post, Comentario, Adjunto } from '../../../core/models/post.model';
 })
 export class PostDetailComponent implements OnInit {
   private postService = inject(PostService);
-  // ✅ HACER PUBLICO AUTH SERVICE
-  public authService = inject(AuthService);  // <-- Cambiado de private a public
+  public authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
   id = input.required<string>();
@@ -28,11 +27,12 @@ export class PostDetailComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
 
+  // ✅ Sin emojis
   etiquetas: Record<string, string> = {
-    'caso-hacking': '🔐 Caso de hacking',
-    ayuda: '🆘 Pide ayuda',
-    historia: '📖 Historia',
-    otro: '📌 Otro',
+    'caso-hacking': 'Caso de hacking',
+    ayuda: 'Pide ayuda',
+    historia: 'Historia',
+    otro: 'Otro',
   };
 
   formComentario = this.fb.group({
@@ -49,13 +49,11 @@ export class PostDetailComponent implements OnInit {
   cargarPost(postId: number): void {
     this.postService.obtenerPorId(postId).subscribe({
       next: (data) => {
-        console.log('📥 Post cargado:', data);
         this.post.set(data);
         this.cargando.set(false);
       },
-      error: (error) => {
-        console.error('❌ Error al cargar post:', error);
-        this.errorMsg.set('Error al cargar la publicación');
+      error: () => {
+        this.errorMsg.set('Error al cargar la publicacion');
         this.cargando.set(false);
       }
     });
@@ -64,11 +62,10 @@ export class PostDetailComponent implements OnInit {
   cargarComentarios(postId: number): void {
     this.postService.listarComentarios(postId).subscribe({
       next: (data) => {
-        console.log('📥 Comentarios cargados:', data.length);
         this.comentarios.set(data);
       },
-      error: (error) => {
-        console.error('❌ Error al cargar comentarios:', error);
+      error: () => {
+        console.error('Error al cargar comentarios');
       }
     });
   }
@@ -80,7 +77,7 @@ export class PostDetailComponent implements OnInit {
     }
 
     if (!this.authService.estaLogueado()) {
-      this.errorMsg.set('Debes iniciar sesión para comentar');
+      this.errorMsg.set('Debes iniciar sesion para comentar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
@@ -90,13 +87,11 @@ export class PostDetailComponent implements OnInit {
 
     this.postService.comentar(Number(this.id()), contenido).subscribe({
       next: (nuevo) => {
-        console.log('✅ Comentario creado:', nuevo);
         this.comentarios.update((lista) => [...lista, nuevo]);
         this.formComentario.reset();
         this.enviandoComentario.set(false);
       },
-      error: (error) => {
-        console.error('❌ Error al comentar:', error);
+      error: () => {
         this.errorMsg.set('Error al enviar comentario');
         this.enviandoComentario.set(false);
         setTimeout(() => this.errorMsg.set(null), 3000);
@@ -104,7 +99,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ✅ Métodos para imágenes
   esImagen(adjunto: Adjunto): boolean {
     if (adjunto.tipo !== 'archivo') return false;
     const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
@@ -140,14 +134,13 @@ export class PostDetailComponent implements OnInit {
   }
 
   getIconoAdjunto(adjunto: Adjunto): string {
-    if (adjunto.tipo === 'link') return '🔗';
-    
+    if (adjunto.tipo === 'link') return 'Link';
     const nombre = adjunto.nombre.toLowerCase();
-    if (nombre.endsWith('.pdf')) return '📄';
-    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return '📝';
-    if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return '📦';
-    if (nombre.endsWith('.txt')) return '📃';
-    return '📎';
+    if (nombre.endsWith('.pdf')) return 'PDF';
+    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return 'Documento';
+    if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return 'Zip';
+    if (nombre.endsWith('.txt')) return 'Texto';
+    return 'Archivo';
   }
 
   abrirImagen(url: string): void {
@@ -156,11 +149,10 @@ export class PostDetailComponent implements OnInit {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/600x400?text=Imagen+no+disponible';
+    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="16" fill="%23999" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
     img.alt = 'Imagen no disponible';
   }
 
-  // ✅ Método para obtener la inicial del nombre del usuario
   getInicialUsuario(): string {
     const usuario = this.authService.usuario();
     return usuario?.nombreUsuario?.charAt(0)?.toUpperCase() || '?';

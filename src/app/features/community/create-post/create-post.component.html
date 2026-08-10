@@ -1,50 +1,68 @@
-<h1 class="page-title">Nueva publicación</h1>
-<p class="page-sub">Cuenta tu caso, pide ayuda o comparte tu historia para que otros puedan aportar.</p>
+<!-- create-post.component.html -->
+<h1 class="page-title">Nueva publicacion</h1>
+<p class="page-sub">Cuenta tu caso, pide ayuda o comparte tu historia.</p>
 
 <form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
 
   <div class="field">
-    <label for="categoria">Categoría</label>
+    <label for="categoria">Categoria</label>
     <select id="categoria" formControlName="categoria">
-      <option value="caso-hacking">Caso de hacking</option>
-      <option value="ayuda">Pedir ayuda</option>
-      <option value="historia">Historia / experiencia</option>
-      <option value="otro">Otro</option>
+      @for (cat of categorias; track cat.valor) {
+        <option [value]="cat.valor">{{ cat.etiqueta }}</option>
+      }
     </select>
   </div>
 
   <div class="field">
-    <label for="titulo">Título</label>
-    <input id="titulo" type="text" formControlName="titulo" placeholder="Resume tu caso en una frase" [class.is-invalid]="titulo.invalid && titulo.touched">
+    <label for="titulo">Titulo</label>
+    <input 
+      id="titulo" 
+      type="text" 
+      formControlName="titulo" 
+      placeholder="Resume tu caso en una frase" 
+      [class.is-invalid]="titulo.invalid && titulo.touched"
+    >
     @if (titulo.invalid && titulo.touched) {
       <span class="error-msg">Entre 6 y 120 caracteres.</span>
     }
   </div>
 
   <div class="field">
-    <label for="descripcion">Descripción</label>
-    <textarea id="descripcion" formControlName="descripcion" rows="6" placeholder="Explica qué pasó, qué necesitas, o qué aprendiste..." [class.is-invalid]="descripcion.invalid && descripcion.touched"></textarea>
+    <label for="descripcion">Descripcion</label>
+    <textarea 
+      id="descripcion" 
+      formControlName="descripcion" 
+      rows="6" 
+      placeholder="Explica que paso, que necesitas, o que aprendiste..." 
+      [class.is-invalid]="descripcion.invalid && descripcion.touched"
+    ></textarea>
     @if (descripcion.invalid && descripcion.touched) {
-      <span class="error-msg">Mínimo 20 caracteres.</span>
+      <span class="error-msg">Minimo 20 caracteres.</span>
     }
   </div>
 
   <div class="field">
     <label for="link">Link externo (opcional)</label>
-    <input id="link" type="url" formControlName="link" placeholder="https://...">
+    <input id="link" type="url" formControlName="link" placeholder="https://ejemplo.com/articulo">
   </div>
 
   <div class="field">
-    <label for="archivos">Adjuntar archivos (opcional, máx. 10MB c/u)</label>
-    <input id="archivos" type="file" multiple (change)="onArchivosSeleccionados($event)">
+    <label for="archivos">Adjuntar archivos (opcional, maximo 10MB cada uno)</label>
+    <input 
+      id="archivos" 
+      type="file" 
+      multiple 
+      (change)="onArchivosSeleccionados($event)"
+      accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+    >
 
-    <!-- Lista de archivos elegidos, con opción de quitar antes de publicar -->
     @if (archivosSeleccionados().length > 0) {
       <ul class="archivos-lista">
         @for (a of archivosSeleccionados(); track a.name) {
           <li>
-            📎 {{ a.name }}
-            <button type="button" (click)="quitarArchivo(a.name)">Quitar</button>
+            <span class="archivo-nombre">{{ a.name }}</span>
+            <span class="archivo-tamano">({{ (a.size / 1024 / 1024).toFixed(2) }} MB)</span>
+            <button type="button" class="btn-remove" (click)="quitarArchivo(a.name)">X</button>
           </li>
         }
       </ul>

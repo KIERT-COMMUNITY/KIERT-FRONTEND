@@ -1,17 +1,17 @@
-<!-- post-detail.component.html - Estilo similar a Facebook/Instagram -->
+<!-- post-detail.component.html -->
 @if (cargando()) {
   <div class="loading-container">
     <div class="spinner"></div>
-    <p>Cargando publicación...</p>
+    <p>Cargando publicacion...</p>
   </div>
 } @else if (!post()) {
   <div class="error-container">
-    <p>Esta publicación no existe o fue eliminada.</p>
+    <p>Esta publicacion no existe o fue eliminada.</p>
   </div>
 } @else {
   <article class="post-detail">
     
-    <!-- ✅ HEADER: Avatar + Nombre + Fecha -->
+    <!-- HEADER -->
     <div class="post-detail__header">
       <div class="post-detail__user">
         <div class="post-detail__avatar">
@@ -25,13 +25,13 @@
       <span class="post-detail__fecha">{{ post()!.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
     </div>
 
-    <!-- ✅ TÍTULO -->
+    <!-- TITULO -->
     <h1 class="post-detail__titulo">{{ post()!.titulo }}</h1>
     
-    <!-- ✅ DESCRIPCIÓN -->
+    <!-- DESCRIPCION -->
     <p class="post-detail__desc">{{ post()!.descripcion }}</p>
 
-    <!-- ✅ IMÁGENES EN GRID (como Instagram) -->
+    <!-- GALERIA DE IMAGENES -->
     @if (tieneImagenes()) {
       <div class="post-detail__galeria" [class.galeria-multiple]="cantidadImagenes() > 1">
         @for (img of obtenerImagenes(); track img.id) {
@@ -42,58 +42,51 @@
               loading="lazy"
               (error)="onImageError($event)"
             >
-            @if (cantidadImagenes() > 1 && $index === 2) {
-              <div class="imagen-overlay">
-                <span>+{{ cantidadImagenes() - 3 }}</span>
-              </div>
-            }
           </div>
         }
       </div>
     }
 
-    <!-- ✅ ADJUNTOS (archivos y links) -->
+    <!-- ADJUNTOS -->
     @if (tieneOtrosAdjuntos()) {
       <div class="post-detail__adjuntos">
-        <h4>📎 Archivos adjuntos</h4>
+        <h4>Archivos adjuntos</h4>
         <div class="adjuntos-grid">
           @for (a of obtenerOtrosAdjuntos(); track a.id) {
             <a [href]="a.url" target="_blank" rel="noopener" class="adjunto-item">
               <span class="adjunto-icono">{{ getIconoAdjunto(a) }}</span>
               <span class="adjunto-nombre">{{ a.nombre }}</span>
-              @if (a.pesoKb) {
-                <span class="adjunto-peso">{{ a.pesoKb }} KB</span>
-              }
             </a>
           }
         </div>
       </div>
     }
 
-    <!-- ✅ ESTADÍSTICAS -->
+    <!-- ESTADISTICAS -->
     <div class="post-detail__stats">
       <div class="post-detail__stat">
-        <span class="stat-icon">💬</span>
-        <span>{{ post()!.totalComentarios }} comentarios</span>
+        <span class="stat-icon">Comentarios</span>
+        <span>{{ post()!.totalComentarios }}</span>
       </div>
       @if (tieneAdjuntos()) {
         <div class="post-detail__stat">
-          <span class="stat-icon">📎</span>
-          <span>{{ post()!.adjuntos.length }} adjuntos</span>
+          <span class="stat-icon">Adjuntos</span>
+          <span>{{ post()!.adjuntos.length }}</span>
         </div>
       }
     </div>
   </article>
 
-  <!-- ✅ SECCIÓN DE COMENTARIOS (como Facebook) -->
+  <!-- SECCION DE COMENTARIOS -->
   <section class="comentarios">
-    <h3>Comentarios</h3>
+    <div class="comentarios__header">
+      <h3>Comentarios</h3>
+      <span class="comentarios__count">{{ comentarios().length }}</span>
+    </div>
 
-    <!-- Formulario de comentario -->
     <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
       <div class="comentarios__input-wrapper">
         <div class="comentarios__avatar-mini">
-          <!-- ✅ USAR EL MÉTODO PÚBLICO -->
           {{ getInicialUsuario() }}
         </div>
         <input
@@ -101,6 +94,7 @@
           type="text"
           placeholder="Escribe un comentario..."
           class="comentarios__input"
+          [disabled]="enviandoComentario()"
         >
         <button type="submit" class="comentarios__btn" [disabled]="enviandoComentario()">
           {{ enviandoComentario() ? '...' : 'Publicar' }}
@@ -108,7 +102,6 @@
       </div>
     </form>
 
-    <!-- Lista de comentarios -->
     <div class="comentarios__lista">
       @for (c of comentarios(); track c.id) {
         <div class="comentario">
@@ -125,7 +118,7 @@
         </div>
       } @empty {
         <div class="comentarios__empty">
-          <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+          <p>No hay comentarios aun. Se el primero en comentar.</p>
         </div>
       }
     </div>
