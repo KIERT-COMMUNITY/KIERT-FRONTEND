@@ -9,6 +9,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 
+  <!-- ✅ POLYFILLS PARA SOCKJS-CLIENT - DEBE IR ANTES QUE TODO -->
+  <script>
+    // Definir global para sockjs-client
+    if (typeof global === 'undefined') {
+      window.global = window;
+    }
+    
+    // Definir process para sockjs-client
+    if (typeof process === 'undefined') {
+      window.process = {
+        env: { DEBUG: undefined },
+        version: '',
+        nextTick: function(cb) { 
+          setTimeout(cb, 0); 
+        },
+        browser: true
+      };
+    }
+    
+    // Definir Buffer para sockjs-client
+    if (typeof Buffer === 'undefined') {
+      window.Buffer = {
+        from: function(data) { 
+          if (typeof data === 'string') {
+            return data.split('').map(c => c.charCodeAt(0));
+          }
+          return data; 
+        },
+        isBuffer: function() { return false; },
+        alloc: function(size) { return new Array(size).fill(0); }
+      };
+    }
+    
+    console.log('✅ Polyfills cargados correctamente');
+  </script>
+
   <!-- Tipografías: JetBrains Mono (identidad "terminal") + Inter (lectura en cuerpo de texto) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -2,54 +2,190 @@
 @use '../../../../styles/mixins' as m;
 
 .post-card {
-  @include m.card;
   display: block;
+  background: v.$surface;
+  border-radius: v.$radius-md;
   padding: v.$sp-5;
+  margin-bottom: v.$sp-5;
   color: v.$text;
-  transition: border-color 0.15s ease, transform 0.1s ease; // animación mínima al pasar el mouse
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+  border: 1px solid v.$border;
 
   &:hover {
-    text-decoration: none;
+    text-decoration: none !important;
     border-color: v.$accent;
     transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   }
 
-  &__head {
+  // ✅ HEADER - Avatar + Nombre
+  &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: v.$sp-3;
   }
 
-  &__autor {
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-3;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: v.$accent;
+    color: v.$bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
     font-family: v.$font-display;
-    font-size: 0.8rem;
+  }
+
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+    gap: v.$sp-1;
+  }
+
+  &__username {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: v.$text;
+  }
+
+  &__badge-categoria {
+    font-size: 0.65rem;
+    color: v.$accent;
+    background: rgba(45, 212, 191, 0.1);
+    padding: v.$sp-1 v.$sp-2;
+    border-radius: v.$radius-sm;
+    display: inline-block;
+    width: fit-content;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  &__fecha {
+    font-size: 0.7rem;
     color: v.$text-muted;
+    white-space: nowrap;
   }
 
+  // ✅ TÍTULO
   &__titulo {
-    font-size: 1.05rem;
-    margin-bottom: v.$sp-2;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: v.$sp-2 0;
+    color: v.$text;
+    line-height: 1.3;
   }
 
+  // ✅ DESCRIPCIÓN
   &__desc {
     color: v.$text-muted;
     font-size: 0.9rem;
-    // Recorta la descripción a 2 líneas para que todas las tarjetas midan parecido
+    line-height: 1.6;
+    margin: v.$sp-2 0;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  &__foot {
-    display: flex;
-    gap: v.$sp-4;
-    margin-top: v.$sp-4;
+  // ✅ IMAGEN DESTACADA
+  &__imagen {
+    margin: v.$sp-3 0;
+    border-radius: v.$radius-sm;
+    overflow: hidden;
+    background: v.$surface-alt;
+    position: relative;
+    
+    img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
   }
 
-  &__meta {
+  // ✅ FOOTER - Estadísticas
+  &__footer {
+    margin-top: v.$sp-4;
+    padding-top: v.$sp-3;
+    border-top: 1px solid v.$border;
+  }
+
+  &__stats {
+    display: flex;
+    gap: v.$sp-5;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-1;
     font-size: 0.8rem;
     color: v.$text-muted;
+  }
+
+  &__icon {
+    font-size: 1rem;
+  }
+}
+
+// ✅ Responsive
+@media (max-width: v.$bp-mobile) {
+  .post-card {
+    padding: v.$sp-4;
+    border-radius: 0;
+    margin-bottom: v.$sp-3;
+    
+    &__avatar {
+      width: 32px;
+      height: 32px;
+      font-size: 0.8rem;
+    }
+    
+    &__username {
+      font-size: 0.85rem;
+    }
+    
+    &__titulo {
+      font-size: 1rem;
+    }
+    
+    &__desc {
+      font-size: 0.85rem;
+      -webkit-line-clamp: 2;
+    }
+    
+    &__imagen {
+      img {
+        height: 180px;
+      }
+    }
+    
+    &__stats {
+      gap: v.$sp-3;
+    }
+    
+    &__stat {
+      font-size: 0.7rem;
+    }
   }
 }

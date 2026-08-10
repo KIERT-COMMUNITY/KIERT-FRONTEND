@@ -4,12 +4,48 @@
 .chat-layout {
   @include m.card;
   display: grid;
-  grid-template-columns: 1fr; // en celular: un solo panel visible a la vez
+  grid-template-columns: 1fr;
   height: 70vh;
   overflow: hidden;
+  background: v.$surface;
+  border-radius: v.$radius-lg;
 
   @include m.from(v.$bp-tablet) {
-    grid-template-columns: 280px 1fr; // en tablet+: los dos paneles lado a lado
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: v.$sp-3;
+  border-bottom: 1px solid v.$border;
+
+  h2 {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .btn-refresh {
+    background: none;
+    border: none;
+    color: v.$text-muted;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: v.$sp-1 v.$sp-2;
+    border-radius: v.$radius-sm;
+    transition: all 0.3s;
+
+    &:hover:not(:disabled) {
+      background: v.$surface-alt;
+      transform: rotate(180deg);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -18,14 +54,10 @@
   overflow-y: auto;
   padding: v.$sp-4;
 
-  // En celular, si ya hay un chat activo, se oculta la lista para dar
-  // todo el espacio al hilo de mensajes (patrón típico de apps de chat)
   .chat-layout--con-activo & {
     display: none;
     @include m.from(v.$bp-tablet) { display: block; }
   }
-
-  h2 { font-size: 1rem; margin-bottom: v.$sp-3; }
 }
 
 .chat-item {
@@ -35,17 +67,30 @@
   padding: v.$sp-3;
   border-radius: v.$radius-sm;
   color: v.$text;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
 
-  &:hover { background: v.$surface-alt; text-decoration: none; }
-  &--activo { background: v.$surface-alt; }
+  &:hover { 
+    background: v.$surface-alt; 
+    text-decoration: none; 
+  }
+  
+  &--activo { 
+    background: v.$surface-alt;
+    border: 1px solid v.$accent;
+  }
 
   &__avatar {
-    width: 36px; height: 36px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: v.$surface-alt;
-    display: flex; align-items: center; justify-content: center;
-    font-family: v.$font-display;
-    color: v.$accent;
+    background: v.$accent;
+    color: v.$bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
     flex-shrink: 0;
   }
 
@@ -55,16 +100,26 @@
     overflow: hidden;
     flex: 1;
 
-    span { @include m.truncate; font-size: 0.8rem; color: v.$text-muted; }
+    strong {
+      font-size: 0.9rem;
+    }
+
+    span {
+      @include m.truncate;
+      font-size: 0.8rem;
+      color: v.$text-muted;
+    }
   }
 
   &__badge {
     background: v.$accent;
-    color: #04211d;
+    color: v.$bg;
     font-size: 0.7rem;
     font-weight: 700;
     border-radius: 999px;
-    padding: 2px 7px;
+    padding: 2px 8px;
+    min-width: 20px;
+    text-align: center;
   }
 }
 
@@ -72,8 +127,13 @@
   display: none;
   flex-direction: column;
 
-  .chat-layout--con-activo & { display: flex; }
-  @include m.from(v.$bp-tablet) { display: flex; } // en tablet+ siempre visible
+  .chat-layout--con-activo & { 
+    display: flex; 
+  }
+  
+  @include m.from(v.$bp-tablet) { 
+    display: flex; 
+  }
 
   &__head {
     display: flex;
@@ -81,10 +141,21 @@
     gap: v.$sp-3;
     padding: v.$sp-4;
     border-bottom: 1px solid v.$border;
+
+    .chat-status {
+      font-size: 0.7rem;
+      color: v.$success;
+      margin-left: auto;
+    }
   }
 
   &__volver {
-    @include m.from(v.$bp-tablet) { display: none; } // solo útil en celular para "volver" a la lista
+    @include m.from(v.$bp-tablet) { 
+      display: none; 
+    }
+    text-decoration: none;
+    color: v.$text;
+    font-size: 1.2rem;
   }
 
   &__mensajes {
@@ -101,6 +172,7 @@
     gap: v.$sp-2;
     padding: v.$sp-3;
     border-top: 1px solid v.$border;
+    background: v.$surface;
 
     input {
       flex: 1;
@@ -109,6 +181,35 @@
       border-radius: v.$radius-sm;
       padding: v.$sp-3;
       color: v.$text;
+      
+      &:focus {
+        outline: none;
+        border-color: v.$accent;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+      }
+    }
+
+    .btn {
+      padding: v.$sp-3 v.$sp-5;
+      background: v.$accent;
+      color: v.$bg;
+      border: none;
+      border-radius: v.$radius-sm;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+
+      &:hover:not(:disabled) {
+        opacity: 0.8;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
     }
   }
 }
@@ -126,10 +227,20 @@
     background: rgba(45, 212, 191, 0.15);
     border: 1px solid rgba(45, 212, 191, 0.3);
   }
+
+  &__tiempo {
+    font-size: 0.65rem;
+    color: v.$text-muted;
+    margin-left: v.$sp-2;
+  }
 }
 
 .chat-estado {
   padding: v.$sp-6;
   color: v.$text-muted;
   text-align: center;
+
+  &.error {
+    color: v.$danger;
+  }
 }

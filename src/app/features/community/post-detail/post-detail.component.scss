@@ -1,48 +1,436 @@
 @use '../../../../styles/variables' as v;
 @use '../../../../styles/mixins' as m;
 
-.estado { color: v.$text-muted; padding: v.$sp-6 0; text-align: center; }
+// ✅ ESTILOS DE CARGA Y ERROR
+.loading-container, .error-container {
+  @include m.card;
+  padding: v.$sp-6;
+  text-align: center;
+  color: v.$text-muted;
+}
 
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid v.$border;
+  border-top-color: v.$accent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto v.$sp-4;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ✅ POST DETALLE
 .post-detail {
   @include m.card;
   padding: v.$sp-6;
   margin-bottom: v.$sp-6;
 
-  h1 { margin-top: v.$sp-3; font-size: 1.4rem; }
+  // HEADER
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: v.$sp-4;
+  }
 
-  &__autor { color: v.$text-muted; font-size: 0.85rem; margin-top: v.$sp-2; }
-  &__desc { margin-top: v.$sp-4; line-height: 1.6; }
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-3;
+  }
 
+  &__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: v.$accent;
+    color: v.$bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    font-family: v.$font-display;
+  }
+
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+    gap: v.$sp-1;
+  }
+
+  &__username {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  &__badge {
+    font-size: 0.7rem;
+    color: v.$accent;
+    background: rgba(45, 212, 191, 0.1);
+    padding: v.$sp-1 v.$sp-2;
+    border-radius: v.$radius-sm;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  &__fecha {
+    font-size: 0.75rem;
+    color: v.$text-muted;
+  }
+
+  // TÍTULO
+  &__titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: v.$sp-3 0;
+    line-height: 1.3;
+  }
+
+  // DESCRIPCIÓN
+  &__desc {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: v.$text-muted;
+    margin-bottom: v.$sp-4;
+  }
+
+  // ✅ GALERÍA DE IMÁGENES (estilo Instagram)
+  &__galeria {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: v.$sp-2;
+    margin: v.$sp-4 0;
+    border-radius: v.$radius-sm;
+    overflow: hidden;
+
+    &.galeria-multiple {
+      grid-template-columns: repeat(2, 1fr);
+      
+      .post-detail__imagen:first-child {
+        grid-column: span 2;
+      }
+    }
+  }
+
+  &__imagen {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    background: v.$surface-alt;
+    aspect-ratio: 16/9;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.03);
+      }
+    }
+
+    .imagen-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+      font-weight: 700;
+      pointer-events: none;
+    }
+  }
+
+  // ✅ ADJUNTOS
   &__adjuntos {
-    margin-top: v.$sp-5;
+    margin-top: v.$sp-4;
     padding-top: v.$sp-4;
     border-top: 1px solid v.$border;
 
-    h4 { font-size: 0.8rem; color: v.$text-muted; margin-bottom: v.$sp-2; }
+    h4 {
+      font-size: 0.85rem;
+      color: v.$text-muted;
+      margin-bottom: v.$sp-3;
+    }
+  }
+
+  .adjuntos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: v.$sp-2;
+  }
+
+  .adjunto-item {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-2;
+    padding: v.$sp-2 v.$sp-3;
+    background: v.$surface-alt;
+    border-radius: v.$radius-sm;
+    text-decoration: none;
+    color: v.$text;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: v.$border;
+      text-decoration: none;
+    }
+
+    .adjunto-icono {
+      font-size: 1rem;
+    }
+
+    .adjunto-nombre {
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .adjunto-peso {
+      font-size: 0.7rem;
+      color: v.$text-muted;
+    }
+  }
+
+  // ✅ ESTADÍSTICAS
+  &__stats {
+    display: flex;
+    gap: v.$sp-5;
+    margin-top: v.$sp-4;
+    padding-top: v.$sp-4;
+    border-top: 1px solid v.$border;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-2;
+    font-size: 0.85rem;
+    color: v.$text-muted;
+
+    .stat-icon {
+      font-size: 1rem;
+    }
   }
 }
 
-.adjunto {
-  display: block;
-  padding: v.$sp-2 0;
-  font-size: 0.9rem;
-}
-
+// ✅ COMENTARIOS (estilo Facebook)
 .comentarios {
-  h3 { margin-bottom: v.$sp-4; font-size: 1.1rem; }
+  @include m.card;
+  padding: v.$sp-6;
 
-  &__form { margin-bottom: v.$sp-6; }
-  &__lista { display: flex; flex-direction: column; gap: v.$sp-3; }
+  h3 {
+    font-size: 1.1rem;
+    margin-bottom: v.$sp-4;
+  }
+
+  &__form {
+    margin-bottom: v.$sp-6;
+  }
+
+  &__input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-3;
+    background: v.$surface-alt;
+    border-radius: v.$radius-lg;
+    padding: v.$sp-2;
+  }
+
+  &__avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: v.$accent;
+    color: v.$bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  &__input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: v.$sp-2;
+    color: v.$text;
+    font-size: 0.9rem;
+    outline: none;
+
+    &::placeholder {
+      color: v.$text-muted;
+    }
+  }
+
+  &__btn {
+    padding: v.$sp-2 v.$sp-4;
+    background: v.$accent;
+    color: v.$bg;
+    border: none;
+    border-radius: v.$radius-sm;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__lista {
+    display: flex;
+    flex-direction: column;
+    gap: v.$sp-4;
+  }
+
+  &__empty {
+    text-align: center;
+    color: v.$text-muted;
+    padding: v.$sp-4;
+  }
 }
 
 .comentario {
-  @include m.card;
-  padding: v.$sp-4;
+  display: flex;
+  gap: v.$sp-3;
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: v.$accent;
+    color: v.$bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  &__body {
+    flex: 1;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-2;
+    margin-bottom: v.$sp-1;
+  }
 
   &__autor {
-    font-family: v.$font-display;
-    font-size: 0.8rem;
-    color: v.$accent;
-    margin-bottom: v.$sp-1;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  &__fecha {
+    font-size: 0.7rem;
+    color: v.$text-muted;
+  }
+
+  &__texto {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+// ✅ Responsive
+@media (max-width: v.$bp-tablet) {
+  .post-detail {
+    padding: v.$sp-4;
+
+    &__titulo {
+      font-size: 1.2rem;
+    }
+
+    &__galeria {
+      &.galeria-multiple {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    &__imagen {
+      aspect-ratio: 16/10;
+    }
+  }
+
+  .comentarios {
+    padding: v.$sp-4;
+  }
+}
+
+@media (max-width: v.$bp-mobile) {
+  .post-detail {
+    padding: v.$sp-3;
+    border-radius: 0;
+
+    &__avatar {
+      width: 36px;
+      height: 36px;
+      font-size: 0.9rem;
+    }
+
+    &__titulo {
+      font-size: 1rem;
+    }
+
+    &__desc {
+      font-size: 0.9rem;
+    }
+
+    &__imagen {
+      aspect-ratio: 16/9;
+    }
+
+    &__stats {
+      flex-wrap: wrap;
+      gap: v.$sp-3;
+    }
+  }
+
+  .comentarios {
+    padding: v.$sp-3;
+    border-radius: 0;
+
+    &__input-wrapper {
+      flex-wrap: wrap;
+    }
+
+    &__btn {
+      width: 100%;
+      padding: v.$sp-2;
+    }
+  }
+
+  .comentario {
+    &__avatar {
+      width: 28px;
+      height: 28px;
+      font-size: 0.7rem;
+    }
   }
 }

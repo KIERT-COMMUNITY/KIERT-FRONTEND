@@ -1,30 +1,62 @@
-// upload.service.ts -> encargado de subir archivos (fotos de perfil,
-// adjuntos de publicaciones) directo a SUPABASE STORAGE desde el navegador.
-//
-// Flujo real recomendado (más seguro):
-//  1) El navegador pide al backend Spring Boot una "URL firmada" (signed URL)
-//     de subida para ese archivo (el backend valida tamaño/tipo antes de darla).
-//  2) El navegador sube el archivo DIRECTO a esa URL de Supabase (rápido,
-//     no satura al backend con el peso del archivo).
-//  3) El navegador avisa al backend "ya subí este archivo" con la URL final,
-//     y el backend la guarda asociada al post/usuario en MySQL.
-//
-// Por ahora dejamos el método listo con la firma que se va a usar.
+// upload.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface UrlFirmadaResponse {
-  urlSubida: string;   // URL temporal donde se hace el PUT del archivo
-  urlPublica: string;  // URL final para guardar en la base de datos y mostrar el archivo
+  urlSubida: string;
+  urlPublica: string;
+}
+
+export interface CloudinaryResponse {
+  secure_url: string;
+  url: string;
+  public_id: string;
+  version: number;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
+  created_at: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
+  // ✅ REEMPLAZA CON TU CLOUD NAME REAL
+  private readonly CLOUDINARY_CLOUD_NAME = 'fzivwglgcuyuqvmqzumt';  // ← TU CLOUD NAME
+  private readonly CLOUDINARY_UPLOAD_PRESET = 'kiert-preset';
+
   constructor(private http: HttpClient) {}
 
-  // Paso 1: pedir la URL firmada al backend
+  // ✅ Subir archivo a Cloudinary
+  subirArchivoCloudinary(archivo: File): Observable<CloudinaryResponse> {
+    const formData = new FormData();
+    formData.append('file', archivo);
+    formData.append('upload_preset', this.CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'kiert-files');
+    
+    return this.http.post<CloudinaryResponse>(
+      `https://api.cloudinary.com/v1_1/${this.CLOUDINARY_CLOUD_NAME}/auto/upload`,
+      formData
+    );
+  }
+
+  // ✅ Subir múltiples archivos
+  subirMultiplesArchivos(archivos: File[]): Observable<CloudinaryResponse[]> {
+    const observables = archivos.map(archivo => this.subirArchivoCloudinary(archivo));
+    return new Observable<CloudinaryResponse[]>((observer) => {
+      import('rxjs').then(rx => {
+        rx.forkJoin(observables).subscribe({
+          next: (resultados) => observer.next(resultados),
+          error: (error) => observer.error(error),
+          complete: () => observer.complete()
+        });
+      });
+    });
+  }
+
+  // ✅ Compatible con Supabase
   pedirUrlFirmada(nombreArchivo: string, tipoContenido: string): Observable<UrlFirmadaResponse> {
     return this.http.post<UrlFirmadaResponse>(`${environment.apiUrl}/archivos/url-firmada`, {
       nombreArchivo,
@@ -32,10 +64,27 @@ export class UploadService {
     });
   }
 
-  // Paso 2: subir el archivo directo al bucket de Supabase usando esa URL
   subirArchivo(urlSubida: string, archivo: File): Observable<any> {
     return this.http.put(urlSubida, archivo, {
       headers: { 'Content-Type': archivo.type },
     });
+  }
+
+  // ✅ Subir foto de perfil
+  subirFotoPerfil(archivo: File): Observable<CloudinaryResponse> {
+    const formData = new FormData();
+    formData.append('file', archivo);
+    formData.append('upload_preset', this.CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'kiert-perfiles');
+    formData.append('transformation', 'w_200,h_200,c_fill');
+    
+    return this.http.post<CloudinaryResponse>(
+      `https://api.cloudinary.com/v1_1/${this.CLOUDINARY_CLOUD_NAME}/image/upload`,
+      formData
+    );
+  }
+
+  eliminarArchivoCloudinary(publicId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/archivos/${publicId}`);
   }
 }

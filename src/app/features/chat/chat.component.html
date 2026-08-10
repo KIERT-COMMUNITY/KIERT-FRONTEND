@@ -2,24 +2,37 @@
 
   <!-- Panel izquierdo: lista de conversaciones -->
   <aside class="chat-lista">
-    <h2>Mensajes</h2>
-    @for (c of conversaciones(); track c.usuarioId) {
-      <a
-        [routerLink]="['/chat', c.usuarioId]"
-        class="chat-item"
-        [class.chat-item--activo]="chatActivo()?.usuarioId === c.usuarioId"
-      >
-        <div class="chat-item__avatar">{{ c.nombreUsuario.charAt(0) }}</div>
-        <div class="chat-item__info">
-          <strong>&#64;{{ c.nombreUsuario }}</strong>
-          <span>{{ c.ultimoMensaje }}</span>
-        </div>
-        @if (c.noLeidos > 0) {
-          <span class="chat-item__badge">{{ c.noLeidos }}</span>
-        }
-      </a>
-    } @empty {
-      <p class="chat-estado">Aún no tienes conversaciones.</p>
+    <div class="chat-header">
+      <h2>Mensajes</h2>
+      <button (click)="recargar()" class="btn-refresh" [disabled]="cargando()">
+        🔄
+      </button>
+    </div>
+
+    @if (cargando()) {
+      <p class="chat-estado">Cargando conversaciones...</p>
+    } @else if (errorMsg()) {
+      <p class="chat-estado error">{{ errorMsg() }}</p>
+    } @else {
+      @for (c of conversaciones(); track c.usuarioId) {
+        <a
+          [routerLink]="['/chat', c.usuarioId]"
+          class="chat-item"
+          [class.chat-item--activo]="chatActivo()?.usuarioId === c.usuarioId"
+          (click)="marcarComoLeidos(c.usuarioId)"
+        >
+          <div class="chat-item__avatar">{{ c.nombreUsuario.charAt(0).toUpperCase() }}</div>
+          <div class="chat-item__info">
+            <strong>{{ c.nombreUsuario }}</strong>
+            <span>{{ c.ultimoMensaje }}</span>
+          </div>
+          @if (c.noLeidos > 0) {
+            <span class="chat-item__badge">{{ c.noLeidos }}</span>
+          }
+        </a>
+      } @empty {
+        <p class="chat-estado">Aún no tienes conversaciones.</p>
+      }
     }
   </aside>
 
@@ -30,20 +43,29 @@
     } @else {
       <header class="chat-hilo__head">
         <a routerLink="/chat" class="chat-hilo__volver">&larr;</a>
-        <strong>&#64;{{ chatActivo()!.nombreUsuario }}</strong>
+        <strong>{{ chatActivo()!.nombreUsuario }}</strong>
+        <span class="chat-status">● En línea</span>
       </header>
 
-      <div class="chat-hilo__mensajes">
+      <div class="chat-hilo__mensajes" #scrollContainer>
         @for (m of mensajes(); track m.id) {
           <div class="mensaje" [class.mensaje--propio]="m.propio">
             {{ m.contenido }}
+            <span class="mensaje__tiempo">{{ m.fechaEnvio | date:'shortTime' }}</span>
           </div>
         }
       </div>
 
       <form class="chat-hilo__form" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
-        <input formControlName="contenido" placeholder="Escribe un mensaje..." autocomplete="off">
-        <button type="submit" class="btn btn--primary">Enviar</button>
+        <input 
+          formControlName="contenido" 
+          placeholder="Escribe un mensaje..." 
+          autocomplete="off"
+          [disabled]="enviando()"
+        >
+        <button type="submit" class="btn btn--primary" [disabled]="formMensaje.invalid || enviando()">
+          {{ enviando() ? '...' : 'Enviar' }}
+        </button>
       </form>
     }
   </section>

@@ -1,18 +1,51 @@
-<!-- routerLink dinámico: /comunidad/{{ id del post }} -->
+<!-- post-card.component.html - Estilo similar a Facebook/Instagram -->
 <a class="post-card" [routerLink]="['/comunidad', post().id]">
-  <div class="post-card__head">
-    <span class="badge">{{ etiquetas[post().categoria] }}</span>
-    <span class="post-card__autor">&#64;{{ post().autor.nombreUsuario }}</span>
+  
+  <!-- ✅ HEADER: Avatar + Nombre + Fecha -->
+  <div class="post-card__header">
+    <div class="post-card__user">
+      <div class="post-card__avatar">
+        {{ post().autor.nombreUsuario.charAt(0).toUpperCase() }}
+      </div>
+      <div class="post-card__user-info">
+        <span class="post-card__username">{{ post().autor.nombreUsuario }}</span>
+        <span class="post-card__badge-categoria">{{ etiquetas[post().categoria] }}</span>
+      </div>
+    </div>
+    <span class="post-card__fecha">{{ post().fechaCreacion | date:'dd MMM yyyy' }}</span>
   </div>
 
+  <!-- ✅ TÍTULO -->
   <h3 class="post-card__titulo">{{ post().titulo }}</h3>
+  
+  <!-- ✅ DESCRIPCIÓN -->
   <p class="post-card__desc">{{ post().descripcion }}</p>
 
-  <div class="post-card__foot">
-    <!-- @if: solo se muestra el ícono de adjuntos si el post tiene alguno -->
-    @if (post().adjuntos.length > 0) {
-      <span class="post-card__meta">📎 {{ post().adjuntos.length }}</span>
-    }
-    <span class="post-card__meta">💬 {{ post().totalComentarios }}</span>
+  <!-- ✅ IMAGEN DESTACADA (si existe) -->
+  @if (tieneImagenes()) {
+    <div class="post-card__imagen">
+      <img 
+        [src]="obtenerPrimeraImagen()!.url" 
+        [alt]="obtenerPrimeraImagen()!.nombre"
+        loading="lazy"
+        (error)="onImageError($event)"
+      >
+    </div>
+  }
+
+  <!-- ✅ FOOTER: Interacciones -->
+  <div class="post-card__footer">
+    <div class="post-card__stats">
+      <span class="post-card__stat">
+        <span class="post-card__icon">💬</span>
+        {{ post().totalComentarios }} comentarios
+      </span>
+      @if (tieneAdjuntos()) {
+        <span class="post-card__stat">
+          <span class="post-card__icon">📎</span>
+          {{ post().adjuntos.length }} adjuntos
+        </span>
+      }
+    </div>
   </div>
 </a>

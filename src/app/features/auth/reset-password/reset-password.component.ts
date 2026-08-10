@@ -1,20 +1,20 @@
-// reset-password.component.ts -> paso 2 de "olvidé mi contraseña".
-// El usuario llega acá desde el link del correo: /restablecer-contrasena?token=XYZ
+// reset-password.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';  // ✅ Solo Router, no RouterLink
 import { AuthService } from '../../../core/services/auth.service';
+import { CommonModule } from '@angular/common';
 
 function contraseñasIgualesValidator(grupo: AbstractControl): ValidationErrors | null {
-  return grupo.get('password')?.value === grupo.get('confirmarPassword')?.value
-    ? null
-    : { contraseñasDistintas: true };
+  const password = grupo.get('password')?.value;
+  const confirmar = grupo.get('confirmarPassword')?.value;
+  return password === confirmar ? null : { contraseñasDistintas: true };
 }
 
 @Component({
   selector: 'kiert-reset-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule],  // ✅ Sin RouterLink
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
 })
@@ -22,11 +22,15 @@ export class ResetPasswordComponent implements OnInit {
   cargando = signal(false);
   exito = signal(false);
   errorMsg = signal<string | null>(null);
-  token = '';
+  token = signal<string>('');
 
   form = this.fb.group(
     {
-      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/)]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/)
+      ]],
       confirmarPassword: ['', [Validators.required]],
     },
     { validators: contraseñasIgualesValidator }
@@ -43,28 +47,78 @@ export class ResetPasswordComponent implements OnInit {
   get confirmarPassword() { return this.form.controls.confirmarPassword; }
 
   ngOnInit(): void {
-    // queryParamMap: lee "?token=..." de la URL que llegó por el correo
-    this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
+    const tokenParam = this.route.snapshot.queryParamMap.get('token') ?? '';
+    this.token.set(tokenParam);
+    
+    if (!tokenParam) {
+      this.errorMsg.set('El enlace no es válido o expiró.');
+    }
+    
+    console.log('🔑 Token de recuperación:', tokenParam ? 'Presente' : 'No encontrado');
   }
 
   enviar(): void {
-    if (this.form.invalid || !this.token) {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
-      if (!this.token) this.errorMsg.set('El enlace no es válido o expiró.');
+      return;
+    }
+
+    const tokenValue = this.token();
+    if (!tokenValue) {
+      this.errorMsg.set('El enlace no es válido o expiró.');
+      return;
+    }
+
+    const password = this.form.getRawValue().password;
+    const confirmar = this.form.getRawValue().confirmarPassword;
+    if (password !== confirmar) {
+      this.errorMsg.set('Las contraseñas no coinciden.');
       return;
     }
 
     this.cargando.set(true);
-    this.auth.restablecerContrasena(this.token, this.form.getRawValue().password!).subscribe({
+    this.errorMsg.set(null);
+
+    console.log('🔄 Restableciendo contraseña...');
+
+    this.auth.restablecerContrasena(tokenValue, password!).subscribe({
       next: () => {
+        console.log('✅ Contraseña restablecida exitosamente');
         this.exito.set(true);
         this.cargando.set(false);
-        setTimeout(() => this.router.navigate(['/login']), 2000); // redirige solo tras mostrar el éxito
+        
+        setTimeout(() => {
+          this.irAlLogin();
+        }, 3000);
       },
-      error: () => {
-        this.errorMsg.set('El enlace expiró o ya fue usado. Solicita uno nuevo.');
+      error: (error) => {
+        console.error('❌ Error al restablecer contraseña:', error);
+        
+        let mensaje = 'El enlace expiró o ya fue usado. Solicita uno nuevo.';
+        
+        if (error.status === 400) {
+          mensaje = error.error?.mensaje || 'El enlace no es válido.';
+        } else if (error.status === 404) {
+          mensaje = 'Token no encontrado. Solicita un nuevo enlace de recuperación.';
+        } else if (error.error?.mensaje) {
+          mensaje = error.error.mensaje;
+        }
+        
+        this.errorMsg.set(mensaje);
         this.cargando.set(false);
       },
     });
+  }
+
+  irAlLogin(): void {
+    this.router.navigate(['/login']);
+  }
+
+  solicitarNuevoEnlace(): void {
+    this.router.navigate(['/recuperar-contrasena']);
+  }
+
+  irAlLoginAhora(): void {
+    this.router.navigate(['/login']);
   }
 }
