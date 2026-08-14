@@ -19,10 +19,23 @@
       <h1>Comunidad</h1>
       <p class="feed-sub">Casos, dudas e historias reales para ayudarse entre todos.</p>
     </div>
-    <a routerLink="/comunidad/nueva-publicacion" class="btn btn--primary">
-      <span class="btn-icon">+</span> Publicar
-    </a>
+    <div class="feed-head__actions">
+      <button class="btn btn--secondary" (click)="recargar()" title="Recargar">
+        🔄
+      </button>
+      <a [routerLink]="['/comunidad/nueva-publicacion']" class="btn btn--primary">
+        <span class="btn-icon">+</span> Publicar
+      </a>
+    </div>
   </div>
+
+  <!-- ERROR -->
+  @if (errorMsg()) {
+    <div class="feed-error">
+      {{ errorMsg() }}
+      <button (click)="errorMsg.set(null)">✕</button>
+    </div>
+  }
 
   <!-- CONTENIDO -->
   @if (cargando()) {
@@ -32,12 +45,13 @@
     </div>
   } @else if (posts().length === 0) {
     <div class="feed-estado feed-estado--empty">
-      <p>Todavia no hay publicaciones. Se el primero en publicar.</p>
+      <p>📝 Todavia no hay publicaciones. Se el primero en publicar.</p>
     </div>
   } @else {
     <div class="feed-grid">
       @for (post of posts(); track post.id) {
-        <kiert-post-card [post]="post"></kiert-post-card>
+        <!-- ✅ PASAR EL ID CORRECTAMENTE -->
+        <kiert-post-card [post]="post" (click)="irAlPost(post.id)"></kiert-post-card>
       }
     </div>
   }

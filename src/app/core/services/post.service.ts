@@ -1,4 +1,4 @@
-// post.service.ts -> toda la lógica para hablar con el backend sobre publicaciones.
+// post.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -11,28 +11,33 @@ export class PostService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ LISTAR POSTS (REAL - CON BACKEND)
+  // ========== LISTAR POSTS ==========
   listar(): Observable<Post[]> {
     return this.http.get<Post[]>(this.baseUrl);
   }
 
-  // ✅ OBTENER POST POR ID (REAL - CON BACKEND)
+  // ========== OBTENER POST POR ID ==========
   obtenerPorId(id: number): Observable<Post> {
     return this.http.get<Post>(`${this.baseUrl}/${id}`);
   }
 
-  // ✅ CREAR POST (REAL - CON BACKEND)
+  // ========== CREAR POST ==========
   crear(formData: FormData): Observable<Post> {
     return this.http.post<Post>(this.baseUrl, formData);
   }
 
-  // ✅ LISTAR COMENTARIOS (REAL - CON BACKEND)
+  // ========== LISTAR COMENTARIOS ==========
   listarComentarios(postId: number): Observable<Comentario[]> {
     return this.http.get<Comentario[]>(`${this.baseUrl}/${postId}/comentarios`);
   }
 
-  // ✅ CREAR COMENTARIO (REAL - CON BACKEND)
+  // ========== CREAR COMENTARIO ==========
   comentar(postId: number, contenido: string): Observable<Comentario> {
     return this.http.post<Comentario>(`${this.baseUrl}/${postId}/comentarios`, { contenido });
+  }
+
+  // ✅ ========== ELIMINAR POST ==========
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

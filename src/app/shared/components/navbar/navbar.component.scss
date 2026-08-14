@@ -1,16 +1,18 @@
-// navbar.component.scss - Estilo propio sin imports
+// navbar.component.scss
 .navbar {
+  background: #0d1117;
+  border-bottom: 1px solid #26313c;
+  padding: 0 16px;
   position: sticky;
   top: 0;
-  z-index: 50;
-  background: #131a22;
-  border-bottom: 1px solid #26313c;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  background: rgba(13, 17, 23, 0.95);
 }
 
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,59 +21,50 @@
 
 // ========== LOGO ==========
 .navbar-brand {
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
-  font-weight: 800;
-  font-size: 1.15rem;
-  color: #e6edf3;
-  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 2px;
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: opacity 0.2s;
 
   &:hover {
+    opacity: 0.8;
     text-decoration: none;
   }
-}
 
-.brand-prompt {
-  color: #2dd4bf;
-}
+  .brand-prompt {
+    color: #2dd4bf;
+  }
 
-.brand-name {
-  color: #e6edf3;
+  .brand-name {
+    color: #e6edf3;
+  }
 }
 
 // ========== BOTON HAMBURGUESA ==========
 .navbar-toggle {
-  display: flex;
+  display: none;
   flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  width: 32px;
-  height: 32px;
+  gap: 4px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 8px;
 
   span {
     display: block;
-    height: 2px;
     width: 24px;
+    height: 2px;
     background: #e6edf3;
     border-radius: 2px;
-    transition: all 0.25s ease;
-    margin: 0 auto;
+    transition: all 0.3s ease;
   }
 
-  &:focus-visible {
-    outline: 2px solid #2dd4bf;
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  @media (min-width: 768px) {
-    display: none;
+  &:hover span {
+    background: #2dd4bf;
   }
 }
 
@@ -79,142 +72,100 @@
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 
   a {
     color: #8b98a5;
-    font-weight: 500;
-    font-size: 0.9rem;
     text-decoration: none;
-    transition: color 0.2s;
-    padding: 4px 0;
-    position: relative;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
 
     &:hover {
       color: #e6edf3;
+      background: #1b232c;
       text-decoration: none;
     }
 
     &.active {
       color: #2dd4bf;
-    }
-
-    &.active::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: #2dd4bf;
-      border-radius: 2px;
+      background: rgba(45, 212, 191, 0.1);
     }
   }
+}
 
-  // ========== RESPONSIVE ==========
-  @media (max-width: 767px) {
+.btn-logout {
+  background: none;
+  border: 1px solid #26313c;
+  color: #f85149;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(248, 81, 73, 0.1);
+    border-color: #f85149;
+  }
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 768px) {
+  .navbar-toggle {
+    display: flex;
+  }
+
+  .navbar-links {
+    display: none;
+    flex-direction: column;
     position: absolute;
     top: 60px;
     left: 0;
     right: 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    background: #131a22;
+    background: #0d1117;
     border-bottom: 1px solid #26313c;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    padding: 16px;
+    gap: 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 
     &.is-open {
-      max-height: 400px;
-    }
-
-    a,
-    .btn-logout {
-      padding: 14px 20px;
-      border-top: 1px solid #26313c;
-      text-align: left;
-      width: 100%;
-      font-size: 0.9rem;
+      display: flex;
     }
 
     a {
-      color: #8b98a5;
+      padding: 10px 14px;
+      width: 100%;
+      border-radius: 6px;
+    }
 
-      &:hover {
-        color: #e6edf3;
-        background: rgba(255, 255, 255, 0.02);
-      }
-
-      &.active {
-        color: #2dd4bf;
-        background: rgba(45, 212, 191, 0.04);
-      }
-
-      &.active::after {
-        display: none;
-      }
+    .btn-logout {
+      width: 100%;
+      padding: 10px 14px;
+      margin-top: 4px;
     }
   }
 }
 
-// ========== BOTON CERRAR SESION ==========
-.btn-logout {
-  background: none;
-  border: none;
-  color: #8b98a5;
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 4px 0;
-  transition: color 0.2s;
-  font-family: inherit;
-
-  &:hover {
-    color: #f85149;
-  }
-
-  @media (max-width: 767px) {
-    padding: 14px 20px;
-    text-align: left;
-    width: 100%;
-    border-top: 1px solid #26313c;
-  }
-}
-
-// ========== ANIMACION HAMBURGUESA (opcional) ==========
-.navbar-toggle[aria-expanded="true"] {
-  span:nth-child(1) {
-    transform: rotate(45deg) translate(4px, 4px);
-  }
-
-  span:nth-child(2) {
-    opacity: 0;
-  }
-
-  span:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
-  }
-}
-
-// ========== RESPONSIVE ADICIONAL ==========
 @media (max-width: 480px) {
-  .navbar-container {
-    padding: 0 12px;
-    height: 54px;
+  .navbar {
+    padding: 0 8px;
   }
 
   .navbar-brand {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .navbar-links {
-    a,
-    .btn-logout {
-      padding: 12px 16px;
+    a {
       font-size: 0.85rem;
+      padding: 8px 12px;
     }
   }
 }

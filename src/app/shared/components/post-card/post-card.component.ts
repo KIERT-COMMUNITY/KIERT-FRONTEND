@@ -1,5 +1,5 @@
 // post-card.component.ts
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Post, Adjunto } from '../../../core/models/post.model';
@@ -7,20 +7,39 @@ import { Post, Adjunto } from '../../../core/models/post.model';
 @Component({
   selector: 'kiert-post-card',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [ CommonModule],
   templateUrl: './post-card.component.html',
   styleUrl: './post-card.component.scss',
 })
 export class PostCardComponent {
   post = input.required<Post>();
+  postClick = output<number>(); // ✅ Evento para el click
 
-  // ✅ Sin emojis - etiquetas simples
   etiquetas: Record<Post['categoria'], string> = {
     'caso-hacking': 'Caso de hacking',
     ayuda: 'Pide ayuda',
     historia: 'Historia',
     otro: 'Otro',
   };
+
+  formatearFecha(fecha: string): string {
+    const date = new Date(fecha);
+    const ahora = new Date();
+    const diff = ahora.getTime() - date.getTime();
+    const minutos = Math.floor(diff / 60000);
+    const horas = Math.floor(diff / 3600000);
+    const dias = Math.floor(diff / 86400000);
+
+    if (minutos < 1) return 'Ahora mismo';
+    if (minutos < 60) return `Hace ${minutos} min`;
+    if (horas < 24) return `Hace ${horas} h`;
+    if (dias < 7) return `Hace ${dias} d`;
+    return date.toLocaleDateString('es-ES', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+  }
 
   esImagen(adjunto: Adjunto): boolean {
     if (adjunto.tipo !== 'archivo') return false;
@@ -46,41 +65,22 @@ export class PostCardComponent {
     return this.cantidadImagenes() > 0;
   }
 
-  getOtrosAdjuntos(): number {
-    const adjuntos = this.post().adjuntos;
-    if (!adjuntos || adjuntos.length === 0) return 0;
-    return adjuntos.filter(a => !this.esImagen(a)).length;
-  }
-
   tieneAdjuntos(): boolean {
     const adjuntos = this.post().adjuntos;
     return adjuntos && adjuntos.length > 0;
   }
 
-  obtenerImagenes(): Adjunto[] {
-    const adjuntos = this.post().adjuntos;
-    if (!adjuntos) return [];
-    return adjuntos.filter(a => this.esImagen(a));
-  }
-
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="16" fill="%23999" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
+    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%235a6a7a" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
     img.alt = 'Imagen no disponible';
   }
 
-  getIconoAdjunto(adjunto: Adjunto): string {
-    if (adjunto.tipo === 'link') return 'Link';
-    const nombre = adjunto.nombre.toLowerCase();
-    if (nombre.endsWith('.pdf')) return 'PDF';
-    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return 'Documento';
-    if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return 'Zip';
-    if (nombre.endsWith('.txt')) return 'Texto';
-    return 'Archivo';
-  }
-
-  getImagenesExtra(): number {
-    const total = this.cantidadImagenes();
-    return total > 1 ? total - 1 : 0;
+  // ✅ Método para manejar el click
+  onClick(): void {
+    const postId = this.post().id;
+    if (postId && !isNaN(postId)) {
+      this.postClick.emit(postId);
+    }
   }
 }

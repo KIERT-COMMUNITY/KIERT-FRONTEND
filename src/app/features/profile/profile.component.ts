@@ -2,38 +2,38 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router'; // ✅ Solo Router, no RouterLink
 import { AuthService } from '../../core/services/auth.service';
-import { UploadService } from '../../core/services/upload.service';
 import { PostService } from '../../core/services/post.service';
 import { ChatService } from '../../core/services/chat.service';
+import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'kiert-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule], // ✅ Eliminar RouterLink
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {
   private authService = inject(AuthService);
-  private uploadService = inject(UploadService);
   private postService = inject(PostService);
   private chatService = inject(ChatService);
   private fb = inject(FormBuilder);
+  private router = inject(Router); // ✅ Inyectar Router
 
   // Estados
-  subiendoFoto = signal(false);
+  subiendoFoto = signal<boolean>(false);
   previsualizacion = signal<string | null>(null);
-  editando = signal(false);
-  cargando = signal(false);
+  editando = signal<boolean>(false);
+  cargando = signal<boolean>(false);
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
 
   // Estadísticas
-  totalPosts = signal(0);
-  totalComentarios = signal(0);
-  totalConversaciones = signal(0);
+  totalPosts = signal<number>(0);
+  totalComentarios = signal<number>(0);
+  totalConversaciones = signal<number>(0);
 
   // Usuario actual
   usuario = this.authService.usuario;
@@ -107,7 +107,6 @@ export class ProfileComponent implements OnInit {
     const archivo = input.files?.[0];
     if (!archivo) return;
 
-    // Validar tipo y tamaño
     if (!archivo.type.startsWith('image/')) {
       this.errorMsg.set('Solo se permiten imágenes');
       setTimeout(() => this.errorMsg.set(null), 3000);
@@ -120,7 +119,6 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    // Vista previa
     const lector = new FileReader();
     lector.onload = () => this.previsualizacion.set(lector.result as string);
     lector.readAsDataURL(archivo);
@@ -128,26 +126,19 @@ export class ProfileComponent implements OnInit {
     this.subiendoFoto.set(true);
     this.errorMsg.set(null);
 
-    this.uploadService.pedirUrlFirmada(archivo.name, archivo.type).subscribe({
-      next: (res) => {
-        this.uploadService.subirArchivo(res.urlSubida, archivo).subscribe({
-          next: () => {
-            this.subiendoFoto.set(false);
-            this.exitoMsg.set('Foto actualizada correctamente');
-            setTimeout(() => this.exitoMsg.set(null), 3000);
-          },
-          error: () => {
-            this.subiendoFoto.set(false);
-            this.errorMsg.set('Error al subir la foto');
-            setTimeout(() => this.errorMsg.set(null), 3000);
-          },
-        });
-      },
-      error: () => {
+    this.authService.subirFotoMultipart(archivo).subscribe({
+      next: (usuarioActualizado: User) => {
         this.subiendoFoto.set(false);
-        this.errorMsg.set('Error al obtener URL de subida');
-        setTimeout(() => this.errorMsg.set(null), 3000);
+        this.previsualizacion.set(null);
+        this.exitoMsg.set('Foto actualizada correctamente');
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+        this.authService.usuario.set(usuarioActualizado);
       },
+      error: (error: any) => {
+        this.subiendoFoto.set(false);
+        this.errorMsg.set(error.error?.mensaje || 'Error al actualizar la foto');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
     });
   }
 
@@ -173,14 +164,17 @@ export class ProfileComponent implements OnInit {
 
     const datos = this.formEditar.getRawValue();
     
-    // Aquí iría la llamada al backend para actualizar el perfil
-    // Por ahora simulamos éxito
     setTimeout(() => {
       this.cargando.set(false);
       this.exitoMsg.set('Perfil actualizado correctamente');
       this.editando.set(false);
       setTimeout(() => this.exitoMsg.set(null), 3000);
     }, 1000);
+  }
+
+  // ========== IR AL HISTORIAL DE PUBLICACIONES ==========
+  irHistorialPublicaciones(): void {
+    this.router.navigate(['/mis-publicaciones']);
   }
 
   // ========== CERRAR SESIÓN ==========
@@ -192,11 +186,6 @@ export class ProfileComponent implements OnInit {
 
   // ========== IR AL CHAT ==========
   irAlChat(): void {
-    // Redirigir al chat
-  }
-
-  // ========== OBTENER INICIAL ==========
-  getInicial(nombre: string): string {
-    return nombre?.charAt(0)?.toUpperCase() || '?';
+    this.router.navigate(['/chat']);
   }
 }

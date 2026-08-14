@@ -2,23 +2,47 @@
 @if (cargando()) {
   <div class="loading-container">
     <div class="spinner"></div>
-    <p>Cargando publicacion...</p>
+    <p>Cargando publicación...</p>
+  </div>
+} @else if (errorMsg()) {
+  <div class="error-container">
+    <div class="error-icon">🔍</div>
+    <h2>{{ errorMsg() }}</h2>
+    <p>La publicación que buscas no está disponible o ha sido eliminada.</p>
+    <button class="btn-volver" (click)="volverAlFeed()">
+      ← Volver a la comunidad
+    </button>
   </div>
 } @else if (!post()) {
   <div class="error-container">
-    <p>Esta publicacion no existe o fue eliminada.</p>
+    <div class="error-icon">📝</div>
+    <h2>Publicación no encontrada</h2>
+    <p>Esta publicación no existe o fue eliminada.</p>
+    <button class="btn-volver" (click)="volverAlFeed()">
+      ← Volver a la comunidad
+    </button>
   </div>
 } @else {
   <article class="post-detail">
     
-    <!-- HEADER -->
+    <!-- HEADER CON FOTO DE PERFIL -->
     <div class="post-detail__header">
       <div class="post-detail__user">
+        <!-- ✅ FOTO DE PERFIL DEL AUTOR -->
         <div class="post-detail__avatar">
-          {{ post()!.autor.nombreUsuario.charAt(0).toUpperCase() }}
+          @if (post()!.autor.fotoPerfilUrl) {
+            <img 
+              [src]="post()!.autor.fotoPerfilUrl" 
+              [alt]="post()!.autor.nombreUsuario"
+              class="avatar-img"
+              (error)="onAvatarError($event)"
+            >
+          } @else {
+            <span class="avatar-inicial">{{ post()!.autor.nombreUsuario.charAt(0).toUpperCase() }}</span>
+          }
         </div>
         <div class="post-detail__user-info">
-          <span class="post-detail__username">{{ post()!.autor.nombreUsuario }}</span>
+          <span class="post-detail__username">@{{ post()!.autor.nombreUsuario }}</span>
           <span class="post-detail__badge">{{ etiquetas[post()!.categoria] }}</span>
         </div>
       </div>
@@ -65,13 +89,13 @@
     <!-- ESTADISTICAS -->
     <div class="post-detail__stats">
       <div class="post-detail__stat">
-        <span class="stat-icon">Comentarios</span>
-        <span>{{ post()!.totalComentarios }}</span>
+        <span class="stat-icon">💬</span>
+        <span>{{ post()!.totalComentarios || 0 }} comentarios</span>
       </div>
       @if (tieneAdjuntos()) {
         <div class="post-detail__stat">
-          <span class="stat-icon">Adjuntos</span>
-          <span>{{ post()!.adjuntos.length }}</span>
+          <span class="stat-icon">📎</span>
+          <span>{{ post()!.adjuntos.length }} adjuntos</span>
         </div>
       }
     </div>
@@ -84,33 +108,56 @@
       <span class="comentarios__count">{{ comentarios().length }}</span>
     </div>
 
-    <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
-      <div class="comentarios__input-wrapper">
-        <div class="comentarios__avatar-mini">
-          {{ getInicialUsuario() }}
-        </div>
-        <input
-          formControlName="contenido"
-          type="text"
-          placeholder="Escribe un comentario..."
-          class="comentarios__input"
-          [disabled]="enviandoComentario()"
+    <!-- post-detail.component.html - SOLO LA PARTE DEL FORMULARIO DE COMENTARIOS -->
+<form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
+  <div class="comentarios__input-wrapper">
+    <div class="comentarios__avatar-mini">
+      @if (authService.usuario()?.fotoPerfilUrl) {
+        <img 
+          [src]="authService.usuario()?.fotoPerfilUrl" 
+          alt="Tu foto"
+          class="avatar-mini-img"
         >
-        <button type="submit" class="comentarios__btn" [disabled]="enviandoComentario()">
-          {{ enviandoComentario() ? '...' : 'Publicar' }}
-        </button>
-      </div>
-    </form>
-
+      } @else {
+        {{ getInicialUsuario() }}
+      }
+    </div>
+    <input
+      formControlName="contenido"
+      type="text"
+      placeholder="Escribe un comentario..."
+      class="comentarios__input"
+      [class.disabled]="!estaLogueado()"
+    >
+    <button type="submit" class="comentarios__btn" [class.disabled]="!estaLogueado()">
+      {{ enviandoComentario() ? '...' : 'Publicar' }}
+    </button>
+  </div>
+  @if (formComentario.get('contenido')?.invalid && formComentario.get('contenido')?.touched) {
+    <span class="error-text">El comentario debe tener al menos 2 caracteres</span>
+  }
+  @if (!estaLogueado()) {
+    <p class="login-hint">Inicia sesión para comentar</p>
+  }
+</form>
     <div class="comentarios__lista">
       @for (c of comentarios(); track c.id) {
         <div class="comentario">
           <div class="comentario__avatar">
-            {{ c.autor.nombreUsuario.charAt(0).toUpperCase() }}
+            @if (c.autor.fotoPerfilUrl) {
+              <img 
+                [src]="c.autor.fotoPerfilUrl" 
+                [alt]="c.autor.nombreUsuario"
+                class="avatar-comentario-img"
+                (error)="onAvatarError($event)"
+              >
+            } @else {
+              {{ c.autor.nombreUsuario.charAt(0).toUpperCase() }}
+            }
           </div>
           <div class="comentario__body">
             <div class="comentario__header">
-              <span class="comentario__autor">{{ c.autor.nombreUsuario }}</span>
+              <span class="comentario__autor">@{{ c.autor.nombreUsuario }}</span>
               <span class="comentario__fecha">{{ c.fechaCreacion | date:'dd MMM yyyy' }}</span>
             </div>
             <p class="comentario__texto">{{ c.contenido }}</p>
@@ -118,7 +165,7 @@
         </div>
       } @empty {
         <div class="comentarios__empty">
-          <p>No hay comentarios aun. Se el primero en comentar.</p>
+          <p>📝 No hay comentarios aún. Sé el primero en comentar.</p>
         </div>
       }
     </div>

@@ -1,79 +1,94 @@
 <!-- create-post.component.html -->
-<h1 class="page-title">Nueva publicacion</h1>
-<p class="page-sub">Cuenta tu caso, pide ayuda o comparte tu historia.</p>
+<div class="create-post-container">
+  <h1 class="page-title">Nueva publicacion</h1>
+  <p class="page-sub">Cuenta tu caso, pide ayuda o comparte tu historia.</p>
 
-<form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
+  <form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
 
-  <div class="field">
-    <label for="categoria">Categoria</label>
-    <select id="categoria" formControlName="categoria">
-      @for (cat of categorias; track cat.valor) {
-        <option [value]="cat.valor">{{ cat.etiqueta }}</option>
-      }
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="titulo">Titulo</label>
-    <input 
-      id="titulo" 
-      type="text" 
-      formControlName="titulo" 
-      placeholder="Resume tu caso en una frase" 
-      [class.is-invalid]="titulo.invalid && titulo.touched"
-    >
-    @if (titulo.invalid && titulo.touched) {
-      <span class="error-msg">Entre 6 y 120 caracteres.</span>
-    }
-  </div>
-
-  <div class="field">
-    <label for="descripcion">Descripcion</label>
-    <textarea 
-      id="descripcion" 
-      formControlName="descripcion" 
-      rows="6" 
-      placeholder="Explica que paso, que necesitas, o que aprendiste..." 
-      [class.is-invalid]="descripcion.invalid && descripcion.touched"
-    ></textarea>
-    @if (descripcion.invalid && descripcion.touched) {
-      <span class="error-msg">Minimo 20 caracteres.</span>
-    }
-  </div>
-
-  <div class="field">
-    <label for="link">Link externo (opcional)</label>
-    <input id="link" type="url" formControlName="link" placeholder="https://ejemplo.com/articulo">
-  </div>
-
-  <div class="field">
-    <label for="archivos">Adjuntar archivos (opcional, maximo 10MB cada uno)</label>
-    <input 
-      id="archivos" 
-      type="file" 
-      multiple 
-      (change)="onArchivosSeleccionados($event)"
-      accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
-    >
-
-    @if (archivosSeleccionados().length > 0) {
-      <ul class="archivos-lista">
-        @for (a of archivosSeleccionados(); track a.name) {
-          <li>
-            <span class="archivo-nombre">{{ a.name }}</span>
-            <span class="archivo-tamano">({{ (a.size / 1024 / 1024).toFixed(2) }} MB)</span>
-            <button type="button" class="btn-remove" (click)="quitarArchivo(a.name)">X</button>
-          </li>
+    <!-- CATEGORÍA -->
+    <div class="field">
+      <label for="categoria">Categoria</label>
+      <select id="categoria" formControlName="categoria">
+        @for (cat of categorias; track cat.valor) {
+          <option [value]="cat.valor">{{ cat.etiqueta }}</option>
         }
-      </ul>
+      </select>
+    </div>
+
+    <!-- TÍTULO -->
+    <div class="field">
+      <label for="titulo">Titulo</label>
+      <input 
+        id="titulo" 
+        type="text" 
+        formControlName="titulo" 
+        placeholder="Resume tu caso en una frase" 
+        [class.is-invalid]="titulo.invalid && titulo.touched"
+      >
+      @if (titulo.invalid && titulo.touched) {
+        <span class="error-msg">Entre 6 y 120 caracteres.</span>
+      }
+      <span class="char-counter">{{ titulo.value?.length || 0 }}/120</span>
+    </div>
+
+    <!-- DESCRIPCIÓN -->
+    <div class="field">
+      <label for="descripcion">Descripcion</label>
+      <textarea 
+        id="descripcion" 
+        formControlName="descripcion" 
+        rows="6" 
+        placeholder="Explica que paso, que necesitas, o que aprendiste..." 
+        [class.is-invalid]="descripcion.invalid && descripcion.touched"
+      ></textarea>
+      @if (descripcion.invalid && descripcion.touched) {
+        <span class="error-msg">Minimo 20 caracteres.</span>
+      }
+    </div>
+
+    <!-- LINK -->
+    <div class="field">
+      <label for="link">Link externo (opcional)</label>
+      <input id="link" type="url" formControlName="link" placeholder="https://ejemplo.com/articulo">
+    </div>
+
+    <!-- ARCHIVOS -->
+    <div class="field">
+      <label for="archivos">Adjuntar archivos (opcional, maximo 10MB cada uno)</label>
+      <input 
+        id="archivos" 
+        type="file" 
+        multiple 
+        (change)="onArchivosSeleccionados($event)"
+        accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+      >
+
+      @if (archivosSeleccionados().length > 0) {
+        <ul class="archivos-lista">
+          @for (a of archivosSeleccionados(); track a.name) {
+            <li>
+              <span class="archivo-nombre">{{ a.name }}</span>
+              <span class="archivo-tamano">({{ (a.size / 1024 / 1024).toFixed(2) }} MB)</span>
+              <button type="button" class="btn-remove" (click)="quitarArchivo(a.name)">✕</button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- ERROR -->
+    @if (errorMsg()) {
+      <p class="form-alert">{{ errorMsg() }}</p>
     }
-  </div>
 
-  @if (errorMsg()) {
-    <p class="form-alert">{{ errorMsg() }}</p>
-  }
-
-  <button type="submit" class="btn btn--primary" [disabled]="publicando()">
-    {{ publicando() ? 'Publicando...' : 'Publicar' }}
-  </button>
-</form>
+    <!-- BOTONES -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="cancelar()" [disabled]="publicando()">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn--primary" [disabled]="publicando()">
+        {{ publicando() ? 'Publicando...' : 'Publicar' }}
+      </button>
+    </div>
+  </form>
+</div>

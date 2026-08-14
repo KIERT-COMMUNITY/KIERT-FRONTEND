@@ -1,5 +1,5 @@
 // create-post.component.ts
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
@@ -14,12 +14,16 @@ import { CommonModule } from '@angular/common';
   styleUrl: './create-post.component.scss',
 })
 export class CreatePostComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private postService = inject(PostService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   publicando = signal(false);
   errorMsg = signal<string | null>(null);
   archivosSeleccionados = signal<File[]>([]);
   estaLogueado = signal<boolean>(false);
 
-  // ✅ Sin emojis
   categorias = [
     { valor: 'caso-hacking', etiqueta: 'Caso de Hacking' },
     { valor: 'ayuda', etiqueta: 'Pedir Ayuda' },
@@ -33,13 +37,6 @@ export class CreatePostComponent implements OnInit {
     descripcion: ['', [Validators.required, Validators.minLength(20)]],
     link: [''],
   });
-
-  constructor(
-    private fb: FormBuilder,
-    private postService: PostService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     this.estaLogueado.set(this.authService.estaLogueado());
@@ -98,16 +95,31 @@ export class CreatePostComponent implements OnInit {
       formData.append('archivos', archivo);
     });
 
+    console.log('📤 Enviando publicación...');
+    console.log('📄 Título:', datos.titulo);
+    console.log('📎 Archivos:', this.archivosSeleccionados().length);
+
     this.postService.crear(formData).subscribe({
       next: (nuevoPost) => {
+        console.log('✅ Post creado exitosamente:', nuevoPost);
+        console.log('🆔 ID del post:', nuevoPost.id);
         this.publicando.set(false);
-        this.router.navigate(['/comunidad', nuevoPost.id]);
+        
+        if (nuevoPost && nuevoPost.id) {
+          this.router.navigate(['/comunidad', nuevoPost.id]);
+        } else {
+          this.router.navigate(['/comunidad']);
+        }
       },
       error: (error) => {
-        console.error('Error al publicar:', error);
-        this.errorMsg.set('No se pudo publicar. Intenta nuevamente.');
+        console.error('❌ Error al publicar:', error);
+        this.errorMsg.set(error.error?.mensaje || 'No se pudo publicar. Intenta nuevamente.');
         this.publicando.set(false);
       },
     });
+  }
+
+  cancelar(): void {
+    this.router.navigate(['/comunidad']);
   }
 }

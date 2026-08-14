@@ -1,0 +1,299 @@
+// src/app/features/community/mis-publicaciones/mis-publicaciones.component.scss
+.mis-publicaciones-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+// ========== HEADER ==========
+.header {
+  margin-bottom: 2rem;
+
+  .btn-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: #2dd4bf;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    transition: all 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+      transform: translateX(-4px);
+    }
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e6edf3;
+    margin: 0.5rem 0 0.25rem;
+  }
+
+  .subtitle {
+    color: #8b98a5;
+    margin: 0;
+  }
+}
+
+// ========== ALERTAS ==========
+.alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+
+  button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &-error {
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid #f85149;
+    color: #f85149;
+  }
+
+  &-success {
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid #2dd4bf;
+    color: #2dd4bf;
+  }
+}
+
+// ========== LOADING ==========
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  color: #8b98a5;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #1b232c;
+    border-top-color: #2dd4bf;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 1rem;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ========== EMPTY STATE ==========
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #131a22;
+  border-radius: 12px;
+  border: 1px solid #26313c;
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    color: #e6edf3;
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    color: #8b98a5;
+    margin: 0 0 1.5rem;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    background: #2dd4bf;
+    color: #0d1117;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+
+    &:hover {
+      opacity: 0.85;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+    }
+  }
+}
+
+// ========== POSTS GRID ==========
+.posts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.post-card {
+  background: #131a22;
+  border: 1px solid #26313c;
+  border-radius: 10px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #2dd4bf;
+  }
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.post-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 0.25rem;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.post-categoria {
+  font-size: 0.7rem;
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.post-fecha {
+  font-size: 0.7rem;
+  color: #5a6a7a;
+}
+
+.post-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-eliminar {
+  background: none;
+  border: 1px solid #26313c;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(248, 81, 73, 0.1);
+    border-color: #f85149;
+    transform: scale(1.05);
+  }
+}
+
+.post-descripcion {
+  color: #8b98a5;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.post-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid #1b232c;
+
+  span {
+    font-size: 0.8rem;
+    color: #5a6a7a;
+  }
+}
+
+.btn-ver {
+  font-size: 0.8rem;
+  color: #2dd4bf;
+  text-decoration: none;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #2dd4bf;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #2dd4bf;
+    color: #0d1117;
+  }
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 480px) {
+  .mis-publicaciones-container {
+    padding: 0.75rem;
+  }
+
+  .header {
+    h1 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .post-card {
+    padding: 1rem;
+  }
+
+  .post-header {
+    flex-direction: column;
+  }
+
+  .post-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .post-titulo {
+    font-size: 0.95rem;
+  }
+
+  .btn-ver {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+}

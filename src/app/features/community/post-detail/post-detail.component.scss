@@ -437,3 +437,134 @@
     }
   }
 }
+
+// Agregar al final de post-detail.component.scss
+
+.error-container {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #131a22;
+  border-radius: 12px;
+  border: 1px solid #26313c;
+
+  .error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    color: #e6edf3;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #8b98a5;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.btn-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  background: #2dd4bf;
+  color: #0d1117;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+  }
+}
+
+.error-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #f85149;
+}
+// post-detail.component.scss - Agregar/modificar estas partes
+
+// ========== AVATAR DEL AUTOR ==========
+.post-detail__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2dd4bf, #17b6a4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar-inicial {
+    color: #0d1117;
+    font-weight: 700;
+    font-size: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+// ========== AVATAR EN COMENTARIOS ==========
+.comentario__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2dd4bf, #17b6a4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #0d1117;
+
+  .avatar-comentario-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ========== AVATAR MINI EN EL INPUT ==========
+.comentarios__avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2dd4bf, #17b6a4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #0d1117;
+
+  .avatar-mini-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ========== LOGIN HINT ==========
+.login-hint {
+  font-size: 0.8rem;
+  color: #f85149;
+  margin-top: 0.5rem;
+  text-align: center;
+}

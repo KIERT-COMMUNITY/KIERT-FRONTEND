@@ -1,7 +1,8 @@
-// post-detail.component.ts
+// post-detail.component.ts - CORREGIDO
 import { Component, OnInit, input, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';  // ✅ Solo Router, no RouterLink
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Post, Comentario, Adjunto } from '../../../core/models/post.model';
@@ -9,7 +10,7 @@ import { Post, Comentario, Adjunto } from '../../../core/models/post.model';
 @Component({
   selector: 'kiert-post-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule],  // ✅ Eliminar RouterLink
   templateUrl: './post-detail.component.html',
   styleUrl: './post-detail.component.scss',
 })
@@ -17,6 +18,7 @@ export class PostDetailComponent implements OnInit {
   private postService = inject(PostService);
   public authService = inject(AuthService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);  // ✅ Inyectar Router
 
   id = input.required<string>();
 
@@ -27,7 +29,6 @@ export class PostDetailComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
 
-  // ✅ Sin emojis
   etiquetas: Record<string, string> = {
     'caso-hacking': 'Caso de hacking',
     ayuda: 'Pide ayuda',
@@ -40,21 +41,42 @@ export class PostDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.estaLogueado.set(this.authService.estaLogueado());
+    this.estaLogueado.set(this.authService.isAuthenticated());
     const postId = Number(this.id());
+    
+    console.log('🔍 PostDetailComponent: ID recibido:', postId);
+    
+    if (!postId || isNaN(postId)) {
+      this.errorMsg.set('ID de publicación inválido');
+      this.cargando.set(false);
+      return;
+    }
+    
     this.cargarPost(postId);
     this.cargarComentarios(postId);
   }
 
   cargarPost(postId: number): void {
+    this.cargando.set(true);
+    console.log('📤 Cargando post ID:', postId);
+    
     this.postService.obtenerPorId(postId).subscribe({
       next: (data) => {
+        console.log('✅ Post cargado:', data);
         this.post.set(data);
         this.cargando.set(false);
       },
-      error: () => {
-        this.errorMsg.set('Error al cargar la publicacion');
+      error: (error) => {
+        console.error('❌ Error al cargar post:', error);
         this.cargando.set(false);
+        
+        if (error.status === 404) {
+          this.errorMsg.set('Esta publicación no existe o fue eliminada.');
+        } else if (error.status === 500) {
+          this.errorMsg.set('Error del servidor. Intenta nuevamente.');
+        } else {
+          this.errorMsg.set('Error al cargar la publicación');
+        }
       }
     });
   }
@@ -64,8 +86,8 @@ export class PostDetailComponent implements OnInit {
       next: (data) => {
         this.comentarios.set(data);
       },
-      error: () => {
-        console.error('Error al cargar comentarios');
+      error: (error) => {
+        console.error('Error al cargar comentarios:', error);
       }
     });
   }
@@ -76,7 +98,7 @@ export class PostDetailComponent implements OnInit {
       return;
     }
 
-    if (!this.authService.estaLogueado()) {
+    if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Debes iniciar sesion para comentar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
@@ -91,12 +113,17 @@ export class PostDetailComponent implements OnInit {
         this.formComentario.reset();
         this.enviandoComentario.set(false);
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error al enviar comentario:', error);
         this.errorMsg.set('Error al enviar comentario');
         this.enviandoComentario.set(false);
         setTimeout(() => this.errorMsg.set(null), 3000);
       },
     });
+  }
+
+  volverAlFeed(): void {
+    this.router.navigate(['/comunidad']);
   }
 
   esImagen(adjunto: Adjunto): boolean {
@@ -149,7 +176,7 @@ export class PostDetailComponent implements OnInit {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="16" fill="%23999" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
+    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%235a6a7a" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
     img.alt = 'Imagen no disponible';
   }
 
@@ -157,4 +184,17 @@ export class PostDetailComponent implements OnInit {
     const usuario = this.authService.usuario();
     return usuario?.nombreUsuario?.charAt(0)?.toUpperCase() || '?';
   }
+  onAvatarError(event: Event): void {
+  const img = event.target as HTMLImageElement;
+  img.style.display = 'none';
+  // Mostrar la inicial como fallback
+  const parent = img.parentElement;
+  if (parent) {
+    const inicial = document.createElement('span');
+    inicial.className = 'avatar-inicial';
+    const nombre = this.post()?.autor?.nombreUsuario || '?';
+    inicial.textContent = nombre.charAt(0).toUpperCase();
+    parent.appendChild(inicial);
+  }
+}
 }

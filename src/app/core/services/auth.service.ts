@@ -1,82 +1,147 @@
-// auth.service.ts -> maneja TODO lo relacionado a sesión: login, registro,
-// recuperar contraseña, logout y saber "quién soy ahora mismo".
-// Es un @Injectable con providedIn: 'root' => Angular crea UNA sola instancia
-// compartida por toda la app (patrón singleton), sin tener que registrarlo en ningún módulo.
-import { Injectable, signal, computed } from '@angular/core';
+// auth.service.ts
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest, User } from '../models/user.model';
-
-const TOKEN_KEY = 'kiert_token';
-const USER_KEY = 'kiert_user';
+import { User, AuthResponse, LoginRequest, RegisterRequest } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // signal(): estado reactivo de Angular. Cualquier componente que lo lea
-  // en su template se actualiza solo cuando este valor cambia (sin subscribe manual).
-  private usuarioActual = signal<User | null>(this.leerUsuarioGuardado());
+  private readonly API_URL = environment.apiUrl;
+  private readonly USER_KEY = 'usuario_actual';
+  private readonly TOKEN_KEY = 'auth_token';
 
-  // computed(): valor derivado de otro signal. Aquí exponemos un booleano
-  // simple de "hay sesión sí/no" para usarlo en el navbar y en el guard.
-  estaLogueado = computed(() => this.usuarioActual() !== null);
-  usuario = this.usuarioActual.asReadonly(); // versión de solo lectura para el resto de la app
+  usuario: WritableSignal<User | null> = signal<User | null>(null);
+  token: WritableSignal<string | null> = signal<string | null>(null);
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
+    this.cargarSesion();
+  }
 
-  // --- LOGIN ---
-  // Llama a POST /api/auth/login del backend Spring Boot.
-  // El backend valida el hash de la contraseña (BCrypt) y responde con un JWT.
-  login(datos: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, datos).pipe(
-      tap((res) => this.guardarSesion(res)) // al recibir respuesta OK, guardamos token+usuario
+  private cargarSesion(): void {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    const usuarioStr = localStorage.getItem(this.USER_KEY);
+    
+    if (token && usuarioStr) {
+      try {
+        const usuario = JSON.parse(usuarioStr);
+        this.token.set(token);
+        this.usuario.set(usuario);
+      } catch (e) {
+        this.limpiarSesion();
+      }
+    }
+  }
+
+  login(credenciales: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, credenciales).pipe(
+      tap((respuesta) => {
+        if (respuesta.token && respuesta.usuario) {
+          this.guardarSesion(respuesta.token, respuesta.usuario);
+        }
+      })
     );
   }
 
-  // --- REGISTRO ---
   registro(datos: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/registro`, datos).pipe(
-      tap((res) => this.guardarSesion(res))
+    return this.http.post<AuthResponse>(`${this.API_URL}/auth/registro`, datos).pipe(
+      tap((respuesta) => {
+        if (respuesta.token && respuesta.usuario) {
+          this.guardarSesion(respuesta.token, respuesta.usuario);
+        }
+      })
     );
   }
 
-  // --- RECUPERAR CONTRASEÑA (paso 1: pedir el correo) ---
-  // El backend genera un token temporal y envía un correo con el link de reseteo.
-  solicitarRecuperacion(email: string): Observable<{ mensaje: string }> {
-    return this.http.post<{ mensaje: string }>(`${environment.apiUrl}/auth/recuperar-contrasena`, { email });
+  obtenerPerfil(): Observable<User> {
+    return this.http.get<User>(`${this.API_URL}/perfil`).pipe(
+      tap((usuario) => {
+        this.usuario.set(usuario);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+      })
+    );
   }
 
-  // --- RECUPERAR CONTRASEÑA (paso 2: definir la nueva, usando el token del correo) ---
-  restablecerContrasena(token: string, nuevaContrasena: string): Observable<{ mensaje: string }> {
-    return this.http.post<{ mensaje: string }>(`${environment.apiUrl}/auth/restablecer-contrasena`, {
-      token,
-      nuevaContrasena,
-    });
+  // ✅ MÉTODO PARA SUBIR FOTO DIRECTAMENTE (multipart)
+  subirFotoMultipart(archivo: File): Observable<User> {
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+    
+    return this.http.post<User>(`${this.API_URL}/perfil/foto`, formData).pipe(
+      tap((usuario) => {
+        this.usuario.set(usuario);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+      })
+    );
   }
 
-  // --- LOGOUT ---
+  // ✅ MÉTODO PARA ACTUALIZAR CON URL (para compatibilidad)
+  actualizarFotoPerfil(urlFoto: string): Observable<User> {
+    return this.http.patch<User>(`${this.API_URL}/perfil/foto-url`, { urlFoto }).pipe(
+      tap((usuario) => {
+        this.usuario.set(usuario);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+      })
+    );
+  }
+
+  actualizarPerfil(datos: { nombreUsuario?: string; email?: string }): Observable<User> {
+    return this.http.patch<User>(`${this.API_URL}/perfil`, datos).pipe(
+      tap((usuario) => {
+        this.usuario.set(usuario);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+      })
+    );
+  }
+
+  solicitarRecuperacion(email: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/recuperar`, { email });
+  }
+
+  restablecerContrasena(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/restablecer`, { token, password });
+  }
+
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    this.usuarioActual.set(null);
+    this.limpiarSesion();
     this.router.navigate(['/login']);
   }
 
+  private guardarSesion(token: string, usuario: User): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+    this.token.set(token);
+    this.usuario.set(usuario);
+  }
+
+  private limpiarSesion(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this.token.set(null);
+    this.usuario.set(null);
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.token() && !!this.usuario();
+  }
+
+  estaLogueado(): boolean {
+    return this.isAuthenticated();
+  }
+
   obtenerToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.token();
   }
 
-  // Guarda el JWT y los datos del usuario en localStorage para persistir
-  // la sesión aunque se recargue la página o se cierre el navegador.
-  private guardarSesion(res: AuthResponse): void {
-    localStorage.setItem(TOKEN_KEY, res.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(res.usuario));
-    this.usuarioActual.set(res.usuario);
+  getToken(): string | null {
+    return this.token();
   }
 
-  private leerUsuarioGuardado(): User | null {
-    const guardado = localStorage.getItem(USER_KEY);
-    return guardado ? JSON.parse(guardado) : null;
+  getUser(): User | null {
+    return this.usuario();
   }
 }

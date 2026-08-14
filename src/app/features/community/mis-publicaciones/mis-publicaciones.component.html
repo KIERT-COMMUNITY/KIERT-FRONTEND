@@ -1,0 +1,73 @@
+<!-- src/app/features/community/mis-publicaciones/mis-publicaciones.component.html -->
+<div class="mis-publicaciones-container">
+  
+  <!-- ========== HEADER ========== -->
+  <div class="header">
+    <button class="btn-volver" (click)="volverAlFeed()">
+      ← Volver al feed
+    </button>
+    <h1>📝 Mis Publicaciones</h1>
+    <p class="subtitle">Todas tus publicaciones en la comunidad</p>
+  </div>
+
+  <!-- ========== MENSAJES ========== -->
+  @if (errorMsg()) {
+    <div class="alert alert-error">
+      {{ errorMsg() }}
+      <button (click)="errorMsg.set(null)">✕</button>
+    </div>
+  }
+  @if (exitoMsg()) {
+    <div class="alert alert-success">
+      {{ exitoMsg() }}
+      <button (click)="exitoMsg.set(null)">✕</button>
+    </div>
+  }
+
+  <!-- ========== CONTENIDO ========== -->
+  @if (cargando()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Cargando tus publicaciones...</p>
+    </div>
+  } @else if (posts().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No tienes publicaciones</h3>
+      <p>Comienza a compartir tus casos, dudas o historias con la comunidad.</p>
+      <button class="btn-primary" routerLink="/comunidad/nueva-publicacion">
+        + Crear publicación
+      </button>
+    </div>
+  } @else {
+    <div class="posts-grid">
+      @for (post of posts(); track post.id) {
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-info">
+              <h3 class="post-titulo">{{ post.titulo }}</h3>
+              <div class="post-meta">
+                <span class="post-categoria">{{ post.categoria }}</span>
+                <span class="post-fecha">{{ formatearFecha(post.fechaCreacion) }}</span>
+              </div>
+            </div>
+            <div class="post-actions">
+              <button 
+                class="btn-eliminar" 
+                (click)="eliminarPublicacion(post.id)"
+                title="Eliminar publicación"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+          <p class="post-descripcion">{{ post.descripcion | slice:0:150 }}{{ post.descripcion.length > 150 ? '...' : '' }}</p>
+          <div class="post-footer">
+            <span>💬 {{ post.totalComentarios || 0 }} comentarios</span>
+            <a [routerLink]="['/comunidad', post.id]" class="btn-ver">Ver publicación</a>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

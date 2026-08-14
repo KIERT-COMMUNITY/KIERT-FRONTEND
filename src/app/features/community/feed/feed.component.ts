@@ -1,10 +1,10 @@
 // feed.component.ts
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { PostService } from '../../../core/services/post.service';
-import { Post } from '../../../core/models/post.model';  // ✅ Importar Post
-import { PostCardComponent } from '../../../shared/components/post-card/post-card.component';
+import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { PostService } from '../../../core/services/post.service';
+import { Post } from '../../../core/models/post.model';
+import { PostCardComponent } from '../../../shared/components/post-card/post-card.component';
 
 @Component({
   selector: 'kiert-feed',
@@ -15,19 +15,50 @@ import { CommonModule } from '@angular/common';
 })
 export class FeedComponent implements OnInit {
   private postService = inject(PostService);
+  private router = inject(Router);
 
   posts = signal<Post[]>([]);
   cargando = signal(true);
+  errorMsg = signal<string | null>(null);
 
   ngOnInit(): void {
+    console.log('📋 FeedComponent: Inicializando');
+    this.cargarPosts();
+  }
+
+  cargarPosts(): void {
+    console.log('📋 FeedComponent: Cargando posts...');
+    this.cargando.set(true);
+    this.errorMsg.set(null);
+    
     this.postService.listar().subscribe({
       next: (data) => {
+        console.log('✅ FeedComponent: Posts recibidos:', data.length);
+        if (data.length > 0) {
+          console.log('📝 Primer post:', data[0].titulo);
+        }
         this.posts.set(data);
         this.cargando.set(false);
       },
-      error: () => {
+      error: (error) => {
+        console.error('❌ FeedComponent: Error al cargar posts:', error);
         this.cargando.set(false);
+        this.errorMsg.set('Error al cargar las publicaciones');
+        this.posts.set([]);
       }
     });
+  }
+
+  recargar(): void {
+    this.cargarPosts();
+  }
+
+  irAlPost(postId: number): void {
+    console.log('🔍 FeedComponent: Navegando al post:', postId);
+    if (postId && !isNaN(postId)) {
+      this.router.navigate(['/comunidad', postId]);
+    } else {
+      console.error('❌ FeedComponent: ID inválido:', postId);
+    }
   }
 }

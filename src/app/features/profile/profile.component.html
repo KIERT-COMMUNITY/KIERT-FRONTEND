@@ -5,7 +5,7 @@
   <div class="profile-header">
     <h1 class="page-title">Mi Perfil</h1>
     <div class="profile-header__actions">
-      <button class="btn-secondary" (click)="toggleEditar()">
+      <button class="btn-secondary" (click)="toggleEditar()" [disabled]="subiendoFoto()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
           <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -49,14 +49,14 @@
         }
       </div>
       
-      <label class="btn-upload">
+      <label class="btn-upload" [class.disabled]="subiendoFoto()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/>
           <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
         {{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}
-        <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden>
+        <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden [disabled]="subiendoFoto()">
       </label>
     </div>
 
@@ -102,7 +102,7 @@
           <button class="btn-save" (click)="guardarCambios()" [disabled]="cargando()">
             {{ cargando() ? 'Guardando...' : 'Guardar cambios' }}
           </button>
-          <button class="btn-cancel" (click)="toggleEditar()">Cancelar</button>
+          <button class="btn-cancel" (click)="toggleEditar()" [disabled]="cargando()">Cancelar</button>
         </div>
       }
     </div>
@@ -131,13 +131,13 @@
         </svg>
         Mensajes
       </button>
-      <button class="btn-action" routerLink="/comunidad">
+      <button class="btn-action" (click)="irHistorialPublicaciones()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 4v16h16"/>
           <path d="M8 12l4-4 4 4"/>
           <path d="M12 8v8"/>
         </svg>
-        Mis publicaciones
+        Historial de publicaciones
       </button>
       <button class="btn-action btn-danger" (click)="logout()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -1,3 +1,4 @@
+// post-card.component.scss
 .post-card {
   display: block;
   background: #131a22;
@@ -9,6 +10,7 @@
   transition: all 0.25s ease;
   border: 1px solid #26313c;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
 
   &:hover {
     text-decoration: none !important;
@@ -97,6 +99,10 @@
     font-size: 0.9rem;
     line-height: 1.6;
     margin: 8px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   &__imagen {
@@ -123,7 +129,7 @@
     position: absolute;
     top: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 4px 12px;
     border-radius: 0 0 0 8px;
@@ -152,36 +158,47 @@
     gap: 4px;
     font-size: 0.8rem;
     color: #8b98a5;
-
-    .stat-icon {
-      font-size: 1rem;
-    }
   }
+}
 
-  &__actions {
-    display: flex;
-    gap: 8px;
-  }
+// ========== RESPONSIVE ==========
+@media (max-width: 480px) {
+  .post-card {
+    padding: 14px;
+    border-radius: 0;
 
-  &__action {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #8b98a5;
-
-    &:hover {
-      background: rgba(45, 212, 191, 0.1);
-      color: #2dd4bf;
-      transform: scale(1.1);
+    &__avatar {
+      width: 32px;
+      height: 32px;
     }
 
-    .action-icon {
-      fill: currentColor;
+    &__username {
+      font-size: 0.8rem;
+    }
+
+    &__titulo {
+      font-size: 0.95rem;
+    }
+
+    &__desc {
+      font-size: 0.8rem;
+    }
+
+    &__imagen img {
+      height: 180px;
+    }
+
+    &__badge {
+      font-size: 0.5rem;
+      padding: 1px 6px;
+    }
+
+    &__fecha {
+      font-size: 0.6rem;
+    }
+
+    &__stat {
+      font-size: 0.7rem;
     }
   }
 }
