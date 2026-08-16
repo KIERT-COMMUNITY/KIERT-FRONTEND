@@ -131,7 +131,7 @@
         </svg>
         Mensajes
       </button>
-      <button class="btn-action" routerLink="/comunidad">
+      <button class="btn-action" (click)="irAMisPublicaciones()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 4v16h16"/>
           <path d="M8 12l4-4 4 4"/>
@@ -149,4 +149,58 @@
       </button>
     </div>
   </div>
+
+  <!-- ========== MIS PUBLICACIONES ========== -->
+  <section id="mis-publicaciones" class="mis-publicaciones">
+    <div class="mis-publicaciones__header">
+      <h2>Mis publicaciones</h2>
+      <span class="mis-publicaciones__count">{{ misPosts().length }}</span>
+      <a routerLink="/comunidad/nueva-publicacion" class="mis-publicaciones__nueva">+ Nueva</a>
+    </div>
+
+    @if (cargandoPosts()) {
+      <div class="mis-publicaciones__estado">
+        <div class="spinner"></div>
+        <p>Cargando publicaciones...</p>
+      </div>
+    } @else if (misPosts().length === 0) {
+      <div class="mis-publicaciones__estado mis-publicaciones__estado--empty">
+        <p>Todavia no has publicado nada.</p>
+        <a routerLink="/comunidad/nueva-publicacion" class="btn btn--primary">Publicar ahora</a>
+      </div>
+    } @else {
+      <div class="mis-publicaciones__lista">
+        @for (post of misPosts(); track post.id) {
+          <div class="mis-post">
+            <div class="mis-post__info">
+              <h3 class="mis-post__titulo">
+                <a [routerLink]="['/comunidad', post.id]">{{ post.titulo }}</a>
+              </h3>
+              <div class="mis-post__meta">
+                <span class="mis-post__badge">{{ etiquetas[post.categoria] }}</span>
+                <span class="mis-post__fecha">{{ post.fechaCreacion | date:'dd MMM yyyy' }}</span>
+                <span class="mis-post__comentarios">{{ post.totalComentarios }} comentarios</span>
+              </div>
+            </div>
+            <div class="mis-post__actions">
+              <a [routerLink]="['/comunidad', post.id, 'editar']" class="mis-post__editar" title="Editar publicacion">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Editar
+              </a>
+              <button class="mis-post__eliminar" (click)="eliminarPost(post)" title="Eliminar publicacion">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
 </div>

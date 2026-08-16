@@ -340,6 +340,165 @@
   }
 }
 
+// ========== MIS PUBLICACIONES ==========
+.mis-publicaciones {
+  margin-top: v.$sp-6;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-2;
+    margin-bottom: v.$sp-3;
+
+    h2 {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+  }
+
+  &__count {
+    background: v.$surface-alt;
+    border: 1px solid v.$border;
+    border-radius: 999px;
+    padding: 0 v.$sp-2;
+    font-size: 0.8rem;
+    color: v.$text-muted;
+  }
+
+  &__nueva {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: v.$accent;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__estado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$sp-3;
+    padding: v.$sp-6;
+    background: v.$surface;
+    border: 1px solid v.$border;
+    border-radius: v.$radius-lg;
+    color: v.$text-muted;
+    font-size: 0.9rem;
+    text-align: center;
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid v.$border;
+      border-top-color: v.$accent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
+
+  &__lista {
+    display: flex;
+    flex-direction: column;
+    gap: v.$sp-2;
+  }
+}
+
+.mis-post {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$sp-3;
+  padding: v.$sp-3 v.$sp-4;
+  background: v.$surface;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-md;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: v.$accent;
+  }
+
+  &__info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__titulo {
+    font-size: 0.95rem;
+    margin: 0 0 v.$sp-1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    a {
+      color: v.$text;
+      text-decoration: none;
+
+      &:hover {
+        color: v.$accent;
+      }
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-2;
+    font-size: 0.75rem;
+    color: v.$text-muted;
+  }
+
+  &__badge {
+    background: v.$surface-alt;
+    border: 1px solid v.$border;
+    border-radius: v.$radius-sm;
+    padding: 1px v.$sp-2;
+    font-size: 0.7rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$sp-2;
+    flex-shrink: 0;
+  }
+
+  &__editar, &__eliminar {
+    display: inline-flex;
+    align-items: center;
+    gap: v.$sp-1;
+    padding: v.$sp-1 v.$sp-2;
+    border-radius: v.$radius-sm;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  &__editar {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+
+    &:hover {
+      background: rgba(56, 189, 248, 0.2);
+    }
+  }
+
+  &__eliminar {
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid rgba(248, 81, 73, 0.4);
+    color: v.$danger;
+
+    &:hover {
+      background: rgba(248, 81, 73, 0.2);
+    }
+  }
+}
+
 // ========== RESPONSIVE ==========
 @media (max-width: v.$bp-mobile) {
   .profile-container {

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { User } from '../models/user.model';
 
 export interface UrlFirmadaResponse {
   urlSubida: string;
@@ -70,18 +71,11 @@ export class UploadService {
     });
   }
 
-  // ✅ Subir foto de perfil
-  subirFotoPerfil(archivo: File): Observable<CloudinaryResponse> {
+  // ✅ Subir foto de perfil (multipart directo al backend; el backend sube a Cloudinary)
+  subirFotoPerfil(archivo: File): Observable<User> {
     const formData = new FormData();
-    formData.append('file', archivo);
-    formData.append('upload_preset', this.CLOUDINARY_UPLOAD_PRESET);
-    formData.append('folder', 'kiert-perfiles');
-    formData.append('transformation', 'w_200,h_200,c_fill');
-    
-    return this.http.post<CloudinaryResponse>(
-      `https://api.cloudinary.com/v1_1/${this.CLOUDINARY_CLOUD_NAME}/image/upload`,
-      formData
-    );
+    formData.append('archivo', archivo);
+    return this.http.post<User>(`${environment.apiUrl}/perfil/foto`, formData);
   }
 
   eliminarArchivoCloudinary(publicId: string): Observable<any> {

@@ -22,7 +22,9 @@
           <span class="post-detail__badge">{{ etiquetas[post()!.categoria] }}</span>
         </div>
       </div>
-      <span class="post-detail__fecha">{{ post()!.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
+      <div class="post-detail__header-actions">
+        <span class="post-detail__fecha">{{ post()!.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
+      </div>
     </div>
 
     <!-- TITULO -->

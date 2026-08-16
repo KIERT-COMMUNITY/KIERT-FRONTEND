@@ -38,6 +38,12 @@
     margin-bottom: v.$sp-4;
   }
 
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: v.$sp-3;
+  }
+
   &__user {
     display: flex;
     align-items: center;

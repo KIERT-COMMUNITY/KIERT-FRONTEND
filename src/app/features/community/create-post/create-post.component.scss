@@ -148,6 +148,22 @@
         transform: scale(1.2);
       }
     }
+
+    .btn-restore {
+      background: none;
+      border: none;
+      color: #38bdf8;
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      font-weight: 600;
+
+      &:hover {
+        background: rgba(56, 189, 248, 0.1);
+      }
+    }
   }
 }
 

@@ -84,6 +84,12 @@
     color: #8b98a5;
   }
 
+  &__header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   &__titulo {
     font-size: 1.1rem;
     font-weight: 700;

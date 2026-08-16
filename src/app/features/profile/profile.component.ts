@@ -7,6 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UploadService } from '../../core/services/upload.service';
 import { PostService } from '../../core/services/post.service';
 import { ChatService } from '../../core/services/chat.service';
+import { Post } from '../../core/models/post.model';
 
 @Component({
   selector: 'kiert-profile',
@@ -34,6 +35,18 @@ export class ProfileComponent implements OnInit {
   totalPosts = signal(0);
   totalComentarios = signal(0);
   totalConversaciones = signal(0);
+
+  // Mis publicaciones
+  misPosts = signal<Post[]>([]);
+  cargandoPosts = signal(false);
+
+  // Etiquetas de categoría
+  etiquetas: Record<string, string> = {
+    'caso-hacking': 'Caso de hacking',
+    ayuda: 'Pide ayuda',
+    historia: 'Historia',
+    otro: 'Otro',
+  };
 
   // Usuario actual
   usuario = this.authService.usuario;
@@ -82,14 +95,21 @@ export class ProfileComponent implements OnInit {
 
   cargarEstadisticas(): void {
     // Cargar posts del usuario
+    this.cargandoPosts.set(true);
     this.postService.listar().subscribe({
       next: (posts) => {
         const userId = this.usuario()?.id;
         if (userId) {
-          this.totalPosts.set(posts.filter(p => p.autor.id === userId).length);
+          const mios = posts.filter(p => p.autor.id === userId);
+          this.totalPosts.set(mios.length);
+          this.misPosts.set(mios);
         }
+        this.cargandoPosts.set(false);
       },
-      error: () => console.error('Error al cargar estadísticas')
+      error: () => {
+        this.cargandoPosts.set(false);
+        console.error('Error al cargar estadísticas');
+      }
     });
 
     // Cargar conversaciones
@@ -128,24 +148,17 @@ export class ProfileComponent implements OnInit {
     this.subiendoFoto.set(true);
     this.errorMsg.set(null);
 
-    this.uploadService.pedirUrlFirmada(archivo.name, archivo.type).subscribe({
-      next: (res) => {
-        this.uploadService.subirArchivo(res.urlSubida, archivo).subscribe({
-          next: () => {
-            this.subiendoFoto.set(false);
-            this.exitoMsg.set('Foto actualizada correctamente');
-            setTimeout(() => this.exitoMsg.set(null), 3000);
-          },
-          error: () => {
-            this.subiendoFoto.set(false);
-            this.errorMsg.set('Error al subir la foto');
-            setTimeout(() => this.errorMsg.set(null), 3000);
-          },
-        });
-      },
-      error: () => {
+    this.uploadService.subirFotoPerfil(archivo).subscribe({
+      next: (user) => {
         this.subiendoFoto.set(false);
-        this.errorMsg.set('Error al obtener URL de subida');
+        this.previsualizacion.set(null);
+        this.authService.actualizarUsuario(user);
+        this.exitoMsg.set('Foto actualizada correctamente');
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.subiendoFoto.set(false);
+        this.errorMsg.set(err?.error?.mensaje || 'Error al subir la foto');
         setTimeout(() => this.errorMsg.set(null), 3000);
       },
     });
@@ -193,6 +206,27 @@ export class ProfileComponent implements OnInit {
   // ========== IR AL CHAT ==========
   irAlChat(): void {
     // Redirigir al chat
+  }
+
+  // ========== MIS PUBLICACIONES ==========
+  irAMisPublicaciones(): void {
+    document.getElementById('mis-publicaciones')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  eliminarPost(post: Post): void {
+    if (!confirm(`¿Seguro que quieres eliminar "${post.titulo}"? Esta acción no se puede deshacer.`)) return;
+    this.postService.eliminar(post.id).subscribe({
+      next: () => {
+        this.misPosts.update(lista => lista.filter(p => p.id !== post.id));
+        this.totalPosts.set(this.misPosts().length);
+        this.exitoMsg.set('Publicación eliminada correctamente');
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.errorMsg.set(err?.error?.mensaje || 'Error al eliminar la publicación');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      },
+    });
   }
 
   // ========== OBTENER INICIAL ==========

@@ -75,6 +75,13 @@ export class AuthService {
     this.usuarioActual.set(res.usuario);
   }
 
+  // Actualiza los datos del usuario en sesión (ej: nueva foto de perfil)
+  // y los persiste en localStorage para que se reflejen en todo el sitio.
+  actualizarUsuario(user: User): void {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.usuarioActual.set(user);
+  }
+
   private leerUsuarioGuardado(): User | null {
     const guardado = localStorage.getItem(USER_KEY);
     return guardado ? JSON.parse(guardado) : null;

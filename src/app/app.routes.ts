@@ -59,6 +59,11 @@ export const routes: Routes = [
           import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent),
       },
       {
+        path: 'comunidad/:id/editar',
+        loadComponent: () =>
+          import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent),
+      },
+      {
         path: 'perfil',
         loadComponent: () =>
           import('./features/profile/profile.component').then(m => m.ProfileComponent),

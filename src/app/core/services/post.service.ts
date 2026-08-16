@@ -35,4 +35,14 @@ export class PostService {
   comentar(postId: number, contenido: string): Observable<Comentario> {
     return this.http.post<Comentario>(`${this.baseUrl}/${postId}/comentarios`, { contenido });
   }
+
+  // ✅ ELIMINAR POST (REAL - CON BACKEND, solo el autor)
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  // ✅ ACTUALIZAR POST (REAL - CON BACKEND, solo el autor, multipart con adjuntos)
+  actualizar(id: number, formData: FormData): Observable<Post> {
+    return this.http.put<Post>(`${this.baseUrl}/${id}`, formData);
+  }
 }

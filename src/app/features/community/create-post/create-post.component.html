@@ -1,6 +1,9 @@
 <!-- create-post.component.html -->
-<h1 class="page-title">Nueva publicacion</h1>
-<p class="page-sub">Cuenta tu caso, pide ayuda o comparte tu historia.</p>
+@if (cargando()) {
+  <p class="page-sub">Cargando publicacion...</p>
+} @else {
+<h1 class="page-title">{{ esEdicion() ? 'Editar publicacion' : 'Nueva publicacion' }}</h1>
+<p class="page-sub">{{ esEdicion() ? 'Actualiza los campos que quieras cambiar.' : 'Cuenta tu caso, pide ayuda o comparte tu historia.' }}</p>
 
 <form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
 
@@ -46,6 +49,37 @@
     <input id="link" type="url" formControlName="link" placeholder="https://ejemplo.com/articulo">
   </div>
 
+  @if (esEdicion() && adjuntosActuales().length > 0) {
+    <div class="field">
+      <label>Archivos actuales</label>
+      <ul class="archivos-lista">
+        @for (a of adjuntosActuales(); track a.id) {
+          <li>
+            <span class="archivo-nombre">{{ a.nombre }}</span>
+            @if (a.pesoKb) {
+              <span class="archivo-tamano">({{ (a.pesoKb / 1024).toFixed(2) }} MB)</span>
+            }
+            <button type="button" class="btn-remove" (click)="marcarParaEliminar(a)" title="Quitar este archivo">X</button>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (esEdicion() && adjuntosAEliminar().length > 0) {
+    <div class="field">
+      <label>Se eliminaran al guardar</label>
+      <ul class="archivos-lista">
+        @for (a of adjuntosAEliminar(); track a.id) {
+          <li>
+            <span class="archivo-nombre">{{ a.nombre }}</span>
+            <button type="button" class="btn-restore" (click)="restaurarAdjunto(a)" title="Restaurar">Deshacer</button>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
   <div class="field">
     <label for="archivos">Adjuntar archivos (opcional, maximo 10MB cada uno)</label>
     <input 
@@ -69,11 +103,12 @@
     }
   </div>
 
-  @if (errorMsg()) {
-    <p class="form-alert">{{ errorMsg() }}</p>
-  }
+@if (errorMsg()) {
+  <p class="form-alert">{{ errorMsg() }}</p>
+}
 
-  <button type="submit" class="btn btn--primary" [disabled]="publicando()">
-    {{ publicando() ? 'Publicando...' : 'Publicar' }}
-  </button>
+<button type="submit" class="btn btn--primary" [disabled]="publicando()">
+  {{ publicando() ? (esEdicion() ? 'Guardando...' : 'Publicando...') : (esEdicion() ? 'Guardar cambios' : 'Publicar') }}
+</button>
 </form>
+}

@@ -17,7 +17,9 @@
         <span class="post-card__badge">{{ etiquetas[post().categoria] }}</span>
       </div>
     </div>
-    <span class="post-card__fecha">{{ post().fechaCreacion | date:'dd MMM yyyy' }}</span>
+    <div class="post-card__header-right">
+      <span class="post-card__fecha">{{ post().fechaCreacion | date:'dd MMM yyyy' }}</span>
+    </div>
   </div>
 
   <!-- TITULO -->
