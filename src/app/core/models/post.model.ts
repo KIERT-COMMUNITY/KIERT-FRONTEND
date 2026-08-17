@@ -1,10 +1,10 @@
-// post.model.ts -> forma de una publicación de la comunidad y sus comentarios.
+// post.model.ts
 export interface Adjunto {
   id: number;
-  tipo: 'archivo' | 'link'; // un adjunto puede ser un archivo subido o un enlace externo
-  nombre: string;           // nombre visible, ej: "informe-incidente.pdf"
-  url: string;              // URL pública (en Supabase Storage si es archivo)
-  pesoKb?: number;          // solo aplica si tipo === 'archivo'
+  tipo: 'archivo' | 'link';
+  nombre: string;
+  url: string;
+  pesoKb?: number;
 }
 
 export interface Post {
@@ -21,7 +21,7 @@ export interface Post {
   totalComentarios: number;
   fechaCreacion: string;
 }
-
+// post.model.ts - ACTUALIZADO
 export interface Comentario {
   id: number;
   autor: {
@@ -31,4 +31,8 @@ export interface Comentario {
   };
   contenido: string;
   fechaCreacion: string;
+  reacciones?: {
+    likes: number;
+    loves: number;
+  };
 }

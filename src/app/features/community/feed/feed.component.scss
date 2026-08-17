@@ -1,4 +1,4 @@
-// feed.component.scss - Anuncios más pequeños
+// feed.component.scss
 .feed-container {
   max-width: 820px;
   margin: 0 auto;
@@ -52,7 +52,7 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
-  padding: 12px 16px;
+  padding: 16px 20px;
   background: #131a22;
   border-radius: 10px;
   border: 1px solid #26313c;
@@ -61,7 +61,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 16px 24px;
   }
 
   &__info {
@@ -69,47 +69,98 @@
   }
 
   h1 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 700;
     margin: 0;
     color: #e6edf3;
     font-family: 'JetBrains Mono', monospace;
   }
 
+  &__actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
   .btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 16px;
-    background: #2dd4bf;
-    color: #0d1117;
+    gap: 8px;
+    padding: 8px 20px;
     border: none;
     border-radius: 6px;
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     text-decoration: none;
     white-space: nowrap;
 
-    &:hover {
-      opacity: 0.85;
-      transform: translateY(-2px);
-      text-decoration: none;
-      box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+    svg {
+      stroke-width: 2;
+      flex-shrink: 0;
     }
 
-    .btn-icon {
-      font-size: 1.1rem;
-      line-height: 1;
+    &--primary {
+      background: #2dd4bf;
+      color: #0d1117;
+
+      &:hover {
+        opacity: 0.85;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+      }
+
+      svg {
+        stroke: #0d1117;
+      }
+    }
+
+    &--secondary {
+      background: #1b232c;
+      color: #8b98a5;
+      border: 1px solid #26313c;
+
+      &:hover {
+        border-color: #2dd4bf;
+        color: #2dd4bf;
+        transform: translateY(-2px);
+      }
+
+      svg {
+        stroke: currentColor;
+      }
     }
   }
 }
 
 .feed-sub {
   color: #8b98a5;
-  font-size: 0.8rem;
-  margin: 2px 0 0;
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+}
+
+// ========== ERROR ==========
+.feed-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid #f85149;
+  border-radius: 8px;
+  color: #f85149;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+
+  button {
+    background: none;
+    border: none;
+    color: #f85149;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 4px;
+  }
 }
 
 // ========== ESTADOS ==========
@@ -118,13 +169,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 40px 16px;
   color: #8b98a5;
   text-align: center;
   background: #131a22;
   border-radius: 10px;
   border: 1px solid #26313c;
-  min-height: 150px;
+  min-height: 180px;
 
   .spinner {
     width: 32px;
@@ -134,6 +185,23 @@
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin-bottom: 12px;
+  }
+
+  &--empty {
+    .empty-icon {
+      margin-bottom: 12px;
+      color: #26313c;
+      
+      svg {
+        stroke: currentColor;
+      }
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #8b98a5;
+    }
   }
 }
 
@@ -147,175 +215,197 @@
   gap: 16px;
 }
 
-// ========== BANNER DE ANUNCIO PEQUEÑO ==========
-.ad-banner {
-  margin-top: 16px;
-  border-radius: 8px;
+// ============================================================
+// ANUNCIO DESTACADO - BANNER COMPLETO
+// ============================================================
+.ad-banner-destacado {
+  margin: 16px 0 20px;
+  border-radius: 12px;
   overflow: hidden;
-  transition: all 0.3s;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid #26313c;
 
   &:hover {
+    border-color: #2dd4bf;
     transform: scale(1.01);
+    box-shadow: 0 4px 20px rgba(45, 212, 191, 0.08);
   }
 }
 
 .ad-banner-link {
   display: block;
+  position: relative;
   text-decoration: none;
+  width: 100%;
 }
 
 .ad-banner-img {
   width: 100%;
-  height: 80px;
+  height: auto;
+  max-height: 200px;
+  min-height: 100px;
   object-fit: cover;
   display: block;
+  transition: transform 0.4s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
 }
 
-// ========== CARRUSEL DE ANUNCIOS PEQUEÑOS ==========
-.ad-carousel {
-  margin-top: 12px;
+.ad-banner-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+  color: #fff;
+
+  @media (max-width: 480px) {
+    padding: 10px 14px;
+  }
+}
+
+.ad-banner-badge {
+  display: inline-block;
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.15);
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-bottom: 2px;
+}
+
+.ad-banner-titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 2px;
+  color: #fff;
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
+}
+
+.ad-banner-desc {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 4px;
+
+  @media (max-width: 480px) {
+    font-size: 0.65rem;
+  }
+}
+
+.ad-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #2dd4bf;
+  transition: all 0.2s;
+
+  &:hover {
+    gap: 8px;
+    opacity: 0.8;
+  }
+}
+
+// ============================================================
+// CARRUSEL DE MINI BANNERS RECTANGULARES
+// ============================================================
+.ad-carrusel {
+  margin-top: 8px;
   overflow: hidden;
   padding: 4px 0;
 }
 
-.ad-carousel-track {
+.ad-carrusel-track {
   display: flex;
-  gap: 8px;
-  animation: scrollAds 20s linear infinite;
+  gap: 10px;
+  animation: scrollAds 25s linear infinite;
   width: max-content;
 }
 
-.ad-card {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  background: #1b232c;
-  border: 1px solid #26313c;
-  border-radius: 6px;
-  min-width: 100px;
-  transition: all 0.3s;
+.ad-mini-banner {
   flex-shrink: 0;
+  width: 180px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #26313c;
+  transition: all 0.3s ease;
 
   &:hover {
     border-color: #2dd4bf;
-    transform: scale(1.03);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(45, 212, 191, 0.12);
   }
 }
 
-.ad-card-img {
-  width: 32px;
-  height: 32px;
+.ad-mini-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  position: relative;
+}
+
+.ad-mini-img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 4px;
+  display: block;
+  transition: transform 0.4s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 }
 
-.ad-card-info {
+.ad-mini-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 60%);
   display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding: 2px 4px 2px 2px;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 6px 8px;
 }
 
-.ad-card-text {
-  font-size: 0.6rem;
-  color: #e6edf3;
-  white-space: nowrap;
-}
-
-.ad-card-tag {
-  font-size: 0.5rem;
-  color: #0d1117;
+.ad-mini-badge {
+  font-size: 0.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 8px;
+  border-radius: 12px;
   background: #2dd4bf;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-weight: 600;
-  display: inline-block;
-  width: fit-content;
+  color: #0d1117;
+  white-space: nowrap;
 }
 
 @keyframes scrollAds {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-// ========== ANUNCIO HORIZONTAL PEQUEÑO ==========
-.ad-footer {
-  margin-top: 16px;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #1b232c, #131a22);
-  border: 1px solid #26313c;
-  border-radius: 8px;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: #2dd4bf;
-    box-shadow: 0 2px 12px rgba(45, 212, 191, 0.08);
-  }
-}
-
-.ad-footer-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.ad-footer-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ad-footer-img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.ad-footer-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.ad-footer-title {
-  font-weight: 600;
-  font-size: 0.75rem;
-  color: #e6edf3;
-}
-
-.ad-footer-desc {
-  font-size: 0.6rem;
-  color: #8b98a5;
-}
-
-.ad-footer-btn {
-  padding: 4px 14px;
-  background: #2dd4bf;
-  color: #0d1117;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.7rem;
-  transition: all 0.2s;
-  white-space: nowrap;
-
-  &:hover {
-    opacity: 0.8;
-    text-decoration: none;
-  }
-}
-
-// ========== RESPONSIVE ==========
+// ============================================================
+// RESPONSIVE
+// ============================================================
 @media (max-width: 480px) {
   .feed-container {
-    padding: 6px;
+    padding: 8px 4px;
   }
 
   .feed-logo-section {
@@ -332,63 +422,81 @@
   }
 
   .feed-head {
-    padding: 10px 12px;
-    border-radius: 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+
+    h1 {
+      font-size: 1.1rem;
+    }
+
+    &__actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
   }
 
-  .feed-head h1 {
-    font-size: 1rem;
-  }
-
-  .feed-head .btn {
-    width: 100%;
-    justify-content: center;
-    padding: 8px;
+  .feed-sub {
     font-size: 0.8rem;
   }
 
+  .feed-estado {
+    padding: 24px 12px;
+    min-height: 120px;
+  }
+
+  .ad-banner-destacado {
+    margin: 12px 0 16px;
+    border-radius: 8px;
+  }
+
   .ad-banner-img {
-    height: 60px;
+    max-height: 140px;
+    min-height: 70px;
   }
 
-  .ad-card {
-    min-width: 80px;
-    padding: 3px 6px;
+  .ad-banner-overlay {
+    padding: 8px 12px;
   }
 
-  .ad-card-img {
-    width: 24px;
-    height: 24px;
+  .ad-banner-titulo {
+    font-size: 0.8rem;
   }
 
-  .ad-card-text {
-    font-size: 0.5rem;
-  }
-
-  .ad-card-tag {
-    font-size: 0.45rem;
-    padding: 1px 4px;
-  }
-
-  .ad-footer {
-    padding: 6px 10px;
-  }
-
-  .ad-footer-img {
-    width: 32px;
-    height: 32px;
-  }
-
-  .ad-footer-title {
-    font-size: 0.65rem;
-  }
-
-  .ad-footer-desc {
-    font-size: 0.55rem;
-  }
-
-  .ad-footer-btn {
+  .ad-banner-desc {
     font-size: 0.6rem;
-    padding: 3px 10px;
+  }
+
+  .ad-banner-btn {
+    font-size: 0.6rem;
+  }
+
+  .ad-mini-banner {
+    width: 140px;
+    height: 70px;
+    border-radius: 6px;
+  }
+
+  .ad-mini-badge {
+    font-size: 0.35rem;
+    padding: 1px 6px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .ad-banner-img {
+    max-height: 170px;
+    min-height: 85px;
+  }
+
+  .ad-mini-banner {
+    width: 160px;
+    height: 80px;
   }
 }

@@ -20,11 +20,19 @@
       <p class="feed-sub">Casos, dudas e historias reales para ayudarse entre todos.</p>
     </div>
     <div class="feed-head__actions">
-      <button class="btn btn--secondary" (click)="recargar()" title="Recargar">
-        🔄
+      <button class="btn btn--secondary" (click)="recargar()" title="Actualizar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        Actualizar
       </button>
       <a [routerLink]="['/comunidad/nueva-publicacion']" class="btn btn--primary">
-        <span class="btn-icon">+</span> Publicar
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Publicar
       </a>
     </div>
   </div>
@@ -33,7 +41,7 @@
   @if (errorMsg()) {
     <div class="feed-error">
       {{ errorMsg() }}
-      <button (click)="errorMsg.set(null)">✕</button>
+      <button (click)="errorMsg.set(null)">×</button>
     </div>
   }
 
@@ -45,91 +53,80 @@
     </div>
   } @else if (posts().length === 0) {
     <div class="feed-estado feed-estado--empty">
-      <p>📝 Todavia no hay publicaciones. Se el primero en publicar.</p>
+      <div class="empty-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <p>Todavía no hay publicaciones. Sé el primero en publicar.</p>
     </div>
   } @else {
     <div class="feed-grid">
       @for (post of posts(); track post.id) {
-        <!-- ✅ PASAR EL ID CORRECTAMENTE -->
         <kiert-post-card [post]="post" (click)="irAlPost(post.id)"></kiert-post-card>
       }
     </div>
   }
 
-  <!-- BANNER DE ANUNCIO PEQUEÑO -->
-  <div class="ad-banner">
-    <a href="#" class="ad-banner-link">
-      <img src="/assets/images/anuncio/anuncio1.png" alt="Anuncio" class="ad-banner-img">
+  <!-- ========================================================= -->
+  <!-- ANUNCIO DESTACADO - BANNER COMPLETO -->
+  <!-- ========================================================= -->
+  <div class="ad-banner-destacado">
+    <a href="#" class="ad-banner-link" target="_blank">
+      <img 
+        [src]="imagenes.anuncioDestacado" 
+        alt="Anuncio destacado" 
+        class="ad-banner-img"
+        (error)="onImageError($event)"
+        loading="lazy"
+      >
+      <div class="ad-banner-overlay">
+        <span class="ad-banner-badge">Destacado</span>
+        <h3 class="ad-banner-titulo">Ofertas exclusivas</h3>
+        <p class="ad-banner-desc">Descuentos en ciberseguridad</p>
+        <span class="ad-banner-btn">Ver ofertas →</span>
+      </div>
     </a>
   </div>
 
-  <!-- CARRUSEL DE ANUNCIOS PEQUEÑOS -->
-  <div class="ad-carousel">
-    <div class="ad-carousel-track">
-      <div class="ad-card">
-        <img src="/assets/images/anuncio/anuncio-1.jpg" alt="Anuncio 1" class="ad-card-img">
-        <div class="ad-card-info">
-          <span class="ad-card-text">Oferta</span>
-          <span class="ad-card-tag">50%</span>
+  <!-- ========================================================= -->
+  <!-- CARRUSEL DE MINI BANNERS RECTANGULARES -->
+  <!-- ========================================================= -->
+  <div class="ad-carrusel">
+    <div class="ad-carrusel-track">
+      @for (anuncio of imagenes.anuncios; track $index) {
+        <div class="ad-mini-banner">
+          <a href="#" class="ad-mini-link" target="_blank">
+            <img 
+              [src]="anuncio" 
+              [alt]="'Anuncio ' + ($index + 1)" 
+              class="ad-mini-img"
+              (error)="onImageError($event)"
+              loading="lazy"
+            >
+            <div class="ad-mini-overlay">
+              <span class="ad-mini-badge">Nuevo</span>
+            </div>
+          </a>
         </div>
-      </div>
-      <div class="ad-card">
-        <img src="/assets/images/anuncio/anuncio-2.jpg" alt="Anuncio 2" class="ad-card-img">
-        <div class="ad-card-info">
-          <span class="ad-card-text">Curso</span>
-          <span class="ad-card-tag">Gratis</span>
-        </div>
-      </div>
-      <div class="ad-card">
-        <img src="/assets/images/anuncio/anuncio-3.jpg" alt="Anuncio 3" class="ad-card-img">
-        <div class="ad-card-info">
-          <span class="ad-card-text">Juego</span>
-          <span class="ad-card-tag">Popular</span>
-        </div>
-      </div>
-      <div class="ad-card">
-        <img src="/assets/images/anuncio/anuncio-4.jpg" alt="Anuncio 4" class="ad-card-img">
-        <div class="ad-card-info">
-          <span class="ad-card-text">App</span>
-          <span class="ad-card-tag">Gratis</span>
-        </div>
-      </div>
-      <div class="ad-card">
-        <img src="/assets/images/anuncio/anuncio-5.jpg" alt="Anuncio 5" class="ad-card-img">
-        <div class="ad-card-info">
-          <span class="ad-card-text">Oportunidad</span>
-          <span class="ad-card-tag">Urgente</span>
-        </div>
-      </div>
+      }
       <!-- DUPLICADO PARA EFECTO INFINITO -->
-      <div class="ad-card">
-        <img src="/assets/images/anuncio/anuncio-1.jpg" alt="Anuncio 1" class="ad-card-img">
-        <div class="ad-card-info">
-          <span class="ad-card-text">Oferta</span>
-          <span class="ad-card-tag">50%</span>
+      @for (anuncio of imagenes.anuncios; track $index) {
+        <div class="ad-mini-banner">
+          <a href="#" class="ad-mini-link" target="_blank">
+            <img 
+              [src]="anuncio" 
+              [alt]="'Anuncio ' + ($index + 1)" 
+              class="ad-mini-img"
+              (error)="onImageError($event)"
+              loading="lazy"
+            >
+            <div class="ad-mini-overlay">
+              <span class="ad-mini-badge">Nuevo</span>
+            </div>
+          </a>
         </div>
-      </div>
-      <div class="ad-card">
-        <img src="/assets/images/anuncio/anuncio-2.jpg" alt="Anuncio 2" class="ad-card-img">
-        <div class="ad-card-info">
-          <span class="ad-card-text">Curso</span>
-          <span class="ad-card-tag">Gratis</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ANUNCIO HORIZONTAL PEQUEÑO (PIE) -->
-  <div class="ad-footer">
-    <div class="ad-footer-content">
-      <div class="ad-footer-left">
-        <img src="/assets/images/anuncio/banner-1.jpg" alt="Anuncio" class="ad-footer-img">
-        <div class="ad-footer-text">
-          <span class="ad-footer-title">Publicidad</span>
-          <span class="ad-footer-desc">Contacta para anunciar</span>
-        </div>
-      </div>
-      <a href="#" class="ad-footer-btn">Contactar</a>
+      }
     </div>
   </div>
 </div>

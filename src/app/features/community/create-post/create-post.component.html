@@ -1,13 +1,13 @@
 <!-- create-post.component.html -->
 <div class="create-post-container">
-  <h1 class="page-title">Nueva publicacion</h1>
+  <h1 class="page-title">Nueva publicación</h1>
   <p class="page-sub">Cuenta tu caso, pide ayuda o comparte tu historia.</p>
 
   <form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
 
     <!-- CATEGORÍA -->
     <div class="field">
-      <label for="categoria">Categoria</label>
+      <label for="categoria">Categoría</label>
       <select id="categoria" formControlName="categoria">
         @for (cat of categorias; track cat.valor) {
           <option [value]="cat.valor">{{ cat.etiqueta }}</option>
@@ -17,7 +17,7 @@
 
     <!-- TÍTULO -->
     <div class="field">
-      <label for="titulo">Titulo</label>
+      <label for="titulo">Título</label>
       <input 
         id="titulo" 
         type="text" 
@@ -33,16 +33,16 @@
 
     <!-- DESCRIPCIÓN -->
     <div class="field">
-      <label for="descripcion">Descripcion</label>
+      <label for="descripcion">Descripción</label>
       <textarea 
         id="descripcion" 
         formControlName="descripcion" 
         rows="6" 
-        placeholder="Explica que paso, que necesitas, o que aprendiste..." 
+        placeholder="Explica qué pasó, qué necesitas o qué aprendiste..." 
         [class.is-invalid]="descripcion.invalid && descripcion.touched"
       ></textarea>
       @if (descripcion.invalid && descripcion.touched) {
-        <span class="error-msg">Minimo 20 caracteres.</span>
+        <span class="error-msg">Mínimo 20 caracteres.</span>
       }
     </div>
 
@@ -54,7 +54,7 @@
 
     <!-- ARCHIVOS -->
     <div class="field">
-      <label for="archivos">Adjuntar archivos (opcional, maximo 10MB cada uno)</label>
+      <label for="archivos">Adjuntar archivos (opcional, máximo 10MB cada uno)</label>
       <input 
         id="archivos" 
         type="file" 
@@ -69,7 +69,7 @@
             <li>
               <span class="archivo-nombre">{{ a.name }}</span>
               <span class="archivo-tamano">({{ (a.size / 1024 / 1024).toFixed(2) }} MB)</span>
-              <button type="button" class="btn-remove" (click)="quitarArchivo(a.name)">✕</button>
+              <button type="button" class="btn-remove" (click)="quitarArchivo(a.name)">×</button>
             </li>
           }
         </ul>

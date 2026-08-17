@@ -4,9 +4,12 @@
   <!-- ========== HEADER ========== -->
   <div class="header">
     <button class="btn-volver" (click)="volverAlFeed()">
-      ← Volver al feed
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Volver al feed
     </button>
-    <h1>📝 Mis Publicaciones</h1>
+    <h1>Mis Publicaciones</h1>
     <p class="subtitle">Todas tus publicaciones en la comunidad</p>
   </div>
 
@@ -14,13 +17,13 @@
   @if (errorMsg()) {
     <div class="alert alert-error">
       {{ errorMsg() }}
-      <button (click)="errorMsg.set(null)">✕</button>
+      <button (click)="errorMsg.set(null)">×</button>
     </div>
   }
   @if (exitoMsg()) {
     <div class="alert alert-success">
       {{ exitoMsg() }}
-      <button (click)="exitoMsg.set(null)">✕</button>
+      <button (click)="exitoMsg.set(null)">×</button>
     </div>
   }
 
@@ -32,11 +35,19 @@
     </div>
   } @else if (posts().length === 0) {
     <div class="empty-state">
-      <div class="empty-icon">📝</div>
+      <div class="empty-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
       <h3>No tienes publicaciones</h3>
       <p>Comienza a compartir tus casos, dudas o historias con la comunidad.</p>
       <button class="btn-primary" routerLink="/comunidad/nueva-publicacion">
-        + Crear publicación
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Crear publicación
       </button>
     </div>
   } @else {
@@ -57,13 +68,21 @@
                 (click)="eliminarPublicacion(post.id)"
                 title="Eliminar publicación"
               >
-                🗑️
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
               </button>
             </div>
           </div>
           <p class="post-descripcion">{{ post.descripcion | slice:0:150 }}{{ post.descripcion.length > 150 ? '...' : '' }}</p>
           <div class="post-footer">
-            <span>💬 {{ post.totalComentarios || 0 }} comentarios</span>
+            <span class="comentarios-count">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+              {{ post.totalComentarios || 0 }} comentarios
+            </span>
             <a [routerLink]="['/comunidad', post.id]" class="btn-ver">Ver publicación</a>
           </div>
         </div>

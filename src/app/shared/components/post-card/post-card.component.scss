@@ -11,6 +11,7 @@
   border: 1px solid #26313c;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
+  overflow: hidden;
 
   &:hover {
     text-decoration: none !important;
@@ -19,6 +20,7 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   }
 
+  // ========== HEADER ==========
   &__header {
     display: flex;
     align-items: center;
@@ -61,16 +63,21 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    flex: 1;
+    min-width: 0;
   }
 
   &__username {
     font-weight: 600;
     font-size: 0.9rem;
     color: #e6edf3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__badge {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     color: #2dd4bf;
     background: rgba(45, 212, 191, 0.1);
     padding: 2px 8px;
@@ -79,32 +86,42 @@
     width: fit-content;
     text-transform: uppercase;
     font-weight: 600;
+    letter-spacing: 0.3px;
   }
 
   &__fecha {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #8b98a5;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
+  // ========== TÍTULO ==========
   &__titulo {
     font-size: 1.1rem;
     font-weight: 700;
     margin: 8px 0;
     color: #e6edf3;
     line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
+  // ========== DESCRIPCIÓN ==========
   &__desc {
     color: #8b98a5;
     font-size: 0.9rem;
     line-height: 1.6;
-    margin: 8px 0;
+    margin: 8px 0 12px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
+  // ========== IMAGEN - ADAPTATIVA ==========
   &__imagen {
     margin: 12px 0;
     border-radius: 8px;
@@ -114,7 +131,9 @@
     
     img {
       width: 100%;
-      height: 260px;
+      height: auto;
+      max-height: 340px;
+      min-height: 160px;
       object-fit: cover;
       display: block;
       transition: transform 0.4s ease;
@@ -129,19 +148,21 @@
     position: absolute;
     top: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.75);
     color: white;
-    padding: 4px 12px;
+    padding: 4px 14px;
     border-radius: 0 0 0 8px;
     font-size: 0.8rem;
     font-weight: 600;
+    backdrop-filter: blur(4px);
   }
 
+  // ========== FOOTER ==========
   &__footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 16px;
+    margin-top: 14px;
     padding-top: 12px;
     border-top: 1px solid #26313c;
   }
@@ -150,6 +171,7 @@
     display: flex;
     gap: 16px;
     align-items: center;
+    flex-wrap: wrap;
   }
 
   &__stat {
@@ -166,6 +188,7 @@
   .post-card {
     padding: 14px;
     border-radius: 0;
+    margin-bottom: 12px;
 
     &__avatar {
       width: 32px;
@@ -184,21 +207,65 @@
       font-size: 0.8rem;
     }
 
-    &__imagen img {
-      height: 180px;
+    &__imagen {
+      margin: 8px 0;
+      
+      img {
+        max-height: 220px;
+        min-height: 120px;
+      }
     }
 
     &__badge {
-      font-size: 0.5rem;
+      font-size: 0.45rem;
       padding: 1px 6px;
     }
 
     &__fecha {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
     }
 
     &__stat {
       font-size: 0.7rem;
     }
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .post-card {
+    padding: 16px;
+  }
+
+  .post-card__imagen img {
+    max-height: 280px;
+    min-height: 140px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .post-card__imagen img {
+    max-height: 320px;
+    min-height: 160px;
+  }
+}
+// Agregar al final de post-card.component.scss
+
+.post-card__avatar {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    border: 2px solid #2dd4bf;
+  }
+}
+
+.post-card__username {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #2dd4bf;
+    text-decoration: underline;
   }
 }

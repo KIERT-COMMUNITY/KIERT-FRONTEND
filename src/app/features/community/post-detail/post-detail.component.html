@@ -6,56 +6,76 @@
   </div>
 } @else if (errorMsg()) {
   <div class="error-container">
-    <div class="error-icon">🔍</div>
+    <div class="error-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
     <h2>{{ errorMsg() }}</h2>
     <p>La publicación que buscas no está disponible o ha sido eliminada.</p>
     <button class="btn-volver" (click)="volverAlFeed()">
-      ← Volver a la comunidad
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Volver a la comunidad
     </button>
   </div>
 } @else if (!post()) {
   <div class="error-container">
-    <div class="error-icon">📝</div>
+    <div class="error-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+    </div>
     <h2>Publicación no encontrada</h2>
     <p>Esta publicación no existe o fue eliminada.</p>
     <button class="btn-volver" (click)="volverAlFeed()">
-      ← Volver a la comunidad
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Volver a la comunidad
     </button>
   </div>
 } @else {
+  <!-- ✅ AHORA SEGURO: post() existe -->
+  @let postActual = post()!;
+  
   <article class="post-detail">
     
-    <!-- HEADER CON FOTO DE PERFIL -->
+    <!-- HEADER CON FOTO DE PERFIL CLICKEABLE -->
     <div class="post-detail__header">
       <div class="post-detail__user">
-        <!-- ✅ FOTO DE PERFIL DEL AUTOR -->
-        <div class="post-detail__avatar">
-          @if (post()!.autor.fotoPerfilUrl) {
+        <div class="post-detail__avatar" [routerLink]="['/usuario', postActual.autor.id]">
+          @if (postActual.autor.fotoPerfilUrl) {
             <img 
-              [src]="post()!.autor.fotoPerfilUrl" 
-              [alt]="post()!.autor.nombreUsuario"
+              [src]="postActual.autor.fotoPerfilUrl" 
+              [alt]="postActual.autor.nombreUsuario"
               class="avatar-img"
               (error)="onAvatarError($event)"
             >
           } @else {
-            <span class="avatar-inicial">{{ post()!.autor.nombreUsuario.charAt(0).toUpperCase() }}</span>
+            <span class="avatar-inicial">{{ postActual.autor.nombreUsuario.charAt(0).toUpperCase() }}</span>
           }
         </div>
         <div class="post-detail__user-info">
-          <span class="post-detail__username">@{{ post()!.autor.nombreUsuario }}</span>
-          <span class="post-detail__badge">{{ etiquetas[post()!.categoria] }}</span>
+          <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
+            @{{ postActual.autor.nombreUsuario }}
+          </span>
+          <span class="post-detail__badge">{{ etiquetas[postActual.categoria] }}</span>
         </div>
       </div>
-      <span class="post-detail__fecha">{{ post()!.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
+      <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
     </div>
 
-    <!-- TITULO -->
-    <h1 class="post-detail__titulo">{{ post()!.titulo }}</h1>
+    <!-- TÍTULO -->
+    <h1 class="post-detail__titulo">{{ postActual.titulo }}</h1>
     
-    <!-- DESCRIPCION -->
-    <p class="post-detail__desc">{{ post()!.descripcion }}</p>
+    <!-- DESCRIPCIÓN -->
+    <p class="post-detail__desc">{{ postActual.descripcion }}</p>
 
-    <!-- GALERIA DE IMAGENES -->
+    <!-- GALERÍA DE IMÁGENES -->
     @if (tieneImagenes()) {
       <div class="post-detail__galeria" [class.galeria-multiple]="cantidadImagenes() > 1">
         @for (img of obtenerImagenes(); track img.id) {
@@ -86,60 +106,128 @@
       </div>
     }
 
-    <!-- ESTADISTICAS -->
-    <div class="post-detail__stats">
-      <div class="post-detail__stat">
-        <span class="stat-icon">💬</span>
-        <span>{{ post()!.totalComentarios || 0 }} comentarios</span>
+    <!-- REACCIONES Y ESTADÍSTICAS -->
+    <div class="post-detail__interactions">
+      <div class="reactions">
+        <button class="reaction-btn" [class.active]="userReactions().like" (click)="reaccionar('like')" title="Me gusta">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/>
+            <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
+          </svg>
+          <span class="reaction-count">{{ reacciones().likes }}</span>
+        </button>
+        <button class="reaction-btn" [class.active]="userReactions().love" (click)="reaccionar('love')" title="Me encanta">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+          <span class="reaction-count">{{ reacciones().loves }}</span>
+        </button>
+        <button class="reaction-btn" [class.active]="userReactions().haha" (click)="reaccionar('haha')" title="Me divierte">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+          <span class="reaction-count">{{ reacciones().hahas }}</span>
+        </button>
+        <button class="reaction-btn" [class.active]="userReactions().wow" (click)="reaccionar('wow')" title="Me asombra">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+            <circle cx="8" cy="8" r="0.5" fill="currentColor"/>
+            <circle cx="16" cy="8" r="0.5" fill="currentColor"/>
+          </svg>
+          <span class="reaction-count">{{ reacciones().wows }}</span>
+        </button>
+        <button class="reaction-btn" [class.active]="userReactions().sad" (click)="reaccionar('sad')" title="Me entristece">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+          <span class="reaction-count">{{ reacciones().sads }}</span>
+        </button>
+        <button class="reaction-btn" [class.active]="userReactions().angry" (click)="reaccionar('angry')" title="Me enfada">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+            <circle cx="8" cy="8" r="0.5" fill="currentColor"/>
+            <circle cx="16" cy="8" r="0.5" fill="currentColor"/>
+          </svg>
+          <span class="reaction-count">{{ reacciones().angrys }}</span>
+        </button>
       </div>
-      @if (tieneAdjuntos()) {
-        <div class="post-detail__stat">
-          <span class="stat-icon">📎</span>
-          <span>{{ post()!.adjuntos.length }} adjuntos</span>
-        </div>
-      }
+
+      <div class="post-stats">
+        <span class="post-stat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          {{ postActual.totalComentarios || 0 }} comentarios
+        </span>
+        @if (tieneAdjuntos()) {
+          <span class="post-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            {{ postActual.adjuntos.length }} adjuntos
+          </span>
+        }
+      </div>
     </div>
   </article>
 
-  <!-- SECCION DE COMENTARIOS -->
+  <!-- ========== SECCIÓN DE COMENTARIOS ========== -->
   <section class="comentarios">
     <div class="comentarios__header">
       <h3>Comentarios</h3>
       <span class="comentarios__count">{{ comentarios().length }}</span>
     </div>
 
-    <!-- post-detail.component.html - SOLO LA PARTE DEL FORMULARIO DE COMENTARIOS -->
-<form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
-  <div class="comentarios__input-wrapper">
-    <div class="comentarios__avatar-mini">
-      @if (authService.usuario()?.fotoPerfilUrl) {
-        <img 
-          [src]="authService.usuario()?.fotoPerfilUrl" 
-          alt="Tu foto"
-          class="avatar-mini-img"
+    <!-- FORMULARIO DE COMENTARIO -->
+    <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
+      <div class="comentarios__input-wrapper">
+        <div class="comentarios__avatar-mini">
+          @if (authService.usuario()?.fotoPerfilUrl) {
+            <img 
+              [src]="authService.usuario()?.fotoPerfilUrl" 
+              alt="Tu foto"
+              class="avatar-mini-img"
+            >
+          } @else {
+            {{ getInicialUsuario() }}
+          }
+        </div>
+        <input
+          formControlName="contenido"
+          type="text"
+          placeholder="{{ estaLogueado() ? 'Escribe un comentario...' : 'Inicia sesión para comentar' }}"
+          class="comentarios__input"
+          [class.disabled]="!estaLogueado()"
         >
-      } @else {
-        {{ getInicialUsuario() }}
+        <button type="submit" class="comentarios__btn" [class.disabled]="!estaLogueado()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 2 11 13"/>
+            <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+      </div>
+      @if (formComentario.get('contenido')?.invalid && formComentario.get('contenido')?.touched) {
+        <span class="error-text">El comentario debe tener al menos 2 caracteres</span>
       }
-    </div>
-    <input
-      formControlName="contenido"
-      type="text"
-      placeholder="Escribe un comentario..."
-      class="comentarios__input"
-      [class.disabled]="!estaLogueado()"
-    >
-    <button type="submit" class="comentarios__btn" [class.disabled]="!estaLogueado()">
-      {{ enviandoComentario() ? '...' : 'Publicar' }}
-    </button>
-  </div>
-  @if (formComentario.get('contenido')?.invalid && formComentario.get('contenido')?.touched) {
-    <span class="error-text">El comentario debe tener al menos 2 caracteres</span>
-  }
-  @if (!estaLogueado()) {
-    <p class="login-hint">Inicia sesión para comentar</p>
-  }
-</form>
+      @if (!estaLogueado()) {
+        <p class="login-hint">Inicia sesión para comentar</p>
+      }
+    </form>
+
+    <!-- LISTA DE COMENTARIOS -->
     <div class="comentarios__lista">
       @for (c of comentarios(); track c.id) {
         <div class="comentario">
@@ -161,11 +249,29 @@
               <span class="comentario__fecha">{{ c.fechaCreacion | date:'dd MMM yyyy' }}</span>
             </div>
             <p class="comentario__texto">{{ c.contenido }}</p>
+            <div class="comentario__actions">
+              <button class="comentario__reaction" (click)="reaccionarComentario(c.id, 'like')" title="Me gusta">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/>
+                  <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
+                </svg>
+                <span>{{ c.reacciones?.likes || 0 }}</span>
+              </button>
+              <button class="comentario__reaction" (click)="reaccionarComentario(c.id, 'love')" title="Me encanta">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                </svg>
+                <span>{{ c.reacciones?.loves || 0 }}</span>
+              </button>
+            </div>
           </div>
         </div>
       } @empty {
         <div class="comentarios__empty">
-          <p>📝 No hay comentarios aún. Sé el primero en comentar.</p>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <p>No hay comentarios aún. Sé el primero en comentar.</p>
         </div>
       }
     </div>

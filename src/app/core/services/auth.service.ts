@@ -98,13 +98,13 @@ export class AuthService {
     );
   }
 
-  solicitarRecuperacion(email: string): Observable<any> {
-    return this.http.post(`${this.API_URL}/auth/recuperar`, { email });
-  }
+solicitarRecuperacion(email: string): Observable<any> {
+  return this.http.post(`${this.API_URL}/auth/recuperar`, { email });
+}
 
-  restablecerContrasena(token: string, password: string): Observable<any> {
-    return this.http.post(`${this.API_URL}/auth/restablecer`, { token, password });
-  }
+restablecerContrasena(token: string, password: string): Observable<any> {
+  return this.http.post(`${this.API_URL}/auth/restablecer`, { token, password });
+}
 
   logout(): void {
     this.limpiarSesion();

@@ -20,41 +20,34 @@ export const routes: Routes = [
       import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     children: [
       { path: '', redirectTo: 'comunidad', pathMatch: 'full' },
-      
-      // ✅ RUTA ESPECÍFICA PRIMERO (más específica)
       { 
         path: 'comunidad/nueva-publicacion', 
         loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent),
         canActivate: [authGuard]
       },
-      
-      // ✅ RUTA GENÉRICA DESPUÉS (con parámetro)
       { 
         path: 'comunidad/:id', 
         loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent) 
       },
-      
-      // ✅ FEED - PÚBLICO
       { 
         path: 'comunidad', 
         loadComponent: () => import('./features/community/feed/feed.component').then(m => m.FeedComponent) 
       },
-      
-      // ✅ MIS PUBLICACIONES - PROTEGIDO
       { 
         path: 'mis-publicaciones', 
         loadComponent: () => import('./features/community/mis-publicaciones/mis-publicaciones.component').then(m => m.MisPublicacionesComponent),
         canActivate: [authGuard]
       },
-      
-      // ✅ PERFIL - PROTEGIDO
       { 
         path: 'perfil', 
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
         canActivate: [authGuard]
       },
-      
-      // ✅ CHAT - PROTEGIDO
+      // ✅ PERFIL DEL AUTOR
+      { 
+        path: 'usuario/:id', 
+        loadComponent: () => import('./features/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
+      },
       { 
         path: 'chat', 
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),

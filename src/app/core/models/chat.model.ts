@@ -21,7 +21,7 @@ export interface SolicitudContacto {
   usuarioId: number;
   nombreUsuario: string;
   fotoPerfilUrl?: string;
-  estado: 'pendiente' | 'aceptada' | 'rechazada';
+  estado: 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA';
   fechaSolicitud: string;
 }
 

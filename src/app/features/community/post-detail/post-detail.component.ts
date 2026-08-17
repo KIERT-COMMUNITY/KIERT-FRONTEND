@@ -1,24 +1,26 @@
-// post-detail.component.ts - CORREGIDO
+// post-detail.component.ts - COMPLETO Y CORREGIDO
 import { Component, OnInit, input, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';  // ✅ Solo Router, no RouterLink
+import { Router, RouterLink } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReaccionService } from '../../../core/services/reaccion.service';
 import { Post, Comentario, Adjunto } from '../../../core/models/post.model';
 
 @Component({
   selector: 'kiert-post-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],  // ✅ Eliminar RouterLink
+  imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './post-detail.component.html',
   styleUrl: './post-detail.component.scss',
 })
 export class PostDetailComponent implements OnInit {
   private postService = inject(PostService);
+  private reaccionService = inject(ReaccionService);
   public authService = inject(AuthService);
   private fb = inject(FormBuilder);
-  private router = inject(Router);  // ✅ Inyectar Router
+  private router = inject(Router);
 
   id = input.required<string>();
 
@@ -28,6 +30,24 @@ export class PostDetailComponent implements OnInit {
   enviandoComentario = signal(false);
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
+
+  reacciones = signal({
+    likes: 0,
+    loves: 0,
+    hahas: 0,
+    wows: 0,
+    sads: 0,
+    angrys: 0
+  });
+
+  userReactions = signal({
+    like: false,
+    love: false,
+    haha: false,
+    wow: false,
+    sad: false,
+    angry: false
+  });
 
   etiquetas: Record<string, string> = {
     'caso-hacking': 'Caso de hacking',
@@ -44,8 +64,6 @@ export class PostDetailComponent implements OnInit {
     this.estaLogueado.set(this.authService.isAuthenticated());
     const postId = Number(this.id());
     
-    console.log('🔍 PostDetailComponent: ID recibido:', postId);
-    
     if (!postId || isNaN(postId)) {
       this.errorMsg.set('ID de publicación inválido');
       this.cargando.set(false);
@@ -54,29 +72,20 @@ export class PostDetailComponent implements OnInit {
     
     this.cargarPost(postId);
     this.cargarComentarios(postId);
+    this.cargarReacciones(postId);
   }
 
   cargarPost(postId: number): void {
     this.cargando.set(true);
-    console.log('📤 Cargando post ID:', postId);
-    
     this.postService.obtenerPorId(postId).subscribe({
       next: (data) => {
-        console.log('✅ Post cargado:', data);
         this.post.set(data);
         this.cargando.set(false);
       },
       error: (error) => {
-        console.error('❌ Error al cargar post:', error);
+        console.error('Error al cargar post:', error);
         this.cargando.set(false);
-        
-        if (error.status === 404) {
-          this.errorMsg.set('Esta publicación no existe o fue eliminada.');
-        } else if (error.status === 500) {
-          this.errorMsg.set('Error del servidor. Intenta nuevamente.');
-        } else {
-          this.errorMsg.set('Error al cargar la publicación');
-        }
+        this.errorMsg.set('Error al cargar la publicación');
       }
     });
   }
@@ -86,10 +95,77 @@ export class PostDetailComponent implements OnInit {
       next: (data) => {
         this.comentarios.set(data);
       },
+      error: (error) => console.error('Error al cargar comentarios:', error)
+    });
+  }
+
+  cargarReacciones(postId: number): void {
+    if (!this.reaccionService) return;
+    
+    this.reaccionService.obtenerReaccionesPost(postId).subscribe({
+      next: (data) => {
+        this.reacciones.set(data);
+      },
+      error: (error) => console.error('Error al cargar reacciones:', error)
+    });
+  }
+
+  reaccionar(tipo: string): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para reaccionar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+
+    const postId = Number(this.id());
+    this.reaccionService.reaccionarPost(postId, tipo).subscribe({
+      next: (data) => {
+        this.reacciones.set(data);
+        const userKey = this.getUserKey(tipo);
+        this.userReactions.update(prev => ({
+          ...prev,
+          [userKey]: !prev[userKey]
+        }));
+      },
       error: (error) => {
-        console.error('Error al cargar comentarios:', error);
+        console.error('Error al reaccionar:', error);
+        this.errorMsg.set('Error al procesar la reacción');
+        setTimeout(() => this.errorMsg.set(null), 3000);
       }
     });
+  }
+
+  reaccionarComentario(comentarioId: number, tipo: string): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para reaccionar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+
+    this.reaccionService.reaccionarComentario(comentarioId, tipo).subscribe({
+      next: (data) => {
+        this.comentarios.update(lista =>
+          lista.map(c =>
+            c.id === comentarioId ? { ...c, reacciones: data } : c
+          )
+        );
+      },
+      error: (error) => {
+        console.error('Error al reaccionar a comentario:', error);
+      }
+    });
+  }
+
+  getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
+    switch(tipo) {
+      case 'like': return 'like';
+      case 'love': return 'love';
+      case 'haha': return 'haha';
+      case 'wow': return 'wow';
+      case 'sad': return 'sad';
+      case 'angry': return 'angry';
+      default: return 'like';
+    }
   }
 
   enviarComentario(): void {
@@ -109,7 +185,7 @@ export class PostDetailComponent implements OnInit {
 
     this.postService.comentar(Number(this.id()), contenido).subscribe({
       next: (nuevo) => {
-        this.comentarios.update((lista) => [...lista, nuevo]);
+        this.comentarios.update((lista) => [...lista, { ...nuevo, reacciones: { likes: 0, loves: 0 } }]);
         this.formComentario.reset();
         this.enviandoComentario.set(false);
       },
@@ -180,21 +256,21 @@ export class PostDetailComponent implements OnInit {
     img.alt = 'Imagen no disponible';
   }
 
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const parent = img.parentElement;
+    if (parent) {
+      const inicial = document.createElement('span');
+      inicial.className = 'avatar-inicial';
+      const nombre = this.post()?.autor?.nombreUsuario || '?';
+      inicial.textContent = nombre.charAt(0).toUpperCase();
+      parent.appendChild(inicial);
+    }
+  }
+
   getInicialUsuario(): string {
     const usuario = this.authService.usuario();
     return usuario?.nombreUsuario?.charAt(0)?.toUpperCase() || '?';
   }
-  onAvatarError(event: Event): void {
-  const img = event.target as HTMLImageElement;
-  img.style.display = 'none';
-  // Mostrar la inicial como fallback
-  const parent = img.parentElement;
-  if (parent) {
-    const inicial = document.createElement('span');
-    inicial.className = 'avatar-inicial';
-    const nombre = this.post()?.autor?.nombreUsuario || '?';
-    inicial.textContent = nombre.charAt(0).toUpperCase();
-    parent.appendChild(inicial);
-  }
-}
 }
