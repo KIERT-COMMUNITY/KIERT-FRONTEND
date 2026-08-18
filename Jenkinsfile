@@ -39,10 +39,13 @@ pipeline {
 
         stage('Setup Node.js') {
             steps {
-                // ✅ CAMBIA EL NOMBRE POR EL QUE TENES EN HERRAMIENTAS GLOBALES
-                tool name: 'node-22', type: 'nodejs'
-                sh 'node --version'
-                sh 'npm --version'
+                // ✅ SIN tool - usa Node.js del sistema
+                sh '''
+                    echo "Verificando Node.js..."
+                    where node
+                    node --version
+                    npm --version
+                '''
             }
         }
 
