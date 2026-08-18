@@ -1,63 +1,92 @@
-// create-post.component.scss
+// ============================================================
+// CREATE POST - ESTILOS CON TEMA DE COLOR
+// ============================================================
+
 .create-post-container {
   max-width: 720px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
+  min-height: 100vh;
+  transition: background 0.5s ease, color 0.5s ease;
+  color: inherit;
 }
 
-.page-title { 
-  font-size: 1.5rem; 
-  margin-bottom: 8px;
-  color: #e6edf3;
-  font-weight: 700;
+// ===== HEADER =====
+.page-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: inherit !important;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .page-sub {
+    color: inherit !important;
+    opacity: 0.6;
+    margin: 0.25rem 0 0;
+    font-size: 0.95rem;
+  }
 }
 
-.page-sub { 
-  color: #8b98a5; 
-  margin-top: 0;
-  margin-bottom: 28px; 
-  font-size: 0.95rem; 
-}
-
+// ===== FORMULARIO =====
 .post-form {
   max-width: 640px;
   margin: 0 auto;
-  padding: 28px;
-  background: #131a22;
-  border: 1px solid #26313c;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 1.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  transition: background 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    border-color: rgba(45, 212, 191, 0.12);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  }
 
   .field {
-    margin-bottom: 18px;
+    margin-bottom: 1.25rem;
 
     label {
       display: block;
       font-weight: 500;
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-      color: #e6edf3;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      color: inherit !important;
+      opacity: 0.8;
     }
 
     input, textarea, select {
       width: 100%;
-      padding: 10px 14px;
-      background: #1b232c;
-      border: 1px solid #26313c;
-      border-radius: 8px;
-      color: #e6edf3;
+      padding: 0.6rem 0.85rem;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      color: inherit !important;
       font-size: 0.95rem;
-      transition: border-color 0.2s;
+      transition: all 0.3s ease;
       font-family: 'Inter', -apple-system, sans-serif;
 
       &:focus {
         outline: none;
         border-color: #2dd4bf;
-        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08);
       }
 
       &.is-invalid {
         border-color: #f85149;
+        box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.08);
+      }
+
+      &::placeholder {
+        color: inherit !important;
+        opacity: 0.3;
       }
     }
 
@@ -77,125 +106,157 @@
 
     .error-msg {
       display: block;
-      margin-top: 4px;
+      margin-top: 0.3rem;
       font-size: 0.8rem;
-      color: #f85149;
+      color: #f85149 !important;
     }
 
     .char-counter {
       display: block;
       text-align: right;
       font-size: 0.7rem;
-      color: #5a6a7a;
-      margin-top: 2px;
+      color: inherit !important;
+      opacity: 0.4;
+      margin-top: 0.2rem;
+    }
+
+    .file-hint {
+      font-size: 0.75rem;
+      color: inherit !important;
+      opacity: 0.4;
+      margin: 0 0 0.5rem;
     }
   }
 
+  // ===== INPUT FILE =====
   input[type="file"] {
-    padding: 10px;
-    background: #1b232c;
-    border: 1px dashed #26313c;
+    padding: 0.6rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 255, 0.08);
     cursor: pointer;
-    color: #8b98a5;
+    color: inherit !important;
+    opacity: 0.7;
     font-size: 0.85rem;
     width: 100%;
-    border-radius: 8px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: rgba(45, 212, 191, 0.3);
+      opacity: 1;
+    }
 
     &::file-selector-button {
-      padding: 8px 16px;
+      padding: 0.4rem 1rem;
       background: #2dd4bf;
       color: #0d1117;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 500;
-      transition: opacity 0.2s;
-      margin-right: 8px;
+      transition: all 0.3s ease;
+      margin-right: 0.6rem;
 
       &:hover {
-        opacity: 0.8;
+        opacity: 0.85;
+        transform: translateY(-1px);
       }
     }
   }
 }
 
+// ===== ARCHIVOS =====
 .archivos-lista {
   list-style: none;
-  margin-top: 10px;
+  margin-top: 0.6rem;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.4rem;
 
   li {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
     font-size: 0.85rem;
-    background: #1b232c;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #26313c;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
 
     .archivo-nombre {
       flex: 1;
-      color: #e6edf3;
+      color: inherit !important;
       word-break: break-all;
     }
 
     .archivo-tamano {
       font-size: 0.7rem;
-      color: #8b98a5;
+      color: inherit !important;
+      opacity: 0.4;
       white-space: nowrap;
+    }
+
+    .archivo-tipo {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 12px;
+      background: rgba(45, 212, 191, 0.08);
+      color: inherit !important;
+      opacity: 0.6;
+      border: 1px solid rgba(45, 212, 191, 0.06);
     }
 
     .btn-remove {
       background: none;
       border: none;
-      color: #f85149;
+      color: #f85149 !important;
       cursor: pointer;
-      font-size: 0.9rem;
-      padding: 4px;
+      font-size: 1rem;
+      padding: 0.2rem 0.4rem;
       border-radius: 50%;
       transition: all 0.2s;
       line-height: 1;
 
       &:hover {
         background: rgba(248, 81, 73, 0.1);
-        transform: scale(1.2);
+        transform: scale(1.15);
       }
     }
   }
 }
 
+// ===== ALERTAS =====
 .form-alert {
-  padding: 10px 14px;
+  padding: 0.6rem 1rem;
   background: rgba(248, 81, 73, 0.1);
-  border: 1px solid #f85149;
-  border-radius: 6px;
-  color: #f85149;
+  border: 1px solid rgba(248, 81, 73, 0.25);
+  border-radius: 8px;
+  color: #f85149 !important;
   font-size: 0.9rem;
-  margin: 10px 0 0;
+  margin: 0.6rem 0 0;
+  animation: slideDown 0.3s ease;
 }
 
+// ===== BOTONES =====
 .form-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
 
   &--primary {
@@ -205,7 +266,11 @@
     &:hover:not(:disabled) {
       opacity: 0.85;
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+      box-shadow: 0 4px 20px rgba(45, 212, 191, 0.25);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.96);
     }
 
     &:disabled {
@@ -219,30 +284,107 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  background: transparent;
-  color: #8b98a5;
-  border: 1px solid #26313c;
-  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  color: inherit !important;
+  opacity: 0.6;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
 
   &:hover:not(:disabled) {
-    background: #1b232c;
-    border-color: #5a6a7a;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    opacity: 1;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
   }
 }
 
-// ========== RESPONSIVE ==========
+// ===== ANIMACIONES =====
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// ============================================================
+// CORRECCIÓN PARA TEMA LIGHT
+// ============================================================
+
+.tema-light {
+  .post-form {
+    background: rgba(255, 255, 255, 0.75) !important;
+    color: #1a1a2e !important;
+
+    input, textarea, select {
+      background: rgba(255, 255, 255, 0.6) !important;
+      border-color: rgba(0, 0, 0, 0.08) !important;
+      color: #1a1a2e !important;
+
+      &::placeholder {
+        color: #1a1a2e !important;
+        opacity: 0.3;
+      }
+    }
+
+    .archivos-lista li {
+      background: rgba(255, 255, 255, 0.4) !important;
+      border-color: rgba(0, 0, 0, 0.06) !important;
+
+      .archivo-nombre,
+      .archivo-tamano,
+      .archivo-tipo {
+        color: #1a1a2e !important;
+      }
+    }
+
+    .btn-cancel {
+      color: #555555 !important;
+      border-color: rgba(0, 0, 0, 0.08) !important;
+    }
+  }
+
+  .page-header {
+    border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+
+    .page-title,
+    .page-sub {
+      color: #1a1a2e !important;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 768px) {
+  .create-post-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .post-form {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+}
+
 @media (max-width: 480px) {
+  .create-post-container {
+    padding: 0.5rem;
+  }
+
   .page-title {
     font-size: 1.2rem;
   }
@@ -251,20 +393,16 @@
     font-size: 0.85rem;
   }
 
-  .create-post-container {
-    padding: 0.5rem;
-  }
-
   .post-form {
-    padding: 16px;
+    padding: 1rem;
     border-radius: 0;
-    margin: 0 -8px;
+    margin: 0 -0.5rem;
   }
 
   .field {
     input, textarea, select {
       font-size: 0.9rem;
-      padding: 8px 12px;
+      padding: 0.5rem 0.75rem;
     }
 
     label {
@@ -283,6 +421,7 @@
   .archivos-lista {
     li {
       flex-wrap: wrap;
+      gap: 0.3rem;
 
       .archivo-nombre {
         width: 100%;

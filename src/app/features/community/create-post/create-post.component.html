@@ -1,7 +1,10 @@
-<!-- APLICAR TEMA DE COLOR FUERTEMENTE -->
-<div class="create-post-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
-  <h1 class="page-title">Nueva publicación</h1>
-  <p class="page-sub">Cuenta tu caso, pide ayuda o comparte tu historia.</p>
+<!-- APLICAR TEMA DE COLOR A TODA LA PÁGINA -->
+<div class="create-post-container" [ngClass]="personalizacionStore.temaClass()">
+  
+  <div class="page-header">
+    <h1 class="page-title">Nueva Publicación</h1>
+    <p class="page-sub">Comparte tu caso, pide ayuda o cuenta tu historia</p>
+  </div>
 
   <form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
 
@@ -24,7 +27,7 @@
         [class.is-invalid]="titulo.invalid && titulo.touched"
       >
       @if (titulo.invalid && titulo.touched) {
-        <span class="error-msg">Entre 6 y 120 caracteres.</span>
+        <span class="error-msg">Entre 6 y 120 caracteres</span>
       }
       <span class="char-counter">{{ titulo.value?.length || 0 }}/120</span>
     </div>
@@ -39,23 +42,25 @@
         [class.is-invalid]="descripcion.invalid && descripcion.touched"
       ></textarea>
       @if (descripcion.invalid && descripcion.touched) {
-        <span class="error-msg">Mínimo 20 caracteres.</span>
+        <span class="error-msg">Mínimo 20 caracteres</span>
       }
     </div>
 
     <div class="field">
-      <label for="link">Link externo (opcional)</label>
+      <label for="link">Enlace externo (opcional)</label>
       <input id="link" type="url" formControlName="link" placeholder="https://ejemplo.com/articulo">
     </div>
 
+    <!-- ARCHIVOS -->
     <div class="field">
-      <label for="archivos">Adjuntar archivos (opcional, máximo 10MB cada uno)</label>
+      <label for="archivos">Adjuntar archivos (opcional)</label>
+      <p class="file-hint">Imágenes: 15MB | GIFs: 15MB | Videos: 50MB</p>
       <input 
         id="archivos" 
         type="file" 
         multiple 
         (change)="onArchivosSeleccionados($event)"
-        accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+        accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar,video/*,.gif"
       >
 
       @if (archivosSeleccionados().length > 0) {
@@ -64,6 +69,7 @@
             <li>
               <span class="archivo-nombre">{{ a.name }}</span>
               <span class="archivo-tamano">({{ (a.size / 1024 / 1024).toFixed(2) }} MB)</span>
+              <span class="archivo-tipo">{{ getTipoArchivo(a) }}</span>
               <button type="button" class="btn-remove" (click)="quitarArchivo(a.name)">×</button>
             </li>
           }

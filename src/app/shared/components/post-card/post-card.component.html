@@ -1,6 +1,7 @@
-<!-- post-card.component.html - CON TEMA DE COLOR -->
+<!-- post-card.component.html -->
 <div class="post-card" [class]="temaClase" (click)="onClick()">
   
+  <!-- HEADER -->
   <div class="post-card__header">
     <div class="post-card__user">
       <kiert-avatar-frame
@@ -21,21 +22,103 @@
     <span class="post-card__fecha">{{ formatearFecha(post().fechaCreacion) }}</span>
   </div>
 
+  <!-- TÍTULO -->
   <h3 class="post-card__titulo">{{ post().titulo }}</h3>
+  
+  <!-- DESCRIPCIÓN -->
   <p class="post-card__desc">{{ post().descripcion }}</p>
 
-  @if (tieneImagenes()) {
-    @let imagen = obtenerPrimeraImagen();
-    @if (imagen) {
-      <div class="post-card__imagen">
-        <img [src]="imagen.url" [alt]="post().titulo" loading="lazy" (error)="onImageError($event)">
-        @if (cantidadImagenes() > 1) {
-          <div class="post-card__imagen-overlay">+{{ cantidadImagenes() - 1 }}</div>
+  <!-- ========================================================= -->
+  <!-- CONTENIDO VISUAL: IMAGEN, VIDEO O GIF -->
+  <!-- ========================================================= -->
+  @if (tieneVisuales()) {
+    @let visual = obtenerPrimerVisual();
+    @if (visual) {
+      <div class="post-card__media">
+        
+        <!-- VIDEO -->
+        @if (esVideo(visual)) {
+          <div class="post-card__video-wrapper">
+            <video 
+              [src]="visual.url" 
+              controls 
+              muted 
+              playsinline
+              preload="metadata"
+              class="post-card__video"
+              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%231b232c'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='20' fill='%232dd4bf' text-anchor='middle' dy='.3em'%3E▶ Video%3C/text%3E%3C/svg%3E"
+              (error)="onVideoError($event)"
+            >
+              Tu navegador no soporta videos.
+            </video>
+            @if (visual.duracionSegundos) {
+              <div class="post-card__media-badge video-duracion">
+                {{ visual.duracionSegundos | formatDuration }}
+              </div>
+            }
+            <div class="post-card__media-badge video-badge">▶ Video</div>
+          </div>
+        }
+        
+        <!-- GIF -->
+        @else if (esGif(visual)) {
+          <div class="post-card__gif-wrapper">
+            <img 
+              [src]="visual.url" 
+              [alt]="post().titulo"
+              loading="lazy"
+              class="post-card__gif"
+              (error)="onImageError($event)"
+            >
+            <div class="post-card__media-badge gif-badge">🎬 GIF</div>
+          </div>
+        }
+        
+        <!-- IMAGEN -->
+        @else {
+          <div class="post-card__image-wrapper">
+            <img 
+              [src]="visual.url" 
+              [alt]="post().titulo"
+              loading="lazy"
+              class="post-card__image"
+              (error)="onImageError($event)"
+            >
+          </div>
+        }
+        
+        <!-- OVERLAY CON CONTADOR DE ARCHIVOS -->
+        @if (cantidadVisuales() > 1) {
+          <div class="post-card__media-overlay">
+            +{{ cantidadVisuales() - 1 }}
+          </div>
         }
       </div>
     }
   }
 
+  <!-- ========================================================= -->
+  <!-- OTROS ADJUNTOS (ARCHIVOS) -->
+  <!-- ========================================================= -->
+  @if (tieneOtrosAdjuntos()) {
+    <div class="post-card__otros-adjuntos">
+      @for (adjunto of post().adjuntos; track adjunto.id) {
+        @if (esArchivo(adjunto)) {
+          <a [href]="adjunto.url" target="_blank" rel="noopener" class="post-card__adjunto-link" (click)="$event.stopPropagation()">
+            <span class="post-card__adjunto-icono">{{ getIconoArchivo(adjunto) }}</span>
+            <span class="post-card__adjunto-nombre">{{ adjunto.nombre }}</span>
+            @if (adjunto.pesoKb) {
+              <span class="post-card__adjunto-peso">({{ (adjunto.pesoKb / 1024).toFixed(1) }} MB)</span>
+            }
+          </a>
+        }
+      }
+    </div>
+  }
+
+  <!-- ========================================================= -->
+  <!-- FOOTER -->
+  <!-- ========================================================= -->
   <div class="post-card__footer">
     <div class="post-card__stats">
       <span class="post-card__stat">

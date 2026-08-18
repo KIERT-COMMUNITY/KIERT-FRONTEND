@@ -1,4 +1,3 @@
-// post.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,6 +6,7 @@ import { Post, Comentario } from '../models/post.model';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
+  // ✅ USAR LA MISMA RUTA QUE EL BACKEND: /api/publicaciones
   private readonly baseUrl = `${environment.apiUrl}/publicaciones`;
 
   constructor(private http: HttpClient) {}
@@ -26,6 +26,11 @@ export class PostService {
     return this.http.post<Post>(this.baseUrl, formData);
   }
 
+  // ========== ELIMINAR POST ==========
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
   // ========== LISTAR COMENTARIOS ==========
   listarComentarios(postId: number): Observable<Comentario[]> {
     return this.http.get<Comentario[]>(`${this.baseUrl}/${postId}/comentarios`);
@@ -34,10 +39,5 @@ export class PostService {
   // ========== CREAR COMENTARIO ==========
   comentar(postId: number, contenido: string): Observable<Comentario> {
     return this.http.post<Comentario>(`${this.baseUrl}/${postId}/comentarios`, { contenido });
-  }
-
-  // ✅ ========== ELIMINAR POST ==========
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

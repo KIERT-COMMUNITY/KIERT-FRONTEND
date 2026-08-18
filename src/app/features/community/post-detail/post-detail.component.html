@@ -1,4 +1,4 @@
-<!-- APLICAR TEMA DE COLOR FUERTEMENTE -->
+<!-- APLICAR TEMA DE COLOR -->
 <div [ngClass]="'tema-' + personalizacionStore.temaId()" style="min-height: 100vh;">
   
   @if (cargando()) {
@@ -29,6 +29,7 @@
     
     <article class="post-detail" [style.background]="personalizacionStore.fondoGradiente()">
       
+      <!-- HEADER CON AVATAR Y NOMBRE CLICKEABLES -->
       <div class="post-detail__header">
         <div class="post-detail__user">
           <kiert-avatar-frame
@@ -52,6 +53,7 @@
       <h1 class="post-detail__titulo">{{ postActual.titulo }}</h1>
       <p class="post-detail__desc">{{ postActual.descripcion }}</p>
 
+      <!-- IMÁGENES -->
       @if (tieneImagenes()) {
         <div class="post-detail__galeria" [class.galeria-multiple]="cantidadImagenes() > 1">
           @for (img of obtenerImagenes(); track img.id) {
@@ -68,6 +70,7 @@
         </div>
       }
 
+      <!-- ADJUNTOS -->
       @if (tieneOtrosAdjuntos()) {
         <div class="post-detail__adjuntos">
           <h4>Archivos adjuntos</h4>
@@ -88,6 +91,7 @@
         </div>
       }
 
+      <!-- REACCIONES -->
       <div class="post-detail__interactions">
         <div class="reactions">
           <button class="reaction-btn" [class.active]="userReactions().like" (click)="reaccionar('like')">
@@ -161,12 +165,14 @@
       </div>
     </article>
 
+    <!-- ========== SECCIÓN DE COMENTARIOS CON RESPUESTAS ========== -->
     <section class="comentarios" [style.background]="personalizacionStore.fondoGradiente()">
       <div class="comentarios__header">
         <h3>Comentarios</h3>
         <span class="comentarios__count">{{ comentarios().length }}</span>
       </div>
 
+      <!-- FORMULARIO DE COMENTARIO -->
       <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
         <div class="comentarios__input-wrapper">
           <input
@@ -185,10 +191,12 @@
         </div>
       </form>
 
+      <!-- LISTA DE COMENTARIOS -->
       <div class="comentarios__lista">
         @for (c of comentarios(); track c.id) {
           <div class="comentario">
-            <div class="comentario__avatar">
+            <!-- AVATAR CLICKEABLE -->
+            <div class="comentario__avatar" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
               @if (c.autor.fotoPerfilUrl) {
                 <img [src]="c.autor.fotoPerfilUrl" [alt]="c.autor.nombreUsuario" (error)="onAvatarError($event)">
               } @else {
@@ -197,10 +205,24 @@
             </div>
             <div class="comentario__body">
               <div class="comentario__header">
-                <span class="comentario__autor">@{{ c.autor.nombreUsuario }}</span>
+                <!-- NOMBRE CLICKEABLE -->
+                <span class="comentario__autor" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
+                  @{{ c.autor.nombreUsuario }}
+                </span>
                 <span class="comentario__fecha">{{ c.fechaCreacion | date:'dd MMM yyyy' }}</span>
+                <!-- BOTÓN ELIMINAR (solo para el autor) -->
+                @if (esAutor(c.autor)) {
+                  <button class="comentario__eliminar" (click)="eliminarComentario(c.id)" title="Eliminar comentario">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                  </button>
+                }
               </div>
               <p class="comentario__texto">{{ c.contenido }}</p>
+              
+              <!-- ACCIONES DEL COMENTARIO -->
               <div class="comentario__actions">
                 <button class="comentario__reaction" (click)="reaccionarComentario(c.id, 'like')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -215,7 +237,98 @@
                   </svg>
                   <span>{{ c.reacciones?.loves || 0 }}</span>
                 </button>
+                <button class="comentario__responder" (click)="toggleResponder(c.id)">
+                  Responder
+                </button>
               </div>
+
+              <!-- FORMULARIO DE RESPUESTA -->
+              @if (c.mostrandoFormularioRespuesta) {
+                <div class="respuesta-form">
+                  <form [formGroup]="formRespuesta" (ngSubmit)="enviarRespuesta(c.id)">
+                    <div class="respuesta-form__input-wrapper">
+                      <input
+                        formControlName="contenido"
+                        type="text"
+                        placeholder="Escribe una respuesta..."
+                        class="respuesta-form__input"
+                      >
+                      <button type="submit" class="respuesta-form__btn" [disabled]="enviandoRespuesta() === c.id">
+                        {{ enviandoRespuesta() === c.id ? '...' : 'Responder' }}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              }
+
+              <!-- RESPUESTAS -->
+              @if (c.respuestas && c.respuestas.length > 0) {
+                <div class="respuestas-toggle">
+                  <button class="respuestas-toggle__btn" (click)="toggleVerRespuestas(c.id)">
+                    @if (c.mostrandoRespuestas) {
+                      Ocultar respuestas ({{ c.respuestas.length }})
+                    } @else {
+                      Ver respuestas ({{ c.respuestas.length }})
+                    }
+                  </button>
+                </div>
+              }
+
+              @if (c.mostrandoRespuestas && c.respuestas) {
+                <div class="respuestas-lista">
+                  @for (r of c.respuestas; track r.id) {
+                    <div class="respuesta">
+                      <!-- AVATAR DE RESPUESTA CLICKEABLE -->
+                      <div class="respuesta__avatar" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
+                        @if (r.autor.fotoPerfilUrl) {
+                          <img [src]="r.autor.fotoPerfilUrl" [alt]="r.autor.nombreUsuario" (error)="onAvatarError($event)">
+                        } @else {
+                          {{ r.autor.nombreUsuario.charAt(0).toUpperCase() }}
+                        }
+                      </div>
+                      <div class="respuesta__body">
+                        <div class="respuesta__header">
+                          <span class="respuesta__autor" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
+                            @{{ r.autor.nombreUsuario }}
+                          </span>
+                          <span class="respuesta__fecha">{{ r.fechaCreacion | date:'dd MMM yyyy' }}</span>
+                          @if (esAutor(r.autor)) {
+                            <button class="respuesta__eliminar" (click)="eliminarRespuesta(c.id, r.id)" title="Eliminar respuesta">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                              </svg>
+                            </button>
+                          }
+                        </div>
+                        <p class="respuesta__texto">{{ r.contenido }}</p>
+                        <div class="respuesta__actions">
+                          <button class="respuesta__reaction" (click)="reaccionarRespuesta(c.id, r.id, 'like')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/>
+                              <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
+                            </svg>
+                            <span>{{ r.reacciones?.likes || 0 }}</span>
+                          </button>
+                          <button class="respuesta__reaction" (click)="reaccionarRespuesta(c.id, r.id, 'love')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                            </svg>
+                            <span>{{ r.reacciones?.loves || 0 }}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (c.cargandoRespuestas) {
+                <div class="cargando-respuestas">
+                  <div class="spinner-small"></div>
+                  <span>Cargando respuestas...</span>
+                </div>
+              }
             </div>
           </div>
         } @empty {

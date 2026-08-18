@@ -1,74 +1,111 @@
-<div class="settings-container">
+<!-- APLICAR TEMA + FONDO + MARCO -->
+<div class="settings-container" [ngClass]="personalizacionStore.temaClass()">
   
+  <!-- ===== HEADER CON BOTONES HORIZONTALES ===== -->
   <div class="settings-header">
-    <h1>Ajustes</h1>
-    <p class="settings-sub">Personaliza tu experiencia en Kiert</p>
+    <div class="header-left">
+      <h1>Ajustes</h1>
+      <p class="settings-sub">Personaliza tu experiencia en Kiert</p>
+    </div>
+    <div class="nav-buttons">
+      <button class="nav-btn" (click)="buscarAmigos()" title="Buscar amigos">Buscar</button>
+      <button class="nav-btn" (click)="irChat()" title="Chat">Chat</button>
+      <button class="nav-btn" (click)="irPerfil()" title="Perfil">Perfil</button>
+      <button class="nav-btn" (click)="irHistorial()" title="Historial">Historial</button>
+    </div>
   </div>
 
+  <!-- ===== ALERTAS ===== -->
   @if (errorMsg()) {
     <div class="alert alert-error">
       {{ errorMsg() }}
-      <button (click)="errorMsg.set(null)">×</button>
+      <button (click)="errorMsg.set(null)">✕</button>
     </div>
   }
   @if (exitoMsg()) {
     <div class="alert alert-success">
       {{ exitoMsg() }}
-      <button (click)="exitoMsg.set(null)">×</button>
+      <button (click)="exitoMsg.set(null)">✕</button>
     </div>
   }
 
+  <!-- ===== PERFIL ===== -->
+  <div class="settings-section">
+    <div class="section-header">
+      <h2>Mi Perfil</h2>
+      <button class="btn-edit" (click)="toggleEditarPerfil()">
+        {{ editandoPerfil() ? 'Cancelar' : 'Editar' }}
+      </button>
+    </div>
+
+    <div class="profile-preview">
+      <div class="profile-avatar-wrapper">
+        <label class="profile-avatar-upload">
+          <div class="profile-avatar" 
+               [class]="previewFrameClass()" 
+               [style]="previewFrameStyle()">
+            @if (usuario()?.fotoPerfilUrl) {
+              <img [src]="usuario()?.fotoPerfilUrl" [alt]="usuario()?.nombreUsuario">
+            } @else {
+              <span class="avatar-initial">{{ getInitials(usuario()?.nombreUsuario || '?') }}</span>
+            }
+            @if (cargando()) {
+              <div class="upload-overlay">
+                <div class="spinner-small"></div>
+              </div>
+            }
+          </div>
+          <span class="upload-hint">Cambiar foto</span>
+          <input type="file" accept="image/*" (change)="subirFotoPerfil($event)" hidden>
+        </label>
+        <div class="profile-name">&#64;{{ usuario()?.nombreUsuario }}</div>
+        <div class="marco-indicator">
+          <span class="marco-tag">Marco: {{ selectedFrame() }}</span>
+        </div>
+      </div>
+    </div>
+
+    @if (editandoPerfil()) {
+      <form [formGroup]="formPerfil" (ngSubmit)="guardarPerfil()" class="edit-form">
+        <div class="form-group">
+          <label>Nombre de usuario</label>
+          <input formControlName="nombreUsuario" type="text" placeholder="Usuario">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input formControlName="email" type="email" placeholder="Email">
+        </div>
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea formControlName="bio" rows="3" placeholder="Cuéntanos sobre ti..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-save" [disabled]="cargando()">
+            {{ cargando() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+
   <!-- ===== TEMAS DE COLOR ===== -->
   <div class="settings-section">
-    <h2>Tema de color</h2>
-    <p class="settings-hint">Se aplica al fondo de publicaciones y comunidad</p>
+    <h2>Temas de color</h2>
+    <p class="settings-hint">Se aplica al fondo de toda la página</p>
     <div class="themes-grid">
       @for (theme of colorThemes(); track theme.id) {
         <div class="theme-card" 
              [class.active]="selectedTheme() === theme.id"
-             [class.locked]="!theme.isFree && !isThemeOwned(theme.id)">
-          <div class="theme-preview" [style.background]="'linear-gradient(135deg, ' + theme.colors.join(', ') + ')'">
+             (click)="seleccionarTheme(theme.id)">
+          <div class="theme-preview" [style.background]="theme.gradient">
             <div class="theme-preview-dot"></div>
           </div>
           <div class="theme-info">
             <span class="theme-name">{{ theme.name }}</span>
-            <span class="theme-price">{{ formatearPrecio(theme.price) }}</span>
+            @if (selectedTheme() === theme.id) {
+              <span class="theme-check">✓</span>
+            }
           </div>
-          @if (selectedTheme() === theme.id) {
-            <span class="theme-check">✓</span>
-          }
-          @if (!theme.isFree && !isThemeOwned(theme.id)) {
-            <button class="btn-buy" (click)="comprarTheme(theme.id)">Comprar</button>
-          } @else if (isThemeOwned(theme.id) && selectedTheme() !== theme.id) {
-            <button class="btn-apply" (click)="seleccionarTheme(theme.id)">Seleccionar</button>
-          }
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- ===== FONDOS ===== -->
-  <div class="settings-section">
-    <h2>Fondo de perfil</h2>
-    <p class="settings-hint">Se aplica al fondo de tu perfil y chat</p>
-    <div class="backgrounds-grid">
-      @for (bg of fondos(); track bg.id) {
-        <div class="bg-card" 
-             [class.active]="selectedBackground() === bg.id"
-             [class.locked]="!bg.gratis && !isBackgroundOwned(bg.id)">
-          <div class="bg-preview" [style.background]="bg.gradiente"></div>
-          <div class="bg-info">
-            <span class="bg-name">{{ bg.nombre }}</span>
-            <span class="bg-price">{{ formatearPrecio(bg.precio) }}</span>
-          </div>
-          @if (selectedBackground() === bg.id) {
-            <span class="bg-check">✓</span>
-          }
-          @if (!bg.gratis && !isBackgroundOwned(bg.id)) {
-            <button class="btn-buy" (click)="comprarBackground(bg.id)">Comprar</button>
-          } @else if (isBackgroundOwned(bg.id) && selectedBackground() !== bg.id) {
-            <button class="btn-apply" (click)="seleccionarBackground(bg.id)">Seleccionar</button>
-          }
         </div>
       }
     </div>
@@ -76,47 +113,66 @@
 
   <!-- ===== MARCOS ===== -->
   <div class="settings-section">
-    <h2>Marco de perfil</h2>
+    <h2>Marcos de perfil</h2>
     <p class="settings-hint">Se aplica a tu foto de perfil</p>
     <div class="frames-grid">
-      @for (frame of marcos(); track frame.id) {
+      @for (marco of marcosData(); track marco.id) {
         <div class="frame-card" 
-             [class.active]="selectedFrame() === frame.id"
-             [class.locked]="!frame.gratis && !isFrameOwned(frame.id)">
-          <div class="frame-preview" [class]="'frame-' + frame.id">
+             [class.active]="selectedFrame() === marco.id"
+             (click)="seleccionarFrame(marco.id)">
+          <div class="frame-preview" 
+               [class]="'frame-' + marco.id"
+               [style.border]="marco.borderStyle"
+               [style.box-shadow]="marco.shadow"
+               [style.background-image]="marco.gradient"
+               [style.padding]="marco.gradient !== 'none' ? '4px' : '0px'">
             <div class="frame-avatar-preview"></div>
           </div>
           <div class="frame-info">
-            <span class="frame-name">{{ frame.nombre }}</span>
-            <span class="frame-price">{{ formatearPrecio(frame.precio) }}</span>
+            <span class="frame-name">{{ marco.name }}</span>
+            @if (selectedFrame() === marco.id) {
+              <span class="frame-check">✓</span>
+            }
           </div>
-          @if (selectedFrame() === frame.id) {
-            <span class="frame-check">✓</span>
-          }
-          @if (!frame.gratis && !isFrameOwned(frame.id)) {
-            <button class="btn-buy" (click)="comprarFrame(frame.id)">Comprar</button>
-          } @else if (isFrameOwned(frame.id) && selectedFrame() !== frame.id) {
-            <button class="btn-apply" (click)="seleccionarFrame(frame.id)">Seleccionar</button>
-          }
+          <span class="frame-desc">{{ marco.description }}</span>
         </div>
       }
     </div>
   </div>
 
-  <!-- ===== BOTÓN APLICAR ===== -->
-  <div class="settings-section apply-section">
-    <button class="btn-apply-all" (click)="aplicarPersonalizacion()" [disabled]="cargando()">
-      {{ cargando() ? 'Aplicando...' : 'Aplicar personalización' }}
-    </button>
+  <!-- ===== FONDOS ===== -->
+  <div class="settings-section">
+    <h2>Fondos de perfil</h2>
+    <p class="settings-hint">Se aplica al fondo de tu perfil</p>
+    <div class="backgrounds-grid">
+      @for (fondo of fondosData(); track fondo.id) {
+        <div class="bg-card" 
+             [class.active]="selectedBackground() === fondo.id"
+             (click)="seleccionarBackground(fondo.id)">
+          <div class="bg-preview" [style.background]="fondo.gradient"></div>
+          <div class="bg-info">
+            <span class="bg-name">{{ fondo.name }}</span>
+            @if (selectedBackground() === fondo.id) {
+              <span class="bg-check">✓</span>
+            }
+          </div>
+          <span class="bg-desc">{{ fondo.description }}</span>
+        </div>
+      }
+    </div>
+    <!-- ❌ ELIMINADA la vista previa del fondo que estaba aquí -->
   </div>
 
-  <!-- ===== VISTA PREVIA ===== -->
+  <!-- ===== VISTA PREVIA FINAL ===== -->
   <div class="settings-section preview-section">
     <h2>Vista previa</h2>
+    <p class="settings-hint">Así se verá tu perfil con los cambios seleccionados</p>
     <div class="preview-container" [style.background]="previewThemeGradient()">
       <div class="preview-card">
         <div class="preview-avatar-wrapper">
-          <div class="preview-avatar" [class]="previewFrameClass()" [style]="previewFrameStyle()">
+          <div class="preview-avatar" 
+               [class]="previewFrameClass()" 
+               [style]="previewFrameStyle()">
             @if (usuario()?.fotoPerfilUrl) {
               <img [src]="usuario()?.fotoPerfilUrl" [alt]="usuario()?.nombreUsuario">
             } @else {
@@ -126,20 +182,31 @@
           <div class="preview-name">&#64;{{ usuario()?.nombreUsuario }}</div>
           <div class="preview-tags">
             <span class="preview-tag">Tema: {{ selectedTheme() }}</span>
-            <span class="preview-tag">Fondo: {{ selectedBackground() }}</span>
             <span class="preview-tag">Marco: {{ selectedFrame() }}</span>
+            <span class="preview-tag">Fondo: {{ selectedBackground() }}</span>
           </div>
         </div>
         <div class="preview-chat" [style.background]="previewThemeGradient()">
           <div class="preview-message propio">
-            <span>Hola! Me encanta mi nuevo estilo</span>
+            <span>Me encanta mi nuevo estilo</span>
           </div>
           <div class="preview-message">
-            <span>Se ve increíble!</span>
+            <span>Se ve increíble</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ===== BOTÓN APLICAR ===== -->
+  <div class="settings-section apply-section">
+    <button class="btn-apply-all" (click)="aplicarPersonalizacion()" [disabled]="cargando()">
+      @if (cargando()) {
+        <span class="spinner-btn"></span> Aplicando...
+      } @else {
+        Aplicar personalización
+      }
+    </button>
+    <p class="apply-hint">Los cambios se aplicarán en toda la plataforma</p>
+  </div>
 </div>

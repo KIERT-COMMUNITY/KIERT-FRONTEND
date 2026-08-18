@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,6 +21,7 @@ export class ProfileComponent implements OnInit {
   private chatService = inject(ChatService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   public personalizacionStore = inject(PersonalizacionStore);
 
   subiendoFoto = signal<boolean>(false);
@@ -45,6 +46,16 @@ export class ProfileComponent implements OnInit {
   email = computed(() => this.usuario()?.email || 'Sin correo');
   fotoPerfil = computed(() => this.usuario()?.fotoPerfilUrl || null);
 
+  // ✅ FONDO DE PERFIL - se aplica a la tarjeta (profile-card)
+  get fondoPerfilPreview(): string {
+    return this.personalizacionStore.fondoGradiente();
+  }
+
+  // ✅ CLASE DEL MARCO (solo la forma)
+  marcoClase = computed(() => {
+    return this.personalizacionStore.marcoClase();
+  });
+
   formEditar = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
@@ -53,6 +64,9 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.cargarEstadisticas();
     this.cargarDatosUsuario();
+    console.log('🎨 Profile - fondo aplicado a la tarjeta:', this.personalizacionStore.fondoId());
+    console.log('🎨 Profile - gradiente:', this.fondoPerfilPreview);
+    setTimeout(() => this.cdr.detectChanges(), 100);
   }
 
   cargarDatosUsuario(): void {
@@ -114,6 +128,7 @@ export class ProfileComponent implements OnInit {
         setTimeout(() => this.exitoMsg.set(null), 3000);
         this.authService.usuario.set(usuarioActualizado);
         this.personalizacionStore.recargar();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.subiendoFoto.set(false);
@@ -152,7 +167,6 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/chat']);
   }
 
-  // ✅ AGREGAR ESTE MÉTODO
   irAjustes(): void {
     this.router.navigate(['/ajustes']);
   }

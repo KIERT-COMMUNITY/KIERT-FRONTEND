@@ -1,21 +1,97 @@
+// ============================================================
+// PERFIL DE AUTOR - ESTILOS COMPLETOS CON LEGIBILIDAD
+// ============================================================
+
 .perfil-autor-container {
   max-width: 500px;
   margin: 0 auto;
   padding: 1.5rem 1rem;
   min-height: 100vh;
-  transition: background 0.3s ease;
+  transition: background 0.5s ease, color 0.5s ease;
+
+  // ✅ Hereda el color del tema
+  color: inherit;
 }
 
 .perfil-card {
-  background: #131a22;
-  border: 1px solid #26313c;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: background 0.5s ease, border-color 0.3s ease;
+
+  &:hover {
+    border-color: rgba(45, 212, 191, 0.2);
+  }
+
+  // ✅ Todos los textos heredan el color del tema
+  color: inherit;
+
+  .perfil-nombre,
+  .perfil-email,
+  .avatar-inicial {
+    color: inherit !important;
+  }
+
+  .btn-volver {
+    color: inherit !important;
+    opacity: 0.7;
+
+    &:hover {
+      color: #2dd4bf !important;
+      opacity: 1;
+    }
+  }
+
+  .exito {
+    color: #2ea043 !important;
+    background: rgba(46, 160, 67, 0.15) !important;
+  }
+
+  .btn-chat {
+    background: #2dd4bf;
+    color: #0d1117 !important;
+    
+    &:hover { 
+      opacity: 0.85; 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
+    }
+  }
+
+  .btn-solicitar {
+    background: #2dd4bf;
+    color: #0d1117 !important;
+    
+    &:hover:not(:disabled) { 
+      opacity: 0.85; 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
+    }
+    
+    &:disabled { 
+      opacity: 0.5; 
+      cursor: not-allowed; 
+    }
+  }
+
+  .btn-pendiente {
+    background: #5a6a7a;
+    color: #e6edf3 !important;
+    cursor: not-allowed;
+  }
+
+  .marco-indicator__label {
+    color: #8b98a5 !important;
+  }
+
+  .loading, .error {
+    color: inherit !important;
+    opacity: 0.7;
+  }
 }
 
-// ========== AVATAR CON MARCO ==========
 .perfil-avatar-wrapper {
   position: relative;
   display: inline-block;
@@ -30,56 +106,24 @@
   overflow: hidden;
   background: #1b232c;
   margin: 0 auto 1rem;
-  transition: all 0.3s ease;
+  border-radius: 50%;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: scale(1.05);
+  }
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
   }
 
   .avatar-inicial {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #0d1117;
-  }
-
-  // ========== TIPOS DE MARCO ==========
-  &.circulo {
-    border-radius: 50%;
-  }
-
-  &.cuadrado {
-    border-radius: 8px;
-  }
-
-  &.hexagonal {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  }
-
-  // ========== ESTILOS DE MARCO ==========
-  &.frame-none { border: none; }
-  &.frame-classic { border: 4px solid #2dd4bf; }
-  &.frame-gold { border: 4px solid #f9ca24; box-shadow: 0 0 20px rgba(249, 202, 36, 0.3); }
-  &.frame-silver { border: 4px solid #b2bec3; box-shadow: 0 0 20px rgba(178, 190, 195, 0.3); }
-  &.frame-rainbow { 
-    border: 4px solid transparent;
-    background-image: linear-gradient(135deg, #ff6b6b, #feca57, #55efc4, #0984e3, #6c5ce7);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-    padding: 3px;
-  }
-  &.frame-neon { 
-    border: 4px solid #fd79a8;
-    box-shadow: 0 0 25px rgba(253, 121, 168, 0.5);
-  }
-  &.frame-square { border-radius: 8px !important; }
-  &.frame-hexagon {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  }
-
-  &:hover {
-    transform: scale(1.02);
+    color: #e6edf3 !important;
   }
 }
 
@@ -100,14 +144,15 @@
 
 .perfil-nombre {
   font-size: 1.3rem;
-  color: #e6edf3;
   margin: 0.5rem 0;
+  color: inherit !important;
 }
 
 .perfil-email {
-  color: #8b98a5;
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
+  color: inherit !important;
+  opacity: 0.7;
 }
 
 .perfil-acciones {
@@ -124,44 +169,38 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-}
 
-.btn-chat {
-  background: #2dd4bf;
-  color: #0d1117;
-  &:hover { opacity: 0.85; transform: translateY(-2px); }
-}
-
-.btn-solicitar {
-  background: #2dd4bf;
-  color: #0d1117;
-  &:hover:not(:disabled) { opacity: 0.85; transform: translateY(-2px); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-}
-
-.btn-pendiente {
-  background: #5a6a7a;
-  color: #e6edf3;
-  cursor: not-allowed;
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 .btn-volver {
   background: none;
   border: none;
-  color: #8b98a5;
+  color: inherit !important;
   cursor: pointer;
   transition: all 0.2s;
-  &:hover { color: #2dd4bf; }
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  opacity: 0.7;
+
+  &:hover { 
+    color: #2dd4bf !important;
+    transform: translateX(-4px);
+    opacity: 1;
+  }
 }
 
 .loading, .error {
   text-align: center;
   padding: 2rem;
-  color: #8b98a5;
+  color: inherit !important;
+  opacity: 0.7;
 }
 
 .spinner {
@@ -175,21 +214,70 @@
 }
 
 .exito {
-  background: rgba(63, 185, 80, 0.1);
-  color: #3fb950;
+  background: rgba(46, 160, 67, 0.15) !important;
+  color: #2ea043 !important;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  animation: fadeIn 0.3s ease;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-// ========== RESPONSIVE ==========
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+// ============================================================
+// CORRECCIÓN PARA TEMA LIGHT
+// ============================================================
+
+.tema-light {
+  .perfil-card {
+    color: #1a1a2e !important;
+
+    .perfil-nombre,
+    .perfil-email {
+      color: #1a1a2e !important;
+    }
+
+    .btn-chat,
+    .btn-solicitar {
+      color: #0d1117 !important;
+    }
+
+    .btn-pendiente {
+      color: #e6edf3 !important;
+    }
+
+    .marco-indicator__label {
+      color: #666666 !important;
+    }
+
+    .btn-volver {
+      color: #555555 !important;
+
+      &:hover {
+        color: #2dd4bf !important;
+      }
+    }
+
+    .loading, .error {
+      color: #555555 !important;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
 @media (max-width: 480px) {
   .perfil-autor-container {
     padding: 0.75rem;

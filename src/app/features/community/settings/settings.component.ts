@@ -1,18 +1,10 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { PersonalizacionService, Personalizacion, Marco, Fondo } from '../../../core/services/personalizacion.service';
+import { PersonalizacionService } from '../../../core/services/personalizacion.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
-
-interface ColorTheme {
-  id: string;
-  name: string;
-  colors: string[];
-  price: number;
-  isFree: boolean;
-}
 
 @Component({
   selector: 'kiert-settings',
@@ -24,75 +16,71 @@ interface ColorTheme {
 export class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
   private personalizacionService = inject(PersonalizacionService);
-  private personalizacionStore = inject(PersonalizacionStore);
+  public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
 
   usuario = this.authService.usuario;
   cargando = signal(false);
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
   editandoPerfil = signal(false);
-  mostrarBusqueda = signal(false);
-  queryBusqueda = signal('');
 
-  personalizacion = signal<Personalizacion | null>(null);
+  // ✅ Selección temporal (vista previa)
   selectedTheme = signal<string>('default');
   selectedFrame = signal<string>('none');
-  selectedBackground = signal<string>('default');
-  marcos = signal<Marco[]>([]);
-  fondos = signal<Fondo[]>([]);
-  
-  compras = signal<{ themes: string[]; frames: string[]; backgrounds: string[] }>({
-    themes: ['default', 'dark', 'light'],
-    frames: ['none', 'classic'],
-    backgrounds: ['default', 'dark', 'light'],
-  });
+  selectedBackground = signal<string>('default'); // ✅ FONDO SELECCIONADO
 
+  colorThemes = this.personalizacionStore.colorThemes;
+  marcosData = this.personalizacionStore.marcosData;
+  fondosData = this.personalizacionStore.fondosData;
+
+  // ===== VISTA PREVIA EN TIEMPO REAL =====
   previewThemeGradient = computed(() => {
-    const fondo = this.fondos().find(f => f.id === this.selectedBackground());
-    return fondo?.gradiente || 'linear-gradient(135deg, #0d1117, #161b22)';
+    const theme = this.colorThemes().find(t => t.id === this.selectedTheme());
+    return theme?.gradient || 'linear-gradient(135deg, #2dd4bf, #0d1117)';
   });
 
-  previewFrameClass = computed(() => {
-    return `frame-${this.selectedFrame()}`;
-  });
-
+  previewFrameClass = computed(() => `frame-${this.selectedFrame()}`);
+  
   previewFrameStyle = computed(() => {
-    const marco = this.marcos().find(m => m.id === this.selectedFrame());
-    if (marco?.urlImagen) {
-      return {
-        'border-image': `url(${marco.urlImagen}) 30 stretch`,
-        'border-image-slice': '30',
-        'border-image-width': '8px',
-        'border-style': 'solid',
-        'border-color': 'transparent'
-      };
-    }
-    return {};
+    const id = this.selectedFrame();
+    const store = this.personalizacionStore as any;
+    return {
+      'border': store.marcoBorderStyle(),
+      'box-shadow': store.marcoShadowStyle(),
+      'background-image': store.marcoGradientStyle(),
+      'padding': store.marcoPaddingStyle(),
+      'background-origin': 'border-box',
+      'background-clip': 'padding-box, border-box',
+    };
   });
 
-  colorThemes = signal<ColorTheme[]>([
-    { id: 'default', name: 'Default', colors: ['#2dd4bf', '#0d1117'], price: 0, isFree: true },
-    { id: 'dark', name: 'Dark', colors: ['#a29bfe', '#1a1a2e'], price: 0, isFree: true },
-    { id: 'light', name: 'Light', colors: ['#2dd4bf', '#ffffff'], price: 0, isFree: true },
-    { id: 'sunset', name: 'Sunset', colors: ['#ff9f7a', '#2d1b1b'], price: 2, isFree: false },
-    { id: 'ocean', name: 'Ocean', colors: ['#5ab8d8', '#0d1a2d'], price: 2, isFree: false },
-    { id: 'aurora', name: 'Aurora', colors: ['#a88ae8', '#1a0d2d'], price: 2, isFree: false },
-    { id: 'galaxy', name: 'Galaxy', colors: ['#8888e8', '#0d0d1a'], price: 3, isFree: false },
-  ]);
+  // ✅ VISTA PREVIA DEL FONDO SELECCIONADO
+  previewFondoGradiente = computed(() => {
+    const fondo = this.fondosData().find(f => f.id === this.selectedBackground());
+    return fondo?.gradient || 'linear-gradient(135deg, #0d1117, #161b22)';
+  });
 
+  // ===== FORMULARIO PERFIL =====
   formPerfil = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
     bio: ['', [Validators.maxLength(150)]],
-    anonimato: [false],
   });
-
-  usuariosEncontrados = signal<any[]>([]);
 
   ngOnInit(): void {
     this.cargarDatosUsuario();
-    this.cargarPersonalizacion();
+    this.personalizacionStore.cargarPersonalizacion();
+    this.personalizacionStore.cargarMarcos();
+    this.personalizacionStore.cargarFondos();
+
+    const current = this.personalizacionStore.personalizacion();
+    if (current) {
+      this.selectedTheme.set(current.temaId || 'default');
+      this.selectedFrame.set(current.marcoId || 'none');
+      this.selectedBackground.set(current.fondoId || 'default');
+    }
   }
 
   cargarDatosUsuario(): void {
@@ -102,156 +90,43 @@ export class SettingsComponent implements OnInit {
         nombreUsuario: user.nombreUsuario,
         email: user.email,
         bio: user.bio || '',
-        anonimato: false,
       });
     }
   }
 
-  cargarPersonalizacion(): void {
-    this.personalizacionService.obtenerPersonalizacion().subscribe({
-      next: (data: Personalizacion) => {
-        this.personalizacion.set(data);
-        if (data?.temaId) this.selectedTheme.set(data.temaId);
-        if (data?.marcoId) this.selectedFrame.set(data.marcoId);
-        if (data?.fondoId) this.selectedBackground.set(data.fondoId);
-      },
-      error: () => console.error('Error al cargar personalización')
-    });
-
-    this.personalizacionService.obtenerMarcos().subscribe({
-      next: (data: Marco[]) => {
-        this.marcos.set(data);
-        const ownedFrames = data.filter(m => m.gratis).map(m => m.id);
-        this.compras.update(c => ({
-          ...c,
-          frames: [...new Set([...c.frames, ...ownedFrames])]
-        }));
-      },
-      error: () => console.error('Error al cargar marcos')
-    });
-
-    this.personalizacionService.obtenerFondos().subscribe({
-      next: (data: Fondo[]) => {
-        this.fondos.set(data);
-        const ownedBg = data.filter(f => f.gratis).map(f => f.id);
-        this.compras.update(c => ({
-          ...c,
-          backgrounds: [...new Set([...c.backgrounds, ...ownedBg])]
-        }));
-      },
-      error: () => console.error('Error al cargar fondos')
-    });
-  }
-
-  isThemeOwned(themeId: string): boolean {
-    return this.compras().themes.includes(themeId);
-  }
-
-  isFrameOwned(frameId: string): boolean {
-    return this.compras().frames.includes(frameId);
-  }
-
-  isBackgroundOwned(bgId: string): boolean {
-    return this.compras().backgrounds.includes(bgId);
-  }
-
-  aplicarPersonalizacion(): void {
-    const datos = {
-      temaId: this.selectedTheme(),
-      marcoId: this.selectedFrame(),
-      fondoId: this.selectedBackground(),
-    };
-
-    this.cargando.set(true);
-    this.personalizacionService.guardarPersonalizacion(datos).subscribe({
-      next: (data: Personalizacion) => {
-        this.personalizacion.set(data);
-        this.cargando.set(false);
-        this.exitoMsg.set('Personalización aplicada correctamente');
-        setTimeout(() => this.exitoMsg.set(null), 3000);
-        this.personalizacionStore.recargar();
-      },
-      error: () => {
-        this.cargando.set(false);
-        this.errorMsg.set('Error al aplicar personalización');
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
-  }
-
   seleccionarTheme(themeId: string): void {
-    if (!this.isThemeOwned(themeId)) {
-      this.errorMsg.set('Debes comprar este tema primero');
-      setTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
     this.selectedTheme.set(themeId);
   }
 
   seleccionarFrame(frameId: string): void {
-    if (!this.isFrameOwned(frameId)) {
-      this.errorMsg.set('Debes comprar este marco primero');
-      setTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
     this.selectedFrame.set(frameId);
   }
 
   seleccionarBackground(bgId: string): void {
-    if (!this.isBackgroundOwned(bgId)) {
-      this.errorMsg.set('Debes comprar este fondo primero');
-      setTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
     this.selectedBackground.set(bgId);
+    console.log('🎨 Fondo seleccionado:', bgId);
   }
 
-  comprarTheme(themeId: string): void {
-    const theme = this.colorThemes().find(t => t.id === themeId);
-    if (!theme || theme.isFree) return;
-    if (confirm(`Comprar el tema "${theme.name}" por S/${theme.price}?`)) {
-      this.compras.update(c => ({ ...c, themes: [...c.themes, themeId] }));
-      this.exitoMsg.set(`Tema "${theme.name}" comprado!`);
+  // ✅ APLICAR PERSONALIZACIÓN - GUARDA TEMA, MARCO Y FONDO
+  aplicarPersonalizacion(): void {
+    this.cargando.set(true);
+    
+    const temaId = this.selectedTheme();
+    const marcoId = this.selectedFrame();
+    const fondoId = this.selectedBackground();
+    
+    console.log('🎨 Aplicando personalización:', { temaId, marcoId, fondoId });
+    
+    this.personalizacionStore.guardarPersonalizacion(temaId, marcoId, fondoId);
+    
+    setTimeout(() => {
+      this.cargando.set(false);
+      this.exitoMsg.set('✨ Personalización aplicada correctamente');
       setTimeout(() => this.exitoMsg.set(null), 3000);
-    }
-  }
-
-  comprarFrame(frameId: string): void {
-    const frame = this.marcos().find(f => f.id === frameId);
-    if (!frame || frame.gratis) return;
-    if (confirm(`Comprar el marco "${frame.nombre}" por S/${frame.precio}?`)) {
-      this.personalizacionService.comprarMarco(frameId).subscribe({
-        next: () => {
-          this.compras.update(c => ({ ...c, frames: [...c.frames, frameId] }));
-          this.exitoMsg.set(`Marco "${frame.nombre}" comprado!`);
-          setTimeout(() => this.exitoMsg.set(null), 3000);
-          this.cargarPersonalizacion();
-        },
-        error: () => {
-          this.errorMsg.set('Error al comprar el marco');
-          setTimeout(() => this.errorMsg.set(null), 3000);
-        }
-      });
-    }
-  }
-
-  comprarBackground(bgId: string): void {
-    const bg = this.fondos().find(f => f.id === bgId);
-    if (!bg || bg.gratis) return;
-    if (confirm(`Comprar el fondo "${bg.nombre}" por S/${bg.precio}?`)) {
-      this.personalizacionService.comprarFondo(bgId).subscribe({
-        next: () => {
-          this.compras.update(c => ({ ...c, backgrounds: [...c.backgrounds, bgId] }));
-          this.exitoMsg.set(`Fondo "${bg.nombre}" comprado!`);
-          setTimeout(() => this.exitoMsg.set(null), 3000);
-          this.cargarPersonalizacion();
-        },
-        error: () => {
-          this.errorMsg.set('Error al comprar el fondo');
-          setTimeout(() => this.errorMsg.set(null), 3000);
-        }
-      });
-    }
+      
+      // ✅ Forzar recarga del store para actualizar el perfil
+      this.personalizacionStore.recargar();
+    }, 500);
   }
 
   toggleEditarPerfil(): void {
@@ -269,7 +144,7 @@ export class SettingsComponent implements OnInit {
     this.cargando.set(true);
     setTimeout(() => {
       this.cargando.set(false);
-      this.exitoMsg.set('Perfil actualizado correctamente');
+      this.exitoMsg.set('✅ Perfil actualizado correctamente');
       this.editandoPerfil.set(false);
       setTimeout(() => this.exitoMsg.set(null), 3000);
     }, 1000);
@@ -279,55 +154,24 @@ export class SettingsComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+
     this.cargando.set(true);
     this.personalizacionService.subirFotoPerfil(file).subscribe({
-      next: (data: Personalizacion) => {
-        this.personalizacion.set(data);
+      next: (data) => {
         const user = this.usuario();
         if (user) {
           this.authService.usuario.set({ ...user, fotoPerfilUrl: data.fotoPerfilUrl });
         }
-        this.exitoMsg.set('Foto de perfil actualizada');
+        this.exitoMsg.set('📸 Foto de perfil actualizada');
         this.cargando.set(false);
         this.personalizacionStore.recargar();
         setTimeout(() => this.exitoMsg.set(null), 3000);
       },
       error: () => {
-        this.errorMsg.set('Error al subir la foto');
+        this.errorMsg.set('❌ Error al subir la foto');
         this.cargando.set(false);
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
-    });
-  }
-
-  toggleBusqueda(): void {
-    this.mostrarBusqueda.update(val => !val);
-    if (!this.mostrarBusqueda()) {
-      this.queryBusqueda.set('');
-      this.usuariosEncontrados.set([]);
-    }
-  }
-
-  buscarUsuarios(): void {
-    const query = this.queryBusqueda().trim();
-    if (query.length < 2) {
-      this.usuariosEncontrados.set([]);
-      return;
-    }
-    const usuariosMock = [
-      { id: 1, nombreUsuario: 'admin_kiert', email: 'admin@kiert.com', fotoPerfilUrl: null },
-      { id: 2, nombreUsuario: 'root_ana', email: 'ana@kiert.com', fotoPerfilUrl: null },
-    ];
-    this.usuariosEncontrados.set(
-      usuariosMock.filter(u => u.nombreUsuario.toLowerCase().includes(query.toLowerCase()))
-    );
-  }
-
-  copiarLinkPerfil(usuarioId: number): void {
-    const link = `${window.location.origin}/usuario/${usuarioId}`;
-    navigator.clipboard.writeText(link).then(() => {
-      this.exitoMsg.set('Link copiado al portapapeles');
-      setTimeout(() => this.exitoMsg.set(null), 3000);
     });
   }
 
@@ -335,7 +179,20 @@ export class SettingsComponent implements OnInit {
     return nombre?.charAt(0)?.toUpperCase() || '?';
   }
 
-  formatearPrecio(price: number): string {
-    return price === 0 ? 'Gratis' : `S/${price}`;
+  // ===== NAVEGACIÓN =====
+  buscarAmigos(): void {
+    this.router.navigate(['/comunidad']);
+  }
+
+  irChat(): void {
+    this.router.navigate(['/chat']);
+  }
+
+  irPerfil(): void {
+    this.router.navigate(['/perfil']);
+  }
+
+  irHistorial(): void {
+    this.router.navigate(['/mis-publicaciones']);
   }
 }

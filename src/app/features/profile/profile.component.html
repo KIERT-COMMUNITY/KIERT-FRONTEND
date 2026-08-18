@@ -1,5 +1,5 @@
-<!-- APLICAR TEMA Y FONDO -->
-<div class="profile-container" [ngClass]="personalizacionStore.temaClass()" [style.background]="personalizacionStore.fondoGradiente()">
+<!-- APLICAR TEMA DE COLOR AL FONDO GENERAL -->
+<div class="profile-container" [ngClass]="personalizacionStore.temaClass()">
   
   <div class="profile-header">
     <h1 class="page-title">Mi Perfil</h1>
@@ -23,12 +23,13 @@
     </div>
   }
 
-  <div class="profile-card" [style.background]="personalizacionStore.fondoGradiente()">
+  <!-- TARJETA CON FONDO DE PERFIL -->
+  <div class="profile-card" [style.background]="fondoPerfilPreview">
     
     <div class="profile-avatar-container">
-      <!-- AVATAR CON MARCO COMPLETO -->
       <div class="profile-avatar-wrapper">
-        <div class="profile-avatar" [class]="personalizacionStore.marcoClase()" [style]="personalizacionStore.marcoEstilo()">
+        <!-- AVATAR CON MARCO -->
+        <div class="profile-avatar" [class]="marcoClase()">
           @if (previsualizacion()) {
             <img [src]="previsualizacion()" alt="Vista previa">
           } @else if (fotoPerfil()) {
@@ -42,12 +43,12 @@
             </div>
           }
         </div>
-        <!-- INDICADOR DEL MARCO ACTUAL -->
-        <div class="marco-indicator" *ngIf="personalizacionStore.marcoId() !== 'none'">
+        <div class="marco-indicator">
           <span class="marco-indicator__label">Marco: {{ personalizacionStore.marcoId() }}</span>
         </div>
       </div>
       
+      <!-- BOTÓN CAMBIAR FOTO -->
       <label class="btn-upload" [class.disabled]="subiendoFoto()">
         {{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}
         <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden [disabled]="subiendoFoto()">
@@ -98,6 +99,7 @@
       </div>
     </div>
 
+    <!-- ✅ BOTONES PROFESIONALES SIN EMOJIS -->
     <div class="profile-actions">
       <button class="btn-action" (click)="irAlChat()">Mensajes</button>
       <button class="btn-action" (click)="irHistorialPublicaciones()">Historial</button>

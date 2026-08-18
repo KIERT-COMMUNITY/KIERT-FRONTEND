@@ -5,8 +5,9 @@ import { Router, RouterLink } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ReaccionService } from '../../../core/services/reaccion.service';
+import { ComentarioService } from '../../../core/services/comentario.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
-import { Post, Comentario, Adjunto } from '../../../core/models/post.model';
+import { Post, Comentario, Respuesta, Adjunto, Autor } from '../../../core/models/post.model';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 
 @Component({
@@ -19,6 +20,7 @@ import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/av
 export class PostDetailComponent implements OnInit {
   private postService = inject(PostService);
   private reaccionService = inject(ReaccionService);
+  private comentarioService = inject(ComentarioService);
   public authService = inject(AuthService);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
@@ -30,6 +32,7 @@ export class PostDetailComponent implements OnInit {
   comentarios = signal<Comentario[]>([]);
   cargando = signal(true);
   enviandoComentario = signal(false);
+  enviandoRespuesta = signal<number | null>(null);
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
 
@@ -49,6 +52,10 @@ export class PostDetailComponent implements OnInit {
   };
 
   formComentario = this.fb.group({
+    contenido: ['', [Validators.required, Validators.minLength(2)]],
+  });
+
+  formRespuesta = this.fb.group({
     contenido: ['', [Validators.required, Validators.minLength(2)]],
   });
 
@@ -80,8 +87,18 @@ export class PostDetailComponent implements OnInit {
   }
 
   cargarComentarios(postId: number): void {
-    this.postService.listarComentarios(postId).subscribe({
-      next: (data) => this.comentarios.set(data),
+    this.comentarioService.listarPorPost(postId).subscribe({
+      next: (data) => {
+        const comentariosConUI = data.map(c => ({
+          ...c,
+          respuestas: [],
+          totalRespuestas: 0,
+          mostrandoRespuestas: false,
+          mostrandoFormularioRespuesta: false,
+          cargandoRespuestas: false
+        }));
+        this.comentarios.set(comentariosConUI);
+      },
       error: () => {}
     });
   }
@@ -93,6 +110,7 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
+  // ========== REACCIONES AL POST ==========
   reaccionar(tipo: string): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
@@ -113,13 +131,14 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
+  // ========== REACCIONES A COMENTARIOS ==========
   reaccionarComentario(comentarioId: number, tipo: string): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-    this.reaccionService.reaccionarComentario(comentarioId, tipo).subscribe({
+    this.comentarioService.reaccionarComentario(comentarioId, tipo).subscribe({
       next: (data) => {
         this.comentarios.update(lista =>
           lista.map(c => c.id === comentarioId ? { ...c, reacciones: data } : c)
@@ -129,18 +148,34 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
-    switch(tipo) {
-      case 'like': return 'like';
-      case 'love': return 'love';
-      case 'haha': return 'haha';
-      case 'wow': return 'wow';
-      case 'sad': return 'sad';
-      case 'angry': return 'angry';
-      default: return 'like';
+  // ========== REACCIONES A RESPUESTAS ==========
+  reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para reaccionar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
     }
+    this.comentarioService.reaccionarRespuesta(respuestaId, tipo).subscribe({
+      next: (data) => {
+        this.comentarios.update(lista =>
+          lista.map(c => {
+            if (c.id === comentarioId && c.respuestas) {
+              return {
+                ...c,
+                respuestas: c.respuestas.map(r => 
+                  r.id === respuestaId ? { ...r, reacciones: data } : r
+                )
+              };
+            }
+            return c;
+          })
+        );
+      },
+      error: () => {}
+    });
   }
 
+  // ========== ENVIAR COMENTARIO ==========
   enviarComentario(): void {
     if (this.formComentario.invalid) {
       this.formComentario.markAllAsTouched();
@@ -153,9 +188,18 @@ export class PostDetailComponent implements OnInit {
     }
     this.enviandoComentario.set(true);
     const contenido = this.formComentario.getRawValue().contenido!;
-    this.postService.comentar(Number(this.id()), contenido).subscribe({
+
+    this.comentarioService.crear(Number(this.id()), contenido).subscribe({
       next: (nuevo) => {
-        this.comentarios.update((lista) => [...lista, { ...nuevo, reacciones: { likes: 0, loves: 0 } }]);
+        this.comentarios.update((lista) => [...lista, { 
+          ...nuevo, 
+          reacciones: { likes: 0, loves: 0 },
+          respuestas: [],
+          totalRespuestas: 0,
+          mostrandoRespuestas: false,
+          mostrandoFormularioRespuesta: false,
+          cargandoRespuestas: false
+        }]);
         this.formComentario.reset();
         this.enviandoComentario.set(false);
       },
@@ -165,6 +209,187 @@ export class PostDetailComponent implements OnInit {
         setTimeout(() => this.errorMsg.set(null), 3000);
       },
     });
+  }
+
+  // ========== ENVIAR RESPUESTA ==========
+  enviarRespuesta(comentarioId: number): void {
+    if (this.formRespuesta.invalid) {
+      this.formRespuesta.markAllAsTouched();
+      return;
+    }
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Debes iniciar sesion para comentar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+    this.enviandoRespuesta.set(comentarioId);
+    const contenido = this.formRespuesta.getRawValue().contenido!;
+
+    this.comentarioService.crearRespuesta(comentarioId, contenido).subscribe({
+      next: (nueva) => {
+        this.comentarios.update(lista =>
+          lista.map(c => {
+            if (c.id === comentarioId) {
+              const respuestas = c.respuestas || [];
+              return {
+                ...c,
+                respuestas: [...respuestas, nueva],
+                totalRespuestas: (c.totalRespuestas || 0) + 1,
+                mostrandoFormularioRespuesta: false,
+                mostrandoRespuestas: true
+              };
+            }
+            return c;
+          })
+        );
+        this.formRespuesta.reset();
+        this.enviandoRespuesta.set(null);
+      },
+      error: () => {
+        this.errorMsg.set('Error al enviar respuesta');
+        this.enviandoRespuesta.set(null);
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ========== TOGGLE RESPONDER ==========
+  toggleResponder(comentarioId: number): void {
+    this.comentarios.update(lista =>
+      lista.map(c => {
+        if (c.id === comentarioId) {
+          return {
+            ...c,
+            mostrandoFormularioRespuesta: !c.mostrandoFormularioRespuesta
+          };
+        }
+        return c;
+      })
+    );
+  }
+
+  // ========== TOGGLE VER RESPUESTAS ==========
+  toggleVerRespuestas(comentarioId: number): void {
+    this.comentarios.update(lista =>
+      lista.map(c => {
+        if (c.id === comentarioId) {
+          const mostrando = !c.mostrandoRespuestas;
+          if (mostrando && (!c.respuestas || c.respuestas.length === 0)) {
+            this.cargarRespuestas(comentarioId);
+          }
+          return {
+            ...c,
+            mostrandoRespuestas: mostrando
+          };
+        }
+        return c;
+      })
+    );
+  }
+
+  cargarRespuestas(comentarioId: number): void {
+    this.comentarios.update(lista =>
+      lista.map(c => {
+        if (c.id === comentarioId) {
+          return { ...c, cargandoRespuestas: true };
+        }
+        return c;
+      })
+    );
+
+    this.comentarioService.listarRespuestas(comentarioId).subscribe({
+      next: (respuestas) => {
+        this.comentarios.update(lista =>
+          lista.map(c => {
+            if (c.id === comentarioId) {
+              return {
+                ...c,
+                respuestas: respuestas,
+                totalRespuestas: respuestas.length,
+                cargandoRespuestas: false
+              };
+            }
+            return c;
+          })
+        );
+      },
+      error: () => {
+        this.comentarios.update(lista =>
+          lista.map(c => {
+            if (c.id === comentarioId) {
+              return { ...c, cargandoRespuestas: false };
+            }
+            return c;
+          })
+        );
+      }
+    });
+  }
+
+  // ========== ELIMINAR COMENTARIO ==========
+  eliminarComentario(comentarioId: number): void {
+    if (!confirm('¿Seguro que quieres eliminar este comentario?')) return;
+    this.comentarioService.eliminar(comentarioId).subscribe({
+      next: () => {
+        this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
+        this.exitoMsg('Comentario eliminado');
+      },
+      error: () => {
+        this.errorMsg.set('Error al eliminar comentario');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ========== ELIMINAR RESPUESTA ==========
+  eliminarRespuesta(comentarioId: number, respuestaId: number): void {
+    if (!confirm('¿Seguro que quieres eliminar esta respuesta?')) return;
+    this.comentarioService.eliminarRespuesta(respuestaId).subscribe({
+      next: () => {
+        this.comentarios.update(lista =>
+          lista.map(c => {
+            if (c.id === comentarioId && c.respuestas) {
+              return {
+                ...c,
+                respuestas: c.respuestas.filter(r => r.id !== respuestaId),
+                totalRespuestas: (c.totalRespuestas || 0) - 1
+              };
+            }
+            return c;
+          })
+        );
+        this.exitoMsg('Respuesta eliminada');
+      },
+      error: () => {
+        this.errorMsg.set('Error al eliminar respuesta');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ========== VERIFICAR SI ES AUTOR ==========
+  esAutor(autor: Autor): boolean {
+    const usuario = this.authService.usuario();
+    return usuario?.id === autor.id;
+  }
+
+  // ========== UTILIDADES ==========
+  exitoMsg(mensaje: string): void {
+    this.errorMsg.set(null);
+    // Usar un signal para mensajes de éxito si existe, o console.log
+    console.log('✅', mensaje);
+  }
+
+  getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
+    switch(tipo) {
+      case 'like': return 'like';
+      case 'love': return 'love';
+      case 'haha': return 'haha';
+      case 'wow': return 'wow';
+      case 'sad': return 'sad';
+      case 'angry': return 'angry';
+      default: return 'like';
+    }
   }
 
   volverAlFeed(): void {

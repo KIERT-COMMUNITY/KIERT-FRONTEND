@@ -1,4 +1,3 @@
-// create-post.component.ts
 import { Component, signal, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -43,7 +42,7 @@ export class CreatePostComponent implements OnInit {
   ngOnInit(): void {
     this.estaLogueado.set(this.authService.estaLogueado());
     if (!this.estaLogueado()) {
-      this.errorMsg.set('Debes iniciar sesion para publicar');
+      this.errorMsg.set('Debes iniciar sesión para publicar');
       setTimeout(() => this.router.navigate(['/login']), 2000);
     }
   }
@@ -51,18 +50,56 @@ export class CreatePostComponent implements OnInit {
   get titulo() { return this.form.controls.titulo; }
   get descripcion() { return this.form.controls.descripcion; }
 
+  getTipoArchivo(archivo: File): string {
+    if (archivo.type.startsWith('video/')) {
+      return 'Video';
+    } else if (archivo.type === 'image/gif') {
+      return 'GIF';
+    } else if (archivo.type.startsWith('image/')) {
+      return 'Imagen';
+    } else {
+      return 'Documento';
+    }
+  }
+
   onArchivosSeleccionados(evento: Event): void {
     const input = evento.target as HTMLInputElement;
     if (!input.files) return;
 
-    const validos = Array.from(input.files).filter((f) => f.size <= 10 * 1024 * 1024);
-    
-    if (validos.length !== input.files.length) {
-      this.errorMsg.set('Algunos archivos exceden el limite de 10MB');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+    const archivos = Array.from(input.files);
+    const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+    const MAX_GIF_SIZE = 15 * 1024 * 1024;
+
+    const validos: File[] = [];
+
+    for (const archivo of archivos) {
+      const esVideo = archivo.type.startsWith('video/');
+      const esGif = archivo.type === 'image/gif';
+      
+      let maxSize = MAX_IMAGE_SIZE;
+      let tipo = 'imagen';
+      
+      if (esVideo) {
+        maxSize = MAX_VIDEO_SIZE;
+        tipo = 'video';
+      } else if (esGif) {
+        maxSize = MAX_GIF_SIZE;
+        tipo = 'GIF';
+      }
+
+      if (archivo.size > maxSize) {
+        this.errorMsg.set(`${archivo.name} excede el límite de ${tipo === 'video' ? '50MB' : '15MB'}`);
+        setTimeout(() => this.errorMsg.set(null), 3000);
+        continue;
+      }
+      
+      validos.push(archivo);
     }
-    
-    this.archivosSeleccionados.set(validos);
+
+    if (validos.length > 0) {
+      this.archivosSeleccionados.set(validos);
+    }
   }
 
   quitarArchivo(nombre: string): void {
@@ -72,13 +109,13 @@ export class CreatePostComponent implements OnInit {
   publicar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMsg.set('Por favor, completa todos los campos obligatorios');
+      this.errorMsg.set('Completa todos los campos obligatorios');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
 
     if (!this.authService.estaLogueado()) {
-      this.errorMsg.set('Debes iniciar sesion para publicar');
+      this.errorMsg.set('Debes iniciar sesión para publicar');
       setTimeout(() => this.router.navigate(['/login']), 2000);
       return;
     }
@@ -93,13 +130,15 @@ export class CreatePostComponent implements OnInit {
     formData.append('descripcion', datos.descripcion!);
     if (datos.link) formData.append('link', datos.link);
     
-    this.archivosSeleccionados().forEach((archivo) => {
+    const archivos = this.archivosSeleccionados();
+    archivos.forEach((archivo) => {
       formData.append('archivos', archivo);
     });
 
     this.postService.crear(formData).subscribe({
       next: (nuevoPost) => {
         this.publicando.set(false);
+        this.archivosSeleccionados.set([]);
         if (nuevoPost && nuevoPost.id) {
           this.router.navigate(['/comunidad', nuevoPost.id]);
         } else {

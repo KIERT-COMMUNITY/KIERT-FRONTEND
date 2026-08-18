@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -32,25 +32,38 @@ export class PerfilAutorComponent implements OnInit {
   esMiPerfil = signal(false);
   usuarioActual = this.authService.usuario;
 
-  // Computed para el marco del autor (usa el store global)
-  readonly frameClass = computed(() => {
-    return this.personalizacionStore.marcoClase();
-  });
-
-  readonly frameStyle = computed(() => {
-    return this.personalizacionStore.marcoEstilo();
-  });
-
-  readonly fondoGradiente = computed(() => {
+  // ✅ FONDO DE PERFIL
+  get fondoPerfil(): string {
     return this.personalizacionStore.fondoGradiente();
-  });
+  }
+
+  // ✅ FONDO PARA LA TARJETA
+  get fondoPerfilCard(): string {
+    const tema = this.personalizacionStore.temaId();
+    
+    if (tema === 'light') {
+      return 'rgba(255, 255, 255, 0.92)';
+    }
+    
+    return 'rgba(13, 17, 23, 0.90)';
+  }
+
+  // ✅ MARCO ESTILO
+  get marcoEstilo() {
+    return this.personalizacionStore.marcoEstilo();
+  }
+
+  // ✅ CLASE DEL MARCO
+  get marcoClase() {
+    return this.personalizacionStore.marcoClase();
+  }
 
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.params['id']);
     const usuarioActual = this.usuarioActual();
     
     if (!userId || isNaN(userId)) {
-      this.errorMsg.set('Usuario no valido');
+      this.errorMsg.set('Usuario no válido');
       this.cargando.set(false);
       return;
     }
@@ -105,12 +118,12 @@ export class PerfilAutorComponent implements OnInit {
       next: () => {
         this.solicitudPendiente.set(true);
         this.enviandoSolicitud.set(false);
-        this.exitoMsg.set('Solicitud enviada correctamente');
+        this.exitoMsg.set('✅ Solicitud enviada correctamente');
         setTimeout(() => this.exitoMsg.set(null), 3000);
       },
       error: () => {
         this.enviandoSolicitud.set(false);
-        this.errorMsg.set('Error al enviar solicitud');
+        this.errorMsg.set('❌ Error al enviar solicitud');
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
     });
