@@ -40,7 +40,7 @@ pipeline {
         stage('Setup Node.js') {
             steps {
                 // ✅ CAMBIA EL NOMBRE POR EL QUE TENES EN HERRAMIENTAS GLOBALES
-                tool name: 'node-22.14.0', type: 'nodejs'
+                tool name: 'node-22', type: 'nodejs'
                 sh 'node --version'
                 sh 'npm --version'
             }
