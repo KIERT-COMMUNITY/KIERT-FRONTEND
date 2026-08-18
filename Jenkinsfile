@@ -39,8 +39,8 @@ pipeline {
 
         stage('Setup Node.js') {
             steps {
-                // ✅ CAMBIAR AQUI EL NOMBRE SEGUN TU CONFIGURACION
-                tool name: 'node-22', type: 'nodejs'
+                // ✅ CAMBIA EL NOMBRE POR EL QUE TENES EN HERRAMIENTAS GLOBALES
+                tool name: 'node-22.14.0', type: 'nodejs'
                 sh 'node --version'
                 sh 'npm --version'
             }
@@ -73,6 +73,11 @@ pipeline {
                     echo "Ejecutando pruebas unitarias..."
                     npm run test:ci || true
                 '''
+            }
+            post {
+                always {
+                    junit 'test-results/junit.xml'
+                }
             }
         }
 
