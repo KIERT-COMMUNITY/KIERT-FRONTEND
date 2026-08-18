@@ -39,10 +39,8 @@ pipeline {
 
         stage('Setup Node.js') {
             steps {
-                // ✅ Usar bat en lugar de sh para Windows
                 bat '''
                     echo "Verificando Node.js..."
-                    where node
                     node --version
                     npm --version
                 '''
@@ -58,31 +56,11 @@ pipeline {
             }
         }
 
-        stage('Lint') {
-            steps {
-                bat '''
-                    echo "Ejecutando ESLint..."
-                    npm run lint || exit 0
-                '''
-            }
-        }
+        // ❌ ELIMINADO: Lint (no existe el script)
+        // stage('Lint') { ... }
 
-        stage('Unit Tests') {
-            when {
-                expression { params.RUN_TESTS == true }
-            }
-            steps {
-                bat '''
-                    echo "Ejecutando pruebas unitarias..."
-                    npm run test:ci || exit 0
-                '''
-            }
-            post {
-                always {
-                    junit 'test-results/junit.xml'
-                }
-            }
-        }
+        // ❌ ELIMINADO: Unit Tests (no existe el script)
+        // stage('Unit Tests') { ... }
 
         stage('Build') {
             steps {
