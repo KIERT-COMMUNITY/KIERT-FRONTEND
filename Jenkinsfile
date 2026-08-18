@@ -39,8 +39,8 @@ pipeline {
 
         stage('Setup Node.js') {
             steps {
-                // ✅ SIN tool - usa Node.js del sistema
-                sh '''
+                // ✅ Usar bat en lugar de sh para Windows
+                bat '''
                     echo "Verificando Node.js..."
                     where node
                     node --version
@@ -51,7 +51,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
+                bat '''
                     echo "Instalando dependencias..."
                     npm install
                 '''
@@ -60,9 +60,9 @@ pipeline {
 
         stage('Lint') {
             steps {
-                sh '''
+                bat '''
                     echo "Ejecutando ESLint..."
-                    npm run lint || true
+                    npm run lint || exit 0
                 '''
             }
         }
@@ -72,9 +72,9 @@ pipeline {
                 expression { params.RUN_TESTS == true }
             }
             steps {
-                sh '''
+                bat '''
                     echo "Ejecutando pruebas unitarias..."
-                    npm run test:ci || true
+                    npm run test:ci || exit 0
                 '''
             }
             post {
@@ -86,7 +86,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh """
+                bat """
                     echo "Construyendo para entorno: ${params.ENVIRONMENT}"
                     npm run build -- --configuration=${params.ENVIRONMENT} --output-path=dist
                 """
@@ -103,7 +103,7 @@ pipeline {
                 expression { params.ENVIRONMENT == 'production' || params.ENVIRONMENT == 'staging' }
             }
             steps {
-                sh """
+                bat """
                     echo "Desplegando a ${params.ENVIRONMENT}..."
                     echo "Build #${BUILD_NUMBER} - ${params.BRANCH}"
                 """
@@ -113,26 +113,26 @@ pipeline {
 
     post {
         success {
-            echo """
-                Pipeline completado exitosamente!
-                Build: #${BUILD_NUMBER}
-                Rama: ${params.BRANCH}
-                Entorno: ${params.ENVIRONMENT}
-                URL: ${BUILD_URL}
+            bat """
+                echo "Pipeline completado exitosamente!"
+                echo "Build: #${BUILD_NUMBER}"
+                echo "Rama: ${params.BRANCH}"
+                echo "Entorno: ${params.ENVIRONMENT}"
+                echo "URL: ${BUILD_URL}"
             """
         }
         failure {
-            echo """
-                Pipeline fallo!
-                Build: #${BUILD_NUMBER}
-                Rama: ${params.BRANCH}
-                Entorno: ${params.ENVIRONMENT}
-                URL: ${BUILD_URL}
+            bat """
+                echo "Pipeline fallo!"
+                echo "Build: #${BUILD_NUMBER}"
+                echo "Rama: ${params.BRANCH}"
+                echo "Entorno: ${params.ENVIRONMENT}"
+                echo "URL: ${BUILD_URL}"
             """
         }
         always {
             cleanWs()
-            echo "Limpiando workspace..."
+            bat 'echo "Limpiando workspace..."'
         }
     }
 }
