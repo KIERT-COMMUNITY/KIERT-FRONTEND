@@ -9,7 +9,7 @@ pipeline {
         )
         string(
             name: 'BRANCH',
-            defaultValue: 'main',
+            defaultValue: 'develop',
             description: 'Rama a construir'
         )
         booleanParam(
@@ -17,10 +17,6 @@ pipeline {
             defaultValue: true,
             description: 'Ejecutar pruebas unitarias'
         )
-    }
-
-    environment {
-        NODE_VERSION = '22.14.0'
     }
 
     stages {
@@ -43,7 +39,8 @@ pipeline {
 
         stage('Setup Node.js') {
             steps {
-                tool name: 'node-22.14.0', type: 'nodejs'
+                // ✅ CAMBIAR AQUI EL NOMBRE SEGUN TU CONFIGURACION
+                tool name: 'node-22', type: 'nodejs'
                 sh 'node --version'
                 sh 'npm --version'
             }
@@ -76,11 +73,6 @@ pipeline {
                     echo "Ejecutando pruebas unitarias..."
                     npm run test:ci || true
                 '''
-            }
-            post {
-                always {
-                    junit 'test-results/junit.xml'
-                }
             }
         }
 
