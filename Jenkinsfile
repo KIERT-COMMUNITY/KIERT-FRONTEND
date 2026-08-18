@@ -72,7 +72,7 @@ pipeline {
         // --------------------------------------------
         stage('Setup Node.js') {
             steps {
-                tool name: 'node-18', type: 'nodejs'
+                tool name: 'node-22.14.0', type: 'nodejs'
                 sh 'node --version'
                 sh 'npm --version'
             }
