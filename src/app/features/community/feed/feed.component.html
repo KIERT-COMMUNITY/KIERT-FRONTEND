@@ -1,5 +1,5 @@
-<!-- feed.component.html -->
-<div class="feed-container">
+<!-- APLICAR TEMA DE COLOR FUERTEMENTE -->
+<div class="feed-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
   
   <!-- LOGO DEL SITIO -->
   <div class="feed-logo-section">
@@ -68,9 +68,7 @@
     </div>
   }
 
-  <!-- ========================================================= -->
-  <!-- ANUNCIO DESTACADO - BANNER COMPLETO -->
-  <!-- ========================================================= -->
+  <!-- ANUNCIO DESTACADO -->
   <div class="ad-banner-destacado">
     <a href="#" class="ad-banner-link" target="_blank">
       <img 
@@ -89,9 +87,7 @@
     </a>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- CARRUSEL DE MINI BANNERS RECTANGULARES -->
-  <!-- ========================================================= -->
+  <!-- CARRUSEL DE MINI BANNERS -->
   <div class="ad-carrusel">
     <div class="ad-carrusel-track">
       @for (anuncio of imagenes.anuncios; track $index) {
@@ -110,7 +106,6 @@
           </a>
         </div>
       }
-      <!-- DUPLICADO PARA EFECTO INFINITO -->
       @for (anuncio of imagenes.anuncios; track $index) {
         <div class="ad-mini-banner">
           <a href="#" class="ad-mini-link" target="_blank">

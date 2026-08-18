@@ -85,6 +85,7 @@
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.2s;
+    position: relative;
 
     &:hover {
       color: #e6edf3;
@@ -99,6 +100,42 @@
   }
 }
 
+// ========== BADGE DE NOTIFICACIONES ==========
+.nav-link-chat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-notificacion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #f85149;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  animation: pulse-badge 2s infinite;
+
+  &:empty {
+    display: none;
+  }
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+// ========== BOTON LOGOUT ==========
 .btn-logout {
   background: none;
   border: 1px solid #26313c;
@@ -143,6 +180,13 @@
       padding: 10px 14px;
       width: 100%;
       border-radius: 6px;
+
+      .badge-notificacion {
+        margin-left: auto;
+        min-width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+      }
     }
 
     .btn-logout {
@@ -167,5 +211,21 @@
       font-size: 0.85rem;
       padding: 8px 12px;
     }
+  }
+
+  .badge-notificacion {
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.55rem;
+    padding: 0 4px;
+  }
+}
+// Agregar al final del archivo
+.nav-link-chat {
+  cursor: pointer;
+  
+  &:hover {
+    color: #e6edf3;
+    background: #1b232c;
   }
 }

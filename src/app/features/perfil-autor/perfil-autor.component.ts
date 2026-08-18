@@ -1,10 +1,10 @@
-// src/app/features/perfil-autor/perfil-autor.component.ts
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ChatService } from '../../core/services/chat.service';
 import { UserService } from '../../core/services/user.service';
+import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { User } from '../../core/models/user.model';
 
 @Component({
@@ -20,6 +20,7 @@ export class PerfilAutorComponent implements OnInit {
   private authService = inject(AuthService);
   private chatService = inject(ChatService);
   private userService = inject(UserService);
+  public personalizacionStore = inject(PersonalizacionStore);
 
   autor = signal<User | null>(null);
   cargando = signal(true);
@@ -31,12 +32,25 @@ export class PerfilAutorComponent implements OnInit {
   esMiPerfil = signal(false);
   usuarioActual = this.authService.usuario;
 
+  // Computed para el marco del autor (usa el store global)
+  readonly frameClass = computed(() => {
+    return this.personalizacionStore.marcoClase();
+  });
+
+  readonly frameStyle = computed(() => {
+    return this.personalizacionStore.marcoEstilo();
+  });
+
+  readonly fondoGradiente = computed(() => {
+    return this.personalizacionStore.fondoGradiente();
+  });
+
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.params['id']);
     const usuarioActual = this.usuarioActual();
     
     if (!userId || isNaN(userId)) {
-      this.errorMsg.set('Usuario no válido');
+      this.errorMsg.set('Usuario no valido');
       this.cargando.set(false);
       return;
     }
@@ -58,8 +72,7 @@ export class PerfilAutorComponent implements OnInit {
         this.autor.set(user);
         this.cargando.set(false);
       },
-      error: (error) => {
-        console.error('Error al cargar autor:', error);
+      error: () => {
         this.errorMsg.set('Error al cargar el perfil del usuario');
         this.cargando.set(false);
       }
@@ -68,12 +81,8 @@ export class PerfilAutorComponent implements OnInit {
 
   verificarEstadoContacto(userId: number): void {
     this.chatService.sonContactos(userId).subscribe({
-      next: (sonContactos) => {
-        this.esContacto.set(sonContactos);
-      },
-      error: () => {
-        this.esContacto.set(false);
-      }
+      next: (sonContactos) => this.esContacto.set(sonContactos),
+      error: () => this.esContacto.set(false)
     });
 
     this.chatService.listarSolicitudes().subscribe({
@@ -83,9 +92,7 @@ export class PerfilAutorComponent implements OnInit {
         );
         this.solicitudPendiente.set(pendiente);
       },
-      error: () => {
-        this.solicitudPendiente.set(false);
-      }
+      error: () => this.solicitudPendiente.set(false)
     });
   }
 
@@ -101,9 +108,9 @@ export class PerfilAutorComponent implements OnInit {
         this.exitoMsg.set('Solicitud enviada correctamente');
         setTimeout(() => this.exitoMsg.set(null), 3000);
       },
-      error: (error) => {
+      error: () => {
         this.enviandoSolicitud.set(false);
-        this.errorMsg.set(error.error?.mensaje || 'Error al enviar solicitud');
+        this.errorMsg.set('Error al enviar solicitud');
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
     });

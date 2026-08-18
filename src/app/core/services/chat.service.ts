@@ -25,6 +25,10 @@ export class ChatService {
     return this.http.post<Mensaje>(`${this.baseUrl}/${usuarioId}`, { contenido });
   }
 
+  enviarMensajeConArchivos(usuarioId: number, formData: FormData): Observable<Mensaje> {
+    return this.http.post<Mensaje>(`${this.baseUrl}/${usuarioId}/archivos`, formData);
+  }
+
   // ========== SOLICITUDES ==========
   listarSolicitudes(): Observable<SolicitudContacto[]> {
     return this.http.get<SolicitudContacto[]>(`${this.baseUrl}/solicitudes`);

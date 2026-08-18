@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -18,6 +19,7 @@ export class CreatePostComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  public personalizacionStore = inject(PersonalizacionStore);
 
   publicando = signal(false);
   errorMsg = signal<string | null>(null);
@@ -95,16 +97,9 @@ export class CreatePostComponent implements OnInit {
       formData.append('archivos', archivo);
     });
 
-    console.log('📤 Enviando publicación...');
-    console.log('📄 Título:', datos.titulo);
-    console.log('📎 Archivos:', this.archivosSeleccionados().length);
-
     this.postService.crear(formData).subscribe({
       next: (nuevoPost) => {
-        console.log('✅ Post creado exitosamente:', nuevoPost);
-        console.log('🆔 ID del post:', nuevoPost.id);
         this.publicando.set(false);
-        
         if (nuevoPost && nuevoPost.id) {
           this.router.navigate(['/comunidad', nuevoPost.id]);
         } else {
@@ -112,7 +107,7 @@ export class CreatePostComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('❌ Error al publicar:', error);
+        console.error('Error al publicar:', error);
         this.errorMsg.set(error.error?.mensaje || 'No se pudo publicar. Intenta nuevamente.');
         this.publicando.set(false);
       },

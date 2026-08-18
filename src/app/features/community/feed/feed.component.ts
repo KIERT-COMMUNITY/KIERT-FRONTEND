@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { PostService } from '../../../core/services/post.service';
 import { Post } from '../../../core/models/post.model';
 import { PostCardComponent } from '../../../shared/components/post-card/post-card.component';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 
 @Component({
   selector: 'kiert-feed',
@@ -16,12 +17,12 @@ import { PostCardComponent } from '../../../shared/components/post-card/post-car
 export class FeedComponent implements OnInit {
   private postService = inject(PostService);
   private router = inject(Router);
+  public personalizacionStore = inject(PersonalizacionStore);
 
   posts = signal<Post[]>([]);
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
 
-  // ========== RUTAS DE IMÁGENES ==========
   imagenes = {
     anuncioDestacado: 'assets/images/banner/banner.jpg',
     anuncios: [
@@ -33,7 +34,6 @@ export class FeedComponent implements OnInit {
     ]
   };
 
-  // ========== PLACEHOLDER ==========
   placeholderImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="100" viewBox="0 0 200 100"%3E%3Crect width="200" height="100" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="12" fill="%232dd4bf" text-anchor="middle" dy=".3em"%3EAnuncio%3C/text%3E%3C/svg%3E';
 
   ngOnInit(): void {

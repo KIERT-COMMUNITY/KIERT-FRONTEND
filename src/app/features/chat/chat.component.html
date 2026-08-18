@@ -1,7 +1,6 @@
-<!-- src/app/features/chat/chat.component.html -->
-<div class="chat-container">
+<!-- CHAT CON FONDO DE PERFIL -->
+<div class="chat-container" [ngClass]="personalizacionStore.temaClass()" [style.background]="personalizacionStore.fondoGradiente()">
   
-  <!-- HEADER -->
   <div class="chat-header">
     <h2>Chat</h2>
     @if (cantidadSolicitudesPendientes > 0) {
@@ -9,7 +8,6 @@
     }
   </div>
 
-  <!-- ERRORES Y ÉXITOS -->
   @if (errorMsg()) {
     <div class="alert alert-error">
       {{ errorMsg() }}
@@ -23,7 +21,6 @@
     </div>
   }
 
-  <!-- SOLICITUDES PENDIENTES -->
   @if (solicitudesPendientes.length > 0) {
     <div class="solicitudes-section">
       <h3>Solicitudes de contacto</h3>
@@ -48,10 +45,8 @@
     </div>
   }
 
-  <!-- CHAT MAIN -->
   <div class="chat-main">
     
-    <!-- LISTA DE CONVERSACIONES -->
     <div class="conversaciones-lista">
       <h3>Conversaciones</h3>
       @if (conversaciones().length === 0) {
@@ -62,11 +57,14 @@
                [class.active]="usuarioSeleccionado() === conv.usuarioId"
                (click)="seleccionarConversacion(conv.usuarioId)">
             <div class="conv-avatar">
-              @if (conv.fotoPerfilUrl) {
-                <img [src]="conv.fotoPerfilUrl" [alt]="conv.nombreUsuario">
-              } @else {
-                <span>{{ conv.nombreUsuario.charAt(0).toUpperCase() }}</span>
-              }
+              <kiert-avatar-frame
+                [fotoUrl]="conv.fotoPerfilUrl || null"
+                [nombre]="conv.nombreUsuario"
+                [size]="40"
+                [alt]="conv.nombreUsuario"
+                [navigateToProfile]="true"
+                [usuarioId]="conv.usuarioId"
+              />
             </div>
             <div class="conv-info">
               <span class="conv-nombre">@{{ conv.nombreUsuario }}</span>
@@ -82,7 +80,6 @@
       }
     </div>
 
-    <!-- AREA DE CHAT -->
     <div class="chat-area">
       @if (!usuarioSeleccionado()) {
         <div class="chat-placeholder">
@@ -90,12 +87,10 @@
         </div>
       } @else {
         <div class="chat-header-area">
-          @for (conv of conversaciones(); track conv.usuarioId) {
-            @if (conv.usuarioId === usuarioSeleccionado()) {
-              <span class="chat-usuario">@{{ conv.nombreUsuario }}</span>
-              <button class="btn-perfil" (click)="irAlPerfil(conv.usuarioId)">Ver perfil</button>
-            }
-          }
+          <span class="chat-usuario">@{{ getNombreUsuario(usuarioSeleccionado()!) }}</span>
+          <div class="chat-actions">
+            <button class="btn-perfil" (click)="irAlPerfil(usuarioSeleccionado()!)">Ver perfil</button>
+          </div>
         </div>
 
         <div class="mensajes-lista" #mensajesContainer>
@@ -107,6 +102,27 @@
             @for (msg of mensajes(); track msg.id) {
               <div class="mensaje" [class.propio]="msg.propio">
                 <div class="mensaje-contenido">{{ msg.contenido }}</div>
+                @if (msg.archivos && msg.archivos.length > 0) {
+                  <div class="mensaje-archivos">
+                    @for (archivo of msg.archivos; track $index) {
+                      <div class="archivo-item">
+                        @if (esImagen(archivo)) {
+                          <div class="archivo-imagen" (click)="abrirArchivo(archivo.url)">
+                            <img [src]="archivo.url" [alt]="archivo.nombre" loading="lazy">
+                          </div>
+                        } @else {
+                          <a [href]="archivo.url" target="_blank" class="archivo-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                              <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <span>{{ archivo.nombre }}</span>
+                          </a>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
                 <span class="mensaje-fecha">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
               </div>
             }
@@ -120,10 +136,37 @@
             placeholder="Escribe un mensaje..."
             class="mensaje-input"
           >
+          <label class="btn-archivo" title="Adjuntar archivo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 16 12 12 8 16"/>
+              <line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input 
+              type="file" 
+              multiple
+              (change)="onArchivosSeleccionados($event)"
+              accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+              hidden
+            >
+          </label>
           <button type="submit" class="mensaje-btn" [disabled]="enviando()">
             {{ enviando() ? '...' : 'Enviar' }}
           </button>
         </form>
+
+        @if (archivosSeleccionados().length > 0) {
+          <div class="archivos-preview">
+            @for (archivo of archivosSeleccionados(); track $index) {
+              <div class="archivo-preview-item">
+                <span>{{ archivo.name }}</span>
+                <span>({{ (archivo.size / 1024).toFixed(1) }} KB)</span>
+                <button (click)="quitarArchivo($index)">×</button>
+              </div>
+            }
+          </div>
+        }
       }
     </div>
   </div>

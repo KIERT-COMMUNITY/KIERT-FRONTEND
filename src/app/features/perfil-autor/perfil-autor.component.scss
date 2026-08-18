@@ -1,8 +1,9 @@
-// src/app/features/perfil-autor/perfil-autor.component.scss
 .perfil-autor-container {
   max-width: 500px;
-  margin: 2rem auto;
-  padding: 1rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  min-height: 100vh;
+  transition: background 0.3s ease;
 }
 
 .perfil-card {
@@ -11,18 +12,25 @@
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
+  transition: all 0.3s ease;
+}
+
+// ========== AVATAR CON MARCO ==========
+.perfil-avatar-wrapper {
+  position: relative;
+  display: inline-block;
 }
 
 .perfil-avatar {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  overflow: hidden;
-  background: linear-gradient(135deg, #2dd4bf, #17b6a4);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  background: #1b232c;
+  margin: 0 auto 1rem;
+  transition: all 0.3s ease;
 
   img {
     width: 100%;
@@ -31,118 +39,114 @@
   }
 
   .avatar-inicial {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: #0d1117;
+  }
+
+  // ========== TIPOS DE MARCO ==========
+  &.circulo {
+    border-radius: 50%;
+  }
+
+  &.cuadrado {
+    border-radius: 8px;
+  }
+
+  &.hexagonal {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  // ========== ESTILOS DE MARCO ==========
+  &.frame-none { border: none; }
+  &.frame-classic { border: 4px solid #2dd4bf; }
+  &.frame-gold { border: 4px solid #f9ca24; box-shadow: 0 0 20px rgba(249, 202, 36, 0.3); }
+  &.frame-silver { border: 4px solid #b2bec3; box-shadow: 0 0 20px rgba(178, 190, 195, 0.3); }
+  &.frame-rainbow { 
+    border: 4px solid transparent;
+    background-image: linear-gradient(135deg, #ff6b6b, #feca57, #55efc4, #0984e3, #6c5ce7);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    padding: 3px;
+  }
+  &.frame-neon { 
+    border: 4px solid #fd79a8;
+    box-shadow: 0 0 25px rgba(253, 121, 168, 0.5);
+  }
+  &.frame-square { border-radius: 8px !important; }
+  &.frame-hexagon {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.marco-indicator {
+  text-align: center;
+  margin-top: 0.25rem;
+  
+  &__label {
+    font-size: 0.7rem;
+    color: #8b98a5;
+    background: rgba(45, 212, 191, 0.1);
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    display: inline-block;
   }
 }
 
 .perfil-nombre {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.3rem;
   color: #e6edf3;
-  margin: 0 0 0.25rem;
+  margin: 0.5rem 0;
 }
 
 .perfil-email {
   color: #8b98a5;
-  margin: 0 0 1.5rem;
-}
-
-.exito {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: rgba(45, 212, 191, 0.1);
-  border: 1px solid #2dd4bf;
-  border-radius: 8px;
-  color: #2dd4bf;
-  margin-bottom: 1rem;
-
-  svg {
-    stroke: #2dd4bf;
-  }
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .perfil-acciones {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+
+.btn-chat, .btn-solicitar, .btn-pendiente {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-chat {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
   background: #2dd4bf;
   color: #0d1117;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  svg {
-    stroke: #0d1117;
-  }
-
-  &:hover {
-    opacity: 0.85;
-    transform: translateY(-2px);
-  }
+  &:hover { opacity: 0.85; transform: translateY(-2px); }
 }
 
 .btn-solicitar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: #1f6feb;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  svg {
-    stroke: #fff;
-  }
-
-  &:hover:not(:disabled) {
-    opacity: 0.85;
-    transform: translateY(-2px);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  background: #2dd4bf;
+  color: #0d1117;
+  &:hover:not(:disabled) { opacity: 0.85; transform: translateY(-2px); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .btn-pendiente {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: #d29922;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  background: #5a6a7a;
+  color: #e6edf3;
   cursor: not-allowed;
-  opacity: 0.7;
-
-  svg {
-    stroke: #fff;
-  }
 }
 
 .btn-volver {
@@ -150,51 +154,35 @@
   border: none;
   color: #8b98a5;
   cursor: pointer;
-  font-size: 0.9rem;
   transition: all 0.2s;
-  padding: 0.5rem 1rem;
-
-  &:hover {
-    color: #2dd4bf;
-  }
+  &:hover { color: #2dd4bf; }
 }
 
-.loading {
+.loading, .error {
   text-align: center;
   padding: 2rem;
   color: #8b98a5;
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #26313c;
-    border-top-color: #2dd4bf;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 1rem;
-  }
 }
 
-.error {
-  text-align: center;
-  padding: 2rem;
-  background: #131a22;
-  border: 1px solid #26313c;
-  border-radius: 16px;
-  color: #f85149;
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #26313c;
+  border-top-color: #2dd4bf;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
 
-  .error-icon {
-    margin-bottom: 1rem;
-    color: #f85149;
-    
-    svg {
-      stroke: currentColor;
-    }
-  }
-
-  p {
-    margin-bottom: 1rem;
-  }
+.exito {
+  background: rgba(63, 185, 80, 0.1);
+  color: #3fb950;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 @keyframes spin {
@@ -204,13 +192,12 @@
 // ========== RESPONSIVE ==========
 @media (max-width: 480px) {
   .perfil-autor-container {
-    padding: 0.5rem;
-    margin: 1rem auto;
+    padding: 0.75rem;
   }
 
   .perfil-card {
-    padding: 1.5rem;
-    border-radius: 12px;
+    padding: 1rem;
+    border-radius: 0;
   }
 
   .perfil-avatar {
@@ -218,24 +205,16 @@
     height: 80px;
 
     .avatar-inicial {
-      font-size: 2rem;
+      font-size: 1.8rem;
     }
   }
 
-  .perfil-nombre {
-    font-size: 1.2rem;
-  }
-
-  .btn-chat,
-  .btn-solicitar,
-  .btn-pendiente {
-    font-size: 0.9rem;
-    padding: 0.6rem;
-  }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-  .perfil-autor-container {
-    padding: 0.75rem;
+  .perfil-acciones {
+    flex-direction: column;
+    
+    .btn-chat, .btn-solicitar, .btn-pendiente {
+      width: 100%;
+      justify-content: center;
+    }
   }
 }

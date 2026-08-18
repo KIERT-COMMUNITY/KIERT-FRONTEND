@@ -1,17 +1,17 @@
-// profile.component.ts - Perfil completo con estadísticas y edición
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router'; // ✅ Solo Router, no RouterLink
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
 import { ChatService } from '../../core/services/chat.service';
+import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'kiert-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], // ✅ Eliminar RouterLink
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -20,9 +20,9 @@ export class ProfileComponent implements OnInit {
   private postService = inject(PostService);
   private chatService = inject(ChatService);
   private fb = inject(FormBuilder);
-  private router = inject(Router); // ✅ Inyectar Router
+  private router = inject(Router);
+  public personalizacionStore = inject(PersonalizacionStore);
 
-  // Estados
   subiendoFoto = signal<boolean>(false);
   previsualizacion = signal<string | null>(null);
   editando = signal<boolean>(false);
@@ -30,36 +30,21 @@ export class ProfileComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
 
-  // Estadísticas
   totalPosts = signal<number>(0);
   totalComentarios = signal<number>(0);
   totalConversaciones = signal<number>(0);
 
-  // Usuario actual
   usuario = this.authService.usuario;
 
-  // Computed: inicial del nombre
   inicial = computed(() => {
     const nombre = this.usuario()?.nombreUsuario;
     return nombre?.charAt(0)?.toUpperCase() || '?';
   });
 
-  // Computed: nombre completo
-  nombreCompleto = computed(() => {
-    return this.usuario()?.nombreUsuario || 'Usuario';
-  });
+  nombreCompleto = computed(() => this.usuario()?.nombreUsuario || 'Usuario');
+  email = computed(() => this.usuario()?.email || 'Sin correo');
+  fotoPerfil = computed(() => this.usuario()?.fotoPerfilUrl || null);
 
-  // Computed: email
-  email = computed(() => {
-    return this.usuario()?.email || 'Sin correo';
-  });
-
-  // Computed: foto de perfil
-  fotoPerfil = computed(() => {
-    return this.usuario()?.fotoPerfilUrl || null;
-  });
-
-  // Formulario de edición
   formEditar = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
@@ -81,7 +66,6 @@ export class ProfileComponent implements OnInit {
   }
 
   cargarEstadisticas(): void {
-    // Cargar posts del usuario
     this.postService.listar().subscribe({
       next: (posts) => {
         const userId = this.usuario()?.id;
@@ -89,19 +73,15 @@ export class ProfileComponent implements OnInit {
           this.totalPosts.set(posts.filter(p => p.autor.id === userId).length);
         }
       },
-      error: () => console.error('Error al cargar estadísticas')
+      error: () => {}
     });
 
-    // Cargar conversaciones
     this.chatService.listarConversaciones().subscribe({
-      next: (conv) => {
-        this.totalConversaciones.set(conv.length);
-      },
-      error: () => console.error('Error al cargar conversaciones')
+      next: (conv) => this.totalConversaciones.set(conv.length),
+      error: () => {}
     });
   }
 
-  // ========== FOTO DE PERFIL ==========
   onFotoSeleccionada(evento: Event): void {
     const input = evento.target as HTMLInputElement;
     const archivo = input.files?.[0];
@@ -133,23 +113,21 @@ export class ProfileComponent implements OnInit {
         this.exitoMsg.set('Foto actualizada correctamente');
         setTimeout(() => this.exitoMsg.set(null), 3000);
         this.authService.usuario.set(usuarioActualizado);
+        this.personalizacionStore.recargar();
       },
-      error: (error: any) => {
+      error: () => {
         this.subiendoFoto.set(false);
-        this.errorMsg.set(error.error?.mensaje || 'Error al actualizar la foto');
+        this.errorMsg.set('Error al actualizar la foto');
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
     });
   }
 
-  // ========== EDITAR PERFIL ==========
   toggleEditar(): void {
     this.editando.set(!this.editando());
     if (this.editando()) {
       this.cargarDatosUsuario();
     }
-    this.errorMsg.set(null);
-    this.exitoMsg.set(null);
   }
 
   guardarCambios(): void {
@@ -157,13 +135,7 @@ export class ProfileComponent implements OnInit {
       this.formEditar.markAllAsTouched();
       return;
     }
-
     this.cargando.set(true);
-    this.errorMsg.set(null);
-    this.exitoMsg.set(null);
-
-    const datos = this.formEditar.getRawValue();
-    
     setTimeout(() => {
       this.cargando.set(false);
       this.exitoMsg.set('Perfil actualizado correctamente');
@@ -172,20 +144,22 @@ export class ProfileComponent implements OnInit {
     }, 1000);
   }
 
-  // ========== IR AL HISTORIAL DE PUBLICACIONES ==========
   irHistorialPublicaciones(): void {
     this.router.navigate(['/mis-publicaciones']);
   }
 
-  // ========== CERRAR SESIÓN ==========
+  irAlChat(): void {
+    this.router.navigate(['/chat']);
+  }
+
+  // ✅ AGREGAR ESTE MÉTODO
+  irAjustes(): void {
+    this.router.navigate(['/ajustes']);
+  }
+
   logout(): void {
     if (confirm('¿Seguro que quieres cerrar sesión?')) {
       this.authService.logout();
     }
-  }
-
-  // ========== IR AL CHAT ==========
-  irAlChat(): void {
-    this.router.navigate(['/chat']);
   }
 }

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { Post } from '../../../core/models/post.model';
 
 @Component({
@@ -17,6 +18,7 @@ export class MisPublicacionesComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  public personalizacionStore = inject(PersonalizacionStore);
 
   posts = signal<Post[]>([]);
   cargando = signal<boolean>(true);

@@ -1,22 +1,26 @@
-// post-card.component.ts
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router'; // ✅ Añadir RouterLink
+import { RouterLink } from '@angular/router';
 import { Post, Adjunto } from '../../../core/models/post.model';
+import { AvatarFrameComponent } from '../avatar-frame/avatar-frame.component';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 
 @Component({
   selector: 'kiert-post-card',
   standalone: true,
-  imports: [CommonModule, RouterLink], // ✅ Añadir RouterLink
+  imports: [CommonModule, RouterLink, AvatarFrameComponent],
   templateUrl: './post-card.component.html',
   styleUrl: './post-card.component.scss',
 })
 export class PostCardComponent {
+  private personalizacionStore = inject(PersonalizacionStore);
+  
   post = input.required<Post>();
   postClick = output<number>();
 
-  // ... resto del código igual
-
+  get temaClase(): string {
+    return 'tema-' + this.personalizacionStore.temaId();
+  }
 
   etiquetas: Record<Post['categoria'], string> = {
     'caso-hacking': 'Caso de hacking',
@@ -47,13 +51,7 @@ export class PostCardComponent {
   esImagen(adjunto: Adjunto): boolean {
     if (adjunto.tipo !== 'archivo') return false;
     const nombre = adjunto.nombre.toLowerCase();
-    // Soporte para TODOS los formatos de imagen
-    const extensiones = [
-      '.jpg', '.jpeg', '.png', '.gif', '.webp', 
-      '.bmp', '.svg', '.tiff', '.tif', '.ico', 
-      '.heic', '.heif', '.avif', '.jfif', '.pjpeg',
-      '.pjp', '.jxl', '.apng', '.avifs'
-    ];
+    const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
     return extensiones.some(ext => nombre.endsWith(ext));
   }
 

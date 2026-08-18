@@ -24,10 +24,22 @@
     <!-- MENU -->
     <nav class="navbar-links" [class.is-open]="menuAbierto()">
       <a routerLink="/comunidad" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="cerrarMenu()">Comunidad</a>
+      
       <a routerLink="/comunidad/nueva-publicacion" routerLinkActive="active" (click)="cerrarMenu()">Publicar</a>
-      <a routerLink="/mis-publicaciones" routerLinkActive="active" (click)="cerrarMenu()"> Mis publicaciones</a>
-      <a routerLink="/chat" routerLinkActive="active" (click)="cerrarMenu()">Chat</a>
+      
+      <a routerLink="/mis-publicaciones" routerLinkActive="active" (click)="cerrarMenu()">Mis publicaciones</a>
+    
+
+      <!-- ✅ CHAT CON CONTADOR - Usando (click) en lugar de routerLink -->
+      <a (click)="irAlChat()" routerLinkActive="active" class="nav-link-chat" style="cursor: pointer;">
+        <span>Chat</span>
+        @if (mensajesNoLeidos() > 0) {
+          <span class="badge-notificacion">{{ mensajesNoLeidos() }}</span>
+        }
+      </a>
+      
       <a routerLink="/perfil" routerLinkActive="active" (click)="cerrarMenu()">Perfil</a>
+        <a routerLink="/ajustes" routerLinkActive="active" (click)="cerrarMenu()"> Ajustes</a>
       <button class="btn-logout" (click)="cerrarSesion()">Cerrar sesión</button>
     </nav>
   </div>

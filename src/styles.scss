@@ -1,22 +1,19 @@
 // ============================================================
 // styles.scss -> hoja de estilos GLOBAL de toda la app.
-// Se referencia una sola vez en angular.json ("styles").
-// Aquí van: reset, tipografía base, utilidades globales (botones, inputs).
-// Los estilos de CADA componente van en su propio archivo .scss (encapsulados).
 // ============================================================
 @use 'styles/variables' as v;
 @use 'styles/mixins' as m;
 
-// --- Reset básico: quita márgenes/paddings por defecto del navegador ---
+// --- Reset básico ---
 * {
-  box-sizing: border-box; // el padding/border no agranda el ancho real del elemento
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 html, body {
   height: 100%;
-  scroll-behavior: smooth; // scroll suave al navegar por anclas (#seccion)
+  scroll-behavior: smooth;
 }
 
 body {
@@ -25,12 +22,11 @@ body {
   font-family: v.$font-body;
   font-size: 16px;
   line-height: 1.5;
-  // Evita "parpadeo" de fuente y mejora legibilidad en pantallas retina
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
-  font-family: v.$font-display; // titulares en monospace = identidad "terminal"
+  font-family: v.$font-display;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -43,19 +39,16 @@ a {
   &:hover { text-decoration: underline; }
 }
 
-img { max-width: 100%; display: block; } // imágenes nunca se salen de su contenedor
+img { max-width: 100%; display: block; }
 
-// --- Utilidades globales reutilizables en toda la app ---
-
-// Contenedor centrado con ancho máximo, usado en cada página
+// --- Utilidades globales ---
 .container {
   width: 100%;
   max-width: v.$bp-desktop;
-  margin-inline: auto; // centra horizontalmente
+  margin-inline: auto;
   padding-inline: v.$sp-4;
 }
 
-// Botón base: todos los botones de la app parten de esta clase
 .btn {
   display: inline-flex;
   align-items: center;
@@ -68,10 +61,10 @@ img { max-width: 100%; display: block; } // imágenes nunca se salen de su conte
   border-radius: v.$radius-sm;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease; // animación mínima
+  transition: background-color 0.15s ease, transform 0.1s ease;
   @include m.focus-ring;
 
-  &:active { transform: scale(0.97); } // micro-feedback al hacer click, sin exagerar
+  &:active { transform: scale(0.97); }
 
   &--primary {
     background: v.$accent;
@@ -99,7 +92,6 @@ img { max-width: 100%; display: block; } // imágenes nunca se salen de su conte
   }
 }
 
-// Campo de formulario base (inputs, textarea)
 .field {
   display: flex;
   flex-direction: column;
@@ -123,7 +115,7 @@ img { max-width: 100%; display: block; } // imágenes nunca se salen de su conte
     @include m.focus-ring;
 
     &::placeholder { color: v.$text-muted; }
-    &.is-invalid { border-color: v.$danger; } // se marca en rojo si el form es inválido
+    &.is-invalid { border-color: v.$danger; }
   }
 
   .error-msg {
@@ -132,7 +124,6 @@ img { max-width: 100%; display: block; } // imágenes nunca se salen de su conte
   }
 }
 
-// Etiqueta pequeña tipo "insignia" (ej: categoría de un post)
 .badge {
   display: inline-block;
   font-family: v.$font-display;
@@ -146,10 +137,313 @@ img { max-width: 100%; display: block; } // imágenes nunca se salen de su conte
   border: 1px solid rgba(45, 212, 191, 0.3);
 }
 
-// Clase utilitaria para ocultar visualmente pero mantener accesible a lectores de pantalla
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+}
+
+// ============================================================
+// TEMAS DE COLOR - PARA PUBLICACIONES Y COMUNIDAD
+// ============================================================
+
+// TEMA DEFAULT (oscuro)
+.tema-default {
+  background: #0d1117 !important;
+  color: #e6edf3 !important;
+}
+.tema-default .post-card,
+.tema-default .post-detail,
+.tema-default .comentarios,
+.tema-default .mis-publicaciones-container,
+.tema-default .create-post-container,
+.tema-default .perfil-autor-container,
+.tema-default .profile-container,
+.tema-default .feed-container {
+  background: #0d1117 !important;
+}
+.tema-default .post-card { background: #131a22 !important; border-color: #26313c !important; }
+.tema-default .post-detail { background: #131a22 !important; border-color: #26313c !important; }
+.tema-default .comentarios { background: #131a22 !important; border-color: #26313c !important; }
+.tema-default .post-card__username { color: #e6edf3 !important; }
+.tema-default .post-card__titulo { color: #e6edf3 !important; }
+.tema-default .post-card__desc { color: #8b98a5 !important; }
+.tema-default .post-card__fecha { color: #8b98a5 !important; }
+.tema-default .post-card__stat { color: #8b98a5 !important; }
+.tema-default .post-card__badge { color: #2dd4bf !important; background: rgba(45, 212, 191, 0.1) !important; }
+.tema-default .feed-head h1 { color: #e6edf3 !important; }
+.tema-default .feed-sub { color: #8b98a5 !important; }
+.tema-default .page-title { color: #e6edf3 !important; }
+.tema-default .page-sub { color: #8b98a5 !important; }
+
+// TEMA DARK
+.tema-dark {
+  background: #1a1a2e !important;
+  color: #e6d3f0 !important;
+}
+.tema-dark .post-card,
+.tema-dark .post-detail,
+.tema-dark .comentarios,
+.tema-dark .mis-publicaciones-container,
+.tema-dark .create-post-container,
+.tema-dark .perfil-autor-container,
+.tema-dark .profile-container,
+.tema-dark .feed-container {
+  background: #1a1a2e !important;
+}
+.tema-dark .post-card { background: #222244 !important; border-color: #333366 !important; }
+.tema-dark .post-detail { background: #222244 !important; border-color: #333366 !important; }
+.tema-dark .comentarios { background: #222244 !important; border-color: #333366 !important; }
+.tema-dark .post-card__username { color: #e6d3f0 !important; }
+.tema-dark .post-card__titulo { color: #e6d3f0 !important; }
+.tema-dark .post-card__desc { color: #b8a8c8 !important; }
+.tema-dark .post-card__fecha { color: #8b7a9a !important; }
+.tema-dark .post-card__stat { color: #8b7a9a !important; }
+.tema-dark .post-card__badge { color: #a29bfe !important; background: rgba(162, 155, 254, 0.15) !important; }
+.tema-dark .feed-head h1 { color: #e6d3f0 !important; }
+.tema-dark .feed-sub { color: #a88ab8 !important; }
+.tema-dark .page-title { color: #e6d3f0 !important; }
+.tema-dark .page-sub { color: #a88ab8 !important; }
+
+// TEMA LIGHT
+.tema-light {
+  background: #f0f0f0 !important;
+  color: #1a1a2e !important;
+}
+.tema-light .post-card,
+.tema-light .post-detail,
+.tema-light .comentarios,
+.tema-light .mis-publicaciones-container,
+.tema-light .create-post-container,
+.tema-light .perfil-autor-container,
+.tema-light .profile-container,
+.tema-light .feed-container {
+  background: #f0f0f0 !important;
+}
+.tema-light .post-card { background: #ffffff !important; border-color: #d0d0d0 !important; }
+.tema-light .post-detail { background: #ffffff !important; border-color: #d0d0d0 !important; }
+.tema-light .comentarios { background: #ffffff !important; border-color: #d0d0d0 !important; }
+.tema-light .post-card__username { color: #1a1a2e !important; }
+.tema-light .post-card__titulo { color: #1a1a2e !important; }
+.tema-light .post-card__desc { color: #444444 !important; }
+.tema-light .post-card__fecha { color: #666666 !important; }
+.tema-light .post-card__stat { color: #666666 !important; }
+.tema-light .post-card__badge { color: #2dd4bf !important; background: rgba(45, 212, 191, 0.1) !important; }
+.tema-light .feed-head h1 { color: #1a1a2e !important; }
+.tema-light .feed-sub { color: #555555 !important; }
+.tema-light .page-title { color: #1a1a2e !important; }
+.tema-light .page-sub { color: #555555 !important; }
+
+// TEMA SUNSET
+.tema-sunset {
+  background: #2d1b1b !important;
+  color: #f0d8c8 !important;
+}
+.tema-sunset .post-card,
+.tema-sunset .post-detail,
+.tema-sunset .comentarios,
+.tema-sunset .mis-publicaciones-container,
+.tema-sunset .create-post-container,
+.tema-sunset .perfil-autor-container,
+.tema-sunset .profile-container,
+.tema-sunset .feed-container {
+  background: #2d1b1b !important;
+}
+.tema-sunset .post-card { background: #3d2b2b !important; border-color: #5a3d3d !important; }
+.tema-sunset .post-detail { background: #3d2b2b !important; border-color: #5a3d3d !important; }
+.tema-sunset .comentarios { background: #3d2b2b !important; border-color: #5a3d3d !important; }
+.tema-sunset .post-card__username { color: #f0d8c8 !important; }
+.tema-sunset .post-card__titulo { color: #f0d8c8 !important; }
+.tema-sunset .post-card__desc { color: #d0b8a8 !important; }
+.tema-sunset .post-card__fecha { color: #b89888 !important; }
+.tema-sunset .post-card__stat { color: #b89888 !important; }
+.tema-sunset .post-card__badge { color: #ff9f7a !important; background: rgba(255, 159, 122, 0.15) !important; }
+.tema-sunset .feed-head h1 { color: #f0d8c8 !important; }
+.tema-sunset .feed-sub { color: #c8a898 !important; }
+.tema-sunset .page-title { color: #f0d8c8 !important; }
+.tema-sunset .page-sub { color: #c8a898 !important; }
+
+// TEMA OCEAN
+.tema-ocean {
+  background: #0d1a2d !important;
+  color: #b0d8e8 !important;
+}
+.tema-ocean .post-card,
+.tema-ocean .post-detail,
+.tema-ocean .comentarios,
+.tema-ocean .mis-publicaciones-container,
+.tema-ocean .create-post-container,
+.tema-ocean .perfil-autor-container,
+.tema-ocean .profile-container,
+.tema-ocean .feed-container {
+  background: #0d1a2d !important;
+}
+.tema-ocean .post-card { background: #1a2a3d !important; border-color: #2a4a5a !important; }
+.tema-ocean .post-detail { background: #1a2a3d !important; border-color: #2a4a5a !important; }
+.tema-ocean .comentarios { background: #1a2a3d !important; border-color: #2a4a5a !important; }
+.tema-ocean .post-card__username { color: #b0d8e8 !important; }
+.tema-ocean .post-card__titulo { color: #b0d8e8 !important; }
+.tema-ocean .post-card__desc { color: #90b8c8 !important; }
+.tema-ocean .post-card__fecha { color: #7098a8 !important; }
+.tema-ocean .post-card__stat { color: #7098a8 !important; }
+.tema-ocean .post-card__badge { color: #5ab8d8 !important; background: rgba(90, 184, 216, 0.15) !important; }
+.tema-ocean .feed-head h1 { color: #b0d8e8 !important; }
+.tema-ocean .feed-sub { color: #70a8b8 !important; }
+.tema-ocean .page-title { color: #b0d8e8 !important; }
+.tema-ocean .page-sub { color: #70a8b8 !important; }
+
+// TEMA AURORA
+.tema-aurora {
+  background: #1a0d2d !important;
+  color: #d8c8f0 !important;
+}
+.tema-aurora .post-card,
+.tema-aurora .post-detail,
+.tema-aurora .comentarios,
+.tema-aurora .mis-publicaciones-container,
+.tema-aurora .create-post-container,
+.tema-aurora .perfil-autor-container,
+.tema-aurora .profile-container,
+.tema-aurora .feed-container {
+  background: #1a0d2d !important;
+}
+.tema-aurora .post-card { background: #2a1a3d !important; border-color: #4a2a5a !important; }
+.tema-aurora .post-detail { background: #2a1a3d !important; border-color: #4a2a5a !important; }
+.tema-aurora .comentarios { background: #2a1a3d !important; border-color: #4a2a5a !important; }
+.tema-aurora .post-card__username { color: #d8c8f0 !important; }
+.tema-aurora .post-card__titulo { color: #d8c8f0 !important; }
+.tema-aurora .post-card__desc { color: #b8a8d8 !important; }
+.tema-aurora .post-card__fecha { color: #9888b8 !important; }
+.tema-aurora .post-card__stat { color: #9888b8 !important; }
+.tema-aurora .post-card__badge { color: #a88ae8 !important; background: rgba(168, 138, 232, 0.15) !important; }
+.tema-aurora .feed-head h1 { color: #d8c8f0 !important; }
+.tema-aurora .feed-sub { color: #a888b8 !important; }
+.tema-aurora .page-title { color: #d8c8f0 !important; }
+.tema-aurora .page-sub { color: #a888b8 !important; }
+
+// TEMA GALAXY
+.tema-galaxy {
+  background: #0d0d1a !important;
+  color: #c8c8f0 !important;
+}
+.tema-galaxy .post-card,
+.tema-galaxy .post-detail,
+.tema-galaxy .comentarios,
+.tema-galaxy .mis-publicaciones-container,
+.tema-galaxy .create-post-container,
+.tema-galaxy .perfil-autor-container,
+.tema-galaxy .profile-container,
+.tema-galaxy .feed-container {
+  background: #0d0d1a !important;
+}
+.tema-galaxy .post-card { background: #1a1a2d !important; border-color: #2a2a4a !important; }
+.tema-galaxy .post-detail { background: #1a1a2d !important; border-color: #2a2a4a !important; }
+.tema-galaxy .comentarios { background: #1a1a2d !important; border-color: #2a2a4a !important; }
+.tema-galaxy .post-card__username { color: #c8c8f0 !important; }
+.tema-galaxy .post-card__titulo { color: #c8c8f0 !important; }
+.tema-galaxy .post-card__desc { color: #a8a8d0 !important; }
+.tema-galaxy .post-card__fecha { color: #8888aa !important; }
+.tema-galaxy .post-card__stat { color: #8888aa !important; }
+.tema-galaxy .post-card__badge { color: #8888e8 !important; background: rgba(136, 136, 232, 0.15) !important; }
+.tema-galaxy .feed-head h1 { color: #c8c8f0 !important; }
+.tema-galaxy .feed-sub { color: #8888aa !important; }
+.tema-galaxy .page-title { color: #c8c8f0 !important; }
+.tema-galaxy .page-sub { color: #8888aa !important; }
+
+// ============================================================
+// FONDOS - PARA PERFIL Y CHAT
+// ============================================================
+
+.fondo-default { background: linear-gradient(135deg, #0d1117, #161b22); }
+.fondo-dark { background: linear-gradient(135deg, #1a1a2e, #0d1117); }
+.fondo-light { background: linear-gradient(135deg, #ffffff, #f0f0f0); }
+.fondo-sunset { background: linear-gradient(135deg, #2d1b1b, #4a2a2a); }
+.fondo-ocean { background: linear-gradient(135deg, #0d1a2d, #1a3a5a); }
+.fondo-aurora { background: linear-gradient(135deg, #1a0d2d, #3a1a5a); }
+.fondo-galaxy { background: linear-gradient(135deg, #0d0d1a, #2a2a4a); }
+
+// ============================================================
+// MARCOS - PARA AVATAR DE PERFIL
+// ============================================================
+
+.avatar-frame,
+.profile-avatar,
+.preview-avatar,
+.perfil-avatar {
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #1b232c;
+}
+
+.avatar-frame img,
+.profile-avatar img,
+.preview-avatar img,
+.perfil-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Tipos de marco
+.frame-circulo { border-radius: 50%; }
+.frame-cuadrado { border-radius: 8px; }
+.frame-hexagonal {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+// Estilos de marco
+.frame-none { border: none; }
+.frame-classic { border: 4px solid #2dd4bf; }
+.frame-gold { border: 4px solid #f9ca24; box-shadow: 0 0 20px rgba(249, 202, 36, 0.3); }
+.frame-silver { border: 4px solid #b2bec3; box-shadow: 0 0 20px rgba(178, 190, 195, 0.3); }
+.frame-rainbow { 
+  border: 4px solid transparent;
+  background-image: linear-gradient(135deg, #ff6b6b, #feca57, #55efc4, #0984e3, #6c5ce7);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  padding: 3px;
+}
+.frame-neon { 
+  border: 4px solid #fd79a8;
+  box-shadow: 0 0 25px rgba(253, 121, 168, 0.5);
+}
+.frame-square { border-radius: 8px !important; }
+.frame-hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+// ============================================================
+// LOADING SPINNER
+// ============================================================
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #26313c;
+  border-top-color: #2dd4bf;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 480px) {
+  .container {
+    padding-inline: v.$sp-2;
+  }
+  .btn {
+    padding: v.$sp-2 v.$sp-3;
+    font-size: 0.85rem;
+  }
 }

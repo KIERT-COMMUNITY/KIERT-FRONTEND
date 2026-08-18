@@ -1,19 +1,17 @@
-<!-- post-card.component.html -->
-<div class="post-card" (click)="onClick()">
+<!-- post-card.component.html - CON TEMA DE COLOR -->
+<div class="post-card" [class]="temaClase" (click)="onClick()">
   
-  <!-- HEADER CON FOTO DE PERFIL CLICKEABLE -->
   <div class="post-card__header">
     <div class="post-card__user">
-      <!-- ✅ FOTO DE PERFIL CLICKEABLE -->
-      <div class="post-card__avatar" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">
-        @if (post().autor.fotoPerfilUrl) {
-          <img [src]="post().autor.fotoPerfilUrl" alt="Foto de perfil" class="avatar-img" (error)="onImageError($event)">
-        } @else {
-          <span class="avatar-initial">{{ post().autor.nombreUsuario.charAt(0).toUpperCase() }}</span>
-        }
-      </div>
+      <kiert-avatar-frame
+        [fotoUrl]="post().autor.fotoPerfilUrl || null"
+        [nombre]="post().autor.nombreUsuario"
+        [size]="40"
+        [alt]="post().autor.nombreUsuario"
+        [navigateToProfile]="true"
+        [usuarioId]="post().autor.id"
+      />
       <div class="post-card__user-info">
-        <!-- ✅ NOMBRE CLICKEABLE -->
         <span class="post-card__username" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">
           {{ post().autor.nombreUsuario }}
         </span>
@@ -23,40 +21,28 @@
     <span class="post-card__fecha">{{ formatearFecha(post().fechaCreacion) }}</span>
   </div>
 
-  <!-- TITULO -->
   <h3 class="post-card__titulo">{{ post().titulo }}</h3>
-  
-  <!-- DESCRIPCION -->
   <p class="post-card__desc">{{ post().descripcion }}</p>
 
-  <!-- IMAGEN -->
   @if (tieneImagenes()) {
     @let imagen = obtenerPrimeraImagen();
     @if (imagen) {
       <div class="post-card__imagen">
-        <img 
-          [src]="imagen.url" 
-          [alt]="post().titulo"
-          loading="lazy"
-          (error)="onImageError($event)"
-        >
+        <img [src]="imagen.url" [alt]="post().titulo" loading="lazy" (error)="onImageError($event)">
         @if (cantidadImagenes() > 1) {
-          <div class="post-card__imagen-overlay">
-            +{{ cantidadImagenes() - 1 }}
-          </div>
+          <div class="post-card__imagen-overlay">+{{ cantidadImagenes() - 1 }}</div>
         }
       </div>
     }
   }
 
-  <!-- FOOTER -->
   <div class="post-card__footer">
     <div class="post-card__stats">
       <span class="post-card__stat">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
-        {{ post().totalComentarios || 0 }} comentarios
+        {{ post().totalComentarios || 0 }}
       </span>
       @if (tieneAdjuntos()) {
         <span class="post-card__stat">
@@ -64,7 +50,7 @@
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
           </svg>
-          {{ post().adjuntos.length }} adjuntos
+          {{ post().adjuntos.length }}
         </span>
       }
     </div>

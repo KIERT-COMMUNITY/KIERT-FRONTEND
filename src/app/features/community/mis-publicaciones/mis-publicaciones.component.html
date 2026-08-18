@@ -1,7 +1,6 @@
-<!-- src/app/features/community/mis-publicaciones/mis-publicaciones.component.html -->
-<div class="mis-publicaciones-container">
+<!-- APLICAR TEMA DE COLOR FUERTEMENTE -->
+<div class="mis-publicaciones-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
   
-  <!-- ========== HEADER ========== -->
   <div class="header">
     <button class="btn-volver" (click)="volverAlFeed()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -13,7 +12,6 @@
     <p class="subtitle">Todas tus publicaciones en la comunidad</p>
   </div>
 
-  <!-- ========== MENSAJES ========== -->
   @if (errorMsg()) {
     <div class="alert alert-error">
       {{ errorMsg() }}
@@ -27,7 +25,6 @@
     </div>
   }
 
-  <!-- ========== CONTENIDO ========== -->
   @if (cargando()) {
     <div class="loading">
       <div class="spinner"></div>
@@ -63,11 +60,7 @@
               </div>
             </div>
             <div class="post-actions">
-              <button 
-                class="btn-eliminar" 
-                (click)="eliminarPublicacion(post.id)"
-                title="Eliminar publicación"
-              >
+              <button class="btn-eliminar" (click)="eliminarPublicacion(post.id)" title="Eliminar publicación">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"/>
                   <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>

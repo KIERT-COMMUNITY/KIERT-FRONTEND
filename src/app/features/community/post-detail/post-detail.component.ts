@@ -1,4 +1,3 @@
-// post-detail.component.ts - COMPLETO Y CORREGIDO
 import { Component, OnInit, input, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -6,12 +5,14 @@ import { Router, RouterLink } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ReaccionService } from '../../../core/services/reaccion.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { Post, Comentario, Adjunto } from '../../../core/models/post.model';
+import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 
 @Component({
   selector: 'kiert-post-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, AvatarFrameComponent],
   templateUrl: './post-detail.component.html',
   styleUrl: './post-detail.component.scss',
 })
@@ -19,6 +20,7 @@ export class PostDetailComponent implements OnInit {
   private postService = inject(PostService);
   private reaccionService = inject(ReaccionService);
   public authService = inject(AuthService);
+  public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
@@ -32,21 +34,11 @@ export class PostDetailComponent implements OnInit {
   estaLogueado = signal<boolean>(false);
 
   reacciones = signal({
-    likes: 0,
-    loves: 0,
-    hahas: 0,
-    wows: 0,
-    sads: 0,
-    angrys: 0
+    likes: 0, loves: 0, hahas: 0, wows: 0, sads: 0, angrys: 0
   });
 
   userReactions = signal({
-    like: false,
-    love: false,
-    haha: false,
-    wow: false,
-    sad: false,
-    angry: false
+    like: false, love: false, haha: false, wow: false, sad: false, angry: false
   });
 
   etiquetas: Record<string, string> = {
@@ -63,13 +55,11 @@ export class PostDetailComponent implements OnInit {
   ngOnInit(): void {
     this.estaLogueado.set(this.authService.isAuthenticated());
     const postId = Number(this.id());
-    
     if (!postId || isNaN(postId)) {
       this.errorMsg.set('ID de publicación inválido');
       this.cargando.set(false);
       return;
     }
-    
     this.cargarPost(postId);
     this.cargarComentarios(postId);
     this.cargarReacciones(postId);
@@ -82,8 +72,7 @@ export class PostDetailComponent implements OnInit {
         this.post.set(data);
         this.cargando.set(false);
       },
-      error: (error) => {
-        console.error('Error al cargar post:', error);
+      error: () => {
         this.cargando.set(false);
         this.errorMsg.set('Error al cargar la publicación');
       }
@@ -92,21 +81,15 @@ export class PostDetailComponent implements OnInit {
 
   cargarComentarios(postId: number): void {
     this.postService.listarComentarios(postId).subscribe({
-      next: (data) => {
-        this.comentarios.set(data);
-      },
-      error: (error) => console.error('Error al cargar comentarios:', error)
+      next: (data) => this.comentarios.set(data),
+      error: () => {}
     });
   }
 
   cargarReacciones(postId: number): void {
-    if (!this.reaccionService) return;
-    
     this.reaccionService.obtenerReaccionesPost(postId).subscribe({
-      next: (data) => {
-        this.reacciones.set(data);
-      },
-      error: (error) => console.error('Error al cargar reacciones:', error)
+      next: (data) => this.reacciones.set(data),
+      error: () => {}
     });
   }
 
@@ -116,19 +99,14 @@ export class PostDetailComponent implements OnInit {
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-
     const postId = Number(this.id());
     this.reaccionService.reaccionarPost(postId, tipo).subscribe({
       next: (data) => {
         this.reacciones.set(data);
         const userKey = this.getUserKey(tipo);
-        this.userReactions.update(prev => ({
-          ...prev,
-          [userKey]: !prev[userKey]
-        }));
+        this.userReactions.update(prev => ({ ...prev, [userKey]: !prev[userKey] }));
       },
-      error: (error) => {
-        console.error('Error al reaccionar:', error);
+      error: () => {
         this.errorMsg.set('Error al procesar la reacción');
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
@@ -141,18 +119,13 @@ export class PostDetailComponent implements OnInit {
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-
     this.reaccionService.reaccionarComentario(comentarioId, tipo).subscribe({
       next: (data) => {
         this.comentarios.update(lista =>
-          lista.map(c =>
-            c.id === comentarioId ? { ...c, reacciones: data } : c
-          )
+          lista.map(c => c.id === comentarioId ? { ...c, reacciones: data } : c)
         );
       },
-      error: (error) => {
-        console.error('Error al reaccionar a comentario:', error);
-      }
+      error: () => {}
     });
   }
 
@@ -173,24 +146,20 @@ export class PostDetailComponent implements OnInit {
       this.formComentario.markAllAsTouched();
       return;
     }
-
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Debes iniciar sesion para comentar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-
     this.enviandoComentario.set(true);
     const contenido = this.formComentario.getRawValue().contenido!;
-
     this.postService.comentar(Number(this.id()), contenido).subscribe({
       next: (nuevo) => {
         this.comentarios.update((lista) => [...lista, { ...nuevo, reacciones: { likes: 0, loves: 0 } }]);
         this.formComentario.reset();
         this.enviandoComentario.set(false);
       },
-      error: (error) => {
-        console.error('Error al enviar comentario:', error);
+      error: () => {
         this.errorMsg.set('Error al enviar comentario');
         this.enviandoComentario.set(false);
         setTimeout(() => this.errorMsg.set(null), 3000);
@@ -259,14 +228,6 @@ export class PostDetailComponent implements OnInit {
   onAvatarError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
-    const parent = img.parentElement;
-    if (parent) {
-      const inicial = document.createElement('span');
-      inicial.className = 'avatar-inicial';
-      const nombre = this.post()?.autor?.nombreUsuario || '?';
-      inicial.textContent = nombre.charAt(0).toUpperCase();
-      parent.appendChild(inicial);
-    }
   }
 
   getInicialUsuario(): string {

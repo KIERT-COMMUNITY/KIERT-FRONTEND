@@ -1,86 +1,62 @@
-// src/app/features/chat/chat.component.scss
 .chat-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 1rem;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  transition: background 0.3s ease;
 }
 
 .chat-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #26313c;
   margin-bottom: 1rem;
 
   h2 {
+    font-size: 1.2rem;
     margin: 0;
-    color: #e6edf3;
   }
 
   .solicitudes-badge {
-    background: #f85149;
-    color: #fff;
+    background: #2dd4bf;
+    color: #0d1117;
     border-radius: 50%;
-    padding: 0.1rem 0.6rem;
-    font-size: 0.75rem;
-    font-weight: 600;
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
   }
 }
 
-.alert {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-  font-size: 0.85rem;
-
-  button {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-  }
-
-  &-error {
-    background: rgba(248, 81, 73, 0.1);
-    border: 1px solid #f85149;
-    color: #f85149;
-  }
-
-  &-success {
-    background: rgba(45, 212, 191, 0.1);
-    border: 1px solid #2dd4bf;
-    color: #2dd4bf;
-  }
-}
-
+// ========== SOLICITUDES ==========
 .solicitudes-section {
-  background: #131a22;
-  border: 1px solid #26313c;
+  background: rgba(45, 212, 191, 0.05);
+  border: 1px solid rgba(45, 212, 191, 0.2);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
 
   h3 {
     font-size: 0.9rem;
-    color: #e6edf3;
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
+    color: #2dd4bf;
   }
 }
 
 .solicitud-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 0.5rem;
-  border-bottom: 1px solid #1b232c;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 0.25rem;
 
-  &:last-child {
-    border-bottom: none;
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -99,8 +75,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0d1117;
   font-weight: 700;
+  font-size: 0.8rem;
+  color: #0d1117;
+  flex-shrink: 0;
 
   img {
     width: 100%;
@@ -110,7 +88,6 @@
 }
 
 .solicitud-nombre {
-  color: #e6edf3;
   font-weight: 500;
 }
 
@@ -118,33 +95,31 @@
   display: flex;
   gap: 0.5rem;
 
-  .btn-aceptar {
-    padding: 0.2rem 0.75rem;
-    background: #2ea043;
-    color: #fff;
+  button {
+    padding: 4px 12px;
     border: none;
     border-radius: 4px;
+    font-size: 0.75rem;
     cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
 
-    &:hover {
-      opacity: 0.85;
-    }
+  .btn-aceptar {
+    background: #2ea043;
+    color: white;
+    &:hover { opacity: 0.85; }
   }
 
   .btn-rechazar {
-    padding: 0.2rem 0.75rem;
-    background: #f85149;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &:hover {
-      opacity: 0.85;
-    }
+    background: transparent;
+    color: #8b98a5;
+    border: 1px solid #26313c;
+    &:hover { border-color: #f85149; color: #f85149; }
   }
 }
 
+// ========== CHAT MAIN ==========
 .chat-main {
   display: flex;
   flex: 1;
@@ -152,26 +127,30 @@
   min-height: 0;
 }
 
+// ========== LISTA DE CONVERSACIONES ==========
 .conversaciones-lista {
   width: 280px;
-  flex-shrink: 0;
-  background: #131a22;
-  border: 1px solid #26313c;
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   padding: 0.75rem;
   overflow-y: auto;
+  flex-shrink: 0;
 
   h3 {
-    font-size: 0.85rem;
-    color: #e6edf3;
-    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8b98a5;
+    margin: 0 0 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #26313c;
   }
 
   .no-conversaciones {
     color: #8b98a5;
-    font-size: 0.85rem;
     text-align: center;
     padding: 1rem 0;
+    font-size: 0.9rem;
   }
 }
 
@@ -183,28 +162,30 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  margin-bottom: 2px;
 
   &:hover {
-    background: #1b232c;
+    background: rgba(255, 255, 255, 0.05);
   }
 
   &.active {
-    background: #1b232c;
-    border-left: 3px solid #2dd4bf;
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid rgba(45, 212, 191, 0.2);
   }
 }
 
 .conv-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   overflow: hidden;
   background: linear-gradient(135deg, #2dd4bf, #17b6a4);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0d1117;
   font-weight: 700;
+  font-size: 1rem;
+  color: #0d1117;
   flex-shrink: 0;
 
   img {
@@ -217,39 +198,39 @@
 .conv-info {
   flex: 1;
   min-width: 0;
+}
 
-  .conv-nombre {
-    display: block;
-    color: #e6edf3;
-    font-weight: 500;
-    font-size: 0.85rem;
-  }
+.conv-nombre {
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: block;
+}
 
-  .conv-ultimo {
-    display: block;
-    color: #8b98a5;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+.conv-ultimo {
+  font-size: 0.75rem;
+  color: #8b98a5;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .conv-no-leidos {
   background: #2dd4bf;
   color: #0d1117;
   border-radius: 50%;
-  padding: 0.05rem 0.5rem;
-  font-size: 0.65rem;
+  padding: 2px 8px;
+  font-size: 0.7rem;
   font-weight: 700;
+  flex-shrink: 0;
 }
 
+// ========== AREA DE CHAT ==========
 .chat-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #131a22;
-  border: 1px solid #26313c;
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -269,100 +250,186 @@
   justify-content: space-between;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #26313c;
+  flex-shrink: 0;
 
   .chat-usuario {
-    color: #e6edf3;
     font-weight: 600;
   }
 
-  .btn-perfil {
-    background: none;
-    border: none;
-    color: #2dd4bf;
-    cursor: pointer;
-    font-size: 0.8rem;
-
-    &:hover {
-      text-decoration: underline;
+  .chat-actions {
+    .btn-perfil {
+      background: none;
+      border: none;
+      color: #2dd4bf;
+      cursor: pointer;
+      font-size: 0.8rem;
+      &:hover { text-decoration: underline; }
     }
   }
 }
 
+// ========== MENSAJES ==========
 .mensajes-lista {
   flex: 1;
-  padding: 1rem;
   overflow-y: auto;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.loading-mensajes {
-  text-align: center;
-  color: #8b98a5;
-  padding: 1rem;
-}
-
-.no-mensajes {
+.no-mensajes, .loading-mensajes {
   text-align: center;
   color: #8b98a5;
   padding: 1rem;
 }
 
 .mensaje {
-  max-width: 70%;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  align-self: flex-start;
-  background: #1b232c;
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 
   &.propio {
     align-self: flex-end;
-    background: #2dd4bf;
-    color: #0d1117;
+    align-items: flex-end;
+
+    .mensaje-contenido {
+      background: #2dd4bf;
+      color: #0d1117;
+      border-radius: 12px 12px 4px 12px;
+    }
+
+    .mensaje-fecha {
+      color: #8b98a5;
+    }
   }
 
-  .mensaje-contenido {
-    word-wrap: break-word;
-  }
+  &:not(.propio) {
+    align-self: flex-start;
 
-  .mensaje-fecha {
-    font-size: 0.6rem;
-    opacity: 0.6;
-    display: block;
-    text-align: right;
-    margin-top: 0.15rem;
+    .mensaje-contenido {
+      background: #1b232c;
+      border: 1px solid #26313c;
+      border-radius: 12px 12px 12px 4px;
+    }
   }
 }
 
+.mensaje-contenido {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.mensaje-fecha {
+  font-size: 0.65rem;
+  color: #5a6a7a;
+  padding: 0 4px;
+}
+
+// ========== ARCHIVOS EN MENSAJES ==========
+.mensaje-archivos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 4px;
+}
+
+.archivo-item {
+  .archivo-imagen {
+    max-width: 200px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    
+    img {
+      width: 100%;
+      height: auto;
+      max-height: 150px;
+      object-fit: cover;
+      transition: transform 0.2s;
+      
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+  }
+
+  .archivo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem;
+    background: rgba(45, 212, 191, 0.1);
+    border-radius: 4px;
+    color: #2dd4bf;
+    font-size: 0.75rem;
+    text-decoration: none;
+    
+    &:hover {
+      background: rgba(45, 212, 191, 0.2);
+    }
+  }
+}
+
+// ========== FORMULARIO ==========
 .mensaje-form {
   display: flex;
   gap: 0.5rem;
   padding: 0.75rem;
   border-top: 1px solid #26313c;
+  flex-shrink: 0;
+  align-items: center;
 
   .mensaje-input {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    background: #1b232c;
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid #26313c;
-    border-radius: 6px;
+    border-radius: 20px;
     color: #e6edf3;
+    font-size: 0.9rem;
     outline: none;
 
     &:focus {
       border-color: #2dd4bf;
     }
+
+    &::placeholder {
+      color: #5a6a7a;
+    }
+  }
+
+  .btn-archivo {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: rgba(45, 212, 191, 0.1);
+    }
+    
+    svg {
+      stroke: #8b98a5;
+    }
   }
 
   .mensaje-btn {
-    padding: 0.5rem 1.25rem;
+    padding: 0.4rem 1rem;
     background: #2dd4bf;
     color: #0d1117;
     border: none;
-    border-radius: 6px;
+    border-radius: 20px;
     font-weight: 600;
+    font-size: 0.85rem;
     cursor: pointer;
+    transition: all 0.2s;
 
     &:hover:not(:disabled) {
       opacity: 0.85;
@@ -371,6 +438,38 @@
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+  }
+}
+
+// ========== PREVIEW DE ARCHIVOS ==========
+.archivos-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #26313c;
+
+  .archivo-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(45, 212, 191, 0.1);
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+
+    button {
+      background: none;
+      border: none;
+      color: #f85149;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 2px;
+      
+      &:hover {
+        transform: scale(1.2);
+      }
     }
   }
 }
@@ -386,24 +485,16 @@
     max-height: 200px;
   }
 
-  .chat-area {
-    flex: 1;
-    min-height: 300px;
-  }
-
-  .mensaje {
-    max-width: 85%;
+  .chat-container {
+    padding: 0.5rem;
+    height: calc(100vh - 56px);
   }
 }
 
 @media (max-width: 480px) {
-  .chat-container {
-    padding: 0.5rem;
-    height: calc(100vh - 100px);
-  }
-
   .solicitud-item {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.5rem;
   }
 
@@ -414,17 +505,9 @@
 
   .mensaje {
     max-width: 90%;
-    font-size: 0.9rem;
   }
 
-  .mensaje-form {
-    .mensaje-input {
-      font-size: 0.85rem;
-    }
-
-    .mensaje-btn {
-      font-size: 0.85rem;
-      padding: 0.4rem 0.75rem;
-    }
+  .archivo-item .archivo-imagen {
+    max-width: 150px;
   }
 }
