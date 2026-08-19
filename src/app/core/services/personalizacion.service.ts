@@ -43,6 +43,11 @@ export class PersonalizacionService {
     return this.http.get<Personalizacion>(this.API_URL);
   }
 
+  // ✅ NUEVO MÉTODO: Obtener personalización de otro usuario
+  obtenerPersonalizacionPorUsuario(usuarioId: number): Observable<Personalizacion> {
+    return this.http.get<Personalizacion>(`${this.API_URL}/usuario/${usuarioId}`);
+  }
+
   guardarPersonalizacion(datos: Partial<Personalizacion>): Observable<Personalizacion> {
     return this.http.put<Personalizacion>(this.API_URL, datos);
   }

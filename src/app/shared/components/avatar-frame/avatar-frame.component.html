@@ -1,0 +1,18 @@
+<div class="avatar-frame-container" [style]="containerStyle" (click)="navigateToProfileClick($event)">
+  <div class="avatar-frame" [class]="marcoClase" [style]="marcoEstilo">
+    @if (fotoUrl) {
+      <img 
+        [src]="fotoUrl" 
+        [alt]="alt || nombre" 
+        [style.width.px]="imageSize"
+        [style.height.px]="imageSize"
+        class="avatar-frame__img"
+        (error)="fotoUrl = null"
+      >
+    } @else {
+      <span class="avatar-frame__initial" [style.fontSize.px]="size * 0.4">
+        {{ getInitials() }}
+      </span>
+    }
+  </div>
+</div>

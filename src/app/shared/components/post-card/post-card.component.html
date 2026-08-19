@@ -4,6 +4,7 @@
   <!-- HEADER -->
   <div class="post-card__header">
     <div class="post-card__user">
+      <!-- ✅ PASAR EL marcoId DEL AUTOR -->
       <kiert-avatar-frame
         [fotoUrl]="post().autor.fotoPerfilUrl || null"
         [nombre]="post().autor.nombreUsuario"
@@ -11,6 +12,7 @@
         [alt]="post().autor.nombreUsuario"
         [navigateToProfile]="true"
         [usuarioId]="post().autor.id"
+        [marcoId]="post().autor.marcoId || 'none'"
       />
       <div class="post-card__user-info">
         <span class="post-card__username" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">

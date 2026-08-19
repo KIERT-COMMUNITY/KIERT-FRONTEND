@@ -1,138 +1,132 @@
-import { Component, Input, computed, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
-import { Marco } from '../../../core/services/personalizacion.service';
 
 @Component({
   selector: 'kiert-avatar-frame',
   standalone: true,
-  imports: [CommonModule, RouterLink],
-  template: `
-    <div 
-      class="avatar-frame" 
-      [class]="frameClase()"
-      [style.width.px]="size" 
-      [style.height.px]="size"
-      [style.border-image]="frameBorderImage()"
-      [style.border-image-slice]="'30'"
-      [style.border-image-width]="'8px'"
-      [style.border-style]="'solid'"
-      [style.border-color]="'transparent'"
-      [routerLink]="navigateToProfile ? ['/usuario', usuarioId] : null"
-      (click)="$event.stopPropagation()"
-      [title]="nombre"
-    >
-      @if (fotoUrl) {
-        <img 
-          [src]="fotoUrl" 
-          [alt]="alt" 
-          [style.width.px]="size" 
-          [style.height.px]="size"
-          (error)="onError($event)"
-        >
-      } @else {
-        <span class="avatar-initial" [style.fontSize.px]="size * 0.4">
-          {{ iniciales() }}
-        </span>
-      }
-    </div>
-  `,
-  styles: [`
-    .avatar-frame {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: linear-gradient(135deg, #2dd4bf, #17b6a4);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
-    }
-    .avatar-frame img {
-      object-fit: cover;
-      width: 100%;
-      height: 100%;
-    }
-    .avatar-frame .avatar-initial {
-      font-weight: 700;
-      color: #0d1117;
-      font-family: 'JetBrains Mono', monospace;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-    }
-    .avatar-frame:hover {
-      transform: scale(1.05);
-      z-index: 10;
-    }
-    /* Tipos de marco */
-    .avatar-frame.circulo { border-radius: 50%; }
-    .avatar-frame.cuadrado { border-radius: 8px; }
-    .avatar-frame.hexagonal {
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    }
-    /* Estilos de marcos - NINGUNO, TODOS VISIBLES */
-    .avatar-frame.frame-none { border: none; }
-    .avatar-frame.frame-classic { border: 3px solid #2dd4bf; }
-    .avatar-frame.frame-gold { border: 3px solid #f9ca24; }
-    .avatar-frame.frame-silver { border: 3px solid #b2bec3; }
-    .avatar-frame.frame-rainbow { 
-      border: 3px solid transparent;
-      background-image: linear-gradient(135deg, #ff6b6b, #feca57, #55efc4, #0984e3, #6c5ce7);
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
-      padding: 2px;
-    }
-    .avatar-frame.frame-neon { 
-      border: 3px solid #fd79a8;
-      box-shadow: 0 0 20px rgba(253, 121, 168, 0.4);
-    }
-    .avatar-frame.frame-square { border-radius: 8px !important; }
-    .avatar-frame.frame-hexagon {
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    }
-  `]
+  imports: [CommonModule],
+  templateUrl: './avatar-frame.component.html',
+  styleUrl: './avatar-frame.component.scss',
 })
 export class AvatarFrameComponent {
+  private router = inject(Router);
   private personalizacionStore = inject(PersonalizacionStore);
 
   @Input() fotoUrl: string | null = null;
   @Input() nombre: string = '';
   @Input() size: number = 48;
-  @Input() alt: string = 'Avatar';
-  @Input() marcoOverride: string | null = null;
+  @Input() alt: string = '';
   @Input() navigateToProfile: boolean = false;
   @Input() usuarioId: number | null = null;
+  
+  // ✅ NUEVO: Recibir el marco específico del autor
+  @Input() marcoId: string | null = null;
 
-  // Usar el marco del store o uno específico
-  readonly marcoId = computed(() => {
-    return this.marcoOverride || this.personalizacionStore.marcoId();
-  });
-
-  readonly frameClase = computed(() => {
-    const id = this.marcoId();
-    console.log('🔲 AvatarFrame - marcoId:', id, 'clase: frame-' + id);
-    return `frame-${id}`;
-  });
-
-  readonly frameBorderImage = computed(() => {
-    const marco = this.personalizacionStore.marcos().find((m: Marco) => m.id === this.marcoId());
-    if (marco?.urlImagen) {
-      return `url(${marco.urlImagen}) 30 stretch`;
-    }
-    return 'none';
-  });
-
-  iniciales = computed(() => {
+  getInitials(): string {
     return this.nombre?.charAt(0)?.toUpperCase() || '?';
-  });
+  }
 
-  onError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
+  // ✅ USAR EL MARCO DEL AUTOR (si se pasa) o el del usuario logueado
+  get marcoClase(): string {
+    const id = this.marcoId || this.personalizacionStore.marcoId();
+    return `frame-${id}`;
+  }
+
+  // ✅ ESTILO DEL MARCO
+  get marcoEstilo(): any {
+    const marcoId = this.marcoId || this.personalizacionStore.marcoId();
+    const gradientFrames = ['rainbow', 'pastel', 'ocean', 'sunset', 'galaxy', 'fire', 'ice', 'rose', 'crystal'];
+    
+    if (gradientFrames.includes(marcoId)) {
+      const marcoData = this.personalizacionStore.marcosData().find(m => m.id === marcoId);
+      return {
+        'border': '4px solid transparent',
+        'background-image': marcoData?.gradient || 'none',
+        'background-origin': 'border-box',
+        'background-clip': 'padding-box, border-box',
+        'padding': '4px',
+        'box-shadow': this.getMarcoShadow(marcoId),
+        'border-radius': '50%',
+      };
+    }
+    
+    return {
+      'border': this.getMarcoBorder(marcoId),
+      'box-shadow': this.getMarcoShadow(marcoId),
+      'border-radius': '50%',
+    };
+  }
+
+  getMarcoBorder(marcoId: string): string {
+    const map: Record<string, string> = {
+      'none': 'none',
+      'classic': '4px solid #2dd4bf',
+      'gold': '4px solid #f9ca24',
+      'silver': '4px solid #b2bec3',
+      'rainbow': '4px solid transparent',
+      'pastel': '4px solid transparent',
+      'neon': '4px solid #fd79a8',
+      'ocean': '4px solid transparent',
+      'sunset': '4px solid transparent',
+      'galaxy': '4px solid transparent',
+      'fire': '4px solid transparent',
+      'ice': '4px solid transparent',
+      'rose': '4px solid transparent',
+      'cyber': '4px solid #00d4ff',
+      'crystal': '4px solid rgba(255,255,255,0.3)',
+      'double': 'double 6px #f9ca24',
+      'star': '4px solid #feca57',
+      'moon': '4px solid #dfe6e9',
+      'sun': '4px solid #fdcb6e',
+      'elite': '4px solid #6c5ce7',
+    };
+    return map[marcoId] || '4px solid #2dd4bf';
+  }
+
+  getMarcoShadow(marcoId: string): string {
+    const map: Record<string, string> = {
+      'gold': '0 0 25px rgba(249,202,36,0.5)',
+      'silver': '0 0 25px rgba(178,190,195,0.4)',
+      'rainbow': '0 0 30px rgba(255,107,107,0.4)',
+      'pastel': '0 0 30px rgba(253,121,168,0.3)',
+      'neon': '0 0 35px rgba(253,121,168,0.6)',
+      'ocean': '0 0 30px rgba(0,206,201,0.4)',
+      'sunset': '0 0 30px rgba(255,107,107,0.4)',
+      'galaxy': '0 0 35px rgba(108,92,231,0.5)',
+      'fire': '0 0 35px rgba(255,107,107,0.6)',
+      'ice': '0 0 35px rgba(90,184,216,0.5)',
+      'rose': '0 0 30px rgba(253,121,168,0.5)',
+      'cyber': '0 0 40px rgba(0,212,255,0.6)',
+      'crystal': '0 0 40px rgba(255,255,255,0.2)',
+      'double': '0 0 35px rgba(249,202,36,0.5)',
+      'star': '0 0 30px rgba(254,202,87,0.4)',
+      'moon': '0 0 25px rgba(223,230,233,0.3)',
+      'sun': '0 0 30px rgba(253,203,110,0.4)',
+      'elite': '0 0 40px rgba(108,92,231,0.6)',
+    };
+    return map[marcoId] || 'none';
+  }
+
+  navigateToProfileClick(event: Event): void {
+    event.stopPropagation();
+    if (this.navigateToProfile && this.usuarioId) {
+      this.router.navigate(['/usuario', this.usuarioId]);
+    }
+  }
+
+  // ✅ ESTILO DEL CONTENEDOR
+  get containerStyle(): any {
+    return {
+      'width': this.size + 'px',
+      'height': this.size + 'px',
+      'flex-shrink': '0',
+    };
+  }
+
+  // ✅ TAMAÑO DE LA IMAGEN DENTRO DEL MARCO
+  get imageSize(): number {
+    return this.size - 8;
   }
 }

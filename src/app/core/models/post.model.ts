@@ -18,6 +18,8 @@ export interface Autor {
   id: number;
   nombreUsuario: string;
   email?: string;
+    marcoId?: string;
+
   fotoPerfilUrl?: string | null;
 }
 

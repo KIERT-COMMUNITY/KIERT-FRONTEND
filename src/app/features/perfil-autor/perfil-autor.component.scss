@@ -1,5 +1,5 @@
 // ============================================================
-// PERFIL DE AUTOR - ESTILOS COMPLETOS CON LEGIBILIDAD
+// PERFIL DE AUTOR - ESTILOS CON FONDO DE PERFIL
 // ============================================================
 
 .perfil-autor-container {
@@ -8,14 +8,13 @@
   padding: 1.5rem 1rem;
   min-height: 100vh;
   transition: background 0.5s ease, color 0.5s ease;
-
-  // ✅ Hereda el color del tema
   color: inherit;
 }
 
+// ✅ TARJETA CON FONDO DE PERFIL DEL AUTOR
 .perfil-card {
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
@@ -25,7 +24,6 @@
     border-color: rgba(45, 212, 191, 0.2);
   }
 
-  // ✅ Todos los textos heredan el color del tema
   color: inherit;
 
   .perfil-nombre,
@@ -36,34 +34,70 @@
 
   .btn-volver {
     color: inherit !important;
-    opacity: 0.7;
+    opacity: 0.6;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
 
     &:hover {
       color: #2dd4bf !important;
       opacity: 1;
+      transform: translateX(-4px);
     }
   }
 
   .exito {
     color: #2ea043 !important;
     background: rgba(46, 160, 67, 0.15) !important;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeIn 0.3s ease;
   }
 
   .btn-chat {
     background: #2dd4bf;
     color: #0d1117 !important;
-    
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
     &:hover { 
       opacity: 0.85; 
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 
   .btn-solicitar {
     background: #2dd4bf;
     color: #0d1117 !important;
-    
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
     &:hover:not(:disabled) { 
       opacity: 0.85; 
       transform: translateY(-2px);
@@ -74,21 +108,40 @@
       opacity: 0.5; 
       cursor: not-allowed; 
     }
+
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+    }
   }
 
   .btn-pendiente {
     background: #5a6a7a;
     color: #e6edf3 !important;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: not-allowed;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .marco-indicator__label {
     color: #8b98a5 !important;
+    background: rgba(45, 212, 191, 0.1);
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    display: inline-block;
+    font-size: 0.7rem;
   }
 
   .loading, .error {
     color: inherit !important;
-    opacity: 0.7;
+    opacity: 0.6;
+    text-align: center;
+    padding: 2rem;
   }
 }
 
@@ -104,7 +157,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #1b232c;
+  background: rgba(0, 0, 0, 0.3);
   margin: 0 auto 1rem;
   border-radius: 50%;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -152,7 +205,7 @@
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
   color: inherit !important;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .perfil-acciones {
@@ -163,66 +216,14 @@
   margin: 1rem 0;
 }
 
-.btn-chat, .btn-solicitar, .btn-pendiente {
-  padding: 0.6rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-.btn-volver {
-  background: none;
-  border: none;
-  color: inherit !important;
-  cursor: pointer;
-  transition: all 0.2s;
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  opacity: 0.7;
-
-  &:hover { 
-    color: #2dd4bf !important;
-    transform: translateX(-4px);
-    opacity: 1;
-  }
-}
-
-.loading, .error {
-  text-align: center;
-  padding: 2rem;
-  color: inherit !important;
-  opacity: 0.7;
-}
-
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #26313c;
+  border: 3px solid rgba(255, 255, 255, 0.1);
   border-top-color: #2dd4bf;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;
-}
-
-.exito {
-  background: rgba(46, 160, 67, 0.15) !important;
-  color: #2ea043 !important;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  animation: fadeIn 0.3s ease;
 }
 
 @keyframes spin {
@@ -235,42 +236,47 @@
 }
 
 // ============================================================
-// CORRECCIÓN PARA TEMA LIGHT
+// CORRECCIÓN PARA TEMA LIGHT DEL AUTOR
 // ============================================================
 
 .tema-light {
   .perfil-card {
+    background: rgba(255, 255, 255, 0.85) !important;
     color: #1a1a2e !important;
+  }
 
-    .perfil-nombre,
-    .perfil-email {
-      color: #1a1a2e !important;
+  .perfil-nombre,
+  .perfil-email {
+    color: #1a1a2e !important;
+  }
+
+  .btn-chat,
+  .btn-solicitar {
+    color: #0d1117 !important;
+  }
+
+  .btn-pendiente {
+    color: #e6edf3 !important;
+  }
+
+  .marco-indicator__label {
+    color: #666666 !important;
+  }
+
+  .btn-volver {
+    color: #555555 !important;
+
+    &:hover {
+      color: #2dd4bf !important;
     }
+  }
 
-    .btn-chat,
-    .btn-solicitar {
-      color: #0d1117 !important;
-    }
+  .loading, .error {
+    color: #555555 !important;
+  }
 
-    .btn-pendiente {
-      color: #e6edf3 !important;
-    }
-
-    .marco-indicator__label {
-      color: #666666 !important;
-    }
-
-    .btn-volver {
-      color: #555555 !important;
-
-      &:hover {
-        color: #2dd4bf !important;
-      }
-    }
-
-    .loading, .error {
-      color: #555555 !important;
-    }
+  .exito {
+    color: #2ea043 !important;
   }
 }
 
@@ -285,7 +291,7 @@
 
   .perfil-card {
     padding: 1rem;
-    border-radius: 0;
+    border-radius: 12px;
   }
 
   .perfil-avatar {

@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ChatService } from '../../core/services/chat.service';
 import { UserService } from '../../core/services/user.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
+import { PersonalizacionService, Personalizacion } from '../../core/services/personalizacion.service';
 import { User } from '../../core/models/user.model';
 
 @Component({
@@ -20,6 +21,7 @@ export class PerfilAutorComponent implements OnInit {
   private authService = inject(AuthService);
   private chatService = inject(ChatService);
   private userService = inject(UserService);
+  private personalizacionService = inject(PersonalizacionService);
   public personalizacionStore = inject(PersonalizacionStore);
 
   autor = signal<User | null>(null);
@@ -32,30 +34,113 @@ export class PerfilAutorComponent implements OnInit {
   esMiPerfil = signal(false);
   usuarioActual = this.authService.usuario;
 
-  // ✅ FONDO DE PERFIL
-  get fondoPerfil(): string {
-    return this.personalizacionStore.fondoGradiente();
+  // ✅ PERSONALIZACIÓN DEL AUTOR VISITADO
+  autorPersonalizacion = signal<Personalizacion | null>(null);
+  autorTemaId = signal<string>('default');
+  autorMarcoId = signal<string>('none');
+  autorFondoId = signal<string>('default');
+  autorFotoPerfil = signal<string>('');
+  autorFotoPortada = signal<string>('');
+
+  // ✅ FONDO DE PERFIL DEL AUTOR (para el contenedor y la tarjeta)
+  get fondoPerfilDelAutor(): string {
+    const fondoId = this.autorFondoId();
+    const fondos = this.personalizacionStore.fondos();
+    const encontrado = fondos.find(f => f.id === fondoId);
+    return encontrado?.gradiente || 'linear-gradient(135deg, #0d1117, #161b22)';
   }
 
-  // ✅ FONDO PARA LA TARJETA
-  get fondoPerfilCard(): string {
-    const tema = this.personalizacionStore.temaId();
+  // ✅ TEMA DEL AUTOR
+  get temaClassDelAutor(): string {
+    const tema = this.autorTemaId();
+    return `tema-${tema}`;
+  }
+
+  // ✅ MARCO DEL AUTOR
+  get marcoClaseDelAutor(): string {
+    const marco = this.autorMarcoId();
+    return `frame-${marco}`;
+  }
+
+  // ✅ ESTILO DEL MARCO DEL AUTOR
+  get marcoEstiloDelAutor(): any {
+    const marcoId = this.autorMarcoId();
+    const gradientFrames = ['rainbow', 'pastel', 'ocean', 'sunset', 'galaxy', 'fire', 'ice', 'rose', 'crystal'];
     
-    if (tema === 'light') {
-      return 'rgba(255, 255, 255, 0.92)';
+    if (gradientFrames.includes(marcoId)) {
+      const marcoData = this.personalizacionStore.marcosData().find(m => m.id === marcoId);
+      return {
+        'border': '4px solid transparent',
+        'background-image': marcoData?.gradient || 'none',
+        'background-origin': 'border-box',
+        'background-clip': 'padding-box, border-box',
+        'padding': '4px',
+        'box-shadow': this.getMarcoShadow(marcoId),
+        'border-radius': '50%',
+      };
     }
     
-    return 'rgba(13, 17, 23, 0.90)';
+    return {
+      'border': this.getMarcoBorder(marcoId),
+      'box-shadow': this.getMarcoShadow(marcoId),
+      'border-radius': '50%',
+    };
   }
 
-  // ✅ MARCO ESTILO
-  get marcoEstilo() {
-    return this.personalizacionStore.marcoEstilo();
+  // ✅ FOTO DE PERFIL DEL AUTOR
+  get fotoPerfilDelAutor(): string {
+    return this.autorFotoPerfil() || this.autor()?.fotoPerfilUrl || '';
   }
 
-  // ✅ CLASE DEL MARCO
-  get marcoClase() {
-    return this.personalizacionStore.marcoClase();
+  // ✅ MÉTODOS AUXILIARES PARA MARCOS
+  getMarcoBorder(marcoId: string): string {
+    const map: Record<string, string> = {
+      'none': 'none',
+      'classic': '4px solid #2dd4bf',
+      'gold': '4px solid #f9ca24',
+      'silver': '4px solid #b2bec3',
+      'rainbow': '4px solid transparent',
+      'pastel': '4px solid transparent',
+      'neon': '4px solid #fd79a8',
+      'ocean': '4px solid transparent',
+      'sunset': '4px solid transparent',
+      'galaxy': '4px solid transparent',
+      'fire': '4px solid transparent',
+      'ice': '4px solid transparent',
+      'rose': '4px solid transparent',
+      'cyber': '4px solid #00d4ff',
+      'crystal': '4px solid rgba(255,255,255,0.3)',
+      'double': 'double 6px #f9ca24',
+      'star': '4px solid #feca57',
+      'moon': '4px solid #dfe6e9',
+      'sun': '4px solid #fdcb6e',
+      'elite': '4px solid #6c5ce7',
+    };
+    return map[marcoId] || '4px solid #2dd4bf';
+  }
+
+  getMarcoShadow(marcoId: string): string {
+    const map: Record<string, string> = {
+      'gold': '0 0 25px rgba(249,202,36,0.5)',
+      'silver': '0 0 25px rgba(178,190,195,0.4)',
+      'rainbow': '0 0 30px rgba(255,107,107,0.4)',
+      'pastel': '0 0 30px rgba(253,121,168,0.3)',
+      'neon': '0 0 35px rgba(253,121,168,0.6)',
+      'ocean': '0 0 30px rgba(0,206,201,0.4)',
+      'sunset': '0 0 30px rgba(255,107,107,0.4)',
+      'galaxy': '0 0 35px rgba(108,92,231,0.5)',
+      'fire': '0 0 35px rgba(255,107,107,0.6)',
+      'ice': '0 0 35px rgba(90,184,216,0.5)',
+      'rose': '0 0 30px rgba(253,121,168,0.5)',
+      'cyber': '0 0 40px rgba(0,212,255,0.6)',
+      'crystal': '0 0 40px rgba(255,255,255,0.2)',
+      'double': '0 0 35px rgba(249,202,36,0.5)',
+      'star': '0 0 30px rgba(254,202,87,0.4)',
+      'moon': '0 0 25px rgba(223,230,233,0.3)',
+      'sun': '0 0 30px rgba(253,203,110,0.4)',
+      'elite': '0 0 40px rgba(108,92,231,0.6)',
+    };
+    return map[marcoId] || 'none';
   }
 
   ngOnInit(): void {
@@ -75,6 +160,7 @@ export class PerfilAutorComponent implements OnInit {
     }
 
     this.cargarAutor(userId);
+    this.cargarPersonalizacionAutor(userId);
     this.verificarEstadoContacto(userId);
   }
 
@@ -83,11 +169,42 @@ export class PerfilAutorComponent implements OnInit {
     this.userService.obtenerUsuarioPorId(userId).subscribe({
       next: (user) => {
         this.autor.set(user);
+        if (user.fotoPerfilUrl) {
+          this.autorFotoPerfil.set(user.fotoPerfilUrl);
+        }
         this.cargando.set(false);
       },
       error: () => {
         this.errorMsg.set('Error al cargar el perfil del usuario');
         this.cargando.set(false);
+      }
+    });
+  }
+
+  // ✅ CARGAR LA PERSONALIZACIÓN DEL AUTOR
+  cargarPersonalizacionAutor(userId: number): void {
+    this.personalizacionService.obtenerPersonalizacionPorUsuario(userId).subscribe({
+      next: (data: Personalizacion) => {
+        this.autorPersonalizacion.set(data);
+        this.autorTemaId.set(data?.temaId || 'default');
+        this.autorMarcoId.set(data?.marcoId || 'none');
+        this.autorFondoId.set(data?.fondoId || 'default');
+        if (data?.fotoPerfilUrl) {
+          this.autorFotoPerfil.set(data.fotoPerfilUrl);
+        }
+        if (data?.fotoPortadaUrl) {
+          this.autorFotoPortada.set(data.fotoPortadaUrl);
+        }
+        console.log('🎨 Personalización del autor:', {
+          tema: this.autorTemaId(),
+          marco: this.autorMarcoId(),
+          fondo: this.autorFondoId(),
+          foto: this.autorFotoPerfil()
+        });
+      },
+      error: (err) => {
+        console.error('Error al cargar personalización del autor:', err);
+        this.autorPersonalizacion.set(null);
       }
     });
   }
@@ -118,12 +235,12 @@ export class PerfilAutorComponent implements OnInit {
       next: () => {
         this.solicitudPendiente.set(true);
         this.enviandoSolicitud.set(false);
-        this.exitoMsg.set('✅ Solicitud enviada correctamente');
+        this.exitoMsg.set('Solicitud enviada correctamente');
         setTimeout(() => this.exitoMsg.set(null), 3000);
       },
       error: () => {
         this.enviandoSolicitud.set(false);
-        this.errorMsg.set('❌ Error al enviar solicitud');
+        this.errorMsg.set('Error al enviar solicitud');
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
     });

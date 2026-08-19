@@ -1,5 +1,5 @@
-<!-- APLICAR TEMA DE COLOR FUERTEMENTE -->
-<div class="mis-publicaciones-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
+<!-- APLICAR TEMA DE COLOR -->
+<div class="mis-publicaciones-container" [ngClass]="personalizacionStore.temaClass()">
   
   <div class="header">
     <button class="btn-volver" (click)="volverAlFeed()">

@@ -1,4 +1,3 @@
-// src/app/features/community/mis-publicaciones/mis-publicaciones.component.ts
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';

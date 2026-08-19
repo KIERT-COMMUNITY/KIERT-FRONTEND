@@ -1,7 +1,7 @@
-<!-- APLICAR FONDO DE PERFIL + TEMA -->
+<!-- APLICAR TEMA + FONDO DE PERFIL DEL AUTOR -->
 <div class="perfil-autor-container" 
-     [ngClass]="personalizacionStore.temaClass()" 
-     [style.background]="fondoPerfil">
+     [class]="temaClassDelAutor" 
+     [style.background]="fondoPerfilDelAutor">
   
   @if (cargando()) {
     <div class="loading">
@@ -11,26 +11,26 @@
   } @else if (errorMsg()) {
     <div class="error">
       <p>{{ errorMsg() }}</p>
-      <button class="btn-volver" (click)="volver()">← Volver</button>
+      <button class="btn-volver" (click)="volver()">Volver</button>
     </div>
   } @else if (autor()) {
-    <!-- TARJETA CON FONDO SEMI-TRANSPARENTE -->
-    <div class="perfil-card" [style.background]="fondoPerfilCard">
+    <!-- ✅ TARJETA CON FONDO DE PERFIL DEL AUTOR -->
+    <div class="perfil-card" [style.background]="fondoPerfilDelAutor">
       
       <div class="perfil-avatar-wrapper">
-        <!-- AVATAR CON MARCO COMPLETO -->
+        <!-- AVATAR CON MARCO DEL AUTOR -->
         <div class="perfil-avatar" 
-             [class]="marcoClase" 
-             [style]="marcoEstilo">
-          @if (autor()?.fotoPerfilUrl) {
-            <img [src]="autor()?.fotoPerfilUrl" [alt]="autor()?.nombreUsuario">
+             [class]="marcoClaseDelAutor" 
+             [style]="marcoEstiloDelAutor">
+          @if (fotoPerfilDelAutor) {
+            <img [src]="fotoPerfilDelAutor" [alt]="autor()?.nombreUsuario">
           } @else {
             <span class="avatar-inicial">{{ autor()?.nombreUsuario?.charAt(0)?.toUpperCase() }}</span>
           }
         </div>
-        @if (personalizacionStore.marcoId() !== 'none') {
+        @if (autorMarcoId() !== 'none') {
           <div class="marco-indicator">
-            <span class="marco-indicator__label">Marco: {{ personalizacionStore.marcoId() }}</span>
+            <span class="marco-indicator__label">Marco: {{ autorMarcoId() }}</span>
           </div>
         }
       </div>
@@ -44,17 +44,17 @@
 
       <div class="perfil-acciones">
         @if (esContacto()) {
-          <button class="btn-chat" (click)="irAlChat()">💬 Ir al chat</button>
+          <button class="btn-chat" (click)="irAlChat()">Ir al chat</button>
         } @else if (solicitudPendiente()) {
-          <button class="btn-pendiente" disabled>⏳ Solicitud pendiente</button>
+          <button class="btn-pendiente" disabled>Solicitud pendiente</button>
         } @else {
           <button class="btn-solicitar" (click)="enviarSolicitud()" [disabled]="enviandoSolicitud()">
-            {{ enviandoSolicitud() ? 'Enviando...' : '➕ Enviar solicitud' }}
+            {{ enviandoSolicitud() ? 'Enviando...' : 'Enviar solicitud' }}
           </button>
         }
       </div>
 
-      <button class="btn-volver" (click)="volver()">← Volver</button>
+      <button class="btn-volver" (click)="volver()">Volver</button>
     </div>
   }
 </div>
