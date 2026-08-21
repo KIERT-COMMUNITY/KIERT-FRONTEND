@@ -440,3 +440,14 @@
     padding: 0.75rem;
   }
 }
+// Agrega este estilo para el hint del campo categoría
+.field {
+  .field-hint {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.7rem;
+    color: inherit !important;
+    opacity: 0.4;
+    font-style: italic;
+  }
+}

@@ -46,10 +46,25 @@ export class PersonalizacionStore {
   readonly fondos = computed(() => this.fondosSignal());
   readonly loading = computed(() => this.loadingSignal());
 
-  readonly temaId = computed(() => this.personalizacionSignal()?.temaId || 'default');
-  readonly marcoId = computed(() => this.personalizacionSignal()?.marcoId || 'none');
-  readonly fondoId = computed(() => this.personalizacionSignal()?.fondoId || 'default');
-  readonly fotoPerfil = computed(() => this.personalizacionSignal()?.fotoPerfilUrl || '');
+  readonly temaId = computed(() => {
+    const p = this.personalizacionSignal();
+    return p?.temaId || 'default';
+  });
+  
+  readonly marcoId = computed(() => {
+    const p = this.personalizacionSignal();
+    return p?.marcoId || 'none';
+  });
+  
+  readonly fondoId = computed(() => {
+    const p = this.personalizacionSignal();
+    return p?.fondoId || 'default';
+  });
+  
+  readonly fotoPerfil = computed(() => {
+    const p = this.personalizacionSignal();
+    return p?.fotoPerfilUrl || '';
+  });
 
   // ===== TEMA CSS =====
   readonly temaClass = computed(() => `tema-${this.temaId()}`);
@@ -232,6 +247,7 @@ export class PersonalizacionStore {
     effect(() => {
       const usuario = this.authService.usuario();
       if (usuario) {
+        console.log('👤 Usuario logueado, cargando personalización...');
         this.cargarTodos();
       }
     });
@@ -248,6 +264,7 @@ export class PersonalizacionStore {
   cargarPersonalizacion(): void {
     this.personalizacionService.obtenerPersonalizacion().subscribe({
       next: (data) => {
+        console.log('📥 Personalización cargada:', data);
         this.personalizacionSignal.set(data);
         const usuario = this.authService.usuario();
         if (usuario && data.fotoPerfilUrl && usuario.fotoPerfilUrl !== data.fotoPerfilUrl) {
@@ -257,28 +274,59 @@ export class PersonalizacionStore {
           });
         }
       },
-      error: () => console.error('Error al cargar personalización')
+      error: (error) => {
+        console.error('❌ Error al cargar personalización:', error);
+        this.personalizacionSignal.set({
+          id: 0,
+          usuarioId: 0,
+          temaId: 'default',
+          marcoId: 'none',
+          fondoId: 'default',
+          fotoPerfilUrl: '',
+          fotoPortadaUrl: '',
+          marcoPersonalizadoUrl: ''
+        });
+      }
     });
   }
 
   cargarMarcos(): void {
     this.personalizacionService.obtenerMarcos().subscribe({
-      next: (data) => this.marcosSignal.set(data),
-      error: () => console.error('Error al cargar marcos')
+      next: (data) => {
+        console.log('📥 Marcos cargados:', data.length);
+        this.marcosSignal.set(data);
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar marcos:', error);
+      }
     });
   }
 
   cargarFondos(): void {
     this.personalizacionService.obtenerFondos().subscribe({
-      next: (data) => this.fondosSignal.set(data),
-      error: () => console.error('Error al cargar fondos')
+      next: (data) => {
+        console.log('📥 Fondos cargados:', data.length);
+        this.fondosSignal.set(data);
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar fondos:', error);
+      }
     });
   }
 
   guardarPersonalizacion(temaId: string, marcoId: string, fondoId: string): void {
+    console.log('💾 Guardando personalización:', { temaId, marcoId, fondoId });
     this.loadingSignal.set(true);
-    this.personalizacionService.guardarPersonalizacion({ temaId, marcoId, fondoId }).subscribe({
+    
+    const datos = {
+      temaId: temaId || 'default',
+      marcoId: marcoId || 'none',
+      fondoId: fondoId || 'default'
+    };
+    
+    this.personalizacionService.guardarPersonalizacion(datos).subscribe({
       next: (data) => {
+        console.log('✅ Personalización guardada:', data);
         this.personalizacionSignal.set(data);
         this.loadingSignal.set(false);
         const usuario = this.authService.usuario();
@@ -289,14 +337,15 @@ export class PersonalizacionStore {
           });
         }
       },
-      error: () => {
+      error: (error) => {
+        console.error('❌ Error al guardar personalización:', error);
         this.loadingSignal.set(false);
-        console.error('Error al guardar personalización');
       }
     });
   }
 
   recargar(): void {
+    console.log('🔄 Recargando personalización...');
     this.cargarTodos();
   }
 }

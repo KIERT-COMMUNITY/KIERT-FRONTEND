@@ -1,10 +1,15 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, catchError } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+
 import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionService } from '../../../core/services/personalizacion.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
+import { UserService } from '../../../core/services/user.service';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'kiert-settings',
@@ -13,29 +18,41 @@ import { PersonalizacionStore } from '../../../core/services/personalizacion-sto
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private personalizacionService = inject(PersonalizacionService);
+  private userService = inject(UserService);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
+  private destroy$ = new Subject<void>();
+
+  // ===== SIGNALS =====
   usuario = this.authService.usuario;
   cargando = signal(false);
+  buscando = signal(false);
+  enviandoSolicitud = signal(false);
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
   editandoPerfil = signal(false);
+  busquedaUsuario = signal<string>('');
+  usuarioBuscado = signal<User | null>(null);
+  usuariosEncontrados = signal<User[]>([]);
+  busquedaError = signal<string | null>(null);
+  mostrandoResultados = signal(false);
+  solicitudEnviada = signal<number | null>(null);
 
-  // ✅ Selección temporal (vista previa)
+  private busquedaSubject = new Subject<string>();
+
   selectedTheme = signal<string>('default');
   selectedFrame = signal<string>('none');
-  selectedBackground = signal<string>('default'); // ✅ FONDO SELECCIONADO
+  selectedBackground = signal<string>('default');
 
   colorThemes = this.personalizacionStore.colorThemes;
   marcosData = this.personalizacionStore.marcosData;
   fondosData = this.personalizacionStore.fondosData;
 
-  // ===== VISTA PREVIA EN TIEMPO REAL =====
   previewThemeGradient = computed(() => {
     const theme = this.colorThemes().find(t => t.id === this.selectedTheme());
     return theme?.gradient || 'linear-gradient(135deg, #2dd4bf, #0d1117)';
@@ -56,18 +73,24 @@ export class SettingsComponent implements OnInit {
     };
   });
 
-  // ✅ VISTA PREVIA DEL FONDO SELECCIONADO
-  previewFondoGradiente = computed(() => {
-    const fondo = this.fondosData().find(f => f.id === this.selectedBackground());
-    return fondo?.gradient || 'linear-gradient(135deg, #0d1117, #161b22)';
-  });
-
-  // ===== FORMULARIO PERFIL =====
   formPerfil = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
     bio: ['', [Validators.maxLength(150)]],
   });
+
+  constructor() {
+    // ✅ EFECTO PARA ACTUALIZAR LA VISTA PREVIA CUANDO CAMBIA LA PERSONALIZACIÓN
+    effect(() => {
+      const personalizacion = this.personalizacionStore.personalizacion();
+      if (personalizacion) {
+        console.log('🔄 Settings - Personalización actualizada:', personalizacion);
+        this.selectedTheme.set(personalizacion.temaId || 'default');
+        this.selectedFrame.set(personalizacion.marcoId || 'none');
+        this.selectedBackground.set(personalizacion.fondoId || 'default');
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.cargarDatosUsuario();
@@ -81,19 +104,170 @@ export class SettingsComponent implements OnInit {
       this.selectedFrame.set(current.marcoId || 'none');
       this.selectedBackground.set(current.fondoId || 'default');
     }
+
+    this.busquedaSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => {
+        const username = query.trim();
+        if (!username || username.length < 1) {
+          this.usuariosEncontrados.set([]);
+          this.usuarioBuscado.set(null);
+          this.busquedaError.set(null);
+          this.mostrandoResultados.set(false);
+          return [];
+        }
+        this.buscando.set(true);
+        this.mostrandoResultados.set(true);
+        
+        return this.userService.buscarUsuarios(username).pipe(
+          catchError(error => {
+            console.error('Error en búsqueda:', error);
+            return of([]);
+          })
+        );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (usuarios: User[]) => {
+        this.buscando.set(false);
+        
+        if (usuarios && usuarios.length > 0) {
+          this.usuariosEncontrados.set(usuarios);
+          this.usuarioBuscado.set(null);
+          this.busquedaError.set(null);
+          
+          if (usuarios.length === 1) {
+            this.usuarioBuscado.set(usuarios[0]);
+          }
+        } else {
+          this.usuariosEncontrados.set([]);
+          this.usuarioBuscado.set(null);
+          this.busquedaError.set('No se encontraron usuarios');
+        }
+      },
+      error: (error) => {
+        this.buscando.set(false);
+        this.usuariosEncontrados.set([]);
+        this.usuarioBuscado.set(null);
+        this.busquedaError.set('Error al buscar usuarios');
+        console.error('Error en búsqueda:', error);
+      }
+    });
   }
 
-  cargarDatosUsuario(): void {
-    const user = this.usuario();
-    if (user) {
-      this.formPerfil.patchValue({
-        nombreUsuario: user.nombreUsuario,
-        email: user.email,
-        bio: user.bio || '',
-      });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ===== MÉTODOS DE BÚSQUEDA =====
+  onBusquedaChange(): void {
+    const query = this.busquedaUsuario().trim();
+    if (query.startsWith('@')) {
+      this.busquedaSubject.next(query.substring(1));
+    } else {
+      this.busquedaSubject.next(query);
     }
   }
 
+  buscarUsuario(): void {
+    const query = this.busquedaUsuario().trim();
+    if (!query) {
+      this.busquedaError.set('Ingresa un nombre de usuario');
+      return;
+    }
+
+    const username = query.startsWith('@') ? query.substring(1) : query;
+    this.buscando.set(true);
+    this.busquedaError.set(null);
+    this.mostrandoResultados.set(true);
+
+    this.userService.buscarUsuarios(username).pipe(
+      catchError(error => {
+        console.error('Error en búsqueda:', error);
+        return of([]);
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (usuarios: User[]) => {
+        this.buscando.set(false);
+        
+        if (usuarios && usuarios.length > 0) {
+          this.usuariosEncontrados.set(usuarios);
+          this.usuarioBuscado.set(null);
+          this.busquedaError.set(null);
+          
+          if (usuarios.length === 1) {
+            this.usuarioBuscado.set(usuarios[0]);
+            this.exitoMsg.set(`Usuario @${usuarios[0].nombreUsuario} encontrado`);
+          } else {
+            this.exitoMsg.set(`Se encontraron ${usuarios.length} usuarios`);
+          }
+          
+          setTimeout(() => this.exitoMsg.set(null), 3000);
+        } else {
+          this.usuariosEncontrados.set([]);
+          this.usuarioBuscado.set(null);
+          this.busquedaError.set(`No se encontraron usuarios con "${username}"`);
+        }
+      },
+      error: (error) => {
+        this.buscando.set(false);
+        this.usuariosEncontrados.set([]);
+        this.usuarioBuscado.set(null);
+        this.busquedaError.set('Error al buscar usuarios');
+        console.error('Error en búsqueda:', error);
+      }
+    });
+  }
+
+  limpiarBusqueda(): void {
+    this.busquedaUsuario.set('');
+    this.usuarioBuscado.set(null);
+    this.usuariosEncontrados.set([]);
+    this.busquedaError.set(null);
+    this.mostrandoResultados.set(false);
+    this.solicitudEnviada.set(null);
+  }
+
+  verPerfilUsuario(usuarioId: number | undefined): void {
+    if (usuarioId) {
+      console.log(`👤 Navegando al perfil del usuario ID: ${usuarioId}`);
+      this.router.navigate(['/usuario', usuarioId]);
+    }
+  }
+
+  enviarMensaje(usuarioId: number | undefined): void {
+    if (usuarioId) {
+      this.router.navigate(['/chat', { usuarioId }]);
+    }
+  }
+
+  enviarSolicitud(usuarioId: number): void {
+    if (!usuarioId) return;
+    
+    this.enviandoSolicitud.set(true);
+    this.userService.enviarSolicitudContacto(usuarioId).subscribe({
+      next: (response) => {
+        this.enviandoSolicitud.set(false);
+        this.solicitudEnviada.set(usuarioId);
+        this.exitoMsg.set('Solicitud de contacto enviada correctamente');
+        setTimeout(() => {
+          this.exitoMsg.set(null);
+          this.solicitudEnviada.set(null);
+        }, 3000);
+      },
+      error: (error) => {
+        this.enviandoSolicitud.set(false);
+        const mensaje = error.error?.message || error.error || 'Error al enviar solicitud';
+        this.errorMsg.set(mensaje);
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ===== MÉTODOS DE PERSONALIZACIÓN =====
   seleccionarTheme(themeId: string): void {
     this.selectedTheme.set(themeId);
   }
@@ -104,10 +278,8 @@ export class SettingsComponent implements OnInit {
 
   seleccionarBackground(bgId: string): void {
     this.selectedBackground.set(bgId);
-    console.log('🎨 Fondo seleccionado:', bgId);
   }
 
-  // ✅ APLICAR PERSONALIZACIÓN - GUARDA TEMA, MARCO Y FONDO
   aplicarPersonalizacion(): void {
     this.cargando.set(true);
     
@@ -121,12 +293,22 @@ export class SettingsComponent implements OnInit {
     
     setTimeout(() => {
       this.cargando.set(false);
-      this.exitoMsg.set('✨ Personalización aplicada correctamente');
-      setTimeout(() => this.exitoMsg.set(null), 3000);
-      
-      // ✅ Forzar recarga del store para actualizar el perfil
+      this.exitoMsg.set('Personalización aplicada correctamente');
       this.personalizacionStore.recargar();
-    }, 500);
+      setTimeout(() => this.exitoMsg.set(null), 3000);
+    }, 800);
+  }
+
+  // ===== MÉTODOS DE PERFIL =====
+  cargarDatosUsuario(): void {
+    const user = this.usuario();
+    if (user) {
+      this.formPerfil.patchValue({
+        nombreUsuario: user.nombreUsuario,
+        email: user.email,
+        bio: user.bio || '',
+      });
+    }
   }
 
   toggleEditarPerfil(): void {
@@ -144,7 +326,7 @@ export class SettingsComponent implements OnInit {
     this.cargando.set(true);
     setTimeout(() => {
       this.cargando.set(false);
-      this.exitoMsg.set('✅ Perfil actualizado correctamente');
+      this.exitoMsg.set('Perfil actualizado correctamente');
       this.editandoPerfil.set(false);
       setTimeout(() => this.exitoMsg.set(null), 3000);
     }, 1000);
@@ -162,13 +344,13 @@ export class SettingsComponent implements OnInit {
         if (user) {
           this.authService.usuario.set({ ...user, fotoPerfilUrl: data.fotoPerfilUrl });
         }
-        this.exitoMsg.set('📸 Foto de perfil actualizada');
+        this.exitoMsg.set('Foto de perfil actualizada');
         this.cargando.set(false);
         this.personalizacionStore.recargar();
         setTimeout(() => this.exitoMsg.set(null), 3000);
       },
       error: () => {
-        this.errorMsg.set('❌ Error al subir la foto');
+        this.errorMsg.set('Error al subir la foto');
         this.cargando.set(false);
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
@@ -180,10 +362,6 @@ export class SettingsComponent implements OnInit {
   }
 
   // ===== NAVEGACIÓN =====
-  buscarAmigos(): void {
-    this.router.navigate(['/comunidad']);
-  }
-
   irChat(): void {
     this.router.navigate(['/chat']);
   }

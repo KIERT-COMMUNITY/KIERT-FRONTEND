@@ -44,13 +44,6 @@ export class PostDetailComponent implements OnInit {
     like: false, love: false, haha: false, wow: false, sad: false, angry: false
   });
 
-  etiquetas: Record<string, string> = {
-    'caso-hacking': 'Caso de hacking',
-    ayuda: 'Pide ayuda',
-    historia: 'Historia',
-    otro: 'Otro',
-  };
-
   formComentario = this.fb.group({
     contenido: ['', [Validators.required, Validators.minLength(2)]],
   });
@@ -72,14 +65,58 @@ export class PostDetailComponent implements OnInit {
     this.cargarReacciones(postId);
   }
 
+  // ✅ MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
+  getCategoriaFormateada(categoria: string): string {
+    if (!categoria) return 'Sin categoría';
+    const categoriaLimpia = categoria.replace(/-/g, ' ');
+    return categoriaLimpia
+      .split(' ')
+      .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+      .join(' ');
+  }
+
+  // ✅ MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
+  getColorCategoria(categoria: string): string {
+    if (!categoria) return '#8b98a5';
+    const categoriaLower = categoria.toLowerCase();
+    if (categoriaLower.includes('hacking') || categoriaLower.includes('seguridad') || categoriaLower.includes('ciber')) {
+      return '#ff6b6b';
+    }
+    if (categoriaLower.includes('ayuda') || categoriaLower.includes('emergencia') || categoriaLower.includes('socorro')) {
+      return '#feca57';
+    }
+    if (categoriaLower.includes('historia') || categoriaLower.includes('experiencia') || categoriaLower.includes('caso')) {
+      return '#55efc4';
+    }
+    if (categoriaLower.includes('programacion') || categoriaLower.includes('codigo') || categoriaLower.includes('desarrollo')) {
+      return '#0984e3';
+    }
+    if (categoriaLower.includes('redes') || categoriaLower.includes('network') || categoriaLower.includes('infraestructura')) {
+      return '#6c5ce7';
+    }
+    if (categoriaLower.includes('ia') || categoriaLower.includes('inteligencia') || categoriaLower.includes('machine')) {
+      return '#fd79a8';
+    }
+    return '#2dd4bf';
+  }
+
+  // ✅ OBTENER EL MARCO DEL AUTOR
+  getMarcoDelAutor(): string {
+    return this.post()?.autor?.marcoId || 'none';
+  }
+
   cargarPost(postId: number): void {
     this.cargando.set(true);
     this.postService.obtenerPorId(postId).subscribe({
       next: (data) => {
+        console.log('📌 Post cargado:', data);
+        console.log('📌 Categoría:', data.categoria);
+        console.log('📌 Marco del autor:', data.autor?.marcoId);
         this.post.set(data);
         this.cargando.set(false);
       },
-      error: () => {
+      error: (error) => {
+        console.error('❌ Error al cargar post:', error);
         this.cargando.set(false);
         this.errorMsg.set('Error al cargar la publicación');
       }
@@ -332,7 +369,7 @@ export class PostDetailComponent implements OnInit {
     this.comentarioService.eliminar(comentarioId).subscribe({
       next: () => {
         this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
-        this.exitoMsg('Comentario eliminado');
+        console.log('✅ Comentario eliminado');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar comentario');
@@ -358,7 +395,7 @@ export class PostDetailComponent implements OnInit {
             return c;
           })
         );
-        this.exitoMsg('Respuesta eliminada');
+        console.log('✅ Respuesta eliminada');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar respuesta');
@@ -374,12 +411,6 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ========== UTILIDADES ==========
-  exitoMsg(mensaje: string): void {
-    this.errorMsg.set(null);
-    // Usar un signal para mensajes de éxito si existe, o console.log
-    console.log('✅', mensaje);
-  }
-
   getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
     switch(tipo) {
       case 'like': return 'like';
@@ -397,10 +428,15 @@ export class PostDetailComponent implements OnInit {
   }
 
   esImagen(adjunto: Adjunto): boolean {
-    if (adjunto.tipo !== 'archivo') return false;
-    const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
-    const nombre = adjunto.nombre.toLowerCase();
-    return extensiones.some(ext => nombre.endsWith(ext));
+    if (!adjunto) return false;
+    const tipo = adjunto.tipo?.toLowerCase() || '';
+    const nombre = adjunto.nombre?.toLowerCase() || '';
+    if (tipo === 'imagen' || tipo === 'image') return true;
+    if (tipo === 'archivo' || tipo === 'file') {
+      const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.tiff', '.ico'];
+      return extensiones.some(ext => nombre.endsWith(ext));
+    }
+    return false;
   }
 
   obtenerImagenes(): Adjunto[] {
@@ -431,13 +467,14 @@ export class PostDetailComponent implements OnInit {
   }
 
   getIconoAdjunto(adjunto: Adjunto): string {
-    if (adjunto.tipo === 'link') return 'Link';
-    const nombre = adjunto.nombre.toLowerCase();
-    if (nombre.endsWith('.pdf')) return 'PDF';
-    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return 'Documento';
-    if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return 'Zip';
-    if (nombre.endsWith('.txt')) return 'Texto';
-    return 'Archivo';
+    if (!adjunto) return '📎';
+    if (adjunto.tipo === 'link') return '🔗';
+    const nombre = adjunto.nombre?.toLowerCase() || '';
+    if (nombre.endsWith('.pdf')) return '📄';
+    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return '📝';
+    if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return '📦';
+    if (nombre.endsWith('.txt')) return '📃';
+    return '📎';
   }
 
   abrirImagen(url: string): void {

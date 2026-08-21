@@ -8,23 +8,32 @@
 
   <form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
 
+    <!-- ✅ CAMPO CATEGORÍA - TEXTO LIBRE -->
     <div class="field">
-      <label for="categoria">Categoría</label>
-      <select id="categoria" formControlName="categoria">
-        @for (cat of categorias; track cat.valor) {
-          <option [value]="cat.valor">{{ cat.etiqueta }}</option>
-        }
-      </select>
+      <label for="categoria">Categoría *</label>
+      <input 
+        id="categoria" 
+        type="text" 
+        formControlName="categoria" 
+        placeholder="Ej: Ciberseguridad, Programación, Redes, IA, ..."
+        [class.is-invalid]="categoria.invalid && categoria.touched"
+        required
+      >
+      @if (categoria.invalid && categoria.touched) {
+        <span class="error-msg">La categoría es obligatoria (mínimo 2 caracteres)</span>
+      }
+      <span class="field-hint">Escribe la categoría que mejor describa tu publicación</span>
     </div>
 
     <div class="field">
-      <label for="titulo">Título</label>
+      <label for="titulo">Título *</label>
       <input 
         id="titulo" 
         type="text" 
         formControlName="titulo" 
         placeholder="Resume tu caso en una frase" 
         [class.is-invalid]="titulo.invalid && titulo.touched"
+        required
       >
       @if (titulo.invalid && titulo.touched) {
         <span class="error-msg">Entre 6 y 120 caracteres</span>
@@ -33,13 +42,14 @@
     </div>
 
     <div class="field">
-      <label for="descripcion">Descripción</label>
+      <label for="descripcion">Descripción *</label>
       <textarea 
         id="descripcion" 
         formControlName="descripcion" 
         rows="6" 
         placeholder="Explica qué pasó, qué necesitas o qué aprendiste..." 
         [class.is-invalid]="descripcion.invalid && descripcion.touched"
+        required
       ></textarea>
       @if (descripcion.invalid && descripcion.touched) {
         <span class="error-msg">Mínimo 20 caracteres</span>
@@ -85,8 +95,12 @@
       <button type="button" class="btn-cancel" (click)="cancelar()" [disabled]="publicando()">
         Cancelar
       </button>
-      <button type="submit" class="btn btn--primary" [disabled]="publicando()">
-        {{ publicando() ? 'Publicando...' : 'Publicar' }}
+      <button type="submit" class="btn btn--primary" [disabled]="publicando() || form.invalid">
+        @if (publicando()) {
+          <span class="spinner-btn"></span> Publicando...
+        } @else {
+          Publicar
+        }
       </button>
     </div>
   </form>

@@ -29,27 +29,29 @@
     
     <article class="post-detail" [style.background]="personalizacionStore.fondoGradiente()">
       
-      <!-- HEADER CON AVATAR Y NOMBRE CLICKEABLES -->
-      <div class="post-detail__header">
-        <div class="post-detail__user">
-          <kiert-avatar-frame
-            [fotoUrl]="postActual.autor.fotoPerfilUrl || null"
-            [nombre]="postActual.autor.nombreUsuario"
-            [size]="48"
-            [alt]="postActual.autor.nombreUsuario"
-            [navigateToProfile]="true"
-            [usuarioId]="postActual.autor.id"
-          />
-          <div class="post-detail__user-info">
-            <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
-              @{{ postActual.autor.nombreUsuario }}
-            </span>
-            <span class="post-detail__badge">{{ etiquetas[postActual.categoria] }}</span>
-          </div>
-        </div>
-        <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
-      </div>
-
+   <!-- HEADER CON AVATAR Y NOMBRE CLICKEABLES -->
+<div class="post-detail__header">
+  <div class="post-detail__user">
+    <kiert-avatar-frame
+      [fotoUrl]="postActual.autor.fotoPerfilUrl || null"
+      [nombre]="postActual.autor.nombreUsuario"
+      [size]="48"
+      [alt]="postActual.autor.nombreUsuario"
+      [navigateToProfile]="true"
+      [usuarioId]="postActual.autor.id"
+    />
+    <div class="post-detail__user-info">
+      <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
+        @{{ postActual.autor.nombreUsuario }}
+      </span>
+      <!-- ✅ CATEGORÍA CON COLOR DINÁMICO -->
+      <span class="post-detail__badge" [style.background]="getColorCategoria(postActual.categoria)" [style.color]="'#0d1117'">
+        {{ getCategoriaFormateada(postActual.categoria) }}
+      </span>
+    </div>
+  </div>
+  <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
+</div>
       <h1 class="post-detail__titulo">{{ postActual.titulo }}</h1>
       <p class="post-detail__desc">{{ postActual.descripcion }}</p>
 

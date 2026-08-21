@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -46,27 +46,28 @@ export class ProfileComponent implements OnInit {
   email = computed(() => this.usuario()?.email || 'Sin correo');
   fotoPerfil = computed(() => this.usuario()?.fotoPerfilUrl || null);
 
-  // ✅ FONDO DE PERFIL - se aplica a la tarjeta (profile-card)
-  get fondoPerfilPreview(): string {
-    return this.personalizacionStore.fondoGradiente();
-  }
-
-  // ✅ CLASE DEL MARCO (solo la forma)
-  marcoClase = computed(() => {
-    return this.personalizacionStore.marcoClase();
-  });
-
   formEditar = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
   });
 
+  constructor() {
+    // ✅ EFECTO EN EL CONSTRUCTOR (contexto de inyección válido)
+    effect(() => {
+      const personalizacion = this.personalizacionStore.personalizacion();
+      if (personalizacion) {
+        console.log('🔄 Profile - Personalización aplicada:', personalizacion);
+        console.log('🎨 Profile - Fondo:', this.personalizacionStore.fondoGradiente());
+        console.log('🎨 Profile - Tema:', this.personalizacionStore.temaClass());
+        console.log('🎨 Profile - Marco:', this.personalizacionStore.marcoClase());
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.cargarEstadisticas();
     this.cargarDatosUsuario();
-    console.log('🎨 Profile - fondo aplicado a la tarjeta:', this.personalizacionStore.fondoId());
-    console.log('🎨 Profile - gradiente:', this.fondoPerfilPreview);
-    setTimeout(() => this.cdr.detectChanges(), 100);
   }
 
   cargarDatosUsuario(): void {

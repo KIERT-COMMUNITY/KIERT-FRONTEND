@@ -25,16 +25,9 @@ export class CreatePostComponent implements OnInit {
   archivosSeleccionados = signal<File[]>([]);
   estaLogueado = signal<boolean>(false);
 
-  categorias = [
-    { valor: 'caso-hacking', etiqueta: 'Caso de Hacking' },
-    { valor: 'ayuda', etiqueta: 'Pedir Ayuda' },
-    { valor: 'historia', etiqueta: 'Historia' },
-    { valor: 'otro', etiqueta: 'Otro' },
-  ];
-
   form = this.fb.group({
+    categoria: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     titulo: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(120)]],
-    categoria: ['caso-hacking', [Validators.required]],
     descripcion: ['', [Validators.required, Validators.minLength(20)]],
     link: [''],
   });
@@ -47,6 +40,7 @@ export class CreatePostComponent implements OnInit {
     }
   }
 
+  get categoria() { return this.form.controls.categoria; }
   get titulo() { return this.form.controls.titulo; }
   get descripcion() { return this.form.controls.descripcion; }
 
@@ -107,10 +101,22 @@ export class CreatePostComponent implements OnInit {
   }
 
   publicar(): void {
+    console.log('📝 Intentando publicar...');
+    
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMsg.set('Completa todos los campos obligatorios');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      
+      if (this.categoria.invalid) {
+        this.errorMsg.set('La categoría es obligatoria (mínimo 2 caracteres)');
+      } else if (this.titulo.invalid) {
+        this.errorMsg.set('El título debe tener entre 6 y 120 caracteres');
+      } else if (this.descripcion.invalid) {
+        this.errorMsg.set('La descripción debe tener al menos 20 caracteres');
+      } else {
+        this.errorMsg.set('Completa todos los campos obligatorios');
+      }
+      
+      setTimeout(() => this.errorMsg.set(null), 4000);
       return;
     }
 
@@ -124,21 +130,41 @@ export class CreatePostComponent implements OnInit {
     this.errorMsg.set(null);
 
     const datos = this.form.getRawValue();
+    
+    // ✅ OBTENER LA CATEGORÍA EXACTAMENTE COMO LA ESCRIBIÓ EL USUARIO
+    const categoriaOriginal = datos.categoria?.trim() || '';
+    console.log(`📌 Categoría original del usuario: "${categoriaOriginal}"`);
+    
+    // ✅ CREAR FormData Y ENVIAR LA CATEGORÍA TAL CUAL
     const formData = new FormData();
-    formData.append('titulo', datos.titulo!);
-    formData.append('categoria', datos.categoria!);
-    formData.append('descripcion', datos.descripcion!);
-    if (datos.link) formData.append('link', datos.link);
+    formData.append('titulo', datos.titulo?.trim() || '');
+    formData.append('categoria', categoriaOriginal);  // ✅ Enviamos tal cual
+    formData.append('descripcion', datos.descripcion?.trim() || '');
+    
+    if (datos.link && datos.link.trim()) {
+      formData.append('link', datos.link.trim());
+    }
     
     const archivos = this.archivosSeleccionados();
     archivos.forEach((archivo) => {
       formData.append('archivos', archivo);
     });
 
+    console.log('📤 Enviando publicación...');
+    console.log('📌 Categoría enviada:', categoriaOriginal);
+    
+    // ✅ MOSTRAR TODOS LOS DATOS ENVIADOS
+    for (let pair of (formData as any).entries()) {
+      console.log(`📦 ${pair[0]}: ${pair[1] instanceof File ? pair[1].name : pair[1]}`);
+    }
+
     this.postService.crear(formData).subscribe({
       next: (nuevoPost) => {
+        console.log('✅ Publicación creada:', nuevoPost);
+        console.log('📌 Categoría guardada:', nuevoPost.categoria);
         this.publicando.set(false);
         this.archivosSeleccionados.set([]);
+        this.form.reset();
         if (nuevoPost && nuevoPost.id) {
           this.router.navigate(['/comunidad', nuevoPost.id]);
         } else {
@@ -146,9 +172,32 @@ export class CreatePostComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al publicar:', error);
-        this.errorMsg.set(error.error?.mensaje || 'No se pudo publicar. Intenta nuevamente.');
+        console.error('❌ Error al publicar:', error);
+        console.error('Detalles del error:', error.error);
+        
+        let mensaje = 'No se pudo publicar. Intenta nuevamente.';
+        
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            mensaje = error.error;
+          } else if (error.error.mensaje) {
+            mensaje = error.error.mensaje;
+          } else if (error.error.message) {
+            mensaje = error.error.message;
+          } else if (error.error.errors) {
+            const errores = Object.values(error.error.errors).join(', ');
+            mensaje = `Error de validación: ${errores}`;
+          }
+        }
+        
+        this.errorMsg.set(mensaje);
         this.publicando.set(false);
+        
+        setTimeout(() => {
+          if (this.errorMsg()) {
+            this.errorMsg.set(null);
+          }
+        }, 5000);
       },
     });
   }

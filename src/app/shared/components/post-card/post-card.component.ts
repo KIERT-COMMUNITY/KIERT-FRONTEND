@@ -1,4 +1,4 @@
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Post, Adjunto } from '../../../core/models/post.model';
@@ -18,7 +18,7 @@ import { FormatDurationPipe } from '../../pipes/format.pipe';
   templateUrl: './post-card.component.html',
   styleUrl: './post-card.component.scss',
 })
-export class PostCardComponent {
+export class PostCardComponent implements OnInit {
   private personalizacionStore = inject(PersonalizacionStore);
   
   post = input.required<Post>();
@@ -28,12 +28,45 @@ export class PostCardComponent {
     return 'tema-' + this.personalizacionStore.temaId();
   }
 
-  etiquetas: Record<Post['categoria'], string> = {
-    'caso-hacking': 'Caso de hacking',
-    ayuda: 'Pide ayuda',
-    historia: 'Historia',
-    otro: 'Otro',
-  };
+  // ✅ MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
+  getCategoriaFormateada(categoria: string): string {
+    if (!categoria) return 'Sin categoría';
+    const categoriaLimpia = categoria.replace(/-/g, ' ');
+    return categoriaLimpia
+      .split(' ')
+      .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+      .join(' ');
+  }
+
+  // ✅ MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
+  getColorCategoria(categoria: string): string {
+    if (!categoria) return '#8b98a5';
+    const categoriaLower = categoria.toLowerCase();
+    if (categoriaLower.includes('hacking') || categoriaLower.includes('seguridad') || categoriaLower.includes('ciber')) {
+      return '#ff6b6b';
+    }
+    if (categoriaLower.includes('ayuda') || categoriaLower.includes('emergencia') || categoriaLower.includes('socorro')) {
+      return '#feca57';
+    }
+    if (categoriaLower.includes('historia') || categoriaLower.includes('experiencia') || categoriaLower.includes('caso')) {
+      return '#55efc4';
+    }
+    if (categoriaLower.includes('programacion') || categoriaLower.includes('codigo') || categoriaLower.includes('desarrollo')) {
+      return '#0984e3';
+    }
+    if (categoriaLower.includes('redes') || categoriaLower.includes('network') || categoriaLower.includes('infraestructura')) {
+      return '#6c5ce7';
+    }
+    if (categoriaLower.includes('ia') || categoriaLower.includes('inteligencia') || categoriaLower.includes('machine')) {
+      return '#fd79a8';
+    }
+    return '#2dd4bf';
+  }
+
+  // ✅ OBTENER EL MARCO DEL AUTOR
+  getMarcoDelAutor(): string {
+    return this.post().autor?.marcoId || 'none';
+  }
 
   formatearFecha(fecha: string): string {
     const date = new Date(fecha);
@@ -54,14 +87,11 @@ export class PostCardComponent {
     });
   }
 
-  // ========== DETECCIÓN DE TIPOS DE ARCHIVO (CORREGIDO) ==========
-  
+  // ========== DETECCIÓN DE TIPOS DE ARCHIVO ==========
   esImagen(adjunto: Adjunto): boolean {
     if (!adjunto) return false;
     const tipo = adjunto.tipo?.toLowerCase() || '';
     const nombre = adjunto.nombre?.toLowerCase() || '';
-    
-    // ✅ Soporte para todos los tipos de imagen
     if (tipo === 'imagen' || tipo === 'image') return true;
     if (tipo === 'archivo' || tipo === 'file') {
       const extensiones = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.svg', '.tiff', '.ico'];
@@ -74,7 +104,6 @@ export class PostCardComponent {
     if (!adjunto) return false;
     const tipo = adjunto.tipo?.toLowerCase() || '';
     const nombre = adjunto.nombre?.toLowerCase() || '';
-    
     if (tipo === 'video') return true;
     if (tipo === 'archivo' || tipo === 'file') {
       const extensiones = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.m4v', '.3gp'];
@@ -87,7 +116,6 @@ export class PostCardComponent {
     if (!adjunto) return false;
     const tipo = adjunto.tipo?.toLowerCase() || '';
     const nombre = adjunto.nombre?.toLowerCase() || '';
-    
     if (tipo === 'gif') return true;
     if (tipo === 'archivo' || tipo === 'file') {
       return nombre.endsWith('.gif');
@@ -100,41 +128,18 @@ export class PostCardComponent {
     return !this.esImagen(adjunto) && !this.esVideo(adjunto) && !this.esGif(adjunto);
   }
 
-  // ========== OBTENER EL PRIMER ARCHIVO VISUAL ==========
   obtenerPrimerVisual(): Adjunto | null {
     const adjuntos = this.post().adjuntos;
-    if (!adjuntos || adjuntos.length === 0) {
-      console.log('📎 No hay adjuntos en este post');
-      return null;
-    }
-    
-    console.log('📎 Adjuntos disponibles:', adjuntos.length);
-    adjuntos.forEach(a => console.log('📎 Adjunto:', a.tipo, a.nombre, a.url));
-    
-    // Buscar primero imagen, luego video, luego gif
+    if (!adjuntos || adjuntos.length === 0) return null;
     const imagen = adjuntos.find(a => this.esImagen(a));
-    if (imagen) {
-      console.log('🖼️ Encontrada imagen:', imagen.url);
-      return imagen;
-    }
-    
+    if (imagen) return imagen;
     const video = adjuntos.find(a => this.esVideo(a));
-    if (video) {
-      console.log('🎥 Encontrado video:', video.url);
-      return video;
-    }
-    
+    if (video) return video;
     const gif = adjuntos.find(a => this.esGif(a));
-    if (gif) {
-      console.log('🎬 Encontrado GIF:', gif.url);
-      return gif;
-    }
-    
-    console.log('📎 No se encontraron archivos visuales');
+    if (gif) return gif;
     return null;
   }
 
-  // ========== CONTAR ARCHIVOS VISUALES ==========
   cantidadVisuales(): number {
     const adjuntos = this.post().adjuntos;
     if (!adjuntos || adjuntos.length === 0) return 0;
@@ -145,7 +150,6 @@ export class PostCardComponent {
     return this.cantidadVisuales() > 0;
   }
 
-  // ========== CONTAR OTROS ADJUNTOS ==========
   cantidadOtrosAdjuntos(): number {
     const adjuntos = this.post().adjuntos;
     if (!adjuntos || adjuntos.length === 0) return 0;
@@ -156,13 +160,11 @@ export class PostCardComponent {
     return this.cantidadOtrosAdjuntos() > 0;
   }
 
-  // ========== VERIFICAR SI TIENE ADJUNTOS EN GENERAL ==========
   tieneAdjuntos(): boolean {
     const adjuntos = this.post().adjuntos;
     return adjuntos && adjuntos.length > 0;
   }
 
-  // ========== OBTENER ICONO PARA ARCHIVO ==========
   getIconoArchivo(adjunto: Adjunto): string {
     const nombre = adjunto.nombre?.toLowerCase() || '';
     if (nombre.endsWith('.pdf')) return '📄';
@@ -173,7 +175,6 @@ export class PostCardComponent {
     return '📎';
   }
 
-  // ========== MANEJO DE ERRORES ==========
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%235a6a7a" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
@@ -197,5 +198,9 @@ export class PostCardComponent {
     if (postId && !isNaN(postId) && postId > 0) {
       this.postClick.emit(postId);
     }
+  }
+
+  ngOnInit(): void {
+    console.log('📌 PostCard - Marco del autor:', this.getMarcoDelAutor());
   }
 }

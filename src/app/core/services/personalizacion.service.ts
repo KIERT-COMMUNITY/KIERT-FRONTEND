@@ -43,13 +43,33 @@ export class PersonalizacionService {
     return this.http.get<Personalizacion>(this.API_URL);
   }
 
-  // ✅ NUEVO MÉTODO: Obtener personalización de otro usuario
   obtenerPersonalizacionPorUsuario(usuarioId: number): Observable<Personalizacion> {
     return this.http.get<Personalizacion>(`${this.API_URL}/usuario/${usuarioId}`);
   }
 
+  // ✅ GUARDAR PERSONALIZACIÓN CON DTO (PUT)
   guardarPersonalizacion(datos: Partial<Personalizacion>): Observable<Personalizacion> {
-    return this.http.put<Personalizacion>(this.API_URL, datos);
+    // Asegurar que los campos necesarios estén presentes
+    const payload = {
+      temaId: datos.temaId || 'default',
+      marcoId: datos.marcoId || 'none',
+      fondoId: datos.fondoId || 'default',
+      fotoPerfilUrl: datos.fotoPerfilUrl || '',
+      fotoPortadaUrl: datos.fotoPortadaUrl || '',
+      marcoPersonalizadoUrl: datos.marcoPersonalizadoUrl || ''
+    };
+    return this.http.put<Personalizacion>(this.API_URL, payload);
+  }
+
+  // ✅ GUARDAR CON PARÁMETROS (POST - alternativa)
+  guardarPersonalizacionParams(temaId: string, marcoId: string, fondoId: string): Observable<Personalizacion> {
+    const params = new URLSearchParams();
+    params.set('temaId', temaId);
+    params.set('marcoId', marcoId);
+    params.set('fondoId', fondoId);
+    return this.http.post<Personalizacion>(this.API_URL, null, { 
+      params: { temaId, marcoId, fondoId } 
+    });
   }
 
   subirFotoPerfil(archivo: File): Observable<Personalizacion> {

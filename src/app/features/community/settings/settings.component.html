@@ -1,5 +1,7 @@
 <!-- APLICAR TEMA + FONDO + MARCO -->
-<div class="settings-container" [ngClass]="personalizacionStore.temaClass()">
+<div class="settings-container" 
+     [ngClass]="personalizacionStore.temaClass()"
+     [style.background]="personalizacionStore.fondoGradiente()">
   
   <!-- ===== HEADER CON BOTONES HORIZONTALES ===== -->
   <div class="settings-header">
@@ -8,12 +10,110 @@
       <p class="settings-sub">Personaliza tu experiencia en Kiert</p>
     </div>
     <div class="nav-buttons">
-      <button class="nav-btn" (click)="buscarAmigos()" title="Buscar amigos">Buscar</button>
+      <div class="search-wrapper">
+        <div class="search-input-group">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar usuario por nombre"
+            [(ngModel)]="busquedaUsuario"
+            (input)="onBusquedaChange()"
+            (keydown.enter)="buscarUsuario()"
+            [disabled]="buscando()"
+          >
+          @if (busquedaUsuario()) {
+            <button class="search-clear" (click)="limpiarBusqueda()">✕</button>
+          }
+        </div>
+        <button class="nav-btn search-btn" (click)="buscarUsuario()" [disabled]="buscando() || !busquedaUsuario()">
+          @if (buscando()) {
+            <span class="spinner-mini"></span>
+          } @else {
+            Buscar
+          }
+        </button>
+      </div>
+      
       <button class="nav-btn" (click)="irChat()" title="Chat">Chat</button>
       <button class="nav-btn" (click)="irPerfil()" title="Perfil">Perfil</button>
       <button class="nav-btn" (click)="irHistorial()" title="Historial">Historial</button>
     </div>
   </div>
+
+  <!-- ===== RESULTADOS DE BÚSQUEDA ===== -->
+  @if (mostrandoResultados()) {
+    <div class="search-results">
+      <div class="result-card" [class.error]="busquedaError()">
+        <div class="result-header">
+          <h3>
+            @if (buscando()) {
+              Buscando...
+            } @else if (busquedaError()) {
+              Resultado de búsqueda
+            } @else if (usuariosEncontrados().length > 0) {
+              {{ usuariosEncontrados().length }} usuario{{ usuariosEncontrados().length > 1 ? 's' : '' }} encontrado{{ usuariosEncontrados().length > 1 ? 's' : '' }}
+            } @else {
+              Resultado de búsqueda
+            }
+          </h3>
+          <button class="result-close" (click)="limpiarBusqueda()">✕</button>
+        </div>
+
+        @if (busquedaError()) {
+          <div class="result-error">
+            <span class="error-icon">⚠</span>
+            <span>{{ busquedaError() }}</span>
+          </div>
+        }
+
+        @if (buscando()) {
+          <div class="result-loading">
+            <div class="spinner-result"></div>
+            <span>Buscando usuarios...</span>
+          </div>
+        }
+
+        @if (!buscando() && usuariosEncontrados().length > 0) {
+          <div class="result-list">
+            @for (user of usuariosEncontrados(); track user.id) {
+              <div class="result-item" [class.highlight]="usuarioBuscado()?.id === user.id">
+                <div class="result-avatar" (click)="verPerfilUsuario(user.id)">
+                  @if (user.fotoPerfilUrl) {
+                    <img [src]="user.fotoPerfilUrl" [alt]="user.nombreUsuario">
+                  } @else {
+                    <span class="result-initial">{{ getInitials(user.nombreUsuario || '?') }}</span>
+                  }
+                </div>
+                <div class="result-info" (click)="verPerfilUsuario(user.id)">
+                  <div class="result-name">{{ user.nombreUsuario }}</div>
+                  <div class="result-email">{{ user.email }}</div>
+                  @if (user.bio) {
+                    <div class="result-bio">{{ user.bio }}</div>
+                  }
+                </div>
+                <div class="result-actions">
+                  @if (solicitudEnviada() === user.id) {
+                    <button class="result-btn solicitud-enviada" disabled>Solicitud enviada</button>
+                  } @else {
+                    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">Ver perfil</button>
+                    <button class="result-btn send-message" (click)="enviarMensaje(user.id)">Mensaje</button>
+                    <button class="result-btn add-friend" (click)="enviarSolicitud(user.id)" [disabled]="enviandoSolicitud()">
+                      @if (enviandoSolicitud()) {
+                        <span class="spinner-mini-btn"></span>
+                      } @else {
+                        Agregar
+                      }
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
 
   <!-- ===== ALERTAS ===== -->
   @if (errorMsg()) {
@@ -42,8 +142,8 @@
       <div class="profile-avatar-wrapper">
         <label class="profile-avatar-upload">
           <div class="profile-avatar" 
-               [class]="previewFrameClass()" 
-               [style]="previewFrameStyle()">
+               [class]="personalizacionStore.marcoClase()" 
+               [style]="personalizacionStore.marcoEstilo()">
             @if (usuario()?.fotoPerfilUrl) {
               <img [src]="usuario()?.fotoPerfilUrl" [alt]="usuario()?.nombreUsuario">
             } @else {
@@ -60,7 +160,7 @@
         </label>
         <div class="profile-name">&#64;{{ usuario()?.nombreUsuario }}</div>
         <div class="marco-indicator">
-          <span class="marco-tag">Marco: {{ selectedFrame() }}</span>
+          <span class="marco-tag">Marco: {{ personalizacionStore.marcoId() }}</span>
         </div>
       </div>
     </div>
@@ -160,7 +260,6 @@
         </div>
       }
     </div>
-    <!-- ❌ ELIMINADA la vista previa del fondo que estaba aquí -->
   </div>
 
   <!-- ===== VISTA PREVIA FINAL ===== -->

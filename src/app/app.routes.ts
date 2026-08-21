@@ -43,7 +43,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
         canActivate: [authGuard]
       },
-      // ✅ PERFIL DEL AUTOR
+      // ✅ RUTA PARA VER PERFIL DE CUALQUIER USUARIO
+      { 
+        path: 'perfil-autor/:id', 
+        loadComponent: () => import('./features/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
+      },
+      // ✅ TAMBIÉN SOPORTAMOS LA RUTA CORTA
       { 
         path: 'usuario/:id', 
         loadComponent: () => import('./features/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
@@ -54,10 +59,10 @@ export const routes: Routes = [
         canActivate: [authGuard]
       },
       {
-  path: 'ajustes',
-  loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent),
-  canActivate: [authGuard]
-},
+        path: 'ajustes',
+        loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent),
+        canActivate: [authGuard]
+      },
       { 
         path: 'chat/:usuarioId', 
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),

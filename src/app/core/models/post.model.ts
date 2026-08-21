@@ -18,8 +18,7 @@ export interface Autor {
   id: number;
   nombreUsuario: string;
   email?: string;
-    marcoId?: string;
-
+  marcoId?: string;
   fotoPerfilUrl?: string | null;
 }
 
@@ -37,23 +36,10 @@ export interface Post {
   autor: Autor;
   titulo: string;
   descripcion: string;
-  categoria: 'caso-hacking' | 'ayuda' | 'historia' | 'otro';
+  categoria: string;  // ✅ String libre
   adjuntos: Adjunto[];
   totalComentarios: number;
   fechaCreacion: string;
-}
-
-// ============================================================
-// COMENTARIOS Y RESPUESTAS
-// ============================================================
-
-export interface Respuesta {
-  id: number;
-  autor: Autor;
-  contenido: string;
-  fechaCreacion: string;
-  reacciones?: Reacciones;
-  eliminado?: boolean;
 }
 
 export interface Comentario {
@@ -64,8 +50,16 @@ export interface Comentario {
   reacciones?: Reacciones;
   respuestas?: Respuesta[];
   totalRespuestas?: number;
-  // Propiedades de UI (no vienen del backend)
   mostrandoRespuestas?: boolean;
   mostrandoFormularioRespuesta?: boolean;
   cargandoRespuestas?: boolean;
+}
+
+export interface Respuesta {
+  id: number;
+  autor: Autor;
+  contenido: string;
+  fechaCreacion: string;
+  reacciones?: Reacciones;
+  eliminado?: boolean;
 }

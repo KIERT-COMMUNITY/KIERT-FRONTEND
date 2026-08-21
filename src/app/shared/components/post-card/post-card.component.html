@@ -12,13 +12,15 @@
         [alt]="post().autor.nombreUsuario"
         [navigateToProfile]="true"
         [usuarioId]="post().autor.id"
-        [marcoId]="post().autor.marcoId || 'none'"
+        [marcoId]="getMarcoDelAutor()"
       />
       <div class="post-card__user-info">
         <span class="post-card__username" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">
           {{ post().autor.nombreUsuario }}
         </span>
-        <span class="post-card__badge">{{ etiquetas[post().categoria] }}</span>
+        <span class="post-card__badge" [style.background]="getColorCategoria(post().categoria)" [style.color]="'#0d1117'">
+          {{ getCategoriaFormateada(post().categoria) }}
+        </span>
       </div>
     </div>
     <span class="post-card__fecha">{{ formatearFecha(post().fechaCreacion) }}</span>
