@@ -1,8 +1,32 @@
-<kiert-navbar></kiert-navbar>
+<!-- main-layout.component.html -->
+<div class="app-container" 
+     [attr.data-theme]="selectedTheme()"
+     [style.background]="getBackgroundGradient()">
+  
+  <kiert-navbar></kiert-navbar>
 
-<main class="main-content container">
-  <!-- Aquí se renderiza feed / post-detail / perfil / chat según la ruta -->
-  <router-outlet></router-outlet>
-</main>
+  <!-- ===== BANNER PUBLICITARIO PRINCIPAL ===== -->
+  <div class="main-banner">
+    <div class="main-banner__content">
+      <div class="main-banner__image">
+        <img src="https://via.placeholder.com/1200x200/2dd4bf/0d1117?text=Kiert+-+Comunidad+de+Desarrolladores" 
+             alt="Kiert Banner" 
+             loading="lazy">
+      </div>
+      <div class="main-banner__overlay">
+        <h2>Únete a la comunidad</h2>
+        <p>Comparte tus proyectos, aprende de otros y crece profesionalmente</p>
+        <a href="#" class="main-banner__btn">Explorar ahora</a>
+      </div>
+    </div>
+  </div>
 
-<kiert-footer></kiert-footer>
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <kiert-footer></kiert-footer>
+
+  <!-- ===== ANUNCIOS FLOTANTES ===== -->
+  <kiert-floating-social></kiert-floating-social>
+</div>

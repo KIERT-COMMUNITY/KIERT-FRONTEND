@@ -1,0 +1,89 @@
+<!-- src/app/shared/components/floating-social/floating-social.component.html -->
+
+<!-- ===== ANUNCIO SUPERIOR ===== -->
+@if (showTopAd()) {
+  <div class="floating-ad floating-ad--top">
+    <button class="floating-ad__close" (click)="closeTopAd()" aria-label="Cerrar anuncio">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="floating-ad__content">
+      <span class="floating-ad__text">Síguenos en redes sociales</span>
+    </div>
+  </div>
+}
+
+<!-- ===== BANNER PUBLICITARIO ===== -->
+@if (showBanner()) {
+  <div class="banner-ad">
+    <button class="banner-ad__close" (click)="closeBanner()" aria-label="Cerrar banner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="banner-ad__content">
+      <div class="banner-ad__text">
+        <strong>Descubre nuestra comunidad</strong>
+        <span>Únete a miles de usuarios que ya comparten y aprenden juntos.</span>
+      </div>
+      <a href="#" class="banner-ad__btn">Conocer más</a>
+    </div>
+  </div>
+}
+
+<!-- ===== REDES SOCIALES ===== -->
+@if (showBottomAd()) {
+  <div class="floating-social">
+    <button class="floating-social__close" (click)="closeBottomAd()" aria-label="Cerrar redes sociales">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="floating-social__title">
+      <span>Conéctate con nosotros</span>
+    </div>
+    <div class="floating-social__grid">
+      @for (link of socialLinks(); track link.id) {
+        <a [href]="link.url" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="floating-social__link"
+           [style.background]="link.bgColor"
+           [attr.title]="link.name">
+          <span [innerHTML]="link.icon" class="social-icon"></span>
+        </a>
+      }
+    </div>
+    <div class="floating-social__footer">
+      <span>Únete a la comunidad</span>
+    </div>
+  </div>
+}
+
+<!-- ===== POP-UP / INTERSTITIAL ===== -->
+@if (showPopUp()) {
+  <div class="popup-overlay" (click)="closePopUp()">
+    <div class="popup" (click)="$event.stopPropagation()">
+      <button class="popup__close" (click)="closePopUp()" aria-label="Cerrar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="popup__content">
+        <h2 class="popup__title">Bienvenido a Kiert</h2>
+        <p class="popup__desc">Comparte tus conocimientos, aprende de otros y crece junto a nuestra comunidad.</p>
+        <div class="popup__features">
+          <div class="popup__feature">Comparte casos</div>
+          <div class="popup__feature">Ayuda a otros</div>
+          <div class="popup__feature">Aprende diario</div>
+        </div>
+        <button class="popup__btn" (click)="closePopUp()">Comenzar</button>
+      </div>
+    </div>
+  </div>
+}

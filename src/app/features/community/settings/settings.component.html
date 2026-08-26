@@ -1,7 +1,5 @@
-<!-- APLICAR TEMA + FONDO + MARCO -->
-<div class="settings-container" 
-     [ngClass]="personalizacionStore.temaClass()"
-     [style.background]="personalizacionStore.fondoGradiente()">
+<!-- settings.component.html -->
+<div class="settings-container">
   
   <!-- ===== HEADER CON BOTONES HORIZONTALES ===== -->
   <div class="settings-header">
@@ -12,7 +10,10 @@
     <div class="nav-buttons">
       <div class="search-wrapper">
         <div class="search-input-group">
-          <span class="search-icon">🔍</span>
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
           <input 
             type="text" 
             class="search-input" 
@@ -23,21 +24,46 @@
             [disabled]="buscando()"
           >
           @if (busquedaUsuario()) {
-            <button class="search-clear" (click)="limpiarBusqueda()">✕</button>
+            <button class="search-clear" (click)="limpiarBusqueda()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           }
         </div>
         <button class="nav-btn search-btn" (click)="buscarUsuario()" [disabled]="buscando() || !busquedaUsuario()">
           @if (buscando()) {
             <span class="spinner-mini"></span>
           } @else {
-            Buscar
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
           }
         </button>
       </div>
       
-      <button class="nav-btn" (click)="irChat()" title="Chat">Chat</button>
-      <button class="nav-btn" (click)="irPerfil()" title="Perfil">Perfil</button>
-      <button class="nav-btn" (click)="irHistorial()" title="Historial">Historial</button>
+      <button class="nav-btn" (click)="irChat()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        Chat
+      </button>
+      <button class="nav-btn" (click)="irPerfil()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Perfil
+      </button>
+      <button class="nav-btn" (click)="irHistorial()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Historial
+      </button>
     </div>
   </div>
 
@@ -190,76 +216,109 @@
 
   <!-- ===== TEMAS DE COLOR ===== -->
   <div class="settings-section">
-    <h2>Temas de color</h2>
-    <p class="settings-hint">Se aplica al fondo de toda la página</p>
-    <div class="themes-grid">
-      @for (theme of colorThemes(); track theme.id) {
-        <div class="theme-card" 
-             [class.active]="selectedTheme() === theme.id"
-             (click)="seleccionarTheme(theme.id)">
-          <div class="theme-preview" [style.background]="theme.gradient">
-            <div class="theme-preview-dot"></div>
-          </div>
-          <div class="theme-info">
-            <span class="theme-name">{{ theme.name }}</span>
-            @if (selectedTheme() === theme.id) {
-              <span class="theme-check">✓</span>
-            }
-          </div>
-        </div>
-      }
+    <div class="section-header">
+      <h2>Temas de color</h2>
+      <button class="btn-select" (click)="toggleThemeSelector()">
+        {{ showThemeSelector() ? 'Cerrar' : 'Seleccionar tema' }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
     </div>
+    <p class="settings-hint">Se aplica al fondo de toda la página</p>
+    
+    @if (showThemeSelector()) {
+      <div class="selector-grid themes-grid">
+        @for (theme of colorThemes(); track theme.id) {
+          <div class="selector-card theme-card" 
+               [class.active]="selectedTheme() === theme.id"
+               (click)="seleccionarTheme(theme.id)">
+            <div class="theme-preview" [style.background]="theme.gradient">
+              <div class="theme-preview-dot"></div>
+            </div>
+            <div class="selector-info">
+              <span class="selector-name">{{ theme.name }}</span>
+              @if (selectedTheme() === theme.id) {
+                <span class="selector-check">✓</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <!-- ===== MARCOS ===== -->
   <div class="settings-section">
-    <h2>Marcos de perfil</h2>
-    <p class="settings-hint">Se aplica a tu foto de perfil</p>
-    <div class="frames-grid">
-      @for (marco of marcosData(); track marco.id) {
-        <div class="frame-card" 
-             [class.active]="selectedFrame() === marco.id"
-             (click)="seleccionarFrame(marco.id)">
-          <div class="frame-preview" 
-               [class]="'frame-' + marco.id"
-               [style.border]="marco.borderStyle"
-               [style.box-shadow]="marco.shadow"
-               [style.background-image]="marco.gradient"
-               [style.padding]="marco.gradient !== 'none' ? '4px' : '0px'">
-            <div class="frame-avatar-preview"></div>
-          </div>
-          <div class="frame-info">
-            <span class="frame-name">{{ marco.name }}</span>
-            @if (selectedFrame() === marco.id) {
-              <span class="frame-check">✓</span>
-            }
-          </div>
-          <span class="frame-desc">{{ marco.description }}</span>
-        </div>
-      }
+    <div class="section-header">
+      <h2>Marcos de perfil</h2>
+      <button class="btn-select" (click)="toggleFrameSelector()">
+        {{ showFrameSelector() ? 'Cerrar' : 'Seleccionar marco' }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
     </div>
+    <p class="settings-hint">Se aplica a tu foto de perfil</p>
+    
+    @if (showFrameSelector()) {
+      <div class="selector-grid frames-grid">
+        @for (marco of marcosData(); track marco.id) {
+          <div class="selector-card frame-card" 
+               [class.active]="selectedFrame() === marco.id"
+               (click)="seleccionarFrame(marco.id)">
+            <div class="frame-preview" 
+                 [class]="'frame-' + marco.id"
+                 [style.border]="marco.borderStyle"
+                 [style.box-shadow]="marco.shadow"
+                 [style.background-image]="marco.gradient"
+                 [style.padding]="marco.gradient !== 'none' ? '4px' : '0px'">
+              <div class="frame-avatar-preview"></div>
+            </div>
+            <div class="selector-info">
+              <span class="selector-name">{{ marco.name }}</span>
+              @if (selectedFrame() === marco.id) {
+                <span class="selector-check">✓</span>
+              }
+            </div>
+            <span class="selector-desc">{{ marco.description }}</span>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <!-- ===== FONDOS ===== -->
   <div class="settings-section">
-    <h2>Fondos de perfil</h2>
-    <p class="settings-hint">Se aplica al fondo de tu perfil</p>
-    <div class="backgrounds-grid">
-      @for (fondo of fondosData(); track fondo.id) {
-        <div class="bg-card" 
-             [class.active]="selectedBackground() === fondo.id"
-             (click)="seleccionarBackground(fondo.id)">
-          <div class="bg-preview" [style.background]="fondo.gradient"></div>
-          <div class="bg-info">
-            <span class="bg-name">{{ fondo.name }}</span>
-            @if (selectedBackground() === fondo.id) {
-              <span class="bg-check">✓</span>
-            }
-          </div>
-          <span class="bg-desc">{{ fondo.description }}</span>
-        </div>
-      }
+    <div class="section-header">
+      <h2>Fondos de perfil</h2>
+      <button class="btn-select" (click)="toggleBackgroundSelector()">
+        {{ showBackgroundSelector() ? 'Cerrar' : 'Seleccionar fondo' }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
     </div>
+    <p class="settings-hint">Se aplica al fondo de tu perfil</p>
+    
+    @if (showBackgroundSelector()) {
+      <div class="selector-grid backgrounds-grid">
+        @for (fondo of fondosData(); track fondo.id) {
+          <div class="selector-card bg-card" 
+               [class.active]="selectedBackground() === fondo.id"
+               (click)="seleccionarBackground(fondo.id)">
+            <div class="bg-preview" [style.background]="fondo.gradient"></div>
+            <div class="selector-info">
+              <span class="selector-name">{{ fondo.name }}</span>
+              @if (selectedBackground() === fondo.id) {
+                <span class="selector-check">✓</span>
+              }
+            </div>
+            <span class="selector-desc">{{ fondo.description }}</span>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <!-- ===== VISTA PREVIA FINAL ===== -->

@@ -1,0 +1,227 @@
+// src/styles/tokens.scss
+// ============================================================
+// TOKENS DE DISEÑO DE KIERT - CON CSS VARIABLES
+// ============================================================
+
+// --- Variables CSS (se aplican con los temas) ---
+:root {
+  // Colores base (tema default - teal)
+  --kiert-bg: #0d1117;
+  --kiert-surface: #131a22;
+  --kiert-surface-alt: #1b232c;
+  --kiert-border: #26313c;
+  --kiert-text: #e6edf3;
+  --kiert-text-muted: #8b98a5;
+  --kiert-accent: #2dd4bf;
+  --kiert-accent-dark: #17b6a4;
+  --kiert-accent-alt: #f0b429;
+  --kiert-danger: #f85149;
+  --kiert-success: #3fb950;
+}
+
+[data-theme="dark"] {
+  --kiert-bg: #1a1a2e;
+  --kiert-surface: #22223d;
+  --kiert-surface-alt: #2d2d4a;
+  --kiert-border: #3a3a5c;
+  --kiert-text: #e6edf3;
+  --kiert-text-muted: #8b98a5;
+  --kiert-accent: #a29bfe;
+  --kiert-accent-dark: #6c5ce7;
+}
+
+[data-theme="light"] {
+  --kiert-bg: #f0f0f0;
+  --kiert-surface: #ffffff;
+  --kiert-surface-alt: #f5f5f5;
+  --kiert-border: #e0e0e0;
+  --kiert-text: #1a1a2e;
+  --kiert-text-muted: #666666;
+  --kiert-accent: #2dd4bf;
+  --kiert-accent-dark: #17b6a4;
+}
+
+[data-theme="sunset"] {
+  --kiert-bg: #1a0a0a;
+  --kiert-surface: #2d1414;
+  --kiert-surface-alt: #3d1a1a;
+  --kiert-border: #5a2525;
+  --kiert-text: #ffd9b3;
+  --kiert-text-muted: #b3887a;
+  --kiert-accent: #ff6b6b;
+  --kiert-accent-dark: #e17055;
+}
+
+[data-theme="ocean"] {
+  --kiert-bg: #0a141a;
+  --kiert-surface: #0f1f28;
+  --kiert-surface-alt: #1a2d3a;
+  --kiert-border: #2a4555;
+  --kiert-text: #a8d8ea;
+  --kiert-text-muted: #6b9db0;
+  --kiert-accent: #00b894;
+  --kiert-accent-dark: #00cec9;
+}
+
+[data-theme="aurora"] {
+  --kiert-bg: #0a0a1a;
+  --kiert-surface: #141428;
+  --kiert-surface-alt: #1e1e3a;
+  --kiert-border: #3a3a5c;
+  --kiert-text: #d4c9f0;
+  --kiert-text-muted: #8b7ab5;
+  --kiert-accent: #6c5ce7;
+  --kiert-accent-dark: #a29bfe;
+}
+
+[data-theme="galaxy"] {
+  --kiert-bg: #0a0a0f;
+  --kiert-surface: #12121f;
+  --kiert-surface-alt: #1c1c2e;
+  --kiert-border: #2d2d4a;
+  --kiert-text: #d4c9f0;
+  --kiert-text-muted: #8b7ab5;
+  --kiert-accent: #6c5ce7;
+  --kiert-accent-dark: #fd79a8;
+}
+
+[data-theme="lava"] {
+  --kiert-bg: #1a0505;
+  --kiert-surface: #2d0a0a;
+  --kiert-surface-alt: #3d0f0f;
+  --kiert-border: #5a1a1a;
+  --kiert-text: #ffb3b3;
+  --kiert-text-muted: #cc7a7a;
+  --kiert-accent: #ff6b6b;
+  --kiert-accent-dark: #d63031;
+}
+
+[data-theme="forest"] {
+  --kiert-bg: #0a1a0a;
+  --kiert-surface: #0f280f;
+  --kiert-surface-alt: #1a3a1a;
+  --kiert-border: #2a552a;
+  --kiert-text: #a8e6a8;
+  --kiert-text-muted: #6ba86b;
+  --kiert-accent: #00b894;
+  --kiert-accent-dark: #55efc4;
+}
+
+[data-theme="candy"] {
+  --kiert-bg: #1a0a14;
+  --kiert-surface: #2d1424;
+  --kiert-surface-alt: #3d1a30;
+  --kiert-border: #5a2a48;
+  --kiert-text: #f5c8d8;
+  --kiert-text-muted: #c88aa8;
+  --kiert-accent: #fd79a8;
+  --kiert-accent-dark: #a29bfe;
+}
+
+[data-theme="cyber"] {
+  --kiert-bg: #0a0a1a;
+  --kiert-surface: #0f0f28;
+  --kiert-surface-alt: #1a1a3a;
+  --kiert-border: #2a2a55;
+  --kiert-text: #a8f0f0;
+  --kiert-text-muted: #6ba8b0;
+  --kiert-accent: #00d4ff;
+  --kiert-accent-dark: #6c5ce7;
+}
+
+[data-theme="blood"] {
+  --kiert-bg: #1a0000;
+  --kiert-surface: #2d0000;
+  --kiert-surface-alt: #3d0000;
+  --kiert-border: #5a0000;
+  --kiert-text: #ffb3b3;
+  --kiert-text-muted: #cc6666;
+  --kiert-accent: #ff0044;
+  --kiert-accent-dark: #d63031;
+}
+
+[data-theme="royal"] {
+  --kiert-bg: #0a051a;
+  --kiert-surface: #140a28;
+  --kiert-surface-alt: #1e0f3a;
+  --kiert-border: #3a1a5a;
+  --kiert-text: #d4c9f0;
+  --kiert-text-muted: #8b7ab5;
+  --kiert-accent: #6c5ce7;
+  --kiert-accent-dark: #a29bfe;
+}
+
+[data-theme="gold"] {
+  --kiert-bg: #1a1400;
+  --kiert-surface: #2d2400;
+  --kiert-surface-alt: #3d3000;
+  --kiert-border: #5a4a00;
+  --kiert-text: #f5e6a8;
+  --kiert-text-muted: #c8b86a;
+  --kiert-accent: #f9ca24;
+  --kiert-accent-dark: #fdcb6e;
+}
+
+[data-theme="pastel"] {
+  --kiert-bg: #1a141a;
+  --kiert-surface: #2d2028;
+  --kiert-surface-alt: #3d2a38;
+  --kiert-border: #5a4050;
+  --kiert-text: #f0d4e0;
+  --kiert-text-muted: #c8a0b0;
+  --kiert-accent: #fd79a8;
+  --kiert-accent-dark: #a29bfe;
+}
+
+[data-theme="neon"] {
+  --kiert-bg: #0a0a0a;
+  --kiert-surface: #141414;
+  --kiert-surface-alt: #1e1e1e;
+  --kiert-border: #333333;
+  --kiert-text: #f0f0f0;
+  --kiert-text-muted: #888888;
+  --kiert-accent: #fd79a8;
+  --kiert-accent-dark: #00d4ff;
+}
+
+// ============================================================
+// VARIABLES SASS (usando CSS Variables)
+// ============================================================
+
+// --- Color ---
+$bg: var(--kiert-bg, #0d1117);
+$surface: var(--kiert-surface, #131a22);
+$surface-alt: var(--kiert-surface-alt, #1b232c);
+$border: var(--kiert-border, #26313c);
+$text: var(--kiert-text, #e6edf3);
+$text-muted: var(--kiert-text-muted, #8b98a5);
+$accent: var(--kiert-accent, #2dd4bf);
+$accent-dark: var(--kiert-accent-dark, #17b6a4);
+$accent-alt: var(--kiert-accent-alt, #f0b429);
+$danger: var(--kiert-danger, #f85149);
+$success: var(--kiert-success, #3fb950);
+
+// --- Tipografía ---
+$font-display: 'JetBrains Mono', 'Courier New', monospace;
+$font-body: 'Inter', -apple-system, sans-serif;
+
+// --- Espaciado ---
+$sp-1: 4px;
+$sp-2: 8px;
+$sp-3: 12px;
+$sp-4: 16px;
+$sp-5: 24px;
+$sp-6: 32px;
+$sp-7: 48px;
+$sp-8: 64px;
+
+// --- Bordes y sombras ---
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 16px;
+$shadow-card: 0 4px 20px rgba(0, 0, 0, 0.35);
+
+// --- Breakpoints ---
+$bp-mobile: 480px;
+$bp-tablet: 768px;
+$bp-desktop: 1100px;

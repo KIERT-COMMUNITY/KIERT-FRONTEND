@@ -326,7 +326,7 @@ export class PersonalizacionStore {
     
     this.personalizacionService.guardarPersonalizacion(datos).subscribe({
       next: (data) => {
-        console.log('✅ Personalización guardada:', data);
+        console.log(' Personalización guardada:', data);
         this.personalizacionSignal.set(data);
         this.loadingSignal.set(false);
         const usuario = this.authService.usuario();

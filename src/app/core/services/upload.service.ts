@@ -36,7 +36,7 @@ export class UploadService {
     );
   }
 
-  // ✅ SUBIR MÚLTIPLES ARCHIVOS
+  // SUBIR MÚLTIPLES ARCHIVOS
   subirMultiplesArchivos(archivos: File[]): Observable<CloudinaryResponse[]> {
     const observables = archivos.map(archivo => this.subirArchivoCloudinary(archivo));
     return new Observable<CloudinaryResponse[]>((observer) => {

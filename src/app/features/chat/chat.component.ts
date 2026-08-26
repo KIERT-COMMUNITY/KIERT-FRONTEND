@@ -1,4 +1,15 @@
-import { Component, OnInit, signal, inject, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+// chat.component.ts
+
+import { 
+  Component, 
+  OnInit, 
+  signal, 
+  inject, 
+  OnDestroy, 
+  ViewChild, 
+  ElementRef, 
+  AfterViewChecked 
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,6 +36,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   @ViewChild('mensajesContainer') private mensajesContainer!: ElementRef;
 
+  // Señales
   conversaciones = signal<Conversacion[]>([]);
   mensajes = signal<Mensaje[]>([]);
   solicitudes = signal<SolicitudContacto[]>([]);
@@ -40,32 +52,70 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     contenido: ['', [Validators.minLength(1)]]
   });
 
+  // ✅ GETTERS (sin paréntesis en el HTML)
+  get cantidadSolicitudesPendientes(): number {
+    return this.solicitudes().filter(s => s.estado === 'PENDIENTE').length;
+  }
+
+  get solicitudesPendientes(): SolicitudContacto[] {
+    return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
+  }
+
+  // Intervalo para polling
+  private pollingInterval: any;
+
+  constructor() {
+    // Suscribirse a cambios en las conversaciones
+    this.chatService.conversaciones$.subscribe(conversaciones => {
+      if (conversaciones.length > 0) {
+        this.conversaciones.set(conversaciones);
+      }
+    });
+  }
+
   ngOnInit(): void {
+    // Cargar datos iniciales
     this.cargarDatos();
+
+    // Suscribirse a cambios de ruta
     this.route.params.subscribe(params => {
       const usuarioId = params['usuarioId'];
       if (usuarioId) {
-        this.usuarioSeleccionado.set(Number(usuarioId));
-        this.cargarMensajes(Number(usuarioId));
+        const id = Number(usuarioId);
+        this.usuarioSeleccionado.set(id);
+        this.marcarMensajesComoLeidos(id);
+        this.cargarMensajes(id);
       }
     });
+
+    // Polling cada 10 segundos para actualizar conversaciones y contadores
+    this.pollingInterval = setInterval(() => {
+      this.actualizarConversacionesYContadores();
+    }, 10000);
   }
 
   ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    // Limpiar intervalos
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
 
-  scrollToBottom(): void {
-    try {
-      if (this.mensajesContainer) {
-        this.mensajesContainer.nativeElement.scrollTop = 
-          this.mensajesContainer.nativeElement.scrollHeight;
-      }
-    } catch (err) {}
+    // Marcar como leídos al salir si hay usuario seleccionado
+    const usuarioId = this.usuarioSeleccionado();
+    if (usuarioId) {
+      this.chatService.marcarComoLeidos(usuarioId).subscribe({
+        next: () => {
+          this.chatService.resetearNoLeidos(usuarioId);
+        }
+      });
+    }
   }
 
+  // ========== MÉTODOS DE CARGA ==========
   cargarDatos(): void {
     this.cargarConversaciones();
     this.cargarSolicitudes();
@@ -73,8 +123,23 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   cargarConversaciones(): void {
     this.chatService.listarConversaciones().subscribe({
-      next: (data) => this.conversaciones.set(data),
-      error: () => {}
+      next: (data) => {
+        this.conversaciones.set(data);
+      },
+      error: () => {
+        // Error silencioso
+      }
+    });
+  }
+
+  actualizarConversacionesYContadores(): void {
+    this.chatService.listarConversaciones().subscribe({
+      next: (data) => {
+        this.conversaciones.set(data);
+      },
+      error: () => {
+        // Error silencioso
+      }
     });
   }
 
@@ -96,19 +161,41 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   cargarSolicitudes(): void {
     this.chatService.listarSolicitudes().subscribe({
-      next: (data) => this.solicitudes.set(data),
+      next: (data) => {
+        console.log('📋 Solicitudes cargadas:', data);
+        this.solicitudes.set(data);
+      },
       error: () => {}
     });
   }
 
-  get solicitudesPendientes(): SolicitudContacto[] {
-    return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
+  // ========== MANEJO DE CONTADORES ==========
+  marcarMensajesComoLeidos(usuarioId: number): void {
+    // 1. Actualizar localmente el contador a 0
+    this.conversaciones.update(convs => 
+      convs.map(conv => 
+        conv.usuarioId === usuarioId 
+          ? { ...conv, noLeidos: 0 } 
+          : conv
+      )
+    );
+
+    // 2. Actualizar en el servicio
+    this.chatService.resetearNoLeidos(usuarioId);
+
+    // 3. Notificar al servidor
+    this.chatService.marcarComoLeidos(usuarioId).subscribe({
+      next: () => {
+        console.log(`✅ Mensajes marcados como leídos para usuario ${usuarioId}`);
+      },
+      error: (error) => {
+        console.error('❌ Error al marcar mensajes como leídos:', error);
+        this.cargarConversaciones();
+      }
+    });
   }
 
-  get cantidadSolicitudesPendientes(): number {
-    return this.solicitudesPendientes.length;
-  }
-
+  // ========== SOLICITUDES ==========
   aceptarSolicitud(solicitudId: number): void {
     this.chatService.aceptarSolicitud(solicitudId).subscribe({
       next: () => {
@@ -139,41 +226,19 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
+  // ========== SELECCIÓN DE CONVERSACIÓN ==========
   seleccionarConversacion(usuarioId: number): void {
     this.usuarioSeleccionado.set(usuarioId);
     this.router.navigate(['/chat', usuarioId]);
+    
+    // Marcar mensajes como leídos
+    this.marcarMensajesComoLeidos(usuarioId);
+    
+    // Cargar mensajes
     this.cargarMensajes(usuarioId);
   }
 
-  esImagen(archivo: MensajeArchivo): boolean {
-    if (archivo.tipo === 'imagen') return true;
-    const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
-    const nombre = archivo.nombre.toLowerCase();
-    return extensiones.some(ext => nombre.endsWith(ext));
-  }
-
-  onArchivosSeleccionados(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-
-    const archivos = Array.from(input.files);
-    const totalSize = archivos.reduce((acc, f) => acc + f.size, 0);
-    
-    if (totalSize > 15 * 1024 * 1024) {
-      this.errorMsg.set('El tamaño total no debe superar los 15MB');
-      setTimeout(() => this.errorMsg.set(null), 3000);
-      input.value = '';
-      return;
-    }
-
-    this.archivosSeleccionados.update(lista => [...lista, ...archivos]);
-    input.value = '';
-  }
-
-  quitarArchivo(index: number): void {
-    this.archivosSeleccionados.update(lista => lista.filter((_, i) => i !== index));
-  }
-
+  // ========== ENVÍO DE MENSAJES ==========
   enviarMensaje(): void {
     const receptorId = this.usuarioSeleccionado();
     if (!receptorId) {
@@ -231,6 +296,50 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  // ========== ARCHIVOS ==========
+  onArchivosSeleccionados(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const archivos = Array.from(input.files);
+    const totalSize = archivos.reduce((acc, f) => acc + f.size, 0);
+    
+    if (totalSize > 15 * 1024 * 1024) {
+      this.errorMsg.set('El tamaño total no debe superar los 15MB');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    this.archivosSeleccionados.update(lista => [...lista, ...archivos]);
+    input.value = '';
+  }
+
+  quitarArchivo(index: number): void {
+    this.archivosSeleccionados.update(lista => lista.filter((_, i) => i !== index));
+  }
+
+  esImagen(archivo: MensajeArchivo): boolean {
+    if (archivo.tipo === 'imagen') return true;
+    const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+    const nombre = archivo.nombre.toLowerCase();
+    return extensiones.some(ext => nombre.endsWith(ext));
+  }
+
+  abrirArchivo(url: string): void {
+    window.open(url, '_blank');
+  }
+
+  // ========== UTILIDADES ==========
+  scrollToBottom(): void {
+    try {
+      if (this.mensajesContainer) {
+        this.mensajesContainer.nativeElement.scrollTop = 
+          this.mensajesContainer.nativeElement.scrollHeight;
+      }
+    } catch (err) {}
+  }
+
   irAlPerfil(usuarioId: number): void {
     this.router.navigate(['/usuario', usuarioId]);
   }
@@ -238,9 +347,5 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   getNombreUsuario(usuarioId: number): string {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.nombreUsuario || 'Usuario';
-  }
-
-  abrirArchivo(url: string): void {
-    window.open(url, '_blank');
   }
 }

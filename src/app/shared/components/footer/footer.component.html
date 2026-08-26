@@ -1,13 +1,33 @@
 <!-- footer.component.html -->
 <footer class="footer">
-  <div class="footer-container">
-    <div class="footer-content">
-      <span class="footer-brand">
-        <span class="footer-prompt">&gt;_</span>
-        <span class="footer-name">kiert</span>
-        <span class="footer-desc">— comunidad para compartir y ayudarse</span>
-      </span>
-      <span class="footer-year">© {{ anioActual }}</span>
+  <!-- ===== ANUNCIOS DEL FOOTER ===== -->
+  <div class="footer-ads">
+    <div class="footer-ads__container">
+      @for (ad of footerAds(); track ad.id) {
+        <a [href]="ad.link" class="footer-ads__item" target="_blank" rel="noopener noreferrer">
+          <div class="footer-ads__image">
+            <img [src]="ad.image" [alt]="ad.alt" loading="lazy">
+          </div>
+          <div class="footer-ads__content">
+            <h4>{{ ad.title }}</h4>
+            <p>{{ ad.description }}</p>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+
+  <!-- ===== FOOTER PRINCIPAL ===== -->
+  <div class="footer-main">
+    <div class="footer-container">
+      <div class="footer-content">
+        <span class="footer-brand">
+          <span class="footer-prompt">&gt;_</span>
+          <span class="footer-name">kiert</span>
+          <span class="footer-desc">— comunidad para compartir y ayudarse</span>
+        </span>
+        <span class="footer-year">© {{ anioActual }}</span>
+      </div>
     </div>
   </div>
 </footer>

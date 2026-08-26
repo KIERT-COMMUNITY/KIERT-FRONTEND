@@ -1,13 +1,16 @@
-<!-- CHAT - SOLO TEMA, SIN FONDO DE PERFIL -->
+<!-- chat.component.html -->
+
 <div class="chat-container" [ngClass]="personalizacionStore.temaClass()">
   
   <div class="chat-header">
     <h2>Chat</h2>
+    <!-- ✅ CORREGIDO: sin paréntesis -->
     @if (cantidadSolicitudesPendientes > 0) {
       <span class="solicitudes-badge">{{ cantidadSolicitudesPendientes }}</span>
     }
   </div>
 
+  <!-- Alertas -->
   @if (errorMsg()) {
     <div class="alert alert-error">
       {{ errorMsg() }}
@@ -21,9 +24,12 @@
     </div>
   }
 
+  <!-- Solicitudes Pendientes -->
+  <!-- ✅ CORREGIDO: sin paréntesis -->
   @if (solicitudesPendientes.length > 0) {
     <div class="solicitudes-section">
       <h3>Solicitudes de contacto</h3>
+      <!-- ✅ CORREGIDO: sin paréntesis -->
       @for (solicitud of solicitudesPendientes; track solicitud.id) {
         <div class="solicitud-item">
           <div class="solicitud-info">
@@ -45,8 +51,10 @@
     </div>
   }
 
+  <!-- Chat Principal -->
   <div class="chat-main">
     
+    <!-- Lista de Conversaciones -->
     <div class="conversaciones-lista">
       <h3>Conversaciones</h3>
       @if (conversaciones().length === 0) {
@@ -72,6 +80,7 @@
                 <span class="conv-ultimo">{{ conv.ultimoMensaje }}</span>
               }
             </div>
+            <!-- Contador de mensajes no leídos - SOLO APARECE SI > 0 -->
             @if (conv.noLeidos > 0) {
               <span class="conv-no-leidos">{{ conv.noLeidos }}</span>
             }
@@ -80,12 +89,14 @@
       }
     </div>
 
+    <!-- Área de Chat -->
     <div class="chat-area">
       @if (!usuarioSeleccionado()) {
         <div class="chat-placeholder">
           <p>Selecciona una conversación para empezar a chatear</p>
         </div>
       } @else {
+        <!-- Header del Chat -->
         <div class="chat-header-area">
           <span class="chat-usuario">@{{ getNombreUsuario(usuarioSeleccionado()!) }}</span>
           <div class="chat-actions">
@@ -93,6 +104,7 @@
           </div>
         </div>
 
+        <!-- Lista de Mensajes -->
         <div class="mensajes-lista" #mensajesContainer>
           @if (cargando()) {
             <div class="loading-mensajes">Cargando mensajes...</div>
@@ -129,6 +141,7 @@
           }
         </div>
 
+        <!-- Formulario de Mensaje -->
         <form [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()" class="mensaje-form">
           <input
             formControlName="contenido"
@@ -156,6 +169,7 @@
           </button>
         </form>
 
+        <!-- Preview de Archivos -->
         @if (archivosSeleccionados().length > 0) {
           <div class="archivos-preview">
             @for (archivo of archivosSeleccionados(); track $index) {

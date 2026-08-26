@@ -43,6 +43,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   mostrandoResultados = signal(false);
   solicitudEnviada = signal<number | null>(null);
 
+  // Selectores toggle
+  showThemeSelector = signal(false);
+  showFrameSelector = signal(false);
+  showBackgroundSelector = signal(false);
+
   private busquedaSubject = new Subject<string>();
 
   selectedTheme = signal<string>('default');
@@ -80,7 +85,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
-    // ✅ EFECTO PARA ACTUALIZAR LA VISTA PREVIA CUANDO CAMBIA LA PERSONALIZACIÓN
     effect(() => {
       const personalizacion = this.personalizacionStore.personalizacion();
       if (personalizacion) {
@@ -103,6 +107,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.selectedTheme.set(current.temaId || 'default');
       this.selectedFrame.set(current.marcoId || 'none');
       this.selectedBackground.set(current.fondoId || 'default');
+      
+      // Aplicar tema guardado al cargar la página
+      this.aplicarTemaGlobal(current.temaId || 'default');
     }
 
     this.busquedaSubject.pipe(
@@ -159,6 +166,40 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // ===== APLICAR TEMA GLOBALMENTE AL HTML =====
+  aplicarTemaGlobal(themeId: string): void {
+    // Remover clase y atributo de tema anterior
+    document.documentElement.className = '';
+    document.documentElement.removeAttribute('data-theme');
+    
+    // Aplicar el nuevo tema como clase en el html
+    if (themeId && themeId !== 'default') {
+      document.documentElement.setAttribute('data-theme', themeId);
+      document.documentElement.classList.add(`tema-${themeId}`);
+    } else {
+      document.documentElement.classList.add('tema-default');
+    }
+  }
+
+  // ===== TOGGLES =====
+  toggleThemeSelector(): void {
+    this.showThemeSelector.update(val => !val);
+    this.showFrameSelector.set(false);
+    this.showBackgroundSelector.set(false);
+  }
+
+  toggleFrameSelector(): void {
+    this.showFrameSelector.update(val => !val);
+    this.showThemeSelector.set(false);
+    this.showBackgroundSelector.set(false);
+  }
+
+  toggleBackgroundSelector(): void {
+    this.showBackgroundSelector.update(val => !val);
+    this.showThemeSelector.set(false);
+    this.showFrameSelector.set(false);
   }
 
   // ===== MÉTODOS DE BÚSQUEDA =====
@@ -270,6 +311,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // ===== MÉTODOS DE PERSONALIZACIÓN =====
   seleccionarTheme(themeId: string): void {
     this.selectedTheme.set(themeId);
+    // Aplicar el tema globalmente al hacer clic
+    this.aplicarTemaGlobal(themeId);
   }
 
   seleccionarFrame(frameId: string): void {
@@ -288,6 +331,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const fondoId = this.selectedBackground();
     
     console.log('🎨 Aplicando personalización:', { temaId, marcoId, fondoId });
+    
+    // Aplicar tema globalmente
+    this.aplicarTemaGlobal(temaId);
     
     this.personalizacionStore.guardarPersonalizacion(temaId, marcoId, fondoId);
     

@@ -1,5 +1,4 @@
-// auth-layout.component.ts -> molde visual SOLO para login/registro/recuperar.
-// Es una tarjeta centrada, sin navbar (el usuario todavía no tiene sesión).
+// auth-layout.component.ts
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 
@@ -10,4 +9,7 @@ import { RouterOutlet, RouterLink } from '@angular/router';
   templateUrl: './auth-layout.component.html',
   styleUrl: './auth-layout.component.scss',
 })
-export class AuthLayoutComponent {}
+export class AuthLayoutComponent {
+  // NO usa PersonalizacionStore - es completamente independiente
+  // El fondo SIEMPRE es el mismo, no cambia con el tema del usuario
+}
