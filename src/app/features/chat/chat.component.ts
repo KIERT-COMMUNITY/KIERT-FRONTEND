@@ -8,7 +8,8 @@ import {
   OnDestroy, 
   ViewChild, 
   ElementRef, 
-  AfterViewChecked 
+  AfterViewChecked,
+  computed
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -46,7 +47,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   exitoMsg = signal<string | null>(null);
   enviando = signal(false);
   archivosSeleccionados = signal<File[]>([]);
-  mostrarImagenSensible = signal<{ [key: number]: boolean }>({});
+  mobileMenuOpen = signal(false);
+  solicitudesExpandidas = signal(false);
 
   formMensaje = this.fb.group({
     contenido: ['', [Validators.minLength(1)]]
@@ -61,11 +63,40 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
   }
 
-  // Intervalo para polling
+  // ✅ Computed signal para agrupar mensajes por fecha
+  mensajesAgrupados = computed(() => {
+    const grupos: { [key: string]: Mensaje[] } = {};
+    const hoy = new Date();
+    const ayer = new Date(hoy);
+    ayer.setDate(ayer.getDate() - 1);
+
+    this.mensajes().forEach(msg => {
+      const fecha = new Date(msg.fechaEnvio);
+      let key: string;
+      
+      if (fecha.toDateString() === hoy.toDateString()) {
+        key = 'Hoy';
+      } else if (fecha.toDateString() === ayer.toDateString()) {
+        key = 'Ayer';
+      } else {
+        key = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+      }
+      
+      if (!grupos[key]) {
+        grupos[key] = [];
+      }
+      grupos[key].push(msg);
+    });
+
+    return Object.keys(grupos).map(key => ({
+      fecha: key,
+      mensajes: grupos[key]
+    }));
+  });
+
   private pollingInterval: any;
 
   constructor() {
-    // Suscribirse a cambios en las conversaciones
     this.chatService.conversaciones$.subscribe(conversaciones => {
       if (conversaciones.length > 0) {
         this.conversaciones.set(conversaciones);
@@ -74,10 +105,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    // Cargar datos iniciales
     this.cargarDatos();
 
-    // Suscribirse a cambios de ruta
     this.route.params.subscribe(params => {
       const usuarioId = params['usuarioId'];
       if (usuarioId) {
@@ -85,10 +114,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.usuarioSeleccionado.set(id);
         this.marcarMensajesComoLeidos(id);
         this.cargarMensajes(id);
+        // Cerrar menú móvil al seleccionar
+        this.mobileMenuOpen.set(false);
       }
     });
 
-    // Polling cada 10 segundos para actualizar conversaciones y contadores
     this.pollingInterval = setInterval(() => {
       this.actualizarConversacionesYContadores();
     }, 10000);
@@ -99,12 +129,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy(): void {
-    // Limpiar intervalos
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
     }
-
-    // Marcar como leídos al salir si hay usuario seleccionado
     const usuarioId = this.usuarioSeleccionado();
     if (usuarioId) {
       this.chatService.marcarComoLeidos(usuarioId).subscribe({
@@ -121,14 +148,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.cargarSolicitudes();
   }
 
+  recargarDatos(): void {
+    this.cargarDatos();
+  }
+
   cargarConversaciones(): void {
     this.chatService.listarConversaciones().subscribe({
       next: (data) => {
         this.conversaciones.set(data);
       },
-      error: () => {
-        // Error silencioso
-      }
+      error: () => {}
     });
   }
 
@@ -137,9 +166,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       next: (data) => {
         this.conversaciones.set(data);
       },
-      error: () => {
-        // Error silencioso
-      }
+      error: () => {}
     });
   }
 
@@ -162,7 +189,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   cargarSolicitudes(): void {
     this.chatService.listarSolicitudes().subscribe({
       next: (data) => {
-        console.log('📋 Solicitudes cargadas:', data);
         this.solicitudes.set(data);
       },
       error: () => {}
@@ -171,7 +197,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   // ========== MANEJO DE CONTADORES ==========
   marcarMensajesComoLeidos(usuarioId: number): void {
-    // 1. Actualizar localmente el contador a 0
     this.conversaciones.update(convs => 
       convs.map(conv => 
         conv.usuarioId === usuarioId 
@@ -179,23 +204,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           : conv
       )
     );
-
-    // 2. Actualizar en el servicio
     this.chatService.resetearNoLeidos(usuarioId);
-
-    // 3. Notificar al servidor
     this.chatService.marcarComoLeidos(usuarioId).subscribe({
-      next: () => {
-        console.log(`✅ Mensajes marcados como leídos para usuario ${usuarioId}`);
-      },
-      error: (error) => {
-        console.error('❌ Error al marcar mensajes como leídos:', error);
+      next: () => {},
+      error: () => {
         this.cargarConversaciones();
       }
     });
   }
 
   // ========== SOLICITUDES ==========
+  toggleSolicitudes(): void {
+    this.solicitudesExpandidas.update(val => !val);
+  }
+
   aceptarSolicitud(solicitudId: number): void {
     this.chatService.aceptarSolicitud(solicitudId).subscribe({
       next: () => {
@@ -230,12 +252,19 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   seleccionarConversacion(usuarioId: number): void {
     this.usuarioSeleccionado.set(usuarioId);
     this.router.navigate(['/chat', usuarioId]);
-    
-    // Marcar mensajes como leídos
     this.marcarMensajesComoLeidos(usuarioId);
-    
-    // Cargar mensajes
     this.cargarMensajes(usuarioId);
+    this.mobileMenuOpen.set(false);
+  }
+
+  cerrarChat(): void {
+    this.usuarioSeleccionado.set(null);
+    this.router.navigate(['/chat']);
+  }
+
+  // ========== MOBILE ==========
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(val => !val);
   }
 
   // ========== ENVÍO DE MENSAJES ==========
@@ -347,5 +376,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   getNombreUsuario(usuarioId: number): string {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.nombreUsuario || 'Usuario';
+  }
+
+  getFotoUsuario(usuarioId: number): string | null {
+    const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
+    return conv?.fotoPerfilUrl || null;
   }
 }

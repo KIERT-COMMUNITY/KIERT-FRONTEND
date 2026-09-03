@@ -2,180 +2,328 @@
 
 <div class="chat-container" [ngClass]="personalizacionStore.temaClass()">
   
+  <!-- ===== HEADER ===== -->
   <div class="chat-header">
-    <h2>Chat</h2>
-    <!-- ✅ CORREGIDO: sin paréntesis -->
-    @if (cantidadSolicitudesPendientes > 0) {
-      <span class="solicitudes-badge">{{ cantidadSolicitudesPendientes }}</span>
-    }
+    <div class="header-left">
+      <button class="btn-mobile-menu" (click)="toggleMobileMenu()" aria-label="Abrir menú">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <h2>Mensajes</h2>
+      @if (cantidadSolicitudesPendientes > 0) {
+        <span class="solicitudes-badge">{{ cantidadSolicitudesPendientes }}</span>
+      }
+    </div>
+    <div class="header-right">
+      <button class="btn-header" (click)="recargarDatos()" aria-label="Recargar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Alertas -->
+  <!-- ===== ALERTAS ===== -->
   @if (errorMsg()) {
     <div class="alert alert-error">
-      {{ errorMsg() }}
+      <span>{{ errorMsg() }}</span>
       <button (click)="errorMsg.set(null)">×</button>
     </div>
   }
   @if (exitoMsg()) {
     <div class="alert alert-success">
-      {{ exitoMsg() }}
+      <span>{{ exitoMsg() }}</span>
       <button (click)="exitoMsg.set(null)">×</button>
     </div>
   }
 
-  <!-- Solicitudes Pendientes -->
-  <!-- ✅ CORREGIDO: sin paréntesis -->
-  @if (solicitudesPendientes.length > 0) {
-    <div class="solicitudes-section">
-      <h3>Solicitudes de contacto</h3>
-      <!-- ✅ CORREGIDO: sin paréntesis -->
-      @for (solicitud of solicitudesPendientes; track solicitud.id) {
-        <div class="solicitud-item">
-          <div class="solicitud-info">
-            <div class="solicitud-avatar">
-              @if (solicitud.fotoPerfilUrl) {
-                <img [src]="solicitud.fotoPerfilUrl" [alt]="solicitud.nombreUsuario">
-              } @else {
-                <span>{{ solicitud.nombreUsuario.charAt(0).toUpperCase() }}</span>
-              }
-            </div>
-            <span class="solicitud-nombre">@{{ solicitud.nombreUsuario }}</span>
-          </div>
-          <div class="solicitud-acciones">
-            <button class="btn-aceptar" (click)="aceptarSolicitud(solicitud.id)">Aceptar</button>
-            <button class="btn-rechazar" (click)="rechazarSolicitud(solicitud.id)">Rechazar</button>
-          </div>
-        </div>
-      }
-    </div>
-  }
-
-  <!-- Chat Principal -->
+  <!-- ===== CHAT PRINCIPAL ===== -->
   <div class="chat-main">
     
-    <!-- Lista de Conversaciones -->
-    <div class="conversaciones-lista">
-      <h3>Conversaciones</h3>
-      @if (conversaciones().length === 0) {
-        <p class="no-conversaciones">No hay conversaciones aún</p>
-      } @else {
-        @for (conv of conversaciones(); track conv.usuarioId) {
-          <div class="conversacion-item" 
-               [class.active]="usuarioSeleccionado() === conv.usuarioId"
-               (click)="seleccionarConversacion(conv.usuarioId)">
-            <div class="conv-avatar">
-              <kiert-avatar-frame
-                [fotoUrl]="conv.fotoPerfilUrl || null"
-                [nombre]="conv.nombreUsuario"
-                [size]="40"
-                [alt]="conv.nombreUsuario"
-                [navigateToProfile]="true"
-                [usuarioId]="conv.usuarioId"
-              />
-            </div>
-            <div class="conv-info">
-              <span class="conv-nombre">@{{ conv.nombreUsuario }}</span>
-              @if (conv.ultimoMensaje) {
-                <span class="conv-ultimo">{{ conv.ultimoMensaje }}</span>
+    <!-- ===== SIDEBAR (Conversaciones) ===== -->
+    <div class="sidebar" [class.mobile-open]="mobileMenuOpen()">
+      <div class="sidebar-header">
+        <h3>Conversaciones</h3>
+        <span class="conversaciones-count">{{ conversaciones().length }}</span>
+      </div>
+
+      <!-- Solicitudes Pendientes -->
+      @if (solicitudesPendientes.length > 0) {
+        <div class="solicitudes-section">
+          <div class="solicitudes-header" (click)="toggleSolicitudes()">
+            <span>📩 Solicitudes pendientes</span>
+            <span class="solicitudes-count">{{ solicitudesPendientes.length }}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [class.rotated]="solicitudesExpandidas()">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          @if (solicitudesExpandidas()) {
+            <div class="solicitudes-list">
+              @for (solicitud of solicitudesPendientes; track solicitud.id) {
+                <div class="solicitud-item">
+                  <div class="solicitud-info">
+                    <div class="solicitud-avatar">
+                      @if (solicitud.fotoPerfilUrl) {
+                        <img [src]="solicitud.fotoPerfilUrl" [alt]="solicitud.nombreUsuario" loading="lazy">
+                      } @else {
+                        <span>{{ solicitud.nombreUsuario.charAt(0).toUpperCase() }}</span>
+                      }
+                    </div>
+                    <span class="solicitud-nombre">@{{ solicitud.nombreUsuario }}</span>
+                  </div>
+                  <div class="solicitud-acciones">
+                    <button class="btn-aceptar" (click)="aceptarSolicitud(solicitud.id)" title="Aceptar">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                    <button class="btn-rechazar" (click)="rechazarSolicitud(solicitud.id)" title="Rechazar">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               }
             </div>
-            <!-- Contador de mensajes no leídos - SOLO APARECE SI > 0 -->
-            @if (conv.noLeidos > 0) {
-              <span class="conv-no-leidos">{{ conv.noLeidos }}</span>
-            }
-          </div>
-        }
+          }
+        </div>
       }
+
+      <!-- Lista de Conversaciones -->
+      <div class="conversaciones-list">
+        @if (conversaciones().length === 0) {
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <p>No hay conversaciones aún</p>
+            <span>Conecta con otros usuarios</span>
+          </div>
+        } @else {
+          @for (conv of conversaciones(); track conv.usuarioId) {
+            <div class="conversacion-item" 
+                 [class.active]="usuarioSeleccionado() === conv.usuarioId"
+                 (click)="seleccionarConversacion(conv.usuarioId)">
+              <div class="conv-avatar">
+                <kiert-avatar-frame
+                  [fotoUrl]="conv.fotoPerfilUrl || null"
+                  [nombre]="conv.nombreUsuario"
+                  [size]="48"
+                  [alt]="conv.nombreUsuario"
+                  [navigateToProfile]="true"
+                  [usuarioId]="conv.usuarioId"
+                />
+                <span class="conv-status" [class.online]="conv.online"></span>
+              </div>
+              <div class="conv-info">
+                <div class="conv-header">
+                  <span class="conv-nombre">@{{ conv.nombreUsuario }}</span>
+                  @if (conv.ultimoMensajeFecha) {
+                    <span class="conv-fecha">{{ conv.ultimoMensajeFecha | date:'shortTime' }}</span>
+                  }
+                </div>
+                <div class="conv-preview">
+                  <span class="conv-ultimo">{{ conv.ultimoMensaje || 'Sin mensajes' }}</span>
+                  @if (conv.noLeidos > 0) {
+                    <span class="conv-no-leidos">{{ conv.noLeidos }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
     </div>
 
-    <!-- Área de Chat -->
+    <!-- ===== OVERLAY MÓVIL ===== -->
+    @if (mobileMenuOpen()) {
+      <div class="mobile-overlay" (click)="toggleMobileMenu()"></div>
+    }
+
+    <!-- ===== ÁREA DE CHAT ===== -->
     <div class="chat-area">
       @if (!usuarioSeleccionado()) {
         <div class="chat-placeholder">
-          <p>Selecciona una conversación para empezar a chatear</p>
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <h3>Selecciona una conversación</h3>
+          <p>Elige un contacto para comenzar a chatear</p>
         </div>
       } @else {
         <!-- Header del Chat -->
         <div class="chat-header-area">
-          <span class="chat-usuario">@{{ getNombreUsuario(usuarioSeleccionado()!) }}</span>
+          <div class="chat-user-info" (click)="irAlPerfil(usuarioSeleccionado()!)">
+            <div class="chat-user-avatar">
+              <kiert-avatar-frame
+                [fotoUrl]="getFotoUsuario(usuarioSeleccionado()!)"
+                [nombre]="getNombreUsuario(usuarioSeleccionado()!)"
+                [size]="40"
+                [alt]="getNombreUsuario(usuarioSeleccionado()!)"
+                [navigateToProfile]="false"
+              />
+              <span class="chat-user-status online"></span>
+            </div>
+            <div class="chat-user-details">
+              <span class="chat-usuario">@{{ getNombreUsuario(usuarioSeleccionado()!) }}</span>
+              <span class="chat-user-sub">En línea</span>
+            </div>
+          </div>
           <div class="chat-actions">
-            <button class="btn-perfil" (click)="irAlPerfil(usuarioSeleccionado()!)">Ver perfil</button>
+            <button class="btn-icon" (click)="irAlPerfil(usuarioSeleccionado()!)" title="Ver perfil">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </button>
+            <button class="btn-icon btn-mobile-back" (click)="cerrarChat()" aria-label="Volver">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
           </div>
         </div>
 
         <!-- Lista de Mensajes -->
         <div class="mensajes-lista" #mensajesContainer>
           @if (cargando()) {
-            <div class="loading-mensajes">Cargando mensajes...</div>
+            <div class="loading-mensajes">
+              <div class="spinner"></div>
+              <span>Cargando mensajes...</span>
+            </div>
           } @else if (mensajes().length === 0) {
-            <p class="no-mensajes">No hay mensajes aún. Envía el primero.</p>
+            <div class="no-mensajes">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <p>No hay mensajes aún</p>
+              <span>Envía el primer mensaje</span>
+            </div>
           } @else {
-            @for (msg of mensajes(); track msg.id) {
-              <div class="mensaje" [class.propio]="msg.propio">
-                <div class="mensaje-contenido">{{ msg.contenido }}</div>
-                @if (msg.archivos && msg.archivos.length > 0) {
-                  <div class="mensaje-archivos">
-                    @for (archivo of msg.archivos; track $index) {
-                      <div class="archivo-item">
-                        @if (esImagen(archivo)) {
-                          <div class="archivo-imagen" (click)="abrirArchivo(archivo.url)">
-                            <img [src]="archivo.url" [alt]="archivo.nombre" loading="lazy">
+            <!-- Agrupador de fechas -->
+            @for (grupo of mensajesAgrupados(); track grupo.fecha) {
+              <div class="fecha-divider">
+                <span>{{ grupo.fecha }}</span>
+              </div>
+              @for (msg of grupo.mensajes; track msg.id) {
+                <div class="mensaje" [class.propio]="msg.propio">
+                  @if (!msg.propio) {
+                    <div class="mensaje-avatar">
+                      <kiert-avatar-frame
+                        [fotoUrl]="getFotoUsuario(usuarioSeleccionado()!)"
+                        [nombre]="getNombreUsuario(usuarioSeleccionado()!)"
+                        [size]="32"
+                        [alt]="getNombreUsuario(usuarioSeleccionado()!)"
+                        [navigateToProfile]="false"
+                      />
+                    </div>
+                  }
+                  <div class="mensaje-wrapper">
+                    <div class="mensaje-contenido">
+                      {{ msg.contenido }}
+                    </div>
+                    @if (msg.archivos && msg.archivos.length > 0) {
+                      <div class="mensaje-archivos">
+                        @for (archivo of msg.archivos; track $index) {
+                          <div class="archivo-item" (click)="abrirArchivo(archivo.url)">
+                            @if (esImagen(archivo)) {
+                              <div class="archivo-imagen">
+                                <img [src]="archivo.url" [alt]="archivo.nombre" loading="lazy">
+                                <div class="archivo-overlay">
+                                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15 3 21 3 21 9"/>
+                                    <polyline points="9 21 3 21 3 15"/>
+                                    <line x1="21" y1="3" x2="14" y2="10"/>
+                                    <line x1="3" y1="21" x2="10" y2="14"/>
+                                  </svg>
+                                </div>
+                              </div>
+                            } @else {
+                              <div class="archivo-link">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                  <polyline points="14 2 14 8 20 8"/>
+                                </svg>
+                                <span>{{ archivo.nombre }}</span>
+                              </div>
+                            }
                           </div>
-                        } @else {
-                          <a [href]="archivo.url" target="_blank" class="archivo-link">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                              <polyline points="14 2 14 8 20 8"/>
-                            </svg>
-                            <span>{{ archivo.nombre }}</span>
-                          </a>
                         }
                       </div>
                     }
+                    <span class="mensaje-fecha">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
                   </div>
-                }
-                <span class="mensaje-fecha">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
-              </div>
+                </div>
+              }
             }
           }
         </div>
 
         <!-- Formulario de Mensaje -->
-        <form [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()" class="mensaje-form">
-          <input
-            formControlName="contenido"
-            type="text"
-            placeholder="Escribe un mensaje..."
-            class="mensaje-input"
-          >
-          <label class="btn-archivo" title="Adjuntar archivo">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="16 16 12 12 8 16"/>
-              <line x1="12" y1="12" x2="12" y2="21"/>
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <input 
-              type="file" 
-              multiple
-              (change)="onArchivosSeleccionados($event)"
-              accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
-              hidden
+        <div class="mensaje-footer">
+          <div class="mensaje-tools">
+            <label class="btn-emoji" title="Emojis (próximamente)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                <line x1="15" y1="9" x2="15.01" y2="9"/>
+              </svg>
+            </label>
+            <label class="btn-archivo" title="Adjuntar archivo">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 16 12 12 8 16"/>
+                <line x1="12" y1="12" x2="12" y2="21"/>
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input 
+                type="file" 
+                multiple
+                (change)="onArchivosSeleccionados($event)"
+                accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+                hidden
+              >
+            </label>
+          </div>
+
+          <form [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()" class="mensaje-form">
+            <input
+              formControlName="contenido"
+              type="text"
+              placeholder="Escribe un mensaje..."
+              class="mensaje-input"
+              autocomplete="off"
             >
-          </label>
-          <button type="submit" class="mensaje-btn" [disabled]="enviando()">
-            {{ enviando() ? '...' : 'Enviar' }}
-          </button>
-        </form>
+            <button type="submit" class="mensaje-btn" [disabled]="enviando() || !formMensaje.valid">
+              @if (enviando()) {
+                <div class="spinner-small"></div>
+              } @else {
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+              }
+            </button>
+          </form>
+        </div>
 
         <!-- Preview de Archivos -->
         @if (archivosSeleccionados().length > 0) {
           <div class="archivos-preview">
             @for (archivo of archivosSeleccionados(); track $index) {
               <div class="archivo-preview-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
                 <span>{{ archivo.name }}</span>
-                <span>({{ (archivo.size / 1024).toFixed(1) }} KB)</span>
+                <span class="archivo-size">({{ (archivo.size / 1024).toFixed(1) }} KB)</span>
                 <button (click)="quitarArchivo($index)">×</button>
               </div>
             }

@@ -1,0 +1,98 @@
+<!-- src/app/features/community/notificaciones/notificaciones.component.html -->
+<div class="notificaciones-container">
+  <!-- Botón de campana -->
+  <button 
+    class="btn-notificaciones"
+    (click)="toggleMenu()"
+    [class.tiene-notificaciones]="noLeidas() > 0"
+    aria-label="Notificaciones"
+  >
+    <span class="icono-campana">🔔</span>
+    @if (noLeidas() > 0) {
+      <span class="badge-notificacion">{{ noLeidas() }}</span>
+    }
+  </button>
+
+  <!-- Dropdown de notificaciones -->
+  @if (mostrando()) {
+    <div class="dropdown-notificaciones">
+      <div class="dropdown-header">
+        <h3>Notificaciones</h3>
+        <div class="acciones-header">
+          @if (noLeidas() > 0) {
+            <button 
+              class="btn-marcar-todas"
+              (click)="marcarTodasComoLeidas()"
+            >
+              Marcar todas
+            </button>
+          }
+          <button 
+            class="btn-cerrar"
+            (click)="cerrarMenu()"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <div class="dropdown-body">
+        @if (cargando()) {
+          <div class="cargando">
+            <span class="spinner"></span>
+            <span>Cargando...</span>
+          </div>
+        } @else if (notificaciones().length === 0) {
+          <div class="sin-notificaciones">
+            <span class="icono-vacio">🔕</span>
+            <p>No tienes notificaciones</p>
+          </div>
+        } @else {
+          <div class="lista-notificaciones">
+            @for (notificacion of notificaciones(); track notificacion.id) {
+              <div 
+                class="notificacion-item"
+                [class.leida]="notificacion.leida"
+                (click)="onClickNotificacion(notificacion)"
+              >
+                <div 
+                  class="icono-tipo"
+                  [style.color]="getColorTipo(notificacion.tipo)"
+                >
+                  {{ getIconoTipo(notificacion.tipo) }}
+                </div>
+                
+                <div class="contenido-notificacion">
+                  <div class="mensaje" [innerHTML]="notificacion.mensaje"></div>
+                  <div class="meta">
+                    <span class="fecha">{{ formatearFecha(notificacion.fecha) }}</span>
+                    @if (notificacion.url) {
+                      <a 
+                        [routerLink]="notificacion.url"
+                        class="link-accion"
+                        (click)="$event.stopPropagation(); cerrarMenu()"
+                      >
+                        Ver
+                      </a>
+                    }
+                    <button 
+                      class="btn-eliminar"
+                      (click)="$event.stopPropagation(); eliminarNotificacion(notificacion.id)"
+                      title="Eliminar"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                @if (!notificacion.leida) {
+                  <span class="indicador-no-leida"></span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

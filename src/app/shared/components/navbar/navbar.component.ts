@@ -1,4 +1,4 @@
-// navbar.component.ts
+// src/app/shared/components/navbar/navbar.component.ts
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive, NavigationEnd, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -7,11 +7,18 @@ import { ChatService } from '../../../core/services/chat.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+// ✅ IMPORTAR EL COMPONENTE DE NOTIFICACIONES
+import { NotificacionesComponent } from '../../../features/community/notificaciones/notificaciones.component';
 
 @Component({
   selector: 'kiert-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule],
+  imports: [
+    RouterLink, 
+    RouterLinkActive, 
+    CommonModule,
+    NotificacionesComponent  // ✅ AÑADIDO
+  ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
@@ -29,23 +36,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('🔔 Navbar: Inicializando');
     
-    // ✅ Cargar mensajes no leídos inmediatamente
     setTimeout(() => {
       this.cargarMensajesNoLeidos();
     }, 100);
     
-    // ✅ Suscribirse a cambios de ruta
     this.subscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         console.log('🔔 Navbar: Navegación a:', event.url);
-        // ✅ Forzar actualización después de navegar
         setTimeout(() => {
           this.actualizarContador();
         }, 200);
       });
 
-    // ✅ Actualizar cada 10 segundos
     this.intervalId = setInterval(() => {
       this.actualizarContador();
     }, 10000);
@@ -64,12 +67,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const url = this.router.url;
     console.log('🔔 Navbar: URL actual:', url);
     
-    // ✅ Si está en el chat, resetear contador
     if (url.includes('/chat')) {
       console.log('🔔 Navbar: En el chat - Reseteando contador');
       this.notificationService.resetearContador();
     } else {
-      // ✅ Si no está en el chat, cargar mensajes no leídos
       this.cargarMensajesNoLeidos();
     }
   }
@@ -95,7 +96,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ MÉTODO PARA IR AL CHAT Y RESETEAR CONTADOR
   irAlChat(): void {
     console.log('🔔 Navbar: Navegando al chat - Reseteando contador');
     this.notificationService.resetearContador();

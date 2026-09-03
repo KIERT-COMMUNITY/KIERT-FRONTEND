@@ -54,7 +54,7 @@
            class="floating-social__link"
            [style.background]="link.bgColor"
            [attr.title]="link.name">
-          <span [innerHTML]="link.icon" class="social-icon"></span>
+          <span class="social-icon" [innerHTML]="link.icon | safeHtml"></span>
         </a>
       }
     </div>
