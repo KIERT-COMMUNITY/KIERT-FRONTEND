@@ -23,8 +23,8 @@ export class FeedComponent implements OnInit {
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
 
+  // ✅ SOLO CARRUSEL DE MINI BANNERS (sin banner destacado)
   imagenes = {
-    anuncioDestacado: 'assets/images/banner/banner.jpg',
     anuncios: [
       'assets/images/anuncio-banner/dianbanner1.jpg',
       'assets/images/anuncio-banner/yrelisbanner2.jpg',

@@ -68,26 +68,7 @@
     </div>
   }
 
-  <!-- ANUNCIO DESTACADO -->
-  <div class="ad-banner-destacado">
-    <a href="#" class="ad-banner-link" target="_blank">
-      <img 
-        [src]="imagenes.anuncioDestacado" 
-        alt="Anuncio destacado" 
-        class="ad-banner-img"
-        (error)="onImageError($event)"
-        loading="lazy"
-      >
-      <div class="ad-banner-overlay">
-        <span class="ad-banner-badge">Destacado</span>
-        <h3 class="ad-banner-titulo">Ofertas exclusivas</h3>
-        <p class="ad-banner-desc">Descuentos en ciberseguridad</p>
-        <span class="ad-banner-btn">Ver ofertas →</span>
-      </div>
-    </a>
-  </div>
-
-  <!-- CARRUSEL DE MINI BANNERS -->
+  <!-- ===== CARRUSEL DE MINI BANNERS ===== -->
   <div class="ad-carrusel">
     <div class="ad-carrusel-track">
       @for (anuncio of imagenes.anuncios; track $index) {
@@ -100,25 +81,6 @@
               (error)="onImageError($event)"
               loading="lazy"
             >
-            <div class="ad-mini-overlay">
-              <span class="ad-mini-badge">Nuevo</span>
-            </div>
-          </a>
-        </div>
-      }
-      @for (anuncio of imagenes.anuncios; track $index) {
-        <div class="ad-mini-banner">
-          <a href="#" class="ad-mini-link" target="_blank">
-            <img 
-              [src]="anuncio" 
-              [alt]="'Anuncio ' + ($index + 1)" 
-              class="ad-mini-img"
-              (error)="onImageError($event)"
-              loading="lazy"
-            >
-            <div class="ad-mini-overlay">
-              <span class="ad-mini-badge">Nuevo</span>
-            </div>
           </a>
         </div>
       }

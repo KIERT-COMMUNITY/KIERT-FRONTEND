@@ -4,31 +4,45 @@
   display: inline-block;
 }
 
+// ===== BOTÓN DE CAMPANA =====
 .btn-notificaciones {
   position: relative;
   background: none;
   border: none;
   color: #8b98a5;
-  font-size: 1.2rem;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .icono-campana {
+    width: 22px;
+    height: 22px;
+    transition: all 0.3s ease;
+  }
 
   &:hover {
     color: #e6edf3;
-    background: #1b232c;
+    background: rgba(255, 255, 255, 0.05);
+    
+    .icono-campana {
+      transform: scale(1.05);
+    }
   }
 
-  .icono-campana {
-    display: inline-block;
-    font-size: 1.1rem;
+  &.tiene-notificaciones {
+    .icono-campana {
+      animation: bell-ring 1s ease-in-out;
+    }
   }
 
   .badge-notificacion {
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: 0px;
+    right: 0px;
     min-width: 18px;
     height: 18px;
     padding: 0 5px;
@@ -41,6 +55,7 @@
     align-items: center;
     justify-content: center;
     animation: pulse-badge 2s infinite;
+    box-shadow: 0 0 12px rgba(248, 81, 73, 0.4);
   }
 }
 
@@ -49,59 +64,112 @@
   50% { transform: scale(1.15); }
 }
 
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(15deg); }
+  20% { transform: rotate(-15deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-10deg); }
+  50%, 100% { transform: rotate(0deg); }
+}
+
+// ===== DROPDOWN =====
 .dropdown-notificaciones {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 380px;
+  width: 400px;
   max-width: calc(100vw - 20px);
-  max-height: 500px;
+  max-height: 520px;
   background: #0d1117;
-  border: 1px solid #26313c;
-  border-radius: 12px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
   z-index: 200;
   overflow: hidden;
+  backdrop-filter: blur(20px);
+  background: rgba(13, 17, 23, 0.95);
+
+  // ✅ MOVER LA ANIMACIÓN AQUÍ (antes de las reglas anidadas)
+  animation: slideDown 0.2s ease-out;
 
   @media (max-width: 480px) {
     width: calc(100vw - 20px);
     right: -10px;
     max-height: 400px;
+    border-radius: 12px;
+  }
+
+  // ✅ MOVER LA ANIMACIÓN TAMBIÉN AQUÍ SI ES NECESARIO
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ===== HEADER =====
 .dropdown-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid #26313c;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
 
-  h3 {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #e6edf3;
+  .dropdown-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    svg {
+      color: #2dd4bf;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6edf3;
+      letter-spacing: -0.01em;
+    }
   }
 
   .acciones-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .btn-marcar-todas {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     background: none;
     border: none;
     color: #2dd4bf;
     font-size: 0.7rem;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
     transition: all 0.2s;
+    font-weight: 500;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
 
     &:hover {
       background: rgba(45, 212, 191, 0.1);
@@ -112,19 +180,26 @@
     background: none;
     border: none;
     color: #8b98a5;
-    font-size: 0.8rem;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 4px 6px;
+    border-radius: 6px;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
 
     &:hover {
       color: #e6edf3;
-      background: #1b232c;
+      background: rgba(255, 255, 255, 0.05);
     }
   }
 }
 
+// ===== BODY =====
 .dropdown-body {
   flex: 1;
   overflow-y: auto;
@@ -139,25 +214,30 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #26313c;
-    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
   }
 }
 
+// ===== ESTADO CARGANDO =====
 .cargando {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 48px 20px;
   color: #8b98a5;
   font-size: 0.85rem;
-  gap: 12px;
+  gap: 16px;
 
   .spinner {
-    width: 28px;
-    height: 28px;
-    border: 3px solid #26313c;
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.05);
     border-top-color: #2dd4bf;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -168,55 +248,76 @@
   to { transform: rotate(360deg); }
 }
 
+// ===== SIN NOTIFICACIONES =====
 .sin-notificaciones {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 48px 20px;
   color: #8b98a5;
   gap: 8px;
 
-  .icono-vacio {
-    font-size: 2.5rem;
+  svg {
+    margin-bottom: 4px;
+    opacity: 0.5;
   }
 
   p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    color: #e6edf3;
+    font-weight: 500;
+  }
+
+  .sin-sub {
+    font-size: 0.8rem;
+    color: #8b98a5;
   }
 }
 
+// ===== LISTA DE NOTIFICACIONES =====
 .lista-notificaciones {
   display: flex;
   flex-direction: column;
 }
 
+// ===== ITEM DE NOTIFICACIÓN =====
 .notificacion-item {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
   position: relative;
 
   &:hover {
-    background: #1b232c;
+    background: rgba(255, 255, 255, 0.03);
   }
 
   &.leida {
-    opacity: 0.6;
+    opacity: 0.5;
     
     &:hover {
-      opacity: 0.8;
+      opacity: 0.7;
     }
   }
 
   .icono-tipo {
-    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     flex-shrink: 0;
-    margin-top: 2px;
+    background: rgba(255, 255, 255, 0.03);
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 
   .contenido-notificacion {
@@ -226,7 +327,7 @@
     .mensaje {
       color: #e6edf3;
       font-size: 0.85rem;
-      line-height: 1.4;
+      line-height: 1.5;
       word-break: break-word;
 
       strong {
@@ -247,12 +348,23 @@
       }
 
       .link-accion {
+        display: flex;
+        align-items: center;
+        gap: 3px;
         color: #2dd4bf;
         text-decoration: none;
         font-weight: 500;
+        font-size: 0.7rem;
+        transition: all 0.2s;
         
+        svg {
+          width: 12px;
+          height: 12px;
+        }
+
         &:hover {
           text-decoration: underline;
+          opacity: 0.8;
         }
       }
 
@@ -260,11 +372,17 @@
         background: none;
         border: none;
         color: #8b98a5;
-        font-size: 0.6rem;
         cursor: pointer;
         padding: 2px 4px;
         border-radius: 4px;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+
+        svg {
+          width: 12px;
+          height: 12px;
+        }
 
         &:hover {
           color: #f85149;
@@ -280,12 +398,21 @@
     background: #2dd4bf;
     border-radius: 50%;
     flex-shrink: 0;
-    margin-top: 6px;
+    margin-top: 14px;
     animation: pulse-dot 2s infinite;
+    box-shadow: 0 0 12px rgba(45, 212, 191, 0.3);
   }
 }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .dropdown-notificaciones {
+    width: calc(100vw - 20px);
+    max-width: 100%;
+  }
 }

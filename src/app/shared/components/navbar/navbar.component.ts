@@ -7,7 +7,6 @@ import { ChatService } from '../../../core/services/chat.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-// ✅ IMPORTAR EL COMPONENTE DE NOTIFICACIONES
 import { NotificacionesComponent } from '../../../features/community/notificaciones/notificaciones.component';
 
 @Component({
@@ -17,7 +16,7 @@ import { NotificacionesComponent } from '../../../features/community/notificacio
     RouterLink, 
     RouterLinkActive, 
     CommonModule,
-    NotificacionesComponent  // ✅ AÑADIDO
+    NotificacionesComponent
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',

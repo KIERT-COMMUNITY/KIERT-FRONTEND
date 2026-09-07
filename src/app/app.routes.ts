@@ -38,17 +38,25 @@ export const routes: Routes = [
         loadComponent: () => import('./features/community/mis-publicaciones/mis-publicaciones.component').then(m => m.MisPublicacionesComponent),
         canActivate: [authGuard]
       },
+      // ✅ RUTA PARA DOCUMENTOS
+      { 
+        path: 'documentos', 
+        loadComponent: () => import('./features/documentos/documentos.component').then(m => m.DocumentosComponent)
+      },
+      // ✅ RUTA PARA DOCUMENTOS POR CATEGORÍA
+      { 
+        path: 'documentos/categoria/:categoria', 
+        loadComponent: () => import('./features/documentos/documentos.component').then(m => m.DocumentosComponent)
+      },
       { 
         path: 'perfil', 
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
         canActivate: [authGuard]
       },
-      // ✅ RUTA PARA VER PERFIL DE CUALQUIER USUARIO
       { 
         path: 'perfil-autor/:id', 
         loadComponent: () => import('./features/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
       },
-      // ✅ TAMBIÉN SOPORTAMOS LA RUTA CORTA
       { 
         path: 'usuario/:id', 
         loadComponent: () => import('./features/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)

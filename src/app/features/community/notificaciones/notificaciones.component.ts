@@ -1,7 +1,7 @@
 // src/app/features/community/notificaciones/notificaciones.component.ts
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { NotificationService, Notificacion } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 export class NotificacionesComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   notificaciones = signal<Notificacion[]>([]);
   noLeidas = signal<number>(0);
@@ -27,8 +28,8 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
       this.cargarNotificaciones();
+      this.actualizarContadorNoLeidas();
       
-      // ✅ Suscribirse a nuevas notificaciones
       this.subscription = this.notificationService.notificaciones$.subscribe({
         next: (notificacion: Notificacion) => {
           if (notificacion) {
@@ -36,25 +37,33 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             this.noLeidas.update(val => val + 1);
           }
         },
-        error: (err: any) => {
+        error: (err) => {
           console.error('Error al recibir notificación:', err);
         }
       });
 
-      // ✅ Actualizar cada 30 segundos
       this.intervalId = setInterval(() => {
         this.cargarNotificaciones();
+        this.actualizarContadorNoLeidas();
       }, 30000);
     }
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
+    this.subscription?.unsubscribe();
+    clearInterval(this.intervalId);
+  }
+
+  actualizarContadorNoLeidas(): void {
+    this.notificationService.contarNoLeidas().subscribe({
+      next: (count) => {
+        this.noLeidas.set(count);
+        this.notificationService.actualizarContador(count);
+      },
+      error: (err) => {
+        console.error('Error al contar no leídas:', err);
+      }
+    });
   }
 
   cargarNotificaciones(): void {
@@ -67,7 +76,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         this.noLeidas.set(data.filter(n => !n.leida).length);
         this.cargando.set(false);
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error al cargar notificaciones:', err);
         this.cargando.set(false);
       }
@@ -78,6 +87,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     this.mostrando.update(val => !val);
     if (this.mostrando()) {
       this.cargarNotificaciones();
+      this.actualizarContadorNoLeidas();
     }
   }
 
@@ -92,28 +102,25 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
           lista.map(n => n.id === id ? { ...n, leida: true } : n)
         );
         this.noLeidas.update(val => Math.max(0, val - 1));
+        this.actualizarContadorNoLeidas();
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error al marcar como leída:', err);
       }
     });
   }
 
   marcarTodasComoLeidas(): void {
-    const ids = this.notificaciones()
-      .filter(n => !n.leida)
-      .map(n => n.id);
-    
+    const ids = this.notificaciones().filter(n => !n.leida).map(n => n.id);
     if (ids.length === 0) return;
 
     this.notificationService.marcarTodasComoLeidas(ids).subscribe({
       next: () => {
-        this.notificaciones.update(lista =>
-          lista.map(n => ({ ...n, leida: true }))
-        );
+        this.notificaciones.update(lista => lista.map(n => ({ ...n, leida: true })));
         this.noLeidas.set(0);
+        this.actualizarContadorNoLeidas();
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error al marcar todas como leídas:', err);
       }
     });
@@ -126,23 +133,23 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         this.notificaciones.update(lista => lista.filter(n => n.id !== id));
         if (noti && !noti.leida) {
           this.noLeidas.update(val => Math.max(0, val - 1));
+          this.actualizarContadorNoLeidas();
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error al eliminar notificación:', err);
       }
     });
   }
 
-  getIconoTipo(tipo: string): string {
-    const iconos: Record<string, string> = {
-      'like': '❤️',
-      'comentario': '💬',
-      'respuesta': '↩️',
-      'solicitud': '🤝',
-      'sistema': '🔔'
-    };
-    return iconos[tipo] || '🔔';
+  onClickNotificacion(notificacion: Notificacion): void {
+    if (!notificacion.leida) {
+      this.marcarComoLeida(notificacion.id);
+    }
+    if (notificacion.url) {
+      this.router.navigate([notificacion.url]);
+    }
+    this.cerrarMenu();
   }
 
   getColorTipo(tipo: string): string {
@@ -168,25 +175,5 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     if (horas < 24) return `Hace ${horas}h`;
     if (dias < 7) return `Hace ${dias}d`;
     return new Date(fecha).toLocaleDateString('es-ES');
-  }
-
-  onAvatarError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-  }
-
-  // ✅ Método para manejar el click en una notificación
-  onClickNotificacion(notificacion: Notificacion): void {
-    if (!notificacion.leida) {
-      this.marcarComoLeida(notificacion.id);
-    }
-    if (notificacion.url) {
-      // Navegar a la URL
-      import('@angular/router').then(router => {
-        const routerInstance = inject(router.Router);
-        routerInstance.navigate([notificacion.url]);
-      });
-    }
-    this.cerrarMenu();
   }
 }

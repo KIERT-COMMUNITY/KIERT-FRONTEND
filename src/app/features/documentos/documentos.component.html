@@ -1,0 +1,249 @@
+<!-- src/app/features/documentos/documentos.component.html -->
+<div class="documentos-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
+  
+  <!-- HEADER -->
+  <div class="documentos-header">
+    <div class="documentos-header__info">
+      <h1>📚 Biblioteca de Documentos</h1>
+      <p>Comparte y descarga documentos académicos, tareas y recursos educativos</p>
+    </div>
+    <button class="btn btn--primary" (click)="abrirModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      Subir documento
+    </button>
+  </div>
+
+  <!-- MENSAJES -->
+  @if (errorMsg()) {
+    <div class="mensaje mensaje--error">
+      {{ errorMsg() }}
+      <button (click)="errorMsg.set(null)">×</button>
+    </div>
+  }
+  @if (exitoMsg()) {
+    <div class="mensaje mensaje--exito">
+      {{ exitoMsg() }}
+      <button (click)="exitoMsg.set(null)">×</button>
+    </div>
+  }
+
+  <!-- BÚSQUEDA Y FILTROS -->
+  <div class="documentos-filtros">
+    <div class="buscador">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="text"
+        placeholder="Buscar documentos..."
+        [(ngModel)]="busqueda"
+        (input)="buscar()"
+      />
+    </div>
+
+    <div class="categorias-scroll">
+      @for (cat of categorias(); track cat) {
+        <button
+          class="cat-btn"
+          [class.active]="categoriaSeleccionada() === cat"
+          (click)="filtrarPorCategoria(cat)"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  @if (cargando()) {
+    <div class="estado-cargando">
+      <div class="spinner"></div>
+      <p>Cargando documentos...</p>
+    </div>
+  } @else if (documentosFiltrados().length === 0) {
+    <div class="estado-vacio">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <p>No hay documentos en esta categoría</p>
+      <span>Sé el primero en compartir un documento</span>
+    </div>
+  } @else {
+    <div class="documentos-grid">
+      @for (doc of documentosFiltrados(); track doc.id) {
+        <div class="documento-card">
+          <!-- Icono y tipo -->
+          <div class="doc-icono">
+            <span class="doc-icono-grande">{{ getIconoArchivo(doc.tipoArchivo) }}</span>
+            <span class="doc-tipo">{{ (doc.tipoArchivo || 'ARCHIVO') | uppercase }}</span>
+          </div>
+
+          <!-- Contenido -->
+          <div class="doc-contenido">
+            <h3 class="doc-titulo">{{ doc.titulo }}</h3>
+            <p class="doc-descripcion">{{ doc.descripcion }}</p>
+            
+            <div class="doc-meta">
+              <span class="doc-categoria">{{ doc.categoria }}</span>
+              <span class="doc-autor">👤 {{ doc.autor.nombreUsuario }}</span>
+            </div>
+
+            <div class="doc-stats">
+              <span>📥 {{ doc.descargas }} descargas</span>
+              <span>👁️ {{ doc.visitas }} visitas</span>
+              <span>📅 {{ formatearFecha(doc.fechaCreacion) }}</span>
+              <span>📎 {{ formatearTamano(doc.tamanoKb) }}</span>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="doc-acciones">
+            <button class="btn-descargar" (click)="descargarDocumento(doc)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Descargar
+            </button>
+            
+            @if (esAutor(doc)) {
+              <button class="btn-editar" (click)="abrirModalEditar(doc)" title="Editar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="btn-eliminar" (click)="eliminarDocumento(doc.id)" title="Eliminar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===== MODAL ===== -->
+  @if (modalAbierto()) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ modalEditando() ? 'Editar documento' : 'Subir nuevo documento' }}</h2>
+          <button class="modal-cerrar" (click)="cerrarModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          @if (errorMsg()) {
+            <div class="mensaje mensaje--error">{{ errorMsg() }}</div>
+          }
+
+          <!-- Título -->
+          <div class="campo">
+            <label>Título del documento *</label>
+            <input
+              type="text"
+              [(ngModel)]="formTitulo"
+              placeholder="Ej: Guía de integrales definidas"
+              maxlength="200"
+            />
+          </div>
+
+          <!-- Descripción -->
+          <div class="campo">
+            <label>Descripción *</label>
+            <textarea
+              [(ngModel)]="formDescripcion"
+              placeholder="Describe el contenido del documento..."
+              rows="3"
+              maxlength="500"
+            ></textarea>
+          </div>
+
+          <!-- Categoría -->
+          <div class="campo">
+            <label>Categoría *</label>
+            <select [(ngModel)]="formCategoriaSeleccionada">
+              <option value="">Selecciona una categoría</option>
+              @for (cat of categorias(); track cat) {
+                @if (cat !== 'Todas') {
+                  <option [value]="cat">{{ cat }}</option>
+                }
+              }
+              <option value="Personalizada">+ Agregar categoría personalizada</option>
+            </select>
+          </div>
+
+          <!-- Categoría personalizada -->
+          @if (formCategoriaSeleccionada() === 'Personalizada') {
+            <div class="campo">
+              <label>Nueva categoría *</label>
+              <input
+                type="text"
+                [(ngModel)]="formCategoriaPersonalizada"
+                placeholder="Ej: Programación, Física cuántica..."
+                maxlength="50"
+              />
+            </div>
+          }
+
+          <!-- Archivo (solo para nuevo) -->
+          @if (!modalEditando()) {
+            <div class="campo campo-archivo">
+              <label>Archivo *</label>
+              <div class="drop-zone">
+                <input
+                  type="file"
+                  (change)="onArchivoSeleccionado($event)"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar"
+                />
+                <div class="drop-content">
+                  <span class="drop-icono">📁</span>
+                  <p>Arrastra o selecciona tu archivo</p>
+                  <span class="drop-info">PDF, Word, Excel, PowerPoint, imágenes, ZIP (Máx 20MB)</span>
+                </div>
+              </div>
+              @if (formArchivo()) {
+                <div class="archivo-seleccionado">
+                  ✅ {{ formArchivo()!.name }} ({{ formatearTamano(formArchivo()!.size / 1024) }})
+                </div>
+              }
+            </div>
+          }
+
+          @if (modalEditando()) {
+            <div class="campo">
+              <label>Archivo actual</label>
+              <div class="archivo-actual">
+                <span>{{ getIconoArchivo(modalEditando()!.tipoArchivo) }}</span>
+                <a [href]="modalEditando()!.urlArchivo" target="_blank">{{ modalEditando()!.nombreArchivo }}</a>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn--secondary" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn btn--primary" (click)="guardarDocumento()" [disabled]="enviando()">
+            @if (enviando()) {
+              <span class="spinner-mini"></span>
+              Guardando...
+            } @else {
+              {{ modalEditando() ? 'Actualizar' : 'Publicar' }}
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

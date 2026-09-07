@@ -1,6 +1,8 @@
 // src/app/core/services/notification.service.ts
-import { Injectable, signal } from '@angular/core';
-import { Observable, Subject, of } from 'rxjs';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, Subject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Notificacion {
   id: number;
@@ -13,6 +15,7 @@ export interface Notificacion {
   usuarioFoto?: string;
   postId?: number;
   comentarioId?: number;
+  respuestaId?: number;
   url?: string;
 }
 
@@ -20,37 +23,37 @@ export interface Notificacion {
   providedIn: 'root'
 })
 export class NotificationService {
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl;
+
   private notificacionesSubject = new Subject<Notificacion>();
   public notificaciones$ = this.notificacionesSubject.asObservable();
 
   mensajesNoLeidos = signal<number>(0);
-  private notificacionesCache: Notificacion[] = [];
 
-  constructor() {
-    this.notificacionesCache = this.obtenerNotificacionesMock();
+  //  CONEXIÓN REAL CON EL BACKEND
+  obtenerNotificaciones(): Observable<Notificacion[]> {
+    return this.http.get<Notificacion[]>(`${this.apiUrl}/notificaciones`);
   }
 
-  obtenerNotificaciones(): Observable<Notificacion[]> {
-    return of(this.notificacionesCache);
+  contarNoLeidas(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/notificaciones/no-leidas/count`);
   }
 
   marcarComoLeida(id: number): Observable<void> {
-    this.notificacionesCache = this.notificacionesCache.map(n => 
-      n.id === id ? { ...n, leida: true } : n
-    );
-    return of(void 0);
+    return this.http.put<void>(`${this.apiUrl}/notificaciones/leer`, { ids: [id] });
   }
 
   marcarTodasComoLeidas(ids: number[]): Observable<void> {
-    this.notificacionesCache = this.notificacionesCache.map(n => 
-      ids.includes(n.id) ? { ...n, leida: true } : n
-    );
-    return of(void 0);
+    return this.http.put<void>(`${this.apiUrl}/notificaciones/leer`, { ids });
+  }
+
+  marcarTodasComoLeidasSimple(): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/notificaciones/leer-todas`, {});
   }
 
   eliminarNotificacion(id: number): Observable<void> {
-    this.notificacionesCache = this.notificacionesCache.filter(n => n.id !== id);
-    return of(void 0);
+    return this.http.delete<void>(`${this.apiUrl}/notificaciones/${id}`);
   }
 
   actualizarContador(total: number): void {
@@ -62,55 +65,7 @@ export class NotificationService {
   }
 
   agregarNotificacion(notificacion: Notificacion): void {
-    this.notificacionesCache = [notificacion, ...this.notificacionesCache];
     this.notificacionesSubject.next(notificacion);
     this.mensajesNoLeidos.update(val => val + 1);
-  }
-
-  private obtenerNotificacionesMock(): Notificacion[] {
-    return [
-      {
-        id: 1,
-        tipo: 'like',
-        mensaje: '<strong>Juan Pérez</strong> le dio like a tu publicación',
-        leida: false,
-        fecha: new Date(),
-        usuarioId: 1,
-        usuarioNombre: 'Juan Pérez',
-        url: '/publicacion/1'
-      },
-      {
-        id: 2,
-        tipo: 'comentario',
-        mensaje: '<strong>María Gómez</strong> comentó en tu publicación',
-        leida: false,
-        fecha: new Date(Date.now() - 3600000),
-        usuarioId: 2,
-        usuarioNombre: 'María Gómez',
-        postId: 1,
-        url: '/publicacion/1'
-      },
-      {
-        id: 3,
-        tipo: 'respuesta',
-        mensaje: '<strong>Carlos López</strong> respondió a tu comentario',
-        leida: true,
-        fecha: new Date(Date.now() - 86400000),
-        usuarioId: 3,
-        usuarioNombre: 'Carlos López',
-        postId: 1,
-        url: '/publicacion/1'
-      },
-      {
-        id: 4,
-        tipo: 'solicitud',
-        mensaje: '<strong>Ana Martínez</strong> quiere ser tu contacto',
-        leida: false,
-        fecha: new Date(Date.now() - 7200000),
-        usuarioId: 4,
-        usuarioNombre: 'Ana Martínez',
-        url: '/chat/solicitudes'
-      }
-    ];
   }
 }
