@@ -1,5 +1,69 @@
 <!-- src/app/shared/components/floating-social/floating-social.component.html -->
 
+<!-- ===== CARRUSEL DE ANUNCIOS ESTÁTICOS ===== -->
+@if (showStaticAd()) {
+  <div class="static-ad-carousel">
+    <!-- Botón de cierre -->
+    <button class="static-ad-carousel__close" (click)="closeStaticAd()" aria-label="Cerrar anuncios">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- Contenedor del carrusel -->
+    <div class="static-ad-carousel__container">
+      <!-- Imagen actual -->
+      <a [href]="staticAds()[indiceActual()].link" target="_blank" rel="noopener noreferrer" class="static-ad-carousel__link">
+        <img 
+          [src]="staticAds()[indiceActual()].image" 
+          [alt]="staticAds()[indiceActual()].alt" 
+          class="static-ad-carousel__img"
+          loading="lazy"
+          (error)="onImageError($event)"
+        />
+      </a>
+
+      <!-- Indicadores de página -->
+      <div class="static-ad-carousel__dots">
+        @for (ad of staticAds(); track ad.id; let i = $index) {
+          <button 
+            class="static-ad-carousel__dot"
+            [class.active]="i === indiceActual()"
+            (click)="irAlIndice(i)"
+            [attr.aria-label]="'Ir al anuncio ' + (i + 1)"
+          ></button>
+        }
+      </div>
+
+      <!-- Contador de anuncios -->
+      <div class="static-ad-carousel__counter">
+        {{ indiceActual() + 1 }} / {{ staticAds().length }}
+      </div>
+    </div>
+
+    <!-- Botones de navegación -->
+    <button 
+      class="static-ad-carousel__nav static-ad-carousel__nav--prev" 
+      (click)="anterior()"
+      aria-label="Anterior"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <button 
+      class="static-ad-carousel__nav static-ad-carousel__nav--next" 
+      (click)="siguiente()"
+      aria-label="Siguiente"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+}
+
 <!-- ===== ANUNCIO SUPERIOR ===== -->
 @if (showTopAd()) {
   <div class="floating-ad floating-ad--top">
@@ -76,7 +140,7 @@
       </button>
       <div class="popup__content">
         <h2 class="popup__title">Bienvenido a Kiert</h2>
-        <p class="popup__desc">Comparte tus conocimientos,comunidad de apoyo y aprender de otros y crece junto a nuestra comunidad.</p>
+        <p class="popup__desc">Comparte tus conocimientos, comunidad de apoyo y aprender de otros y crece junto a nuestra comunidad.</p>
         <div class="popup__features">
           <div class="popup__feature">Comparte casos</div>
           <div class="popup__feature">Ayuda a otros</div>

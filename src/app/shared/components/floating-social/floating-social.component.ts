@@ -12,6 +12,13 @@ export interface SocialLink {
   iconColor: string;
 }
 
+export interface StaticAd {
+  id: number;
+  image: string;
+  link: string;
+  alt: string;
+}
+
 @Component({
   selector: 'kiert-floating-social',
   standalone: true,
@@ -20,6 +27,50 @@ export interface SocialLink {
   styleUrl: './floating-social.component.scss',
 })
 export class FloatingSocialComponent implements OnInit {
+  // ===== CARRUSEL DE ANUNCIOS ESTÁTICOS =====
+  showStaticAd = signal(true);
+  indiceActual = signal(0);
+
+  staticAds = signal<StaticAd[]>([
+    {
+      id: 1,
+      image: 'assets/images/frase-anuncio/frase.jpg',
+      link: 'http://localhost:4200/#/',
+      alt: 'Anuncio 1 - Kiert'
+    },
+    {
+      id: 2,
+      image: 'assets/images/frase-anuncio/anunci1.jpg',
+      link: 'https://www.facebook.com/confecciones.herliz/',
+      alt: 'Anuncio 2 - Kiert'
+    },
+    {
+      id: 3,
+      image: 'assets/images/frase-anuncio/anuncio2.jpg',
+      link: 'https://www.facebook.com/cykaconfeccion/?locale=es_LA',
+      alt: 'Anuncio 3 - Kiert'
+    },
+    {
+      id: 4,
+      image: 'assets/images/frase-anuncio/anuncio3.jpg',
+      link: 'https://www.ecosia.org/',
+      alt: 'Anuncio 4 - Kiert'
+    },
+    {
+      id: 5,
+      image: 'assets/images/frase-anuncio/anuncio4.jpg',
+      link: 'https://www.karnilcorp.com/index.html',
+      alt: 'Anuncio 5 - Kiert'
+    },
+     {
+      id: 6,
+      image: 'assets/images/frase-anuncio/anuncio5.jpg',
+      link: 'https://www.karnilcorp.com/index.html',
+      alt: 'Anuncio 5 - Kiert'
+    }
+  ]);
+
+  // ===== OTROS ANUNCIOS =====
   showTopAd = signal(true);
   showBottomAd = signal(true);
   showPopUp = signal(false);
@@ -33,6 +84,36 @@ export class FloatingSocialComponent implements OnInit {
     }, 3000);
   }
 
+  // ===== MÉTODOS DEL CARRUSEL =====
+
+  siguiente(): void {
+    const total = this.staticAds().length;
+    const nuevoIndice = (this.indiceActual() + 1) % total;
+    this.indiceActual.set(nuevoIndice);
+  }
+
+  anterior(): void {
+    const total = this.staticAds().length;
+    const nuevoIndice = (this.indiceActual() - 1 + total) % total;
+    this.indiceActual.set(nuevoIndice);
+  }
+
+  irAlIndice(indice: number): void {
+    if (indice >= 0 && indice < this.staticAds().length) {
+      this.indiceActual.set(indice);
+    }
+  }
+
+  closeStaticAd(): void {
+    this.showStaticAd.set(false);
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="250" viewBox="0 0 200 250"%3E%3Crect width="200" height="250" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%232dd4bf" text-anchor="middle" dy=".3em"%3EAnuncio%3C/text%3E%3C/svg%3E';
+  }
+
+  // ===== MÉTODOS PARA OTROS ANUNCIOS =====
   closeTopAd(): void {
     this.showTopAd.set(false);
   }
@@ -49,6 +130,7 @@ export class FloatingSocialComponent implements OnInit {
     this.showBanner.set(false);
   }
 
+  // ===== REDES SOCIALES =====
   socialLinks = signal<SocialLink[]>([
     {
       id: 'github',
@@ -116,7 +198,7 @@ export class FloatingSocialComponent implements OnInit {
     }
   ]);
 
-  // ===== ICONOS SVG CON COLORES ORIGINALES =====
+  // ===== ICONOS SVG =====
 
   private getGitHubIcon(): string {
     return `<svg viewBox="0 0 24 24" fill="#24292e"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>`;
@@ -150,5 +232,3 @@ export class FloatingSocialComponent implements OnInit {
     return `<svg viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>`;
   }
 }
-
-

@@ -21,11 +21,19 @@
 
   &__info {
     h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       font-size: 1.8rem;
       font-weight: 700;
       color: #e6edf3;
       margin: 0 0 4px 0;
       letter-spacing: -0.02em;
+
+      svg {
+        color: #2dd4bf;
+        flex-shrink: 0;
+      }
     }
 
     p {
@@ -62,6 +70,7 @@
   svg {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
   }
 
   &--primary {
@@ -104,11 +113,17 @@
   button {
     background: none;
     border: none;
-    font-size: 1.2rem;
     cursor: pointer;
     color: inherit;
     opacity: 0.7;
     padding: 0 4px;
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
 
     &:hover {
       opacity: 1;
@@ -174,16 +189,40 @@
   }
 }
 
+.categorias-wrapper {
+  position: relative;
+}
+
 .categorias-scroll {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 4px 0 8px;
-  scrollbar-width: none;
+  padding: 4px 0 12px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 
+  // Scrollbar personalizada
   &::-webkit-scrollbar {
-    display: none;
+    height: 4px;
   }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(45, 212, 191, 0.3);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.5);
+    }
+  }
+
+  // Scrollbar para Firefox
+  scrollbar-width: thin;
+  scrollbar-color: rgba(45, 212, 191, 0.3) rgba(255, 255, 255, 0.04);
 }
 
 .cat-btn {
@@ -197,6 +236,7 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
+  flex-shrink: 0;
 
   &:hover {
     color: #e6edf3;
@@ -295,8 +335,17 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 
     .doc-icono-grande {
-      font-size: 2rem;
-      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+
+      svg {
+        width: 28px;
+        height: 28px;
+      }
     }
 
     .doc-tipo {
@@ -338,6 +387,7 @@
 
     .doc-meta {
       display: flex;
+      align-items: center;
       gap: 8px;
       flex-wrap: wrap;
       margin-top: 4px;
@@ -352,8 +402,16 @@
       }
 
       .doc-autor {
+        display: flex;
+        align-items: center;
+        gap: 4px;
         font-size: 0.75rem;
         color: #8b98a5;
+
+        svg {
+          width: 14px;
+          height: 14px;
+        }
       }
     }
 
@@ -366,6 +424,18 @@
       margin-top: 4px;
       padding-top: 8px;
       border-top: 1px solid rgba(255, 255, 255, 0.04);
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        svg {
+          width: 14px;
+          height: 14px;
+          flex-shrink: 0;
+        }
+      }
     }
   }
 
@@ -392,6 +462,7 @@
       svg {
         width: 14px;
         height: 14px;
+        flex-shrink: 0;
       }
     }
 
@@ -508,13 +579,21 @@
     background: none;
     border: none;
     color: #8b98a5;
-    font-size: 1.5rem;
     cursor: pointer;
-    padding: 0 4px;
-    line-height: 1;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
 
     &:hover {
       color: #e6edf3;
+      background: rgba(255, 255, 255, 0.05);
     }
   }
 }
@@ -540,7 +619,7 @@
     margin-bottom: 4px;
   }
 
-  input, textarea, select {
+  input, textarea {
     width: 100%;
     padding: 10px 14px;
     background: rgba(255, 255, 255, 0.04);
@@ -566,14 +645,44 @@
     resize: vertical;
     min-height: 80px;
   }
+}
+
+// Select personalizado
+.select-wrapper {
+  position: relative;
 
   select {
+    width: 100%;
+    padding: 10px 40px 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    color: #e6edf3;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    font-family: inherit;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238b98a5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
     cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: #2dd4bf;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    option {
+      background: #161b22;
+      color: #e6edf3;
+    }
+  }
+
+  .select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8b98a5;
+    pointer-events: none;
   }
 }
 
@@ -606,10 +715,9 @@
     .drop-content {
       pointer-events: none;
 
-      .drop-icono {
-        font-size: 2.5rem;
-        display: block;
+      svg {
         margin-bottom: 8px;
+        opacity: 0.5;
       }
 
       p {
@@ -626,12 +734,21 @@
   }
 
   .archivo-seleccionado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-top: 8px;
     font-size: 0.85rem;
     color: #2dd4bf;
     padding: 8px 12px;
     background: rgba(45, 212, 191, 0.06);
     border-radius: 6px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
   }
 }
 
@@ -642,6 +759,11 @@
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 6px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 
   a {
     color: #58a6ff;

@@ -67,23 +67,4 @@
       }
     </div>
   }
-
-  <!-- ===== CARRUSEL DE MINI BANNERS ===== -->
-  <div class="ad-carrusel">
-    <div class="ad-carrusel-track">
-      @for (anuncio of imagenes.anuncios; track $index) {
-        <div class="ad-mini-banner">
-          <a href="#" class="ad-mini-link" target="_blank">
-            <img 
-              [src]="anuncio" 
-              [alt]="'Anuncio ' + ($index + 1)" 
-              class="ad-mini-img"
-              (error)="onImageError($event)"
-              loading="lazy"
-            >
-          </a>
-        </div>
-      }
-    </div>
-  </div>
 </div>

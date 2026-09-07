@@ -19,7 +19,7 @@ export class FooterComponent {
       title: 'Kiert Pro',
       description: 'Funcionalidades exclusivas para profesionales',
       image: 'assets/images/anuncio/foto-anuncio.jpg', // ✅ SIN src/ al inicio
-      link: '#',
+      link: 'https://www.instagram.com/kiert_2005?stkn=aG9wZmQyamUzemV5',
       alt: 'Kiert Pro'
     },
     {
@@ -27,7 +27,7 @@ export class FooterComponent {
       title: 'Comunidad',
       description: 'Comparte y aprende con otros desarrolladores',
       image: 'assets/images/anuncio/foto-anuncio.jpeg',
-      link: '#',
+      link: 'https://www.tiktok.com/@kiert2005?_r=1&_t=ZS-99XPBPKJM7r',
       alt: 'Comunidad Kiert'
     }
   ]);

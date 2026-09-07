@@ -23,19 +23,6 @@ export class FeedComponent implements OnInit {
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
 
-  // ✅ SOLO CARRUSEL DE MINI BANNERS (sin banner destacado)
-  imagenes = {
-    anuncios: [
-      'assets/images/anuncio-banner/dianbanner1.jpg',
-      'assets/images/anuncio-banner/yrelisbanner2.jpg',
-      'assets/images/anuncio-banner/herlizbanner3.jpg',
-      'assets/images/anuncio-banner/karnilbanner4.jpg',
-      'assets/images/anuncio-banner/cykabanner5.jpg'
-    ]
-  };
-
-  placeholderImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="100" viewBox="0 0 200 100"%3E%3Crect width="200" height="100" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="12" fill="%232dd4bf" text-anchor="middle" dy=".3em"%3EAnuncio%3C/text%3E%3C/svg%3E';
-
   ngOnInit(): void {
     console.log('📋 FeedComponent: Inicializando');
     this.cargarPosts();
@@ -72,11 +59,5 @@ export class FeedComponent implements OnInit {
     } else {
       console.error('❌ FeedComponent: ID inválido:', postId);
     }
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = this.placeholderImage;
-    img.alt = '';
   }
 }

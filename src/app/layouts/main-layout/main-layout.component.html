@@ -9,9 +9,10 @@
   <div class="main-banner">
     <div class="main-banner__content">
       <div class="main-banner__image">
-        <img src="https://via.placeholder.com/1200x200/2dd4bf/0d1117?text=Kiert+-+Comunidad+de+Desarrolladores" 
+        <img src="assets/images/anuncio/bannergood.jpg" 
              alt="Kiert Banner" 
-             loading="lazy">
+             loading="lazy"
+             (error)="onBannerError($event)">
       </div>
       <div class="main-banner__overlay">
         <h2>Únete a la comunidad</h2>
