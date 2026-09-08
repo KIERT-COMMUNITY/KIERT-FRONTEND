@@ -48,6 +48,11 @@ export const routes: Routes = [
         path: 'documentos/categoria/:categoria', 
         loadComponent: () => import('./features/documentos/documentos.component').then(m => m.DocumentosComponent)
       },
+      // ✅ RUTA PARA BIBLIOTECA
+      { 
+        path: 'biblioteca', 
+        loadComponent: () => import('./features/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent)
+      },
       { 
         path: 'perfil', 
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),

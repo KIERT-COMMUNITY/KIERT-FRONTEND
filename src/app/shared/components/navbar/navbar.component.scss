@@ -100,11 +100,39 @@
   }
 }
 
+// ========== ENLACES CON ICONOS ==========
+.nav-link-documentos,
+.nav-link-biblioteca {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    color: #e6edf3;
+    background: #1b232c;
+  }
+
+  &.active {
+    color: #2dd4bf;
+    background: rgba(45, 212, 191, 0.1);
+  }
+}
+
 // ========== BADGE DE NOTIFICACIONES ==========
 .nav-link-chat {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  
+  &:hover {
+    color: #e6edf3;
+    background: #1b232c;
+  }
 }
 
 .badge-notificacion {
@@ -153,8 +181,7 @@
   }
 }
 
-// ========== ESTILOS PARA EL COMPONENTE DE NOTIFICACIONES ==========
-// Estos estilos se aplican al contenedor del componente
+// ========== ESTILOS PARA NOTIFICACIONES ==========
 :host ::ng-deep {
   .notificaciones-container {
     position: relative;
@@ -494,13 +521,20 @@
       }
     }
 
+    .nav-link-documentos,
+    .nav-link-biblioteca {
+      padding: 10px 14px;
+      width: 100%;
+      border-radius: 6px;
+    }
+
     .btn-logout {
       width: 100%;
       padding: 10px 14px;
       margin-top: 4px;
     }
 
-    // ✅ Ajustes para el componente de notificaciones en móvil
+    // Ajustes para notificaciones en móvil
     :host ::ng-deep {
       .notificaciones-container {
         width: 100%;
@@ -567,15 +601,5 @@
     height: 18px;
     font-size: 0.55rem;
     padding: 0 4px;
-  }
-}
-
-// ========== ESTILOS ADICIONALES ==========
-.nav-link-chat {
-  cursor: pointer;
-  
-  &:hover {
-    color: #e6edf3;
-    background: #1b232c;
   }
 }
