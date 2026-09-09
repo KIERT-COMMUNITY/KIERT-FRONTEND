@@ -92,17 +92,8 @@
   backdrop-filter: blur(20px);
   background: rgba(13, 17, 23, 0.95);
 
-  // ✅ MOVER LA ANIMACIÓN AQUÍ (antes de las reglas anidadas)
   animation: slideDown 0.2s ease-out;
 
-  @media (max-width: 480px) {
-    width: calc(100vw - 20px);
-    right: -10px;
-    max-height: 400px;
-    border-radius: 12px;
-  }
-
-  // ✅ MOVER LA ANIMACIÓN TAMBIÉN AQUÍ SI ES NECESARIO
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
@@ -409,10 +400,353 @@
   50% { opacity: 0.5; transform: scale(0.8); }
 }
 
-// ===== RESPONSIVE =====
+// ============================================================
+// 📱 RESPONSIVE OPTIMIZADO PARA MÓVILES
+// ============================================================
+
+// === TABLET Y MÓVILES GRANDES (hasta 768px) ===
 @media (max-width: 768px) {
+  .btn-notificaciones {
+    padding: 8px 12px;
+    
+    .icono-campana {
+      width: 20px;
+      height: 20px;
+    }
+
+    .badge-notificacion {
+      min-width: 16px;
+      height: 16px;
+      font-size: 0.55rem;
+      top: -2px;
+      right: -2px;
+    }
+  }
+
   .dropdown-notificaciones {
-    width: calc(100vw - 20px);
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    width: 100%;
     max-width: 100%;
+    max-height: calc(100vh - 60px);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    animation: slideDownMobile 0.25s ease-out;
+  }
+
+  @keyframes slideDownMobile {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dropdown-header {
+    padding: 14px 16px;
+
+    .dropdown-header-left {
+      h3 {
+        font-size: 0.85rem;
+      }
+    }
+
+    .btn-marcar-todas {
+      font-size: 0.65rem;
+      padding: 4px 8px;
+    }
+
+    .btn-cerrar {
+      padding: 4px;
+    }
+  }
+
+  .dropdown-body {
+    padding: 4px 0;
+  }
+
+  .notificacion-item {
+    padding: 10px 14px;
+    gap: 10px;
+
+    .icono-tipo {
+      width: 32px;
+      height: 32px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .contenido-notificacion {
+      .mensaje {
+        font-size: 0.8rem;
+      }
+
+      .meta {
+        font-size: 0.65rem;
+        gap: 8px;
+      }
+    }
+
+    .indicador-no-leida {
+      width: 6px;
+      height: 6px;
+      margin-top: 12px;
+    }
+  }
+
+  .sin-notificaciones {
+    padding: 32px 16px;
+
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    p {
+      font-size: 0.85rem;
+    }
+
+    .sin-sub {
+      font-size: 0.7rem;
+    }
+  }
+
+  .cargando {
+    padding: 32px 16px;
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
+// === MÓVILES PEQUEÑOS (hasta 480px) ===
+@media (max-width: 480px) {
+  .btn-notificaciones {
+    padding: 6px 8px;
+    
+    .icono-campana {
+      width: 18px;
+      height: 18px;
+    }
+
+    .badge-notificacion {
+      min-width: 14px;
+      height: 14px;
+      font-size: 0.5rem;
+      top: -2px;
+      right: -2px;
+      padding: 0 4px;
+    }
+  }
+
+  .dropdown-notificaciones {
+    top: 56px;
+    max-height: calc(100vh - 56px);
+  }
+
+  .dropdown-header {
+    padding: 12px 14px;
+
+    .dropdown-header-left {
+      gap: 8px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      h3 {
+        font-size: 0.8rem;
+      }
+    }
+
+    .btn-marcar-todas {
+      font-size: 0.6rem;
+      padding: 3px 6px;
+      
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .btn-cerrar {
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  .notificacion-item {
+    padding: 8px 12px;
+    gap: 8px;
+
+    .icono-tipo {
+      width: 28px;
+      height: 28px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .contenido-notificacion {
+      .mensaje {
+        font-size: 0.75rem;
+      }
+
+      .meta {
+        font-size: 0.6rem;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+    }
+
+    .indicador-no-leida {
+      width: 5px;
+      height: 5px;
+      margin-top: 10px;
+    }
+  }
+
+  .sin-notificaciones {
+    padding: 24px 12px;
+
+    svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    p {
+      font-size: 0.8rem;
+    }
+
+    .sin-sub {
+      font-size: 0.65rem;
+    }
+  }
+
+  .cargando {
+    padding: 24px 12px;
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+    }
+
+    span {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// === MÓVILES MUY PEQUEÑOS (hasta 380px) ===
+@media (max-width: 380px) {
+  .btn-notificaciones {
+    padding: 4px 6px;
+    
+    .icono-campana {
+      width: 16px;
+      height: 16px;
+    }
+
+    .badge-notificacion {
+      min-width: 12px;
+      height: 12px;
+      font-size: 0.45rem;
+      top: -1px;
+      right: -1px;
+      padding: 0 3px;
+    }
+  }
+
+  .dropdown-notificaciones {
+    top: 52px;
+    max-height: calc(100vh - 52px);
+  }
+
+  .dropdown-header {
+    padding: 10px 12px;
+
+    h3 {
+      font-size: 0.75rem;
+    }
+  }
+
+  .notificacion-item {
+    padding: 6px 10px;
+    gap: 6px;
+
+    .icono-tipo {
+      width: 24px;
+      height: 24px;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .contenido-notificacion {
+      .mensaje {
+        font-size: 0.7rem;
+      }
+    }
+  }
+}
+
+// === PREFERENCIAS DE ACCESIBILIDAD ===
+@media (prefers-reduced-motion: reduce) {
+  .btn-notificaciones {
+    transition: none !important;
+
+    .icono-campana {
+      transition: none !important;
+    }
+
+    &:hover .icono-campana {
+      transform: none !important;
+    }
+
+    &.tiene-notificaciones .icono-campana {
+      animation: none !important;
+    }
+  }
+
+  .dropdown-notificaciones {
+    animation: none !important;
+  }
+
+  .notificacion-item {
+    transition: none !important;
+  }
+
+  .btn-marcar-todas,
+  .btn-cerrar,
+  .link-accion,
+  .btn-eliminar {
+    transition: none !important;
+  }
+
+  .badge-notificacion {
+    animation: none !important;
+  }
+
+  .indicador-no-leida {
+    animation: none !important;
   }
 }
