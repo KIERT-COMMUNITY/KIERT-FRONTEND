@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
-import { ChatService } from '../../core/services/chat.service';
+import { BloqueoService } from '../../core/services/bloqueo.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { User } from '../../core/models/user.model';
 
@@ -18,23 +18,25 @@ import { User } from '../../core/models/user.model';
 export class ProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private postService = inject(PostService);
-  private chatService = inject(ChatService);
+  private bloqueoService = inject(BloqueoService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   public personalizacionStore = inject(PersonalizacionStore);
 
-  subiendoFoto = signal<boolean>(false);
+  // ===== ESTADO =====
+  subiendoFoto = signal(false);
   previsualizacion = signal<string | null>(null);
-  editando = signal<boolean>(false);
-  cargando = signal<boolean>(false);
+  editando = signal(false);
+  cargando = signal(false);
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
 
-  totalPosts = signal<number>(0);
-  totalComentarios = signal<number>(0);
-  totalConversaciones = signal<number>(0);
+  // ===== ESTADÍSTICAS =====
+  totalPosts = signal(0);
+  totalBloqueados = signal(0);
 
+  // ===== USUARIO =====
   usuario = this.authService.usuario;
 
   inicial = computed(() => {
@@ -46,20 +48,17 @@ export class ProfileComponent implements OnInit {
   email = computed(() => this.usuario()?.email || 'Sin correo');
   fotoPerfil = computed(() => this.usuario()?.fotoPerfilUrl || null);
 
+  // ===== FORMULARIO =====
   formEditar = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
   });
 
   constructor() {
-    // ✅ EFECTO EN EL CONSTRUCTOR (contexto de inyección válido)
     effect(() => {
       const personalizacion = this.personalizacionStore.personalizacion();
       if (personalizacion) {
         console.log('🔄 Profile - Personalización aplicada:', personalizacion);
-        console.log('🎨 Profile - Fondo:', this.personalizacionStore.fondoGradiente());
-        console.log('🎨 Profile - Tema:', this.personalizacionStore.temaClass());
-        console.log('🎨 Profile - Marco:', this.personalizacionStore.marcoClase());
         this.cdr.detectChanges();
       }
     });
@@ -81,6 +80,7 @@ export class ProfileComponent implements OnInit {
   }
 
   cargarEstadisticas(): void {
+    // Posts del usuario
     this.postService.listar().subscribe({
       next: (posts) => {
         const userId = this.usuario()?.id;
@@ -91,8 +91,9 @@ export class ProfileComponent implements OnInit {
       error: () => {}
     });
 
-    this.chatService.listarConversaciones().subscribe({
-      next: (conv) => this.totalConversaciones.set(conv.length),
+    // Bloqueados
+    this.bloqueoService.listarBloqueados().subscribe({
+      next: (bloqueados) => this.totalBloqueados.set(bloqueados.length),
       error: () => {}
     });
   }
@@ -170,6 +171,10 @@ export class ProfileComponent implements OnInit {
 
   irAjustes(): void {
     this.router.navigate(['/ajustes']);
+  }
+
+  irABloqueados(): void {
+    this.router.navigate(['/bloqueados']);
   }
 
   logout(): void {

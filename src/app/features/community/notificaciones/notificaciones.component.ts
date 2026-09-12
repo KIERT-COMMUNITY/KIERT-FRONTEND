@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { NotificationService, Notificacion } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { GrupoService } from '../../../core/services/grupo.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -15,6 +16,7 @@ import { Subscription } from 'rxjs';
 export class NotificacionesComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  private grupoService = inject(GrupoService);
   private router = inject(Router);
 
   notificaciones = signal<Notificacion[]>([]);
@@ -139,6 +141,11 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   }
 
   onClickNotificacion(notificacion: Notificacion): void {
+    // Si es invitación a grupo, no cerrar el menú al hacer clic (porque hay botones)
+    if (this.esInvitacionGrupo(notificacion.tipo)) {
+      return;
+    }
+
     if (!notificacion.leida) {
       this.marcarComoLeida(notificacion.id);
     }
@@ -148,10 +155,66 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     this.cerrarMenu();
   }
 
-  // ✅ Ver todas las notificaciones → navegar a página completa
+  // ✅ Ver todas las notificaciones
   verTodas(): void {
     this.cerrarMenu();
     this.router.navigate(['/notificaciones']);
+  }
+
+  // ===== INVITACIONES A GRUPOS =====
+  esInvitacionGrupo(tipo: string): boolean {
+    return tipo === 'INVITACION_GRUPO';
+  }
+
+  aceptarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
+    event.stopPropagation();
+    
+    if (!notificacion.grupoId) return;
+    
+    this.grupoService.aceptarInvitacion(notificacion.grupoId).subscribe({
+      next: () => {
+        // Marcar como leída
+        this.marcarComoLeida(notificacion.id);
+        
+        // Eliminar de la lista
+        this.notificaciones.update(lista => 
+          lista.filter(n => n.id !== notificacion.id)
+        );
+        
+        // Actualizar contador
+        this.actualizarContadorNoLeidas();
+        
+        // Redirigir al grupo
+        this.cerrarMenu();
+        this.router.navigate(['/chat/grupo', notificacion.grupoId]);
+      },
+      error: (err) => {
+        console.error('Error al aceptar invitación:', err);
+      }
+    });
+  }
+
+  rechazarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
+    event.stopPropagation();
+    
+    if (!notificacion.grupoId) return;
+    
+    if (!confirm('¿Rechazar la invitación al grupo?')) return;
+    
+    this.grupoService.rechazarInvitacion(notificacion.grupoId).subscribe({
+      next: () => {
+        this.marcarComoLeida(notificacion.id);
+        
+        this.notificaciones.update(lista => 
+          lista.filter(n => n.id !== notificacion.id)
+        );
+        
+        this.actualizarContadorNoLeidas();
+      },
+      error: (err) => {
+        console.error('Error al rechazar invitación:', err);
+      }
+    });
   }
 
   getColorTipo(tipo: string): string {
@@ -160,7 +223,8 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       'comentario': '#2dd4bf',
       'respuesta': '#58a6ff',
       'solicitud': '#f9ca24',
-      'sistema': '#8b98a5'
+      'sistema': '#8b98a5',
+      'INVITACION_GRUPO': '#6c5ce7'
     };
     return colores[tipo] || '#8b98a5';
   }
@@ -171,7 +235,8 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       'comentario': 'Comentario',
       'respuesta': 'Respuesta',
       'solicitud': 'Solicitud',
-      'sistema': 'Sistema'
+      'sistema': 'Sistema',
+      'INVITACION_GRUPO': 'Invitación a grupo'
     };
     return etiquetas[tipo] || 'Notificación';
   }

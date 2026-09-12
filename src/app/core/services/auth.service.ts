@@ -10,7 +10,7 @@ import { User, AuthResponse, LoginRequest, RegisterRequest } from '../models/use
 export class AuthService {
   private readonly API_URL = environment.apiUrl;
   private readonly USER_KEY = 'usuario_actual';
-  private readonly TOKEN_KEY = 'auth_token';
+ private readonly TOKEN_KEY = 'token';
 
   usuario: WritableSignal<User | null> = signal<User | null>(null);
   token: WritableSignal<string | null> = signal<string | null>(null);

@@ -1,39 +1,61 @@
-<!-- APLICAR TEMA DE COLOR AL FONDO GENERAL -->
-<div class="profile-container" 
+<!-- PERFIL - TEMA + FONDO -->
+<div class="profile-container"
      [ngClass]="personalizacionStore.temaClass()"
      [style.background]="personalizacionStore.fondoGradiente()">
-  
-  <div class="profile-header">
-    <h1 class="page-title">Mi Perfil</h1>
+
+  <!-- ===== HEADER ===== -->
+  <header class="profile-header">
+    <div class="profile-header__left">
+      <h1 class="page-title">Mi Perfil</h1>
+      <p class="page-sub">Gestiona tu información y personalización</p>
+    </div>
     <div class="profile-header__actions">
       <button class="btn-secondary" (click)="toggleEditar()" [disabled]="subiendoFoto()">
-        {{ editando() ? 'Cancelar' : 'Editar perfil' }}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          @if (editando()) {
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          } @else {
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          }
+        </svg>
+        <span>{{ editando() ? 'Cancelar' : 'Editar perfil' }}</span>
       </button>
     </div>
-  </div>
+  </header>
 
   <!-- ===== ALERTAS ===== -->
   @if (errorMsg()) {
     <div class="alert alert-error">
-      {{ errorMsg() }}
-      <button (click)="errorMsg.set(null)">✕</button>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>{{ errorMsg() }}</span>
+      <button (click)="errorMsg.set(null)" aria-label="Cerrar">×</button>
     </div>
   }
   @if (exitoMsg()) {
     <div class="alert alert-success">
-      {{ exitoMsg() }}
-      <button (click)="exitoMsg.set(null)">✕</button>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="8 12 11 15 16 9"/>
+      </svg>
+      <span>{{ exitoMsg() }}</span>
+      <button (click)="exitoMsg.set(null)" aria-label="Cerrar">×</button>
     </div>
   }
 
-  <!-- TARJETA CON FONDO DE PERFIL -->
+  <!-- ===== TARJETA PRINCIPAL ===== -->
   <div class="profile-card" [style.background]="personalizacionStore.fondoGradiente()">
-    
-    <div class="profile-avatar-container">
+
+    <!-- ===== SECCIÓN AVATAR ===== -->
+    <section class="profile-avatar-section">
       <div class="profile-avatar-wrapper">
-        <!-- ✅ AVATAR CON MARCO -->
-        <div class="profile-avatar" 
-             [class]="personalizacionStore.marcoClase()" 
+        <div class="profile-avatar"
+             [class]="personalizacionStore.marcoClase()"
              [style]="personalizacionStore.marcoEstilo()">
           @if (previsualizacion()) {
             <img [src]="previsualizacion()" alt="Vista previa">
@@ -48,66 +70,137 @@
             </div>
           }
         </div>
-        <div class="marco-indicator">
-          <span class="marco-indicator__label">Marco: {{ personalizacionStore.marcoId() }}</span>
-        </div>
+
+        @if (personalizacionStore.marcoId() !== 'none') {
+          <div class="marco-indicator">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>{{ personalizacionStore.marcoId() }}</span>
+          </div>
+        }
       </div>
-      
+
       <label class="btn-upload" [class.disabled]="subiendoFoto()">
-        {{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span>{{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}</span>
         <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden [disabled]="subiendoFoto()">
       </label>
-    </div>
+    </section>
 
-    <div class="profile-info">
+    <!-- ===== SECCIÓN INFO ===== -->
+    <section class="profile-info">
       <div class="profile-info__item">
-        <span class="profile-info__label">Usuario</span>
-        @if (editando()) {
-          <input type="text" class="profile-info__input" formControlName="nombreUsuario">
-        } @else {
-          <span class="profile-info__value">&#64;{{ nombreCompleto() }}</span>
-        }
+        <div class="profile-info__icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="profile-info__content">
+          <span class="profile-info__label">Usuario</span>
+          @if (editando()) {
+            <input type="text" class="profile-info__input" formControlName="nombreUsuario">
+          } @else {
+            <span class="profile-info__value">&#64;{{ nombreCompleto() }}</span>
+          }
+        </div>
       </div>
 
       <div class="profile-info__item">
-        <span class="profile-info__label">Correo</span>
-        @if (editando()) {
-          <input type="email" class="profile-info__input" formControlName="email">
-        } @else {
-          <span class="profile-info__value">{{ email() }}</span>
-        }
+        <div class="profile-info__icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div class="profile-info__content">
+          <span class="profile-info__label">Correo electrónico</span>
+          @if (editando()) {
+            <input type="email" class="profile-info__input" formControlName="email">
+          } @else {
+            <span class="profile-info__value">{{ email() }}</span>
+          }
+        </div>
       </div>
 
       @if (editando()) {
         <div class="profile-info__actions">
           <button class="btn-save" (click)="guardarCambios()" [disabled]="cargando()">
-            {{ cargando() ? 'Guardando...' : 'Guardar cambios' }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>{{ cargando() ? 'Guardando...' : 'Guardar cambios' }}</span>
           </button>
-          <button class="btn-cancel" (click)="toggleEditar()" [disabled]="cargando()">Cancelar</button>
+          <button class="btn-cancel" (click)="toggleEditar()" [disabled]="cargando()">
+            Cancelar
+          </button>
         </div>
       }
-    </div>
+    </section>
 
-    <div class="profile-stats">
+    <!-- ===== SECCIÓN STATS ===== -->
+    <section class="profile-stats">
       <div class="profile-stats__item">
+        <div class="profile-stats__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
         <span class="profile-stats__number">{{ totalPosts() }}</span>
         <span class="profile-stats__label">Publicaciones</span>
       </div>
-      <div class="profile-stats__item">
-        <span class="profile-stats__number">{{ totalComentarios() }}</span>
-        <span class="profile-stats__label">Comentarios</span>
-      </div>
-      <div class="profile-stats__item">
-        <span class="profile-stats__number">{{ totalConversaciones() }}</span>
-        <span class="profile-stats__label">Conversaciones</span>
-      </div>
-    </div>
+    </section>
 
-    <div class="profile-actions">
-      <button class="btn-action" (click)="irAlChat()">Mensajes</button>
-      <button class="btn-action" (click)="irHistorialPublicaciones()">Historial</button>
-      <button class="btn-action" (click)="irAjustes()">Ajustes</button>
-      <button class="btn-action btn-danger" (click)="logout()">Cerrar sesión</button>
-    </div>
+    <!-- ===== SECCIÓN ACCIONES ===== -->
+    <section class="profile-actions">
+      <button class="btn-action" (click)="irHistorialPublicaciones()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>Historial</span>
+      </button>
+
+      <button class="btn-action" (click)="irAlChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>Mensajes</span>
+      </button>
+
+      <button class="btn-action" (click)="irABloqueados()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+        <span>Bloqueados</span>
+        @if (totalBloqueados() > 0) {
+          <span class="btn-action__badge">{{ totalBloqueados() }}</span>
+        }
+      </button>
+
+      <button class="btn-action" (click)="irAjustes()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Ajustes</span>
+      </button>
+
+      <button class="btn-action btn-danger" (click)="logout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </section>
+
   </div>
 </div>

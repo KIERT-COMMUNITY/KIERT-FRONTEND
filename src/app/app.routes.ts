@@ -13,6 +13,8 @@ export const routes: Routes = [
         path: 'login', 
         loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) 
       },
+      
+
       { 
         path: 'registro', 
         loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) 
@@ -118,6 +120,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),
         canActivate: [authGuard]
       },
+      { 
+  path: 'chat/grupo/:id', 
+  loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent),
+  canActivate: [authGuard]
+},
 
       // ===== AJUSTES =====
       {

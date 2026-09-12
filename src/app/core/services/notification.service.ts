@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 
 export interface Notificacion {
   id: number;
-  tipo: 'like' | 'comentario' | 'respuesta' | 'solicitud' | 'sistema';
+  tipo: 'like' | 'comentario' | 'respuesta' | 'solicitud' | 'sistema' | 'INVITACION_GRUPO';  // ✅ AGREGAR AQUÍ
   mensaje: string;
   leida: boolean;
   fecha: Date;
@@ -17,6 +17,7 @@ export interface Notificacion {
   comentarioId?: number;
   respuestaId?: number;
   url?: string;
+  grupoId?: number;  // ✅ Ya lo tenías
 }
 
 @Injectable({

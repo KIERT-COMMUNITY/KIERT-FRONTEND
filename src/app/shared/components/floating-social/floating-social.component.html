@@ -15,9 +15,9 @@
     <div class="static-ad-carousel__container">
       <!-- Imagen actual -->
       <a [href]="staticAds()[indiceActual()].link" target="_blank" rel="noopener noreferrer" class="static-ad-carousel__link">
-        <img 
-          [src]="staticAds()[indiceActual()].image" 
-          [alt]="staticAds()[indiceActual()].alt" 
+        <img
+          [src]="staticAds()[indiceActual()].image"
+          [alt]="staticAds()[indiceActual()].alt"
           class="static-ad-carousel__img"
           loading="lazy"
           (error)="onImageError($event)"
@@ -27,7 +27,7 @@
       <!-- Indicadores de página -->
       <div class="static-ad-carousel__dots">
         @for (ad of staticAds(); track ad.id; let i = $index) {
-          <button 
+          <button
             class="static-ad-carousel__dot"
             [class.active]="i === indiceActual()"
             (click)="irAlIndice(i)"
@@ -43,8 +43,8 @@
     </div>
 
     <!-- Botones de navegación -->
-    <button 
-      class="static-ad-carousel__nav static-ad-carousel__nav--prev" 
+    <button
+      class="static-ad-carousel__nav static-ad-carousel__nav--prev"
       (click)="anterior()"
       aria-label="Anterior"
     >
@@ -52,8 +52,8 @@
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
-    <button 
-      class="static-ad-carousel__nav static-ad-carousel__nav--next" 
+    <button
+      class="static-ad-carousel__nav static-ad-carousel__nav--next"
       (click)="siguiente()"
       aria-label="Siguiente"
     >
@@ -61,6 +61,47 @@
         <polyline points="9 18 15 12 9 6"/>
       </svg>
     </button>
+  </div>
+}
+
+<!-- ===== COLABORADORES DEL PROYECTO ===== -->
+@if (showBottomAd()) {
+  <div class="floating-colaboradores">
+    <button class="floating-colaboradores__close" (click)="closeBottomAd()" aria-label="Cerrar colaboradores">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="floating-colaboradores__title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <span>Colaboradores</span>
+    </div>
+
+    <div class="floating-colaboradores__grid">
+      @for (colab of colaboradores(); track colab.usuario) {
+        <a [href]="colab.url"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="floating-colaboradores__link"
+           [attr.title]="colab.usuario">
+          <img [src]="getAvatarColaborador(colab.usuario)"
+               [alt]="colab.usuario"
+               loading="lazy"
+               (error)="onImageError($event)">
+        </a>
+      }
+    </div>
+
+    <div class="floating-colaboradores__footer">
+      <span>Hecho por el equipo</span>
+    </div>
   </div>
 }
 
@@ -99,34 +140,32 @@
 }
 
 <!-- ===== REDES SOCIALES ===== -->
-@if (showBottomAd()) {
-  <div class="floating-social">
-    <button class="floating-social__close" (click)="closeBottomAd()" aria-label="Cerrar redes sociales">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <div class="floating-social__title">
-      <span>Conéctate con nosotros</span>
-    </div>
-    <div class="floating-social__grid">
-      @for (link of socialLinks(); track link.id) {
-        <a [href]="link.url" 
-           target="_blank" 
-           rel="noopener noreferrer"
-           class="floating-social__link"
-           [style.background]="link.bgColor"
-           [attr.title]="link.name">
-          <span class="social-icon" [innerHTML]="link.icon | safeHtml"></span>
-        </a>
-      }
-    </div>
-    <div class="floating-social__footer">
-      <span>Únete a la comunidad</span>
-    </div>
+<div class="floating-social">
+  <button class="floating-social__close" (click)="closeBottomAd()" aria-label="Cerrar redes sociales">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+  <div class="floating-social__title">
+    <span>Conéctate con nosotros</span>
   </div>
-}
+  <div class="floating-social__grid">
+    @for (link of socialLinks(); track link.id) {
+      <a [href]="link.url"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="floating-social__link"
+         [style.background]="link.bgColor"
+         [attr.title]="link.name">
+        <span class="social-icon" [innerHTML]="link.icon | safeHtml"></span>
+      </a>
+    }
+  </div>
+  <div class="floating-social__footer">
+    <span>Únete a la comunidad</span>
+  </div>
+</div>
 
 <!-- ===== POP-UP / INTERSTITIAL ===== -->
 @if (showPopUp()) {

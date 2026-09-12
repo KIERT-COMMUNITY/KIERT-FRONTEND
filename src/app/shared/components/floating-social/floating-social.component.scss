@@ -17,7 +17,6 @@
   transition: none;
   animation: none;
 
-  // Contenedor de la imagen
   &__container {
     position: relative;
     width: 100%;
@@ -26,7 +25,6 @@
     background: #1b232c;
   }
 
-  // Botón de cierre
   &__close {
     position: absolute;
     top: -10px;
@@ -56,7 +54,6 @@
     }
   }
 
-  // Enlace de la imagen
   &__link {
     display: block;
     width: 100%;
@@ -64,7 +61,6 @@
     text-decoration: none;
   }
 
-  // Imagen
   &__img {
     display: block;
     width: 100%;
@@ -76,7 +72,6 @@
     background: #1b232c;
   }
 
-  // Puntos indicadores
   &__dots {
     position: absolute;
     bottom: 8px;
@@ -107,7 +102,6 @@
     }
   }
 
-  // Contador
   &__counter {
     position: absolute;
     bottom: 8px;
@@ -122,7 +116,6 @@
     backdrop-filter: blur(4px);
   }
 
-  // Botones de navegación
   &__nav {
     position: absolute;
     top: 50%;
@@ -159,6 +152,137 @@
     &--next {
       right: 4px;
     }
+  }
+}
+
+// ============================================================
+// COLABORADORES DEL PROYECTO
+// ============================================================
+
+// ============================================================
+// COLABORADORES DEL PROYECTO - ARRIBA IZQUIERDA
+// ============================================================
+.floating-colaboradores {
+  position: fixed;
+  z-index: 9999;
+  top: 400px;              // ✅ ARRIBA en lugar de bottom
+  left: 10px;             // ✅ Izquierda
+  // bottom: 90px;        // ❌ Eliminar esta línea
+  background: rgba(19, 26, 34, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(45, 212, 191, 0.12);
+  border-radius: 16px;
+  padding: 14px 16px 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  min-width: 220px;
+  max-width: 260px;
+
+  // ...el resto del estilo se mantiene igual
+
+  &__close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(248, 81, 73, 0.15);
+    color: #f85149;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    padding: 0;
+
+    &:hover {
+      background: rgba(248, 81, 73, 0.25);
+    }
+
+    svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+    }
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #e6edf3;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin-bottom: 12px;
+    padding-right: 8px;
+    letter-spacing: 0.3px;
+    opacity: 0.85;
+
+    svg {
+      color: #2dd4bf;
+      flex-shrink: 0;
+    }
+  }
+
+  &__grid {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__link {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(45, 212, 191, 0.2);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #1b232c;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(45, 212, 191, 0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    &:hover {
+      transform: translateY(-3px) scale(1.1);
+      border-color: #2dd4bf;
+      box-shadow: 0 6px 16px rgba(45, 212, 191, 0.35);
+
+      &::after {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__footer {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.6rem;
+    font-family: 'Inter', -apple-system, sans-serif;
+    letter-spacing: 0.5px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
   }
 }
 
@@ -249,7 +373,7 @@
       justify-content: center;
       width: 100%;
       height: 100%;
-      
+
       svg {
         width: 24px;
         height: 24px;
@@ -568,7 +692,7 @@
 }
 
 // ============================================================
-// RESPONSIVE
+// RESPONSIVE - TABLET (<= 768px)
 // ============================================================
 
 @media (max-width: 768px) {
@@ -607,6 +731,52 @@
       svg {
         width: 12px;
         height: 12px;
+      }
+    }
+  }
+
+  .floating-colaboradores {
+    bottom: 80px;
+    left: 10px;
+    min-width: 170px;
+    max-width: 200px;
+    padding: 10px 10px 12px;
+    border-radius: 12px;
+
+    &__title {
+      font-size: 0.6rem;
+      margin-bottom: 8px;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    &__grid {
+      gap: 5px;
+    }
+
+    &__link {
+      width: 32px;
+      height: 32px;
+      border-width: 1.5px;
+    }
+
+    &__footer {
+      font-size: 0.5rem;
+      padding-top: 5px;
+    }
+
+    &__close {
+      width: 18px;
+      height: 18px;
+      top: -6px;
+      right: -6px;
+
+      svg {
+        width: 10px;
+        height: 10px;
       }
     }
   }
@@ -707,6 +877,10 @@
   }
 }
 
+// ============================================================
+// RESPONSIVE - MÓVIL (<= 480px)
+// ============================================================
+
 @media (max-width: 480px) {
   .static-ad-carousel {
     width: 100px;
@@ -729,7 +903,11 @@
     &__dot {
       width: 5px;
       height: 5px;
+    }
+
+    &__dots {
       gap: 4px;
+      bottom: 5px;
     }
 
     &__counter {
@@ -746,6 +924,53 @@
       svg {
         width: 10px;
         height: 10px;
+      }
+    }
+  }
+
+  .floating-colaboradores {
+    bottom: 70px;
+    left: 8px;
+    min-width: 140px;
+    max-width: 170px;
+    padding: 8px 8px 10px;
+    border-radius: 10px;
+
+    &__title {
+      font-size: 0.5rem;
+      margin-bottom: 6px;
+      gap: 4px;
+
+      svg {
+        width: 10px;
+        height: 10px;
+      }
+    }
+
+    &__grid {
+      gap: 4px;
+    }
+
+    &__link {
+      width: 28px;
+      height: 28px;
+      border-width: 1.5px;
+    }
+
+    &__footer {
+      font-size: 0.45rem;
+      padding-top: 4px;
+    }
+
+    &__close {
+      width: 16px;
+      height: 16px;
+      top: -5px;
+      right: -5px;
+
+      svg {
+        width: 8px;
+        height: 8px;
       }
     }
   }
@@ -803,7 +1028,9 @@
       border-radius: 8px;
     }
 
-    &__text { font-size: 0.55rem; }
+    &__text {
+      font-size: 0.55rem;
+    }
 
     &__close {
       width: 16px;
@@ -842,14 +1069,37 @@
 }
 
 // ============================================================
+// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
+// ============================================================
+
+@media (max-width: 380px) {
+  .floating-colaboradores {
+    min-width: 120px;
+    max-width: 145px;
+
+    &__link {
+      width: 26px;
+      height: 26px;
+    }
+  }
+
+  .floating-social {
+    min-width: 100px;
+    max-width: 115px;
+
+    &__link .social-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+// ============================================================
 // PREFERENCIAS DE ACCESIBILIDAD
 // ============================================================
 
 @media (prefers-reduced-motion: reduce) {
-  .popup-overlay {
-    animation: none !important;
-  }
-
+  .popup-overlay,
   .popup {
     animation: none !important;
   }

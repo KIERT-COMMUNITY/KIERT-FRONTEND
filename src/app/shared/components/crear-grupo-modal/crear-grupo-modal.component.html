@@ -1,0 +1,185 @@
+<div class="modal-overlay" (click)="cerrar.emit()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+      <h2>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Crear grupo
+      </h2>
+      <button class="btn-close" (click)="cerrar.emit()" aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- INDICADOR DE PASOS -->
+    <div class="steps">
+      <div class="step" [class.step--active]="paso() === 1">
+        <span class="step__num">1</span>
+        <span class="step__label">Información</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" [class.step--active]="paso() === 2">
+        <span class="step__num">2</span>
+        <span class="step__label">Miembros</span>
+      </div>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="modal-body">
+
+      @if (paso() === 1) {
+        <!-- PASO 1 -->
+        <div class="form-group">
+          <label>Nombre del grupo *</label>
+          <input
+            type="text"
+            [ngModel]="nombre()"
+            (ngModelChange)="nombre.set($event)"
+            placeholder="Ej: Equipo de desarrollo"
+            maxlength="100"
+          >
+          <small class="char-count">{{ nombre().length }}/100</small>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea
+            [ngModel]="descripcion()"
+            (ngModelChange)="descripcion.set($event)"
+            placeholder="Describe el propósito del grupo..."
+            rows="3"
+            maxlength="500"
+          ></textarea>
+          <small class="char-count">{{ descripcion().length }}/500</small>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de grupo</label>
+          <div class="tipo-opciones">
+            <button
+              type="button"
+              class="tipo-btn"
+              [class.tipo-btn--active]="tipo() === 'PRIVADO'"
+              (click)="tipo.set('PRIVADO')"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <strong>Privado</strong>
+              <span>Solo por invitación</span>
+            </button>
+            <button
+              type="button"
+              class="tipo-btn"
+              [class.tipo-btn--active]="tipo() === 'PUBLICO'"
+              (click)="tipo.set('PUBLICO')"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              <strong>Público</strong>
+              <span>Cualquiera puede unirse</span>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- PASO 2 -->
+        <div class="buscador">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            [ngModel]="busquedaUsuario()"
+            (ngModelChange)="busquedaUsuario.set($event); buscarUsuarios()"
+            placeholder="Buscar usuarios para invitar..."
+          >
+        </div>
+
+        @if (usuariosSeleccionados().size > 0) {
+          <div class="seleccionados">
+            <span class="seleccionados__count">{{ usuariosSeleccionados().size }} seleccionados</span>
+          </div>
+        }
+
+        <div class="resultados">
+          @if (buscando()) {
+            <div class="loading-mini">
+              <div class="spinner-small"></div>
+              <span>Buscando...</span>
+            </div>
+          } @else if (resultados().length > 0) {
+            @for (user of resultados(); track user.id) {
+              <div class="user-item" [class.user-item--selected]="estaSeleccionado(user.id)" (click)="toggleUsuario(user.id)">
+                <div class="user-avatar">
+                  @if (user.fotoPerfilUrl) {
+                    <img [src]="user.fotoPerfilUrl" [alt]="user.nombreUsuario">
+                  } @else {
+                    <span>{{ user.nombreUsuario.charAt(0).toUpperCase() }}</span>
+                  }
+                </div>
+                <div class="user-info">
+                  <span class="user-nombre">{{ user.nombreUsuario }}</span>
+                  <span class="user-email">{{ user.email }}</span>
+                </div>
+                <div class="user-check" [class.user-check--active]="estaSeleccionado(user.id)">
+                  @if (estaSeleccionado(user.id)) {
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  }
+                </div>
+              </div>
+            }
+          } @else if (busquedaUsuario().length >= 2) {
+            <div class="sin-resultados">
+              <p>Sin resultados</p>
+            </div>
+          } @else {
+            <div class="ayuda">
+              <p>Escribe el nombre de un usuario para buscarlo</p>
+            </div>
+          }
+        </div>
+      }
+
+      @if (errorMsg()) {
+        <div class="error-message">{{ errorMsg() }}</div>
+      }
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-actions">
+      @if (paso() === 1) {
+        <button type="button" class="btn-secondary" (click)="cerrar.emit()" [disabled]="enviando()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-primary" (click)="siguientePaso()">
+          Siguiente
+        </button>
+      } @else {
+        <button type="button" class="btn-secondary" (click)="volverPaso()" [disabled]="enviando()">
+          Atrás
+        </button>
+        <button type="button" class="btn-primary" (click)="crear()" [disabled]="enviando()">
+          {{ enviando() ? 'Creando...' : 'Crear grupo' }}
+        </button>
+      }
+    </div>
+
+  </div>
+</div>

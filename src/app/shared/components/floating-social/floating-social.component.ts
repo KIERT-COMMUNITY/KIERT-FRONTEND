@@ -1,4 +1,3 @@
-// src/app/shared/components/floating-social/floating-social.component.ts
 import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafeHtmlPipe } from '../../pipes/safe.html.pipe';
@@ -17,6 +16,11 @@ export interface StaticAd {
   image: string;
   link: string;
   alt: string;
+}
+
+export interface Colaborador {
+  usuario: string;
+  url: string;
 }
 
 @Component({
@@ -62,11 +66,11 @@ export class FloatingSocialComponent implements OnInit {
       link: 'https://www.karnilcorp.com/index.html',
       alt: 'Anuncio 5 - Kiert'
     },
-     {
+    {
       id: 6,
       image: 'assets/images/frase-anuncio/anuncio5.jpg',
       link: 'https://www.karnilcorp.com/index.html',
-      alt: 'Anuncio 5 - Kiert'
+      alt: 'Anuncio 6 - Kiert'
     }
   ]);
 
@@ -130,12 +134,25 @@ export class FloatingSocialComponent implements OnInit {
     this.showBanner.set(false);
   }
 
-  // ===== REDES SOCIALES =====
+  // ===== COLABORADORES DEL PROYECTO =====
+  colaboradores = signal<Colaborador[]>([
+    { usuario: 'Ardamins', url: 'https://github.com/Ardamins' },
+    { usuario: 'keanovpaginawebyproyectos-maker', url: 'https://github.com/keanovpaginawebyproyectos-maker' },
+    { usuario: 'Makintosh28', url: 'https://github.com/Makintosh28' },
+    { usuario: 'Thok4', url: 'https://github.com/Thok4' },
+    { usuario: 'redbwoy67X', url: 'https://github.com/redbwoy67X' }
+  ]);
+
+  getAvatarColaborador(usuario: string): string {
+    return `https://github.com/${usuario}.png?size=80`;
+  }
+
+  // ===== REDES SOCIALES REALES DE KIERT =====
   socialLinks = signal<SocialLink[]>([
     {
       id: 'github',
       name: 'GitHub',
-      url: 'https://github.com/tu-usuario',
+      url: 'https://github.com/Ardamins',
       icon: this.getGitHubIcon(),
       bgColor: '#ffffff',
       iconColor: '#24292e'
@@ -143,23 +160,15 @@ export class FloatingSocialComponent implements OnInit {
     {
       id: 'discord',
       name: 'Discord',
-      url: 'https://discord.gg/tu-invite',
+      url: 'https://discord.gg/Ky9UwfqMF',
       icon: this.getDiscordIcon(),
       bgColor: '#ffffff',
       iconColor: '#5865F2'
     },
     {
-      id: 'linkedin',
-      name: 'LinkedIn',
-      url: 'https://linkedin.com/in/tu-perfil',
-      icon: this.getLinkedInIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#0A66C2'
-    },
-    {
       id: 'facebook',
       name: 'Facebook',
-      url: 'https://facebook.com/tu-pagina',
+      url: 'https://www.facebook.com/profile.php?id=61587247660638',
       icon: this.getFacebookIcon(),
       bgColor: '#ffffff',
       iconColor: '#1877F2'
@@ -167,7 +176,7 @@ export class FloatingSocialComponent implements OnInit {
     {
       id: 'tiktok',
       name: 'TikTok',
-      url: 'https://tiktok.com/@tu-usuario',
+      url: 'https://www.tiktok.com/@kiert2005',
       icon: this.getTikTokIcon(),
       bgColor: '#ffffff',
       iconColor: '#000000'
@@ -175,7 +184,7 @@ export class FloatingSocialComponent implements OnInit {
     {
       id: 'instagram',
       name: 'Instagram',
-      url: 'https://instagram.com/tu-usuario',
+      url: 'https://www.instagram.com/kiert_2005',
       icon: this.getInstagramIcon(),
       bgColor: '#ffffff',
       iconColor: '#E4405F'
@@ -183,15 +192,23 @@ export class FloatingSocialComponent implements OnInit {
     {
       id: 'youtube',
       name: 'YouTube',
-      url: 'https://youtube.com/@tu-canal',
+      url: 'https://www.youtube.com/@kiert',
       icon: this.getYouTubeIcon(),
       bgColor: '#ffffff',
       iconColor: '#FF0000'
     },
     {
+      id: 'linkedin',
+      name: 'LinkedIn',
+      url: 'https://linkedin.com/company/kiert',
+      icon: this.getLinkedInIcon(),
+      bgColor: '#ffffff',
+      iconColor: '#0A66C2'
+    },
+    {
       id: 'twitch',
       name: 'Twitch',
-      url: 'https://twitch.tv/tu-usuario',
+      url: 'https://twitch.tv/kiert',
       icon: this.getTwitchIcon(),
       bgColor: '#ffffff',
       iconColor: '#9146FF'

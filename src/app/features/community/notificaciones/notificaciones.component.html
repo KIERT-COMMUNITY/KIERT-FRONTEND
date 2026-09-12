@@ -1,6 +1,6 @@
 <div class="notificaciones-container">
 
-  <!-- ===== BOTÓN CON TEXTO "NOTIFICACIONES" ===== -->
+  <!-- BOTÓN CAMPANA -->
   <button
     class="btn-notificaciones"
     (click)="toggleMenu()"
@@ -8,26 +8,23 @@
     [attr.aria-expanded]="mostrando()"
     aria-label="Notificaciones"
   >
-    <!-- Icono campana con SVG -->
     <svg class="icono-campana" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
       <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
     </svg>
 
-    <!-- ✅ TEXTO VISIBLE -->
     <span class="btn-texto">Notificaciones</span>
 
-    <!-- Badge contador -->
     @if (noLeidas() > 0) {
       <span class="badge-notificacion">{{ noLeidas() > 99 ? '99+' : noLeidas() }}</span>
     }
   </button>
 
-  <!-- ===== DROPDOWN ===== -->
+  <!-- DROPDOWN -->
   @if (mostrando()) {
     <div class="dropdown-notificaciones">
 
-      <!-- Header del dropdown -->
+      <!-- HEADER -->
       <div class="dropdown-header">
         <div class="dropdown-header-left">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -47,7 +44,7 @@
         </button>
       </div>
 
-      <!-- Body -->
+      <!-- BODY -->
       <div class="dropdown-body">
         @if (cargando()) {
           <div class="cargando">
@@ -70,10 +67,11 @@
               <div
                 class="notificacion-item"
                 [class.leida]="notificacion.leida"
+                [class.notificacion-item--invitacion]="esInvitacionGrupo(notificacion.tipo)"
                 (click)="onClickNotificacion(notificacion)"
               >
 
-                <!-- Icono del tipo -->
+                <!-- ICONO DEL TIPO -->
                 <div class="icono-tipo" [style.background]="getColorTipo(notificacion.tipo) + '20'">
                   @switch (notificacion.tipo) {
                     @case ('like') {
@@ -98,6 +96,14 @@
                         <circle cx="12" cy="7" r="4"/>
                       </svg>
                     }
+                    @case ('INVITACION_GRUPO') {
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="getColorTipo(notificacion.tipo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <line x1="19" y1="8" x2="19" y2="14"/>
+                        <line x1="22" y1="11" x2="16" y2="11"/>
+                      </svg>
+                    }
                     @default {
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="getColorTipo(notificacion.tipo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -107,27 +113,50 @@
                   }
                 </div>
 
-                <!-- Contenido -->
+                <!-- CONTENIDO -->
                 <div class="contenido-notificacion">
                   <span class="tipo-label">{{ getEtiquetaTipo(notificacion.tipo) }}</span>
                   <div class="mensaje" [innerHTML]="notificacion.mensaje"></div>
                   <span class="fecha">{{ formatearFecha(notificacion.fecha) }}</span>
                 </div>
 
-                <!-- Botón eliminar -->
-                <button
-                  class="btn-eliminar"
-                  (click)="eliminarNotificacion(notificacion.id, $event)"
-                  title="Eliminar"
-                  aria-label="Eliminar notificación"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                  </svg>
-                </button>
+                <!-- BOTONES -->
+                @if (esInvitacionGrupo(notificacion.tipo)) {
+                  <div class="acciones-invitacion">
+                    <button
+                      class="btn-aceptar-invitacion"
+                      (click)="aceptarInvitacionGrupo(notificacion, $event)"
+                      title="Aceptar"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                    <button
+                      class="btn-rechazar-invitacion"
+                      (click)="rechazarInvitacionGrupo(notificacion, $event)"
+                      title="Rechazar"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                } @else {
+                  <button
+                    class="btn-eliminar"
+                    (click)="eliminarNotificacion(notificacion.id, $event)"
+                    title="Eliminar"
+                    aria-label="Eliminar notificación"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                  </button>
+                }
 
-                <!-- Punto indicador no leída -->
                 @if (!notificacion.leida) {
                   <span class="punto-no-leida"></span>
                 }
@@ -138,7 +167,7 @@
         }
       </div>
 
-      <!-- Footer del dropdown -->
+      <!-- FOOTER -->
       @if (notificaciones().length > 0) {
         <div class="dropdown-footer">
           @if (noLeidas() > 0) {

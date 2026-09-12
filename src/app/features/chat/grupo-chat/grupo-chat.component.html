@@ -1,7 +1,7 @@
 <div class="chat-messenger">
 
   <!-- ============================================================ -->
-  <!-- SIDEBAR (LISTA DE CHATS)                                     -->
+  <!-- SIDEBAR (LISTA DE CHATS / GRUPOS)                            -->
   <!-- ============================================================ -->
   <aside class="messenger-sidebar" [class.messenger-sidebar--open]="mobileMenuOpen()">
 
@@ -128,23 +128,23 @@
             </button>
           </div>
         } @else {
-          @for (grupo of grupos(); track grupo.id) {
+          @for (g of grupos(); track g.id) {
             <button class="chat-row"
-                    [class.chat-row--active]="grupoSeleccionado() === grupo.id && tabActual() === 'grupos'"
-                    (click)="seleccionarGrupo(grupo.id)">
+                    [class.chat-row--active]="grupoSeleccionado() === g.id && tabActual() === 'grupos'"
+                    (click)="seleccionarGrupo(g.id)">
               <div class="chat-row__avatar chat-row__avatar--grupo">
-                @if (grupo.fotoUrl) {
-                  <img [src]="grupo.fotoUrl" [alt]="grupo.nombre">
+                @if (g.fotoUrl) {
+                  <img [src]="g.fotoUrl" [alt]="g.nombre">
                 } @else {
-                  <span>{{ grupo.nombre.charAt(0).toUpperCase() }}</span>
+                  <span>{{ g.nombre.charAt(0).toUpperCase() }}</span>
                 }
               </div>
               <div class="chat-row__info">
                 <div class="chat-row__line">
-                  <span class="chat-row__name">{{ grupo.nombre }}</span>
+                  <span class="chat-row__name">{{ g.nombre }}</span>
                 </div>
                 <div class="chat-row__line">
-                  <span class="chat-row__preview">{{ grupo.totalMiembros }} miembros</span>
+                  <span class="chat-row__preview">{{ g.totalMiembros }} miembros</span>
                 </div>
               </div>
             </button>
@@ -210,7 +210,7 @@
   }
 
   <!-- ============================================================ -->
-  <!-- VENTANA DE CONVERSACIÓN                                      -->
+  <!-- VENTANA DE CHAT                                              -->
   <!-- ============================================================ -->
   <main class="messenger-chat">
 
@@ -223,7 +223,7 @@
       </svg>
     </button>
 
-    @if (!usuarioSeleccionado() && !grupoSeleccionado()) {
+    @if (!grupoSeleccionado()) {
       <!-- PLACEHOLDER -->
       <div class="chat-blank">
         <div class="chat-blank__icon">
@@ -233,8 +233,8 @@
             <line x1="8" y1="14" x2="13" y2="14"/>
           </svg>
         </div>
-        <h2 class="chat-blank__title">Tus mensajes</h2>
-        <p class="chat-blank__sub">Selecciona un chat o crea un grupo para empezar</p>
+        <h2 class="chat-blank__title">Tus grupos</h2>
+        <p class="chat-blank__sub">Selecciona un grupo o crea uno para empezar</p>
         <button class="chat-blank__btn" (click)="abrirModalGrupo()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -247,37 +247,36 @@
       </div>
     }
 
-    <!-- ===== CHAT PRIVADO ===== -->
-    @if (usuarioSeleccionado() && tabActual() === 'chats') {
+    <!-- ===== CHAT DE GRUPO ===== -->
+    @if (grupoSeleccionado() && grupo()) {
       <!-- Header -->
       <header class="chat-top">
-        <button class="chat-top__back" (click)="cerrarChat()">
+        <button class="chat-top__back" (click)="cerrarGrupo()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
 
-        <div class="chat-top__user" (click)="irAlPerfil(usuarioSeleccionado()!)">
-          <div class="chat-top__avatar">
-            <kiert-avatar-frame
-              [fotoUrl]="getFotoUsuario(usuarioSeleccionado()!)"
-              [nombre]="getNombreUsuario(usuarioSeleccionado()!)"
-              [size]="40"
-              [alt]="getNombreUsuario(usuarioSeleccionado()!)"
-              [navigateToProfile]="false"
-            />
-            <span class="chat-top__status"></span>
+        <div class="chat-top__user" (click)="toggleMiembros()">
+          <div class="chat-top__avatar chat-top__avatar--grupo">
+            @if (grupo()!.fotoUrl) {
+              <img [src]="grupo()!.fotoUrl" [alt]="grupo()!.nombre">
+            } @else {
+              <span>{{ grupo()!.nombre.charAt(0).toUpperCase() }}</span>
+            }
           </div>
           <div class="chat-top__info">
-            <span class="chat-top__name">{{ getNombreUsuario(usuarioSeleccionado()!) }}</span>
-            <span class="chat-top__sub">En línea</span>
+            <span class="chat-top__name">{{ grupo()!.nombre }}</span>
+            <span class="chat-top__sub">{{ grupo()!.totalMiembros }} miembros</span>
           </div>
         </div>
 
-        <button class="chat-top__action" (click)="irAlPerfil(usuarioSeleccionado()!)" title="Ver perfil">
+        <button class="chat-top__action" (click)="toggleMiembros()" title="Ver miembros">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </button>
       </header>
@@ -297,55 +296,33 @@
               </svg>
             </div>
             <h4>Sin mensajes</h4>
-            <p>Envía el primero para iniciar la conversación</p>
+            <p>Sé el primero en escribir en este grupo</p>
           </div>
         } @else {
-          @for (grupo of mensajesAgrupados(); track grupo.fecha) {
+          @for (grupoFecha of mensajesAgrupados(); track grupoFecha.fecha) {
             <div class="chat-divider">
-              <span>{{ grupo.fecha }}</span>
+              <span>{{ grupoFecha.fecha }}</span>
             </div>
 
-            @for (msg of grupo.mensajes; track msg.id) {
+            @for (msg of grupoFecha.mensajes; track msg.id) {
               <div class="msg" [class.msg--mine]="msg.propio">
                 @if (!msg.propio) {
-                  <div class="msg__avatar">
-                    <kiert-avatar-frame
-                      [fotoUrl]="getFotoUsuario(usuarioSeleccionado()!)"
-                      [nombre]="getNombreUsuario(usuarioSeleccionado()!)"
-                      [size]="32"
-                      [alt]="getNombreUsuario(usuarioSeleccionado()!)"
-                      [navigateToProfile]="false"
-                    />
+                  <div class="msg__avatar" (click)="irAlPerfil(msg.emisorId)">
+                    @if (msg.emisorFoto) {
+                      <img [src]="msg.emisorFoto" [alt]="msg.emisorNombre">
+                    } @else {
+                      <span>{{ msg.emisorNombre.charAt(0).toUpperCase() }}</span>
+                    }
                   </div>
                 }
 
                 <div class="msg__body">
+                  @if (!msg.propio) {
+                    <span class="msg__author">{{ msg.emisorNombre }}</span>
+                  }
                   @if (msg.contenido) {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }
-
-                  @if (msg.archivos && msg.archivos.length > 0) {
-                    <div class="msg__files">
-                      @for (archivo of msg.archivos; track $index) {
-                        <button class="file" (click)="abrirArchivo(archivo.url)">
-                          @if (esImagen(archivo)) {
-                            <div class="file__img">
-                              <img [src]="archivo.url" [alt]="archivo.nombre" loading="lazy">
-                            </div>
-                          } @else {
-                            <div class="file__doc">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                <polyline points="14 2 14 8 20 8"/>
-                              </svg>
-                              <span>{{ archivo.nombre }}</span>
-                            </div>
-                          }
-                        </button>
-                      }
-                    </div>
-                  }
-
                   <span class="msg__time">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
                 </div>
               </div>
@@ -354,32 +331,8 @@
         }
       </div>
 
-      <!-- Preview archivos -->
-      @if (archivosSeleccionados().length > 0) {
-        <div class="files-preview">
-          @for (archivo of archivosSeleccionados(); track $index) {
-            <div class="files-preview__item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-              </svg>
-              <span class="files-preview__name">{{ archivo.name }}</span>
-              <span class="files-preview__size">{{ (archivo.size / 1024).toFixed(1) }} KB</span>
-              <button (click)="quitarArchivo($index)">×</button>
-            </div>
-          }
-        </div>
-      }
-
       <!-- Composer -->
       <form class="chat-input" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
-        <label class="chat-input__file" title="Adjuntar">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-          </svg>
-          <input type="file" multiple (change)="onArchivosSeleccionados($event)" accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar" hidden>
-        </label>
-
         <input
           formControlName="contenido"
           type="text"
@@ -390,7 +343,7 @@
 
         <button type="submit"
                 class="chat-input__send"
-                [disabled]="enviando() || (!formMensaje.valid && archivosSeleccionados().length === 0)">
+                [disabled]="enviando() || !formMensaje.valid">
           @if (enviando()) {
             <div class="spinner-mini"></div>
           } @else {
@@ -400,97 +353,33 @@
           }
         </button>
       </form>
-    }
 
-    <!-- ===== CHAT DE GRUPO ===== -->
-    @if (grupoSeleccionado() && tabActual() === 'grupos') {
-      <header class="chat-top">
-        <button class="chat-top__back" (click)="cerrarGrupo()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
-
-        <div class="chat-top__user">
-          <div class="chat-top__avatar chat-top__avatar--grupo">
-            @if (getGrupoActual()?.fotoUrl) {
-              <img [src]="getGrupoActual()!.fotoUrl!" [alt]="getGrupoActual()!.nombre">
-            } @else {
-              <span>{{ getGrupoActual()?.nombre?.charAt(0)?.toUpperCase() }}</span>
-            }
+      <!-- PANEL MIEMBROS -->
+      @if (mostrarMiembros()) {
+        <div class="miembros-panel">
+          <div class="miembros-header">
+            <h3>Miembros ({{ miembros().length }})</h3>
+            <button (click)="toggleMiembros()">✕</button>
           </div>
-          <div class="chat-top__info">
-            <span class="chat-top__name">{{ getGrupoActual()?.nombre }}</span>
-            <span class="chat-top__sub">{{ getGrupoActual()?.totalMiembros }} miembros</span>
-          </div>
-        </div>
-      </header>
-
-      <div class="chat-stream" #mensajesGrupoContainer>
-        @if (mensajesGrupo().length === 0) {
-          <div class="chat-state">
-            <div class="chat-state__icon">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-            </div>
-            <h4>Sin mensajes</h4>
-            <p>Sé el primero en escribir</p>
-          </div>
-        } @else {
-          @for (msg of mensajesGrupo(); track msg.id) {
-            <div class="msg" [class.msg--mine]="msg.propio">
-              @if (!msg.propio) {
-                <div class="msg__avatar">
-                  @if (msg.emisorFoto) {
-                    <img [src]="msg.emisorFoto" [alt]="msg.emisorNombre">
+          <div class="miembros-lista">
+            @for (m of miembros(); track m.id) {
+              <div class="miembro-item" (click)="irAlPerfil(m.usuarioId)">
+                <div class="miembro-avatar">
+                  @if (m.fotoPerfilUrl) {
+                    <img [src]="m.fotoPerfilUrl" [alt]="m.nombreUsuario">
                   } @else {
-                    <span>{{ msg.emisorNombre.charAt(0).toUpperCase() }}</span>
+                    <span>{{ m.nombreUsuario.charAt(0).toUpperCase() }}</span>
                   }
                 </div>
-              }
-              <div class="msg__body">
-                @if (!msg.propio) {
-                  <span class="msg__author">{{ msg.emisorNombre }}</span>
-                }
-                @if (msg.contenido) {
-                  <div class="msg__bubble">{{ msg.contenido }}</div>
-                }
-                <span class="msg__time">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
+                <div class="miembro-info">
+                  <span class="miembro-nombre">{{ m.nombreUsuario }}</span>
+                  <span class="miembro-rol">{{ m.rol }}</span>
+                </div>
               </div>
-            </div>
-          }
-        }
-      </div>
-
-      <form class="chat-input" [formGroup]="formMensajeGrupo" (ngSubmit)="enviarMensajeGrupo()">
-        <label class="chat-input__file" title="Adjuntar">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-          </svg>
-          <input type="file" multiple hidden>
-        </label>
-
-        <input
-          formControlName="contenido"
-          type="text"
-          placeholder="Aa"
-          class="chat-input__field"
-          autocomplete="off"
-        >
-
-        <button type="submit"
-                class="chat-input__send"
-                [disabled]="enviandoGrupo() || !formMensajeGrupo.valid">
-          @if (enviandoGrupo()) {
-            <div class="spinner-mini"></div>
-          } @else {
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-            </svg>
-          }
-        </button>
-      </form>
+            }
+          </div>
+        </div>
+      }
     }
 
   </main>
