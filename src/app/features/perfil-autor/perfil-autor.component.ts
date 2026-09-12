@@ -4,14 +4,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ChatService } from '../../core/services/chat.service';
 import { UserService } from '../../core/services/user.service';
+import { BloqueoService, EstadoBloqueo } from '../../core/services/bloqueo.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { PersonalizacionService, Personalizacion } from '../../core/services/personalizacion.service';
 import { User } from '../../core/models/user.model';
+import { BloqueoModalComponent } from '../../shared/components/bloqueo-modal/bloqueo-modal.component';
 
 @Component({
   selector: 'kiert-perfil-autor',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BloqueoModalComponent],
   templateUrl: './perfil-autor.component.html',
   styleUrl: './perfil-autor.component.scss',
 })
@@ -21,20 +23,30 @@ export class PerfilAutorComponent implements OnInit {
   private authService = inject(AuthService);
   private chatService = inject(ChatService);
   private userService = inject(UserService);
+  private bloqueoService = inject(BloqueoService);
   private personalizacionService = inject(PersonalizacionService);
   public personalizacionStore = inject(PersonalizacionStore);
 
+  // ===== DATOS DEL AUTOR =====
   autor = signal<User | null>(null);
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
-  esContacto = signal(false);
-  solicitudPendiente = signal(false);
-  enviandoSolicitud = signal(false);
   esMiPerfil = signal(false);
   usuarioActual = this.authService.usuario;
 
-  // ✅ PERSONALIZACIÓN DEL AUTOR VISITADO
+  // ===== CONTACTO =====
+  esContacto = signal(false);
+  solicitudPendiente = signal(false);
+  enviandoSolicitud = signal(false);
+
+  // ===== BLOQUEO =====
+  estaBloqueado = signal(false);
+  mostrarModalBloqueo = signal(false);
+  bloqueoInfo = signal<EstadoBloqueo | null>(null);
+  procesandoBloqueo = signal(false);
+
+  // ===== PERSONALIZACIÓN DEL AUTOR VISITADO =====
   autorPersonalizacion = signal<Personalizacion | null>(null);
   autorTemaId = signal<string>('default');
   autorMarcoId = signal<string>('none');
@@ -42,7 +54,7 @@ export class PerfilAutorComponent implements OnInit {
   autorFotoPerfil = signal<string>('');
   autorFotoPortada = signal<string>('');
 
-  // ✅ FONDO DE PERFIL DEL AUTOR (para el contenedor y la tarjeta)
+  // ===== FONDO DE PERFIL DEL AUTOR =====
   get fondoPerfilDelAutor(): string {
     const fondoId = this.autorFondoId();
     const fondos = this.personalizacionStore.fondos();
@@ -50,23 +62,21 @@ export class PerfilAutorComponent implements OnInit {
     return encontrado?.gradiente || 'linear-gradient(135deg, #0d1117, #161b22)';
   }
 
-  // ✅ TEMA DEL AUTOR
+  // ===== TEMA DEL AUTOR =====
   get temaClassDelAutor(): string {
-    const tema = this.autorTemaId();
-    return `tema-${tema}`;
+    return `tema-${this.autorTemaId()}`;
   }
 
-  // ✅ MARCO DEL AUTOR
+  // ===== MARCO DEL AUTOR =====
   get marcoClaseDelAutor(): string {
-    const marco = this.autorMarcoId();
-    return `frame-${marco}`;
+    return `frame-${this.autorMarcoId()}`;
   }
 
-  // ✅ ESTILO DEL MARCO DEL AUTOR
+  // ===== ESTILO DEL MARCO DEL AUTOR =====
   get marcoEstiloDelAutor(): any {
     const marcoId = this.autorMarcoId();
     const gradientFrames = ['rainbow', 'pastel', 'ocean', 'sunset', 'galaxy', 'fire', 'ice', 'rose', 'crystal'];
-    
+
     if (gradientFrames.includes(marcoId)) {
       const marcoData = this.personalizacionStore.marcosData().find(m => m.id === marcoId);
       return {
@@ -79,7 +89,7 @@ export class PerfilAutorComponent implements OnInit {
         'border-radius': '50%',
       };
     }
-    
+
     return {
       'border': this.getMarcoBorder(marcoId),
       'box-shadow': this.getMarcoShadow(marcoId),
@@ -87,12 +97,12 @@ export class PerfilAutorComponent implements OnInit {
     };
   }
 
-  // ✅ FOTO DE PERFIL DEL AUTOR
+  // ===== FOTO DE PERFIL DEL AUTOR =====
   get fotoPerfilDelAutor(): string {
     return this.autorFotoPerfil() || this.autor()?.fotoPerfilUrl || '';
   }
 
-  // ✅ MÉTODOS AUXILIARES PARA MARCOS
+  // ===== MÉTODOS AUXILIARES PARA MARCOS =====
   getMarcoBorder(marcoId: string): string {
     const map: Record<string, string> = {
       'none': 'none',
@@ -143,10 +153,11 @@ export class PerfilAutorComponent implements OnInit {
     return map[marcoId] || 'none';
   }
 
+  // ===== INIT =====
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.params['id']);
     const usuarioActual = this.usuarioActual();
-    
+
     if (!userId || isNaN(userId)) {
       this.errorMsg.set('Usuario no válido');
       this.cargando.set(false);
@@ -162,8 +173,10 @@ export class PerfilAutorComponent implements OnInit {
     this.cargarAutor(userId);
     this.cargarPersonalizacionAutor(userId);
     this.verificarEstadoContacto(userId);
+    this.verificarBloqueo(userId);
   }
 
+  // ===== CARGA DE DATOS =====
   cargarAutor(userId: number): void {
     this.cargando.set(true);
     this.userService.obtenerUsuarioPorId(userId).subscribe({
@@ -181,7 +194,6 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  // ✅ CARGAR LA PERSONALIZACIÓN DEL AUTOR
   cargarPersonalizacionAutor(userId: number): void {
     this.personalizacionService.obtenerPersonalizacionPorUsuario(userId).subscribe({
       next: (data: Personalizacion) => {
@@ -195,12 +207,6 @@ export class PerfilAutorComponent implements OnInit {
         if (data?.fotoPortadaUrl) {
           this.autorFotoPortada.set(data.fotoPortadaUrl);
         }
-        console.log('🎨 Personalización del autor:', {
-          tema: this.autorTemaId(),
-          marco: this.autorMarcoId(),
-          fondo: this.autorFondoId(),
-          foto: this.autorFotoPerfil()
-        });
       },
       error: (err) => {
         console.error('Error al cargar personalización del autor:', err);
@@ -217,7 +223,7 @@ export class PerfilAutorComponent implements OnInit {
 
     this.chatService.listarSolicitudes().subscribe({
       next: (solicitudes) => {
-        const pendiente = solicitudes.some(s => 
+        const pendiente = solicitudes.some(s =>
           s.usuarioId === userId && s.estado === 'PENDIENTE'
         );
         this.solicitudPendiente.set(pendiente);
@@ -226,6 +232,60 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
+  // ===== BLOQUEO =====
+  verificarBloqueo(userId: number): void {
+    this.bloqueoService.verificarEstado(userId).subscribe({
+      next: (estado) => {
+        this.estaBloqueado.set(estado.bloqueado);
+        this.bloqueoInfo.set(estado);
+      },
+      error: () => {
+        this.estaBloqueado.set(false);
+      }
+    });
+  }
+
+  abrirModalBloqueo(): void {
+    this.mostrarModalBloqueo.set(true);
+  }
+
+  cerrarModalBloqueo(): void {
+    this.mostrarModalBloqueo.set(false);
+  }
+
+  onUsuarioBloqueado(): void {
+    this.estaBloqueado.set(true);
+    this.exitoMsg.set('Usuario bloqueado correctamente');
+    setTimeout(() => this.exitoMsg.set(null), 3000);
+    const userId = this.autor()?.id;
+    if (userId) this.verificarBloqueo(userId);
+  }
+
+  desbloquear(): void {
+    if (!confirm('¿Desbloquear a este usuario?')) return;
+    const userId = this.autor()?.id;
+    if (!userId) return;
+
+    this.procesandoBloqueo.set(true);
+    this.bloqueoService.desbloquear(userId).subscribe({
+      next: () => {
+        this.procesandoBloqueo.set(false);
+        this.estaBloqueado.set(false);
+        this.bloqueoInfo.set(null);
+        this.exitoMsg.set('Usuario desbloqueado correctamente');
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+        // Refrescar estado de contacto
+        this.verificarEstadoContacto(userId);
+      },
+      error: () => {
+        this.procesandoBloqueo.set(false);
+        this.errorMsg.set('Error al desbloquear usuario');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ===== ACCIONES DE CONTACTO =====
   enviarSolicitud(): void {
     const autorId = this.autor()?.id;
     if (!autorId) return;

@@ -1,128 +1,162 @@
-<!-- navbar.component.html -->
-<header class="navbar">
+<header class="navbar" [class.menu-abierto]="menuAbierto()">
   <div class="navbar-container">
 
     <!-- LOGO -->
-    <a routerLink="/comunidad" class="navbar-brand">
+    <a routerLink="/comunidad" class="navbar-brand" (click)="cerrarMenu()">
       <span class="brand-prompt">&gt;_</span>
       <span class="brand-name">kiert</span>
     </a>
 
-    <!-- BOTON HAMBURGUESA -->
+    <!-- BOTÓN HAMBURGUESA -->
     <button
       class="navbar-toggle"
       type="button"
       (click)="alternarMenu()"
       [attr.aria-expanded]="menuAbierto()"
+      [class.is-active]="menuAbierto()"
       aria-label="Abrir menú"
     >
-      <span></span>
-      <span></span>
-      <span></span>
+      <span class="toggle-line"></span>
+      <span class="toggle-line"></span>
+      <span class="toggle-line"></span>
     </button>
 
-    <!-- MENU -->
-    <nav class="navbar-links" [class.is-open]="menuAbierto()">
-      <!-- Comunidad -->
-      <a 
-        routerLink="/comunidad" 
-        routerLinkActive="active" 
-        [routerLinkActiveOptions]="{exact: true}" 
-        (click)="cerrarMenu()"
-      >
-        Comunidad
-      </a>
-      
-      <!-- Publicar -->
-      <a 
-        routerLink="/comunidad/nueva-publicacion" 
-        routerLinkActive="active" 
-        (click)="cerrarMenu()"
-      >
-        Publicar
-      </a>
-      
-      <!-- Mis publicaciones -->
-      <a 
-        routerLink="/mis-publicaciones" 
-        routerLinkActive="active" 
-        (click)="cerrarMenu()"
-      >
-        Mis publicaciones
-      </a>
+    <!-- MENÚ DESPLEGABLE -->
+    <nav class="navbar-menu" [class.is-open]="menuAbierto()">
+      <div class="navbar-menu-inner">
 
-      <!-- ✅ DOCUMENTOS -->
-      <a 
-        routerLink="/documentos" 
-        routerLinkActive="active" 
-        (click)="cerrarMenu()"
-        class="nav-link-documentos"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-          <polyline points="10 9 9 9 8 9"/>
-        </svg>
-        Documentos
-      </a>
+        <!-- Comunidad -->
+        <a
+          routerLink="/comunidad"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: true}"
+          (click)="cerrarMenu()"
+          class="menu-item"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span>Comunidad</span>
+        </a>
 
-      <!-- ✅ BIBLIOTECA (NUEVO) -->
-      <a 
-        routerLink="/biblioteca" 
-        routerLinkActive="active" 
-        (click)="cerrarMenu()"
-        class="nav-link-biblioteca"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-          <line x1="8" y1="7" x2="16" y2="7"/>
-          <line x1="8" y1="11" x2="16" y2="11"/>
-          <line x1="8" y1="15" x2="12" y2="15"/>
-        </svg>
-        Biblioteca
-      </a>
+        <!-- Publicar -->
+        <a
+          routerLink="/comunidad/nueva-publicacion"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="menu-item"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Publicar</span>
+        </a>
 
-      <!-- CHAT CON CONTADOR -->
-      <a 
-        (click)="irAlChat()" 
-        routerLinkActive="active" 
-        class="nav-link-chat" 
-        style="cursor: pointer;"
-      >
-        <span>Chat</span>
-        @if (mensajesNoLeidos() > 0) {
-          <span class="badge-notificacion">{{ mensajesNoLeidos() }}</span>
-        }
-      </a>
+        <!-- Mis publicaciones -->
+        <a
+          routerLink="/mis-publicaciones"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="menu-item"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Mis publicaciones</span>
+        </a>
 
-      <!-- NOTIFICACIONES -->
-      <kiert-notificaciones />
+        <!-- Documentos -->
+        <a
+          routerLink="/documentos"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="menu-item"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <span>Documentos</span>
+        </a>
 
-      <!-- Perfil -->
-      <a 
-        routerLink="/perfil" 
-        routerLinkActive="active" 
-        (click)="cerrarMenu()"
-      >
-        Perfil
-      </a>
+        <!-- Biblioteca -->
+        <a
+          routerLink="/biblioteca"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="menu-item"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span>Biblioteca</span>
+        </a>
 
-      <!-- Ajustes -->
-      <a 
-        routerLink="/ajustes" 
-        routerLinkActive="active" 
-        (click)="cerrarMenu()"
-      >
-        Ajustes
-      </a>
+        <!-- Chat -->
+        <a
+          (click)="irAlChat()"
+          class="menu-item"
+          style="cursor: pointer;"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>Chat</span>
+          @if (mensajesNoLeidos() > 0) {
+            <span class="menu-badge">{{ mensajesNoLeidos() }}</span>
+          }
+        </a>
 
-      <!-- Cerrar sesión -->
-      <button class="btn-logout" (click)="cerrarSesion()">
-        Cerrar sesión
-      </button>
+        <!-- Notificaciones -->
+        <div class="menu-item-notificaciones">
+          <kiert-notificaciones />
+        </div>
+
+        <!-- Perfil -->
+        <a
+          routerLink="/perfil"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="menu-item"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Perfil</span>
+        </a>
+
+        <!-- Ajustes -->
+        <a
+          routerLink="/ajustes"
+          routerLinkActive="active"
+          (click)="cerrarMenu()"
+          class="menu-item"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Ajustes</span>
+        </a>
+
+        <!-- Cerrar sesión -->
+        <button class="menu-item btn-logout" (click)="cerrarSesion()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
+
+      </div>
     </nav>
   </div>
 </header>

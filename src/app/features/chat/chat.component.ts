@@ -1,13 +1,11 @@
-// chat.component.ts
-
-import { 
-  Component, 
-  OnInit, 
-  signal, 
-  inject, 
-  OnDestroy, 
-  ViewChild, 
-  ElementRef, 
+import {
+  Component,
+  OnInit,
+  signal,
+  inject,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
   AfterViewChecked,
   computed
 } from '@angular/core';
@@ -37,7 +35,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   @ViewChild('mensajesContainer') private mensajesContainer!: ElementRef;
 
-  // Señales
+  // ===== SEÑALES =====
   conversaciones = signal<Conversacion[]>([]);
   mensajes = signal<Mensaje[]>([]);
   solicitudes = signal<SolicitudContacto[]>([]);
@@ -54,7 +52,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     contenido: ['', [Validators.minLength(1)]]
   });
 
-  // ✅ GETTERS (sin paréntesis en el HTML)
+  // ===== GETTERS =====
   get cantidadSolicitudesPendientes(): number {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE').length;
   }
@@ -63,7 +61,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
   }
 
-  // ✅ Computed signal para agrupar mensajes por fecha
+  // ===== AGRUPACIÓN POR FECHA =====
   mensajesAgrupados = computed(() => {
     const grupos: { [key: string]: Mensaje[] } = {};
     const hoy = new Date();
@@ -73,18 +71,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mensajes().forEach(msg => {
       const fecha = new Date(msg.fechaEnvio);
       let key: string;
-      
+
       if (fecha.toDateString() === hoy.toDateString()) {
         key = 'Hoy';
       } else if (fecha.toDateString() === ayer.toDateString()) {
         key = 'Ayer';
       } else {
-        key = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+        key = fecha.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
       }
-      
-      if (!grupos[key]) {
-        grupos[key] = [];
-      }
+
+      if (!grupos[key]) grupos[key] = [];
       grupos[key].push(msg);
     });
 
@@ -114,7 +114,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.usuarioSeleccionado.set(id);
         this.marcarMensajesComoLeidos(id);
         this.cargarMensajes(id);
-        // Cerrar menú móvil al seleccionar
         this.mobileMenuOpen.set(false);
       }
     });
@@ -135,14 +134,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const usuarioId = this.usuarioSeleccionado();
     if (usuarioId) {
       this.chatService.marcarComoLeidos(usuarioId).subscribe({
-        next: () => {
-          this.chatService.resetearNoLeidos(usuarioId);
-        }
+        next: () => this.chatService.resetearNoLeidos(usuarioId)
       });
     }
   }
 
-  // ========== MÉTODOS DE CARGA ==========
+  // ===== CARGA =====
   cargarDatos(): void {
     this.cargarConversaciones();
     this.cargarSolicitudes();
@@ -154,18 +151,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   cargarConversaciones(): void {
     this.chatService.listarConversaciones().subscribe({
-      next: (data) => {
-        this.conversaciones.set(data);
-      },
+      next: (data) => this.conversaciones.set(data),
       error: () => {}
     });
   }
 
   actualizarConversacionesYContadores(): void {
     this.chatService.listarConversaciones().subscribe({
-      next: (data) => {
-        this.conversaciones.set(data);
-      },
+      next: (data) => this.conversaciones.set(data),
       error: () => {}
     });
   }
@@ -188,32 +181,25 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   cargarSolicitudes(): void {
     this.chatService.listarSolicitudes().subscribe({
-      next: (data) => {
-        this.solicitudes.set(data);
-      },
+      next: (data) => this.solicitudes.set(data),
       error: () => {}
     });
   }
 
-  // ========== MANEJO DE CONTADORES ==========
   marcarMensajesComoLeidos(usuarioId: number): void {
-    this.conversaciones.update(convs => 
-      convs.map(conv => 
-        conv.usuarioId === usuarioId 
-          ? { ...conv, noLeidos: 0 } 
-          : conv
+    this.conversaciones.update(convs =>
+      convs.map(conv =>
+        conv.usuarioId === usuarioId ? { ...conv, noLeidos: 0 } : conv
       )
     );
     this.chatService.resetearNoLeidos(usuarioId);
     this.chatService.marcarComoLeidos(usuarioId).subscribe({
       next: () => {},
-      error: () => {
-        this.cargarConversaciones();
-      }
+      error: () => this.cargarConversaciones()
     });
   }
 
-  // ========== SOLICITUDES ==========
+  // ===== SOLICITUDES =====
   toggleSolicitudes(): void {
     this.solicitudesExpandidas.update(val => !val);
   }
@@ -248,7 +234,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // ========== SELECCIÓN DE CONVERSACIÓN ==========
+  // ===== SELECCIÓN =====
   seleccionarConversacion(usuarioId: number): void {
     this.usuarioSeleccionado.set(usuarioId);
     this.router.navigate(['/chat', usuarioId]);
@@ -262,12 +248,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.router.navigate(['/chat']);
   }
 
-  // ========== MOBILE ==========
+  // ===== MOBILE =====
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update(val => !val);
   }
 
-  // ========== ENVÍO DE MENSAJES ==========
+  // ===== ENVÍO =====
   enviarMensaje(): void {
     const receptorId = this.usuarioSeleccionado();
     if (!receptorId) {
@@ -325,14 +311,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // ========== ARCHIVOS ==========
+  // ===== ARCHIVOS =====
   onArchivosSeleccionados(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
 
     const archivos = Array.from(input.files);
     const totalSize = archivos.reduce((acc, f) => acc + f.size, 0);
-    
+
     if (totalSize > 15 * 1024 * 1024) {
       this.errorMsg.set('El tamaño total no debe superar los 15MB');
       setTimeout(() => this.errorMsg.set(null), 3000);
@@ -359,11 +345,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     window.open(url, '_blank');
   }
 
-  // ========== UTILIDADES ==========
+  // ===== UTILIDADES =====
   scrollToBottom(): void {
     try {
       if (this.mensajesContainer) {
-        this.mensajesContainer.nativeElement.scrollTop = 
+        this.mensajesContainer.nativeElement.scrollTop =
           this.mensajesContainer.nativeElement.scrollHeight;
       }
     } catch (err) {}

@@ -1,0 +1,1001 @@
+// ============================================================
+// VARIABLES - TEMA OSCURO
+// ============================================================
+$primary: #2dd4bf;
+$primary-light: rgba(45, 212, 191, 0.12);
+$primary-dark: #17b6a4;
+
+// ✅ TUS COLORES
+$bg-page: #10171d;      // Fondo principal
+$bg-card: #131a20;      // Fondo de cards/tarjetas
+$bg-input: #131a20;     // Fondo de inputs
+$bg-hover: #1a2229;     // Fondo hover (derivado)
+
+// Bordes
+$border: #26313c;
+$border-light: rgba(255, 255, 255, 0.06);
+
+// Texto (claro para que se lea sobre fondo oscuro)
+$text-primary: #e6edf3;
+$text-secondary: #8b98a5;
+$text-muted: #5a6a7a;
+$text-light: #4a5763;
+
+// Estados
+$warning: #f59e0b;
+$warning-bg: rgba(245, 158, 11, 0.15);
+$info: #3b82f6;
+$info-bg: rgba(59, 130, 246, 0.15);
+$success: #10b981;
+$success-bg: rgba(16, 185, 129, 0.15);
+$danger: #ef4444;
+$danger-bg: rgba(239, 68, 68, 0.15);
+
+$radius: 12px;
+$radius-sm: 8px;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.25);
+
+* {
+  box-sizing: border-box;
+}
+
+// ============================================================
+// CONTENEDOR PRINCIPAL
+// ============================================================
+.admin-reportes {
+  min-height: 100vh;
+  background: $bg-page;
+  padding: 32px 24px;
+  color: $text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 4px;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: $primary-light;
+    color: $primary;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+}
+
+.btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: $shadow;
+  transition: all 0.2s ease;
+
+  svg {
+    transition: transform 0.4s ease;
+  }
+
+  &:hover {
+    color: $primary;
+    border-color: $primary;
+    background: $primary-light;
+
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// ============================================================
+// ESTADÍSTICAS
+// ============================================================
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+    border-color: rgba(45, 212, 191, 0.3);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  // Variantes de color
+  &--pendiente {
+    .stat-card__icon {
+      background: $warning-bg;
+      color: $warning;
+    }
+    .stat-card__number {
+      color: $warning;
+    }
+  }
+
+  &--revisando {
+    .stat-card__icon {
+      background: $info-bg;
+      color: $info;
+    }
+    .stat-card__number {
+      color: $info;
+    }
+  }
+
+  &--resuelto {
+    .stat-card__icon {
+      background: $success-bg;
+      color: $success;
+    }
+    .stat-card__number {
+      color: $success;
+    }
+  }
+
+  &--rechazado {
+    .stat-card__icon {
+      background: $danger-bg;
+      color: $danger;
+    }
+    .stat-card__number {
+      color: $danger;
+    }
+  }
+}
+
+// ============================================================
+// FILTROS
+// ============================================================
+.admin-filtros {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  padding: 20px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+
+  .filtro-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    select {
+      padding: 10px 14px;
+      background: $bg-page;
+      border: 1px solid $border;
+      border-radius: $radius-sm;
+      color: $text-primary;
+      font-size: 0.9rem;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px $primary-light;
+      }
+
+      &:hover {
+        border-color: rgba(45, 212, 191, 0.4);
+      }
+
+      option {
+        background: $bg-card;
+        color: $text-primary;
+      }
+    }
+  }
+}
+
+// ============================================================
+// ESTADOS
+// ============================================================
+.admin-loading,
+.admin-error,
+.admin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius;
+  gap: 12px;
+  box-shadow: $shadow;
+}
+
+.admin-loading {
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid $border;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.admin-error {
+  p {
+    color: $danger;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  button {
+    padding: 10px 20px;
+    background: $primary;
+    color: $bg-page;
+    border: none;
+    border-radius: $radius-sm;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $primary-dark;
+    }
+  }
+}
+
+.admin-empty {
+  svg {
+    opacity: 0.4;
+    margin-bottom: 8px;
+    stroke: $text-muted;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    margin: 0;
+    max-width: 320px;
+  }
+}
+
+// ============================================================
+// LISTA DE REPORTES
+// ============================================================
+.reportes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ============================================================
+// TARJETA DE REPORTE
+// ============================================================
+.reporte-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: rgba(45, 212, 191, 0.2);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid $border;
+    background: rgba(0, 0, 0, 0.15);
+    flex-wrap: wrap;
+  }
+
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__fecha {
+    font-size: 0.8rem;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  &__body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__actions {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border-top: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__resultado {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(16, 185, 129, 0.08);
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
+  }
+}
+
+// ============================================================
+// BADGES
+// ============================================================
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+
+  &-tipo {
+    background: $info-bg;
+    color: $info;
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  &-motivo {
+    background: $warning-bg;
+    color: $warning;
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  &-pendiente {
+    background: $warning-bg;
+    color: $warning;
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  &-revisando {
+    background: $info-bg;
+    color: $info;
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  &-resuelto {
+    background: $success-bg;
+    color: $success;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  &-rechazado {
+    background: $danger-bg;
+    color: $danger;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  &-default {
+    background: rgba(139, 152, 165, 0.15);
+    color: $text-secondary;
+    border-color: rgba(139, 152, 165, 0.3);
+  }
+}
+
+// ============================================================
+// INFO DEL REPORTE
+// ============================================================
+.reporte-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.info-label {
+  font-weight: 600;
+  color: $text-secondary;
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: $text-primary;
+  word-break: break-word;
+  min-width: 0;
+  flex: 1;
+
+  &--reportante {
+    color: $info;
+    font-weight: 500;
+  }
+
+  &--reportado {
+    color: $danger;
+    font-weight: 500;
+  }
+
+  &--truncate {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// ============================================================
+// DESCRIPCIÓN
+// ============================================================
+.reporte-descripcion {
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: $radius-sm;
+  border-left: 3px solid $primary;
+
+  .info-label {
+    display: block;
+    margin-bottom: 6px;
+    min-width: auto;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: $text-primary;
+    word-break: break-word;
+  }
+}
+
+// ============================================================
+// ACCIONES DEL REPORTE
+// ============================================================
+.action-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .action-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 180px;
+
+    &--full {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .select-accion,
+    .input-nota {
+      padding: 10px 14px;
+      background: $bg-page;
+      border: 1px solid $border;
+      border-radius: $radius-sm;
+      color: $text-primary;
+      font-size: 0.875rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px $primary-light;
+      }
+    }
+
+    .input-nota {
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+
+    select option {
+      background: $bg-card;
+      color: $text-primary;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-resolver,
+.btn-rechazar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.btn-resolver {
+  background: $success;
+  color: white;
+
+  &:hover {
+    background: #059669;
+    box-shadow: 0 4px 12px rgba($success, 0.3);
+  }
+}
+
+.btn-rechazar {
+  background: transparent;
+  color: $danger;
+  border-color: $danger;
+
+  &:hover {
+    background: $danger-bg;
+  }
+}
+
+// ============================================================
+// RESULTADO DE MODERACIÓN
+// ============================================================
+.resultado-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: $success;
+  color: white;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.resultado-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .resultado-titulo {
+    font-size: 0.875rem;
+    color: $text-secondary;
+
+    strong {
+      color: $text-primary;
+      font-weight: 600;
+    }
+  }
+
+  .resultado-nota {
+    margin: 0;
+    font-size: 0.875rem;
+    color: $text-primary;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .resultado-accion {
+    font-size: 0.75rem;
+    color: $text-muted;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE - TABLET (<= 768px)
+// ============================================================
+@media (max-width: 768px) {
+  .admin-reportes {
+    padding: 20px 16px;
+  }
+
+  .admin-header {
+    &__icon {
+      width: 48px;
+      height: 48px;
+
+      svg {
+        width: 26px;
+        height: 26px;
+      }
+    }
+
+    &__left h1 {
+      font-size: 1.4rem;
+    }
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+
+    &__number {
+      font-size: 1.5rem;
+    }
+
+    &__icon {
+      width: 44px;
+      height: 44px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .reporte-card {
+    &__header,
+    &__body,
+    &__actions {
+      padding: 16px;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL (<= 480px)
+// ============================================================
+@media (max-width: 480px) {
+  .admin-reportes {
+    padding: 16px 12px;
+  }
+
+  .admin-header {
+    gap: 12px;
+    margin-bottom: 20px;
+
+    &__left {
+      gap: 12px;
+
+      h1 {
+        font-size: 1.15rem;
+      }
+
+      p {
+        font-size: 0.8rem;
+      }
+    }
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+
+      svg {
+        width: 22px;
+        height: 22px;
+      }
+    }
+
+    .btn-refresh {
+      width: 100%;
+      justify-content: center;
+      padding: 10px 16px;
+      font-size: 0.8rem;
+    }
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px;
+    gap: 10px;
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__number {
+      font-size: 1.35rem;
+    }
+
+    &__label {
+      font-size: 0.7rem;
+    }
+  }
+
+  .admin-filtros {
+    padding: 14px;
+    gap: 12px;
+
+    .filtro-group {
+      min-width: 100%;
+
+      select {
+        font-size: 0.85rem;
+        padding: 9px 12px;
+      }
+    }
+  }
+
+  .reporte-card {
+    &__header {
+      padding: 12px 14px;
+      gap: 8px;
+    }
+
+    &__body {
+      padding: 14px;
+      gap: 12px;
+    }
+
+    &__actions {
+      padding: 14px;
+      gap: 12px;
+    }
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 3px 10px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .info-label {
+    min-width: auto;
+    font-size: 0.75rem;
+  }
+
+  .info-value {
+    font-size: 0.875rem;
+  }
+
+  .action-row {
+    .action-group {
+      min-width: 100%;
+
+      &--full {
+        min-width: 100%;
+      }
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+
+    .btn-resolver,
+    .btn-rechazar {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .reporte-card__resultado {
+    padding: 12px 14px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
+// ============================================================
+@media (max-width: 380px) {
+  .admin-reportes {
+    padding: 12px 10px;
+  }
+
+  .admin-header__left h1 {
+    font-size: 1rem;
+  }
+
+  .admin-stats {
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px;
+
+    &__number {
+      font-size: 1.2rem;
+    }
+
+    &__icon {
+      width: 36px;
+      height: 36px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .reporte-card__header,
+  .reporte-card__body,
+  .reporte-card__actions {
+    padding: 12px;
+  }
+}
+
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

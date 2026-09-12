@@ -1,4 +1,3 @@
-// src/app/features/community/notificaciones/notificaciones.component.ts
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
@@ -9,7 +8,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'kiert-notificaciones',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './notificaciones.component.html',
   styleUrl: './notificaciones.component.scss'
 })
@@ -22,14 +21,20 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   noLeidas = signal<number>(0);
   mostrando = signal<boolean>(false);
   cargando = signal<boolean>(false);
+
   private subscription: Subscription | null = null;
   private intervalId: any = null;
+
+  // ✅ Solo mostrar las últimas 5 en el dropdown
+  get notificacionesRecientes(): Notificacion[] {
+    return this.notificaciones().slice(0, 5);
+  }
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
       this.cargarNotificaciones();
       this.actualizarContadorNoLeidas();
-      
+
       this.subscription = this.notificationService.notificaciones$.subscribe({
         next: (notificacion: Notificacion) => {
           if (notificacion) {
@@ -37,9 +42,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             this.noLeidas.update(val => val + 1);
           }
         },
-        error: (err) => {
-          console.error('Error al recibir notificación:', err);
-        }
+        error: (err) => console.error('Error al recibir notificación:', err)
       });
 
       this.intervalId = setInterval(() => {
@@ -60,16 +63,14 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         this.noLeidas.set(count);
         this.notificationService.actualizarContador(count);
       },
-      error: (err) => {
-        console.error('Error al contar no leídas:', err);
-      }
+      error: (err) => console.error('Error al contar no leídas:', err)
     });
   }
 
   cargarNotificaciones(): void {
     if (this.cargando()) return;
     this.cargando.set(true);
-    
+
     this.notificationService.obtenerNotificaciones().subscribe({
       next: (data: Notificacion[]) => {
         this.notificaciones.set(data);
@@ -104,9 +105,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         this.noLeidas.update(val => Math.max(0, val - 1));
         this.actualizarContadorNoLeidas();
       },
-      error: (err) => {
-        console.error('Error al marcar como leída:', err);
-      }
+      error: (err) => console.error('Error al marcar como leída:', err)
     });
   }
 
@@ -120,13 +119,12 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         this.noLeidas.set(0);
         this.actualizarContadorNoLeidas();
       },
-      error: (err) => {
-        console.error('Error al marcar todas como leídas:', err);
-      }
+      error: (err) => console.error('Error al marcar todas como leídas:', err)
     });
   }
 
-  eliminarNotificacion(id: number): void {
+  eliminarNotificacion(id: number, event: Event): void {
+    event.stopPropagation();
     this.notificationService.eliminarNotificacion(id).subscribe({
       next: () => {
         const noti = this.notificaciones().find(n => n.id === id);
@@ -136,9 +134,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
           this.actualizarContadorNoLeidas();
         }
       },
-      error: (err) => {
-        console.error('Error al eliminar notificación:', err);
-      }
+      error: (err) => console.error('Error al eliminar notificación:', err)
     });
   }
 
@@ -152,6 +148,12 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     this.cerrarMenu();
   }
 
+  // ✅ Ver todas las notificaciones → navegar a página completa
+  verTodas(): void {
+    this.cerrarMenu();
+    this.router.navigate(['/notificaciones']);
+  }
+
   getColorTipo(tipo: string): string {
     const colores: Record<string, string> = {
       'like': '#f85149',
@@ -161,6 +163,17 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       'sistema': '#8b98a5'
     };
     return colores[tipo] || '#8b98a5';
+  }
+
+  getEtiquetaTipo(tipo: string): string {
+    const etiquetas: Record<string, string> = {
+      'like': 'Me gusta',
+      'comentario': 'Comentario',
+      'respuesta': 'Respuesta',
+      'solicitud': 'Solicitud',
+      'sistema': 'Sistema'
+    };
+    return etiquetas[tipo] || 'Notificación';
   }
 
   formatearFecha(fecha: Date): string {

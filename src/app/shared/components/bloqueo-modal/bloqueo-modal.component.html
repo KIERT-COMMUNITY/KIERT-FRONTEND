@@ -1,0 +1,63 @@
+<div class="modal-overlay" (click)="cerrar.emit()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>Bloquear usuario</h2>
+      <button class="btn-close" (click)="cerrar.emit()" aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-info">
+        Vas a bloquear a <strong>&#64;{{ usuarioNombre }}</strong>.
+        Ya no podrá contactarte ni ver tu contenido.
+      </p>
+
+      <div class="motivos-rapidos">
+        <span class="label">Motivos comunes:</span>
+        <div class="chips">
+          @for (m of motivosRapidos; track m) {
+            <button
+              class="chip"
+              [class.chip--active]="motivo() === m"
+              (click)="seleccionarMotivo(m)"
+              type="button"
+            >
+              {{ m }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Motivo del bloqueo</label>
+        <textarea
+          [ngModel]="motivo()"
+          (ngModelChange)="motivo.set($event)"
+          placeholder="Explica brevemente por qué bloqueas a este usuario..."
+          rows="3"
+          maxlength="255"
+        ></textarea>
+        <small class="char-count">{{ motivo().length }}/255</small>
+      </div>
+
+      @if (errorMsg()) {
+        <div class="error-message">{{ errorMsg() }}</div>
+      }
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cerrar.emit()" [disabled]="enviando()">
+        Cancelar
+      </button>
+      <button class="btn-danger" (click)="confirmar()" [disabled]="enviando() || !motivo().trim()">
+        {{ enviando() ? 'Bloqueando...' : 'Bloquear' }}
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,1126 @@
+// ============================================================
+// VARIABLES
+// ============================================================
+$primary: #2dd4bf;
+$bg-primary: #0d1117;
+$bg-secondary: #131a22;
+$bg-card: #1b232c;
+$bg-card-hover: #232b36;
+$border: #26313c;
+$text-primary: #e6edf3;
+$text-secondary: #8b98a5;
+$text-muted: #5a6a7a;
+$danger: #f85149;
+$transition: all 0.2s ease;
+
+* {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+// ============================================================
+// PÁGINA
+// ============================================================
+.notif-page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: $text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+.notif-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  width: 100%;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    min-width: 0;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 4px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+
+      svg {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+      }
+
+      span {
+        word-break: break-word;
+      }
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text-primary;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &:hover {
+    background: $bg-card-hover;
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+.btn-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 8px;
+  color: $text-primary;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: $transition;
+
+  svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: $bg-card-hover;
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &--danger {
+    color: $danger;
+
+    &:hover {
+      color: $danger;
+      border-color: $danger;
+      background: rgba($danger, 0.1);
+    }
+  }
+}
+
+// ============================================================
+// ESTADÍSTICAS / FILTROS
+// ============================================================
+.notif-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 8px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: $transition;
+  min-width: 0;
+  overflow: hidden;
+
+  &:hover {
+    background: $bg-card-hover;
+    border-color: $text-muted;
+  }
+
+  &--active {
+    border-color: $primary;
+    background: rgba($primary, 0.08);
+
+    .stat-number {
+      color: $primary;
+    }
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    word-break: break-word;
+
+    &--primary {
+      color: $primary;
+    }
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 500;
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.2;
+  }
+}
+
+// ============================================================
+// TOOLBAR
+// ============================================================
+.notif-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+}
+
+.notif-search {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 10px;
+  transition: $transition;
+
+  &:focus-within {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  > svg {
+    color: $text-secondary;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 0;
+    background: transparent;
+    border: none;
+    color: $text-primary;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: inherit;
+
+    &::placeholder {
+      color: $text-muted;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .btn-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: $text-muted;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: $transition;
+
+    &:hover {
+      color: $text-primary;
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+.btn-toggle-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text-secondary;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: $transition;
+
+  svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: $bg-card-hover;
+    color: $text-primary;
+  }
+
+  &--active {
+    background: rgba($primary, 0.12);
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+.btn-limpiar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text-secondary;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: $transition;
+
+  svg {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: $text-primary;
+    background: $bg-card;
+  }
+}
+
+// ============================================================
+// BARRA DE SELECCIÓN
+// ============================================================
+.selection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba($primary, 0.08);
+  border: 1px solid rgba($primary, 0.2);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  animation: slideDown 0.2s ease;
+  width: 100%;
+
+  &__count {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $primary;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-selection {
+  padding: 7px 12px;
+  background: transparent;
+  border: 1px solid rgba($primary, 0.3);
+  border-radius: 6px;
+  color: $primary;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    background: rgba($primary, 0.1);
+  }
+
+  &--danger {
+    border-color: rgba($danger, 0.3);
+    color: $danger;
+
+    &:hover {
+      background: rgba($danger, 0.1);
+    }
+  }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// ============================================================
+// CONTENIDO
+// ============================================================
+.notif-content {
+  min-height: 300px;
+  width: 100%;
+}
+
+// ============================================================
+// ESTADOS
+// ============================================================
+.notif-loading,
+.notif-error,
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 12px;
+  color: $text-secondary;
+  width: 100%;
+
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+.notif-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $border;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.notif-error {
+  p {
+    color: $danger;
+    font-size: 0.95rem;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  button {
+    padding: 8px 16px;
+    background: $primary;
+    color: $bg-primary;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: $transition;
+
+    &:hover {
+      background: #22b8a8;
+    }
+  }
+}
+
+.notif-empty {
+  svg {
+    opacity: 0.4;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: $text-secondary;
+    margin: 0;
+    max-width: 320px;
+  }
+
+  .btn-limpiar-filtros {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: $primary;
+    color: $bg-primary;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: $transition;
+
+    &:hover {
+      background: #22b8a8;
+    }
+  }
+}
+
+// ============================================================
+// LISTA
+// ============================================================
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+// ============================================================
+// TARJETA
+// ============================================================
+.notif-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: $transition;
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+
+  &:hover {
+    background: $bg-card-hover;
+    border-color: rgba($primary, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &--leida {
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  &--seleccionada {
+    border-color: $primary;
+    background: rgba($primary, 0.06);
+    opacity: 1;
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding-top: 10px;
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid $border;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $bg-primary;
+      transition: $transition;
+
+      &--checked {
+        background: $primary;
+        border-color: $primary;
+      }
+
+      svg {
+        stroke: currentColor;
+      }
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__tipo {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  &__nueva {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: $bg-primary;
+    background: $primary;
+    padding: 2px 7px;
+    border-radius: 8px;
+    letter-spacing: 0.4px;
+  }
+
+  &__mensaje {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: $text-primary;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    strong {
+      color: $primary;
+      font-weight: 600;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__fecha {
+    font-size: 0.7rem;
+    color: $text-muted;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $primary;
+    text-decoration: none;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba($primary, 0.1);
+    transition: $transition;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: rgba($primary, 0.2);
+      text-decoration: none;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    align-self: center;
+  }
+}
+
+// ============================================================
+// BOTONES DE ACCIÓN
+// ============================================================
+.btn-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 8px;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: $transition;
+  flex-shrink: 0;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: rgba($primary, 0.1);
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &--danger {
+    &:hover {
+      background: rgba($danger, 0.1);
+      border-color: $danger;
+      color: $danger;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - TABLET (<= 768px)
+// ============================================================
+@media (max-width: 768px) {
+  .notif-page {
+    padding: 20px 16px;
+  }
+
+  .notif-header {
+    margin-bottom: 20px;
+
+    &__title h1 {
+      font-size: 1.35rem;
+
+      svg {
+        width: 22px;
+        height: 22px;
+      }
+    }
+  }
+
+  .notif-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .stat-item {
+    padding: 12px 6px;
+
+    .stat-number {
+      font-size: 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+    }
+  }
+
+  .notif-card {
+    padding: 12px 14px;
+    gap: 10px;
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    &__mensaje {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL (<= 640px)
+// ============================================================
+@media (max-width: 640px) {
+  .notif-page {
+    padding: 16px 14px;
+  }
+
+  .notif-header {
+    gap: 12px;
+    margin-bottom: 16px;
+
+    &__left {
+      gap: 10px;
+    }
+
+    &__title h1 {
+      font-size: 1.2rem;
+      gap: 8px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    &__title p {
+      font-size: 0.75rem;
+    }
+
+    &__actions {
+      width: 100%;
+      justify-content: flex-start;
+
+      .btn-accion {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+      }
+    }
+  }
+
+  .btn-back {
+    width: 36px;
+    height: 36px;
+  }
+
+  .notif-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .stat-item {
+    padding: 10px 4px;
+
+    .stat-number {
+      font-size: 1.1rem;
+    }
+
+    .stat-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.2px;
+    }
+  }
+
+  .notif-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+
+    &__actions {
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+
+  .notif-search {
+    min-width: 100%;
+  }
+
+  .btn-toggle-select,
+  .btn-limpiar {
+    font-size: 0.75rem;
+    padding: 9px 12px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .selection-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+
+    &__actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+  }
+
+  .btn-selection {
+    width: 100%;
+    justify-content: center;
+
+    &--danger {
+      grid-column: span 2;
+    }
+  }
+
+  .notif-card {
+    padding: 12px 10px;
+    gap: 8px;
+
+    &__icon {
+      width: 36px;
+      height: 36px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__content {
+      gap: 5px;
+    }
+
+    &__tipo {
+      font-size: 0.65rem;
+    }
+
+    &__mensaje {
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    &__footer {
+      gap: 6px;
+    }
+
+    &__actions {
+      flex-direction: column;
+      gap: 4px;
+      align-self: flex-end;
+    }
+  }
+
+  .btn-card-action {
+    width: 30px;
+    height: 30px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL PEQUEÑO (<= 480px)
+// ============================================================
+@media (max-width: 480px) {
+  .notif-page {
+    padding: 14px 12px;
+  }
+
+  .notif-header {
+    &__title h1 {
+      font-size: 1.1rem;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__title p {
+      font-size: 0.7rem;
+    }
+
+    &__actions .btn-accion {
+      padding: 7px 10px;
+      font-size: 0.7rem;
+
+      span {
+        display: none; // Solo iconos
+      }
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  .notif-stats {
+    gap: 5px;
+
+    .stat-item {
+      padding: 8px 3px;
+
+      .stat-number {
+        font-size: 1rem;
+      }
+
+      .stat-label {
+        font-size: 0.55rem;
+        line-height: 1.1;
+      }
+    }
+  }
+
+  .notif-card {
+    padding: 10px 8px;
+    gap: 8px;
+
+    &__icon {
+      width: 32px;
+      height: 32px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    &__tipo {
+      font-size: 0.6rem;
+    }
+
+    &__mensaje {
+      font-size: 0.75rem;
+    }
+
+    &__footer {
+      flex-wrap: wrap;
+    }
+
+    &__link {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+    }
+  }
+
+  .btn-card-action {
+    width: 28px;
+    height: 28px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL MUY PEQUEÑO (<= 380px)
+// ============================================================
+@media (max-width: 380px) {
+  .notif-page {
+    padding: 12px 10px;
+  }
+
+  .notif-header__title h1 {
+    font-size: 1rem;
+  }
+
+  .notif-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+
+    .stat-item {
+      padding: 6px 2px;
+
+      .stat-number {
+        font-size: 0.9rem;
+      }
+
+      .stat-label {
+        font-size: 0.5rem;
+        letter-spacing: 0;
+      }
+    }
+  }
+
+  .notif-card {
+    padding: 8px 6px;
+    gap: 6px;
+
+    &__icon {
+      width: 28px;
+      height: 28px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    &__mensaje {
+      font-size: 0.72rem;
+    }
+  }
+}
+
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

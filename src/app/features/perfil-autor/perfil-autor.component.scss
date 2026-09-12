@@ -41,6 +41,8 @@
     transition: all 0.2s;
     padding: 0.5rem 1rem;
     font-size: 0.95rem;
+    font-family: inherit;
+    margin-top: 0.5rem;
 
     &:hover {
       color: #2dd4bf !important;
@@ -52,89 +54,31 @@
   .exito {
     color: #2ea043 !important;
     background: rgba(46, 160, 67, 0.15) !important;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1rem;
     border-radius: 8px;
-    margin-bottom: 1rem;
+    margin: 0.5rem 0 1rem;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
     animation: fadeIn 0.3s ease;
+    border: 1px solid rgba(46, 160, 67, 0.3);
   }
 
-  .btn-chat {
-    background: #2dd4bf;
-    color: #0d1117 !important;
-    border: none;
-    padding: 0.6rem 1.5rem;
+  .error-msg {
+    color: #f85149 !important;
+    background: rgba(248, 81, 73, 0.15) !important;
+    padding: 0.6rem 1rem;
     border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0.5rem 0 1rem;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-
-    &:hover { 
-      opacity: 0.85; 
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-
-  .btn-solicitar {
-    background: #2dd4bf;
-    color: #0d1117 !important;
-    border: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    &:hover:not(:disabled) { 
-      opacity: 0.85; 
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
-    }
-    
-    &:disabled { 
-      opacity: 0.5; 
-      cursor: not-allowed; 
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.95);
-    }
-  }
-
-  .btn-pendiente {
-    background: #5a6a7a;
-    color: #e6edf3 !important;
-    border: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: not-allowed;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .marco-indicator__label {
-    color: #8b98a5 !important;
-    background: rgba(45, 212, 191, 0.1);
-    padding: 2px 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(45, 212, 191, 0.2);
-    display: inline-block;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease;
+    border: 1px solid rgba(248, 81, 73, 0.3);
   }
 
   .loading, .error {
@@ -145,6 +89,9 @@
   }
 }
 
+// ============================================================
+// AVATAR
+// ============================================================
 .perfil-avatar-wrapper {
   position: relative;
   display: inline-block;
@@ -183,7 +130,7 @@
 .marco-indicator {
   text-align: center;
   margin-top: 0.25rem;
-  
+
   &__label {
     font-size: 0.7rem;
     color: #8b98a5;
@@ -195,10 +142,15 @@
   }
 }
 
+// ============================================================
+// INFO DEL AUTOR
+// ============================================================
 .perfil-nombre {
   font-size: 1.3rem;
   margin: 0.5rem 0;
   color: inherit !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .perfil-email {
@@ -208,14 +160,197 @@
   opacity: 0.6;
 }
 
+// ============================================================
+// ACCIONES
+// ============================================================
 .perfil-acciones {
   display: flex;
   justify-content: center;
   gap: 0.75rem;
   flex-wrap: wrap;
   margin: 1rem 0;
+
+  // ===== BOTÓN CHAT =====
+  .btn-chat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #2dd4bf;
+    color: #0d1117 !important;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      opacity: 0.85;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  // ===== BOTÓN SOLICITAR =====
+  .btn-solicitar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #2dd4bf;
+    color: #0d1117 !important;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover:not(:disabled) {
+      opacity: 0.85;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+  }
+
+  // ===== BOTÓN PENDIENTE =====
+  .btn-pendiente {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #5a6a7a;
+    color: #e6edf3 !important;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: not-allowed;
+    font-family: inherit;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  // ===== BOTÓN BLOQUEAR =====
+  .btn-bloquear {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: transparent;
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    border-radius: 8px;
+    color: #f85149;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: rgba(248, 81, 73, 0.1);
+      border-color: #f85149;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(248, 81, 73, 0.15);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  // ===== BOTÓN DESBLOQUEAR =====
+  .btn-desbloquear {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    background: #2dd4bf;
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover:not(:disabled) {
+      opacity: 0.85;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+  }
 }
 
+// ============================================================
+// AVISO DE BLOQUEO
+// ============================================================
+.bloqueo-aviso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.7rem 1.2rem;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 10px;
+  color: #f85149;
+  font-size: 0.85rem;
+  font-weight: 500;
+  width: 100%;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// ============================================================
+// SPINNER / ANIMACIONES
+// ============================================================
 .spinner {
   width: 40px;
   height: 40px;
@@ -238,7 +373,6 @@
 // ============================================================
 // CORRECCIÓN PARA TEMA LIGHT DEL AUTOR
 // ============================================================
-
 .tema-light {
   .perfil-card {
     background: rgba(255, 255, 255, 0.85) !important;
@@ -251,7 +385,8 @@
   }
 
   .btn-chat,
-  .btn-solicitar {
+  .btn-solicitar,
+  .btn-desbloquear {
     color: #0d1117 !important;
   }
 
@@ -278,37 +413,120 @@
   .exito {
     color: #2ea043 !important;
   }
+
+  .error-msg {
+    color: #f85149 !important;
+  }
 }
 
 // ============================================================
-// RESPONSIVE
+// RESPONSIVE - TABLET (<= 768px)
 // ============================================================
+@media (max-width: 768px) {
+  .perfil-autor-container {
+    padding: 1rem 0.75rem;
+  }
 
+  .perfil-card {
+    padding: 1.5rem;
+    border-radius: 14px;
+  }
+
+  .perfil-avatar {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL (<= 480px)
+// ============================================================
 @media (max-width: 480px) {
   .perfil-autor-container {
     padding: 0.75rem;
   }
 
   .perfil-card {
-    padding: 1rem;
+    padding: 1.25rem 1rem;
     border-radius: 12px;
   }
 
   .perfil-avatar {
-    width: 80px;
-    height: 80px;
+    width: 84px;
+    height: 84px;
 
     .avatar-inicial {
       font-size: 1.8rem;
     }
   }
 
+  .perfil-nombre {
+    font-size: 1.1rem;
+  }
+
+  .perfil-email {
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
   .perfil-acciones {
     flex-direction: column;
-    
-    .btn-chat, .btn-solicitar, .btn-pendiente {
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+
+    .btn-chat,
+    .btn-solicitar,
+    .btn-pendiente,
+    .btn-bloquear,
+    .btn-desbloquear {
       width: 100%;
       justify-content: center;
+      padding: 0.7rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .bloqueo-aviso {
+      font-size: 0.8rem;
+      padding: 0.6rem 1rem;
+    }
+  }
+
+  .marco-indicator__label {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
+// ============================================================
+@media (max-width: 380px) {
+  .perfil-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .perfil-avatar {
+    width: 72px;
+    height: 72px;
+
+    .avatar-inicial {
+      font-size: 1.5rem;
+    }
+  }
+
+  .perfil-nombre {
+    font-size: 1rem;
+  }
+
+  .perfil-acciones {
+
+    .btn-chat,
+    .btn-solicitar,
+    .btn-pendiente,
+    .btn-bloquear,
+    .btn-desbloquear {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.8rem;
     }
   }
 }

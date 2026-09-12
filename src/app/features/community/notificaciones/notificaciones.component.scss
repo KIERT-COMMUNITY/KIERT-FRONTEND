@@ -1,67 +1,90 @@
-// src/app/features/community/notificaciones/notificaciones.component.scss
+// ============================================================
+// VARIABLES
+// ============================================================
+$primary: #2dd4bf;
+$bg-primary: #0d1117;
+$bg-secondary: #131a22;
+$bg-card: #1b232c;
+$bg-hover: #232b36;
+$border: #26313c;
+$text-primary: #e6edf3;
+$text-secondary: #8b98a5;
+$text-muted: #5a6a7a;
+$danger: #f85149;
+$transition: all 0.2s ease;
+
+* {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+// ============================================================
+// CONTENEDOR
+// ============================================================
 .notificaciones-container {
   position: relative;
   display: inline-block;
 }
 
-// ===== BOTÓN DE CAMPANA =====
+// ============================================================
+// BOTÓN CON TEXTO
+// ============================================================
 .btn-notificaciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   position: relative;
-  background: none;
-  border: none;
-  color: #8b98a5;
-  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: $text-secondary;
+  padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: $transition;
+  white-space: nowrap;
 
-  .icono-campana {
-    width: 22px;
-    height: 22px;
-    transition: all 0.3s ease;
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .btn-texto {
+    display: inline;
   }
 
   &:hover {
-    color: #e6edf3;
-    background: rgba(255, 255, 255, 0.05);
-    
-    .icono-campana {
+    color: $text-primary;
+    background: $bg-card;
+    border-color: $border;
+
+    svg {
       transform: scale(1.05);
     }
   }
 
   &.tiene-notificaciones {
-    .icono-campana {
+    svg {
       animation: bell-ring 1s ease-in-out;
     }
   }
 
   .badge-notificacion {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    background: #f85149;
-    color: #fff;
-    border-radius: 20px;
-    font-size: 0.6rem;
-    font-weight: 700;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    animation: pulse-badge 2s infinite;
-    box-shadow: 0 0 12px rgba(248, 81, 73, 0.4);
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: $danger;
+    color: white;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba($danger, 0.4);
   }
-}
-
-@keyframes pulse-badge {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
 }
 
 @keyframes bell-ring {
@@ -73,30 +96,25 @@
   50%, 100% { transform: rotate(0deg); }
 }
 
-// ===== DROPDOWN =====
+// ============================================================
+// DROPDOWN
+// ============================================================
 .dropdown-notificaciones {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   width: 400px;
-  max-width: calc(100vw - 20px);
-  max-height: 520px;
-  background: #0d1117;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  max-width: calc(100vw - 24px);
+  max-height: 540px;
   display: flex;
   flex-direction: column;
-  z-index: 200;
+  background: $bg-primary;
+  border: 1px solid $border;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  z-index: 999;
   overflow: hidden;
-  backdrop-filter: blur(20px);
-  background: rgba(13, 17, 23, 0.95);
-
   animation: slideDown 0.2s ease-out;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 }
 
 @keyframes slideDown {
@@ -110,126 +128,109 @@
   }
 }
 
-// ===== HEADER =====
+// ============================================================
+// HEADER DEL DROPDOWN
+// ============================================================
 .dropdown-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid $border;
   flex-shrink: 0;
 
   .dropdown-header-left {
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
 
     svg {
-      color: #2dd4bf;
+      flex-shrink: 0;
     }
 
     h3 {
       margin: 0;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: $text-primary;
+      white-space: nowrap;
+    }
+
+    .header-badge {
+      font-size: 0.65rem;
       font-weight: 600;
-      color: #e6edf3;
-      letter-spacing: -0.01em;
-    }
-  }
-
-  .acciones-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .btn-marcar-todas {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: none;
-    border: none;
-    color: #2dd4bf;
-    font-size: 0.7rem;
-    cursor: pointer;
-    padding: 4px 10px;
-    border-radius: 6px;
-    transition: all 0.2s;
-    font-weight: 500;
-
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-
-    &:hover {
-      background: rgba(45, 212, 191, 0.1);
+      color: $primary;
+      background: rgba(45, 212, 191, 0.12);
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
     }
   }
 
   .btn-cerrar {
-    background: none;
-    border: none;
-    color: #8b98a5;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
-    transition: all 0.2s;
     display: flex;
     align-items: center;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: $text-secondary;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: $transition;
 
     &:hover {
-      color: #e6edf3;
-      background: rgba(255, 255, 255, 0.05);
+      background: $bg-card;
+      color: $text-primary;
     }
   }
 }
 
-// ===== BODY =====
+// ============================================================
+// BODY DEL DROPDOWN
+// ============================================================
 .dropdown-body {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0;
+  overflow-x: hidden;
+  padding: 6px 0;
 
   &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
+    width: 5px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    
+    background: $border;
+    border-radius: 3px;
+
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: $text-muted;
     }
   }
 }
 
-// ===== ESTADO CARGANDO =====
+// ============================================================
+// ESTADO CARGANDO
+// ============================================================
 .cargando {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 48px 20px;
-  color: #8b98a5;
+  gap: 12px;
+  color: $text-secondary;
   font-size: 0.85rem;
-  gap: 16px;
 
   .spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid rgba(255, 255, 255, 0.05);
-    border-top-color: #2dd4bf;
+    border: 3px solid $border;
+    border-top-color: $primary;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -239,59 +240,61 @@
   to { transform: rotate(360deg); }
 }
 
-// ===== SIN NOTIFICACIONES =====
+// ============================================================
+// SIN NOTIFICACIONES
+// ============================================================
 .sin-notificaciones {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 48px 20px;
-  color: #8b98a5;
+  text-align: center;
   gap: 8px;
 
   svg {
-    margin-bottom: 4px;
-    opacity: 0.5;
+    opacity: 0.4;
+    margin-bottom: 8px;
+    max-width: 100%;
+    height: auto;
   }
 
   p {
-    margin: 0;
     font-size: 0.95rem;
-    color: #e6edf3;
-    font-weight: 500;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
   }
 
-  .sin-sub {
+  span {
     font-size: 0.8rem;
-    color: #8b98a5;
+    color: $text-secondary;
+    max-width: 240px;
   }
 }
 
-// ===== LISTA DE NOTIFICACIONES =====
-.lista-notificaciones {
-  display: flex;
-  flex-direction: column;
-}
-
-// ===== ITEM DE NOTIFICACIÓN =====
+// ============================================================
+// ITEM DE NOTIFICACIÓN
+// ============================================================
 .notificacion-item {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   padding: 12px 16px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: $transition;
   position: relative;
+  min-width: 0;
 
   &:hover {
     background: rgba(255, 255, 255, 0.03);
   }
 
   &.leida {
-    opacity: 0.5;
-    
+    opacity: 0.55;
+
     &:hover {
-      opacity: 0.7;
+      opacity: 0.75;
     }
   }
 
@@ -299,11 +302,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.03);
 
     svg {
       width: 18px;
@@ -314,112 +316,141 @@
   .contenido-notificacion {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .tipo-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
 
     .mensaje {
-      color: #e6edf3;
       font-size: 0.85rem;
-      line-height: 1.5;
+      line-height: 1.45;
+      color: $text-primary;
       word-break: break-word;
+      overflow-wrap: break-word;
 
       strong {
-        color: #2dd4bf;
+        color: $primary;
         font-weight: 600;
       }
     }
 
-    .meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 4px;
-      font-size: 0.7rem;
-
-      .fecha {
-        color: #8b98a5;
-      }
-
-      .link-accion {
-        display: flex;
-        align-items: center;
-        gap: 3px;
-        color: #2dd4bf;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.7rem;
-        transition: all 0.2s;
-        
-        svg {
-          width: 12px;
-          height: 12px;
-        }
-
-        &:hover {
-          text-decoration: underline;
-          opacity: 0.8;
-        }
-      }
-
-      .btn-eliminar {
-        background: none;
-        border: none;
-        color: #8b98a5;
-        cursor: pointer;
-        padding: 2px 4px;
-        border-radius: 4px;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-
-        svg {
-          width: 12px;
-          height: 12px;
-        }
-
-        &:hover {
-          color: #f85149;
-          background: rgba(248, 81, 73, 0.1);
-        }
-      }
+    .fecha {
+      font-size: 0.68rem;
+      color: $text-muted;
     }
   }
 
-  .indicador-no-leida {
+  .btn-eliminar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: $text-muted;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: $transition;
+
+    &:hover {
+      color: $danger;
+      background: rgba(248, 81, 73, 0.1);
+    }
+  }
+
+  .punto-no-leida {
+    position: absolute;
+    top: 14px;
+    right: 8px;
     width: 8px;
     height: 8px;
-    background: #2dd4bf;
+    background: $primary;
     border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 14px;
+    box-shadow: 0 0 8px rgba($primary, 0.6);
     animation: pulse-dot 2s infinite;
-    box-shadow: 0 0 12px rgba(45, 212, 191, 0.3);
   }
 }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 0.6; transform: scale(0.85); }
 }
 
 // ============================================================
-// 📱 RESPONSIVE OPTIMIZADO PARA MÓVILES
+// FOOTER DEL DROPDOWN
 // ============================================================
+.dropdown-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-top: 1px solid $border;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.2);
 
-// === TABLET Y MÓVILES GRANDES (hasta 768px) ===
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 9px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: $transition;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  .btn-marcar-todas {
+    background: rgba(45, 212, 191, 0.08);
+    color: $primary;
+    border: 1px solid rgba(45, 212, 191, 0.15);
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.15);
+    }
+  }
+
+  .btn-ver-todas {
+    background: $primary;
+    color: $bg-primary;
+
+    &:hover {
+      background: #22b8a8;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - TABLET (<= 768px)
+// ============================================================
 @media (max-width: 768px) {
   .btn-notificaciones {
     padding: 8px 12px;
-    
+
+    .btn-texto {
+      display: inline;
+    }
+
     .icono-campana {
       width: 20px;
       height: 20px;
-    }
-
-    .badge-notificacion {
-      min-width: 16px;
-      height: 16px;
-      font-size: 0.55rem;
-      top: -2px;
-      right: -2px;
     }
   }
 
@@ -434,120 +465,67 @@
     border-radius: 0;
     border-left: none;
     border-right: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    animation: slideDownMobile 0.25s ease-out;
-  }
-
-  @keyframes slideDownMobile {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    border-top: 1px solid $border;
   }
 
   .dropdown-header {
     padding: 14px 16px;
 
-    .dropdown-header-left {
-      h3 {
-        font-size: 0.85rem;
-      }
+    .dropdown-header-left h3 {
+      font-size: 0.95rem;
     }
 
-    .btn-marcar-todas {
-      font-size: 0.65rem;
-      padding: 4px 8px;
+    .header-badge {
+      font-size: 0.6rem;
     }
-
-    .btn-cerrar {
-      padding: 4px;
-    }
-  }
-
-  .dropdown-body {
-    padding: 4px 0;
   }
 
   .notificacion-item {
-    padding: 10px 14px;
+    padding: 12px 14px;
     gap: 10px;
 
     .icono-tipo {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
 
       svg {
-        width: 16px;
-        height: 16px;
+        width: 17px;
+        height: 17px;
       }
     }
 
-    .contenido-notificacion {
-      .mensaje {
-        font-size: 0.8rem;
-      }
-
-      .meta {
-        font-size: 0.65rem;
-        gap: 8px;
-      }
-    }
-
-    .indicador-no-leida {
-      width: 6px;
-      height: 6px;
-      margin-top: 12px;
-    }
-  }
-
-  .sin-notificaciones {
-    padding: 32px 16px;
-
-    svg {
-      width: 48px;
-      height: 48px;
-    }
-
-    p {
+    .contenido-notificacion .mensaje {
       font-size: 0.85rem;
-    }
-
-    .sin-sub {
-      font-size: 0.7rem;
-    }
-  }
-
-  .cargando {
-    padding: 32px 16px;
-
-    .spinner {
-      width: 28px;
-      height: 28px;
     }
   }
 }
 
-// === MÓVILES PEQUEÑOS (hasta 480px) ===
-@media (max-width: 480px) {
+// ============================================================
+// RESPONSIVE - MÓVIL (<= 640px)
+// ============================================================
+@media (max-width: 640px) {
   .btn-notificaciones {
-    padding: 6px 8px;
-    
+    padding: 8px 10px;
+    gap: 6px;
+
+    .btn-texto {
+      display: none; // Solo icono
+    }
+
     .icono-campana {
-      width: 18px;
-      height: 18px;
+      width: 22px;
+      height: 22px;
     }
 
     .badge-notificacion {
-      min-width: 14px;
-      height: 14px;
-      font-size: 0.5rem;
-      top: -2px;
-      right: -2px;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      min-width: 16px;
+      height: 16px;
+      font-size: 0.55rem;
       padding: 0 4px;
+      border: 2px solid $bg-primary;
     }
   }
 
@@ -568,33 +546,16 @@
       }
 
       h3 {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
       }
-    }
 
-    .btn-marcar-todas {
-      font-size: 0.6rem;
-      padding: 3px 6px;
-      
-      svg {
-        width: 12px;
-        height: 12px;
+      .header-badge {
+        font-size: 0.55rem;
+        padding: 2px 6px;
       }
     }
 
     .btn-cerrar {
-      svg {
-        width: 14px;
-        height: 14px;
-      }
-    }
-  }
-
-  .notificacion-item {
-    padding: 8px 12px;
-    gap: 8px;
-
-    .icono-tipo {
       width: 28px;
       height: 28px;
 
@@ -603,73 +564,106 @@
         height: 14px;
       }
     }
+  }
 
-    .contenido-notificacion {
-      .mensaje {
-        font-size: 0.75rem;
-      }
+  .notificacion-item {
+    padding: 10px 12px;
+    gap: 10px;
 
-      .meta {
-        font-size: 0.6rem;
-        gap: 6px;
-        flex-wrap: wrap;
+    .icono-tipo {
+      width: 34px;
+      height: 34px;
+
+      svg {
+        width: 16px;
+        height: 16px;
       }
     }
 
-    .indicador-no-leida {
-      width: 5px;
-      height: 5px;
-      margin-top: 10px;
+    .contenido-notificacion {
+      .tipo-label {
+        font-size: 0.6rem;
+      }
+
+      .mensaje {
+        font-size: 0.8rem;
+      }
+
+      .fecha {
+        font-size: 0.65rem;
+      }
+    }
+
+    .btn-eliminar {
+      width: 28px;
+      height: 28px;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .punto-no-leida {
+      width: 7px;
+      height: 7px;
+      top: 12px;
+      right: 6px;
+    }
+  }
+
+  .dropdown-footer {
+    padding: 10px 12px;
+
+    button {
+      padding: 8px 12px;
+      font-size: 0.75rem;
     }
   }
 
   .sin-notificaciones {
-    padding: 24px 12px;
+    padding: 40px 16px;
 
     svg {
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
     }
 
     p {
-      font-size: 0.8rem;
-    }
-
-    .sin-sub {
-      font-size: 0.65rem;
-    }
-  }
-
-  .cargando {
-    padding: 24px 12px;
-
-    .spinner {
-      width: 24px;
-      height: 24px;
+      font-size: 0.9rem;
     }
 
     span {
       font-size: 0.75rem;
     }
   }
+
+  .cargando {
+    padding: 40px 16px;
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+    }
+  }
 }
 
-// === MÓVILES MUY PEQUEÑOS (hasta 380px) ===
+// ============================================================
+// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
+// ============================================================
 @media (max-width: 380px) {
   .btn-notificaciones {
-    padding: 4px 6px;
-    
+    padding: 6px 8px;
+
     .icono-campana {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
     }
 
     .badge-notificacion {
-      min-width: 12px;
-      height: 12px;
-      font-size: 0.45rem;
-      top: -1px;
-      right: -1px;
+      min-width: 14px;
+      height: 14px;
+      font-size: 0.5rem;
       padding: 0 3px;
     }
   }
@@ -682,71 +676,37 @@
   .dropdown-header {
     padding: 10px 12px;
 
-    h3 {
-      font-size: 0.75rem;
+    .dropdown-header-left h3 {
+      font-size: 0.85rem;
     }
   }
 
   .notificacion-item {
-    padding: 6px 10px;
-    gap: 6px;
+    padding: 8px 10px;
+    gap: 8px;
 
     .icono-tipo {
-      width: 24px;
-      height: 24px;
+      width: 30px;
+      height: 30px;
 
       svg {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
       }
     }
 
-    .contenido-notificacion {
-      .mensaje {
-        font-size: 0.7rem;
-      }
+    .contenido-notificacion .mensaje {
+      font-size: 0.75rem;
     }
   }
 }
 
-// === PREFERENCIAS DE ACCESIBILIDAD ===
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
 @media (prefers-reduced-motion: reduce) {
-  .btn-notificaciones {
-    transition: none !important;
-
-    .icono-campana {
-      transition: none !important;
-    }
-
-    &:hover .icono-campana {
-      transform: none !important;
-    }
-
-    &.tiene-notificaciones .icono-campana {
-      animation: none !important;
-    }
-  }
-
-  .dropdown-notificaciones {
+  * {
     animation: none !important;
-  }
-
-  .notificacion-item {
     transition: none !important;
-  }
-
-  .btn-marcar-todas,
-  .btn-cerrar,
-  .link-accion,
-  .btn-eliminar {
-    transition: none !important;
-  }
-
-  .badge-notificacion {
-    animation: none !important;
-  }
-
-  .indicador-no-leida {
-    animation: none !important;
   }
 }

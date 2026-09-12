@@ -1,22 +1,23 @@
 <!doctype html>
-<!-- Documento HTML raíz. Angular reemplaza <app-root></app-root> por el componente principal -->
+<!-- Documento HTML raíz. Angular reemplaza <kiert-root></kiert-root> por el componente principal -->
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <title>Kiert · Comunidad</title>
   <meta name="description" content="Kiert: comunidad donde compartir casos, archivos y ayudarse entre usuarios.">
-  <!-- viewport: obligatorio para que la web sea responsive en celulares -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- ✅ ESTA LÍNEA FALTABA - CRÍTICA PARA LAS RUTAS -->
+  <base href="/">
+  
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 
   <!-- ✅ POLYFILLS PARA SOCKJS-CLIENT - DEBE IR ANTES QUE TODO -->
   <script>
-    // Definir global para sockjs-client
     if (typeof global === 'undefined') {
       window.global = window;
     }
     
-    // Definir process para sockjs-client
     if (typeof process === 'undefined') {
       window.process = {
         env: { DEBUG: undefined },
@@ -28,7 +29,6 @@
       };
     }
     
-    // Definir Buffer para sockjs-client
     if (typeof Buffer === 'undefined') {
       window.Buffer = {
         from: function(data) { 
@@ -45,7 +45,7 @@
     console.log('✅ Polyfills cargados correctamente');
   </script>
 
-  <!-- Tipografías: JetBrains Mono (identidad "terminal") + Inter (lectura en cuerpo de texto) -->
+  <!-- Tipografías -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

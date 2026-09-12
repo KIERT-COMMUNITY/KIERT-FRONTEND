@@ -1,121 +1,170 @@
-// chat.component.scss
-
 // ============================================================
 // VARIABLES
 // ============================================================
-
 $primary: #2dd4bf;
 $primary-dark: #17b6a4;
+$primary-light: rgba(45, 212, 191, 0.1);
+
 $bg-primary: #0d1117;
-$bg-secondary: #161b22;
-$bg-hover: #1c2333;
-$border-color: #26313c;
+$bg-secondary: #131a22;
+$bg-card: #1b232c;
+$bg-hover: #232b36;
+
+$border: #26313c;
+$border-light: rgba(255, 255, 255, 0.06);
+
 $text-primary: #e6edf3;
 $text-secondary: #8b98a5;
 $text-muted: #5a6a7a;
+
 $success: #2ea043;
 $danger: #f85149;
 
-// ============================================================
-// CHAT CONTAINER
-// ============================================================
+$radius: 12px;
+$radius-sm: 8px;
+$radius-lg: 16px;
+$radius-full: 999px;
 
+$transition: all 0.2s ease;
+
+// ============================================================
+// RESET CONTROL DE DESBORDES
+// ============================================================
+* {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+// ============================================================
+// CONTENEDOR PRINCIPAL
+// ============================================================
 .chat-container {
-  height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
+  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0.75rem;
-  background: $bg-primary;
-  color: $text-primary;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  height: calc(100vh - 64px);
+  padding: 12px;
+  gap: 12px;
+  overflow: hidden;
 }
 
 // ============================================================
 // HEADER
 // ============================================================
-
 .chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.25rem 0.75rem;
-  border-bottom: 1px solid $border-color;
-  margin-bottom: 0.75rem;
+  padding: 12px 16px;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius;
+  flex-shrink: 0;
 
-  .header-left {
+  &__left {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-
-    h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 0;
-      color: $text-primary;
-    }
-
-    .solicitudes-badge {
-      background: $primary;
-      color: $bg-primary;
-      border-radius: 50%;
-      padding: 1px 9px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      min-width: 20px;
-      text-align: center;
-    }
+    gap: 12px;
+    min-width: 0;
   }
 
-  .header-right {
+  &__title {
     display: flex;
-    gap: 0.5rem;
-  }
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
 
-  .btn-mobile-menu {
-    display: none;
-    background: none;
-    border: none;
-    color: $text-primary;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 6px;
-
-    &:hover {
-      background: $bg-hover;
-    }
-  }
-
-  .btn-header {
-    background: none;
-    border: none;
-    color: $text-secondary;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &:hover {
-      background: $bg-hover;
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
       color: $text-primary;
+      margin: 0;
+      white-space: nowrap;
     }
+  }
+}
+
+.btn-menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  color: $text-primary;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &:hover {
+    background: $bg-hover;
+  }
+}
+
+.badge-pendientes {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: $primary;
+  background: $primary-light;
+  padding: 3px 10px;
+  border-radius: $radius-full;
+  white-space: nowrap;
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  svg {
+    transition: transform 0.4s ease;
   }
 }
 
 // ============================================================
 // ALERTAS
 // ============================================================
-
 .alert {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: $radius-sm;
   font-size: 0.85rem;
+  flex-shrink: 0;
   animation: slideDown 0.3s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+  }
 
   button {
     background: none;
@@ -124,19 +173,21 @@ $danger: #f85149;
     cursor: pointer;
     padding: 0 4px;
     opacity: 0.6;
+    color: inherit;
+    flex-shrink: 0;
 
     &:hover {
       opacity: 1;
     }
   }
 
-  &-error {
+  &.alert-error {
     background: rgba($danger, 0.1);
     border: 1px solid rgba($danger, 0.3);
     color: $danger;
   }
 
-  &-success {
+  &.alert-success {
     background: rgba($success, 0.1);
     border: 1px solid rgba($success, 0.3);
     color: $success;
@@ -144,24 +195,17 @@ $danger: #f85149;
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 // ============================================================
-// CHAT MAIN
+// CUERPO DEL CHAT
 // ============================================================
-
-.chat-main {
+.chat-body {
   display: flex;
   flex: 1;
-  gap: 0.75rem;
+  gap: 12px;
   min-height: 0;
   position: relative;
 }
@@ -169,395 +213,342 @@ $danger: #f85149;
 // ============================================================
 // SIDEBAR
 // ============================================================
-
 .sidebar {
-  width: 320px;
-  background: $bg-secondary;
-  border-radius: 12px;
-  border: 1px solid $border-color;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  width: 320px;
   flex-shrink: 0;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  .sidebar-header {
-    display: flex;
+  &__mobile-header {
+    display: none;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid $border-color;
+    padding: 16px;
+    border-bottom: 1px solid $border;
     flex-shrink: 0;
 
-    h3 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: $text-secondary;
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
       margin: 0;
+      color: $text-primary;
+    }
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid $border;
+    flex-shrink: 0;
+
+    svg {
+      color: $text-muted;
+      flex-shrink: 0;
     }
 
-    .conversaciones-count {
-      font-size: 0.75rem;
-      color: $text-muted;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 2px 10px;
-      border-radius: 12px;
+    input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      color: $text-primary;
+      font-size: 0.85rem;
+      outline: none;
+      font-family: inherit;
+
+      &::placeholder {
+        color: $text-muted;
+      }
     }
+  }
+
+  &__solicitudes {
+    border-bottom: 1px solid $border;
+    flex-shrink: 0;
+  }
+
+  &__lista {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 6px;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $border;
+      border-radius: 3px;
+
+      &:hover {
+        background: $text-muted;
+      }
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: $text-secondary;
+
+    .empty-icon {
+      color: $text-muted;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 4px;
+    }
+
+    p {
+      font-size: 0.8rem;
+      color: $text-muted;
+      margin: 0;
+    }
+  }
+}
+
+.btn-close-sidebar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
   }
 }
 
 // ============================================================
 // SOLICITUDES
 // ============================================================
-
-.solicitudes-section {
-  border-bottom: 1px solid $border-color;
-  flex-shrink: 0;
-
-  .solicitudes-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-size: 0.85rem;
-
-    &:hover {
-      background: $bg-hover;
-    }
-
-    svg {
-      margin-left: auto;
-      transition: transform 0.3s;
-      color: $text-secondary;
-
-      &.rotated {
-        transform: rotate(180deg);
-      }
-    }
-
-    .solicitudes-count {
-      background: rgba($primary, 0.2);
-      color: $primary;
-      padding: 1px 10px;
-      border-radius: 12px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-  }
-
-  .solicitudes-list {
-    padding: 0 0.5rem 0.5rem;
-  }
-}
-
-.solicitud-item {
+.solicitudes-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  margin-bottom: 0.25rem;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.04);
-  }
-}
-
-.solicitud-info {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.solicitud-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: linear-gradient(135deg, $primary, $primary-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: $bg-primary;
-  flex-shrink: 0;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.solicitud-nombre {
-  font-weight: 500;
-  font-size: 0.85rem;
-}
-
-.solicitud-acciones {
-  display: flex;
-  gap: 0.3rem;
-
-  button {
-    width: 30px;
-    height: 30px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .btn-aceptar {
-    background: rgba($success, 0.15);
-    color: $success;
-
-    &:hover {
-      background: rgba($success, 0.25);
-    }
-  }
-
-  .btn-rechazar {
-    background: rgba($danger, 0.1);
-    color: $danger;
-
-    &:hover {
-      background: rgba($danger, 0.2);
-    }
-  }
-}
-
-// ============================================================
-// CONVERSACIONES LIST
-// ============================================================
-
-.conversaciones-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.25rem 0;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $border-color;
-    border-radius: 4px;
-  }
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
-  text-align: center;
-  color: $text-secondary;
-
-  svg {
-    color: $text-muted;
-    margin-bottom: 0.75rem;
-  }
-
-  p {
-    margin: 0;
-    font-weight: 600;
-  }
-
-  span {
-    font-size: 0.85rem;
-    color: $text-muted;
-    margin-top: 0.25rem;
-  }
-}
-
-.conversacion-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: $text-primary;
   cursor: pointer;
-  transition: all 0.2s;
-  border-left: 3px solid transparent;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: $transition;
 
   &:hover {
     background: $bg-hover;
   }
 
-  &.active {
-    background: rgba($primary, 0.08);
-    border-left-color: $primary;
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
 
-    .conv-nombre {
+    svg {
+      color: $primary;
+      flex-shrink: 0;
+    }
+
+    span {
+      font-weight: 500;
+    }
+  }
+
+  > svg {
+    color: $text-secondary;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
+  }
+
+  .badge-count {
+    background: $primary;
+    color: $bg-primary;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: $radius-full;
+    min-width: 20px;
+    text-align: center;
+  }
+}
+
+.solicitudes-lista {
+  padding: 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: slideDown 0.3s ease;
+}
+
+.solicitud-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
+  transition: $transition;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(45, 212, 191, 0.2);
+  }
+
+  &__avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: $bg-primary;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__nombre {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__msg {
+    font-size: 0.7rem;
+    color: $text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__acciones {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.btn-aceptar,
+.btn-rechazar {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.btn-aceptar {
+  background: rgba($success, 0.15);
+  color: $success;
+
+  &:hover {
+    background: rgba($success, 0.25);
+  }
+}
+
+.btn-rechazar {
+  background: rgba($danger, 0.1);
+  color: $danger;
+
+  &:hover {
+    background: rgba($danger, 0.2);
+  }
+}
+
+// ============================================================
+// CONVERSACIÓN ITEM
+// ============================================================
+.conv-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: $transition;
+  min-width: 0;
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &--active {
+    background: $primary-light;
+
+    .conv-item__nombre {
       color: $primary;
     }
   }
-}
 
-.conv-avatar {
-  position: relative;
-  flex-shrink: 0;
-
-  kiert-avatar-frame {
-    display: block;
-  }
-
-  .conv-status {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid $bg-secondary;
-    background: $text-muted;
-
-    &.online {
-      background: $success;
-    }
-  }
-}
-
-.conv-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.conv-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2px;
-}
-
-.conv-nombre {
-  font-weight: 600;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.conv-fecha {
-  font-size: 0.65rem;
-  color: $text-muted;
-  flex-shrink: 0;
-}
-
-.conv-preview {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.conv-ultimo {
-  font-size: 0.75rem;
-  color: $text-secondary;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-}
-
-.conv-no-leidos {
-  background: $primary;
-  color: $bg-primary;
-  border-radius: 50%;
-  padding: 1px 8px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  min-width: 20px;
-  text-align: center;
-}
-
-// ============================================================
-// CHAT AREA
-// ============================================================
-
-.chat-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: $bg-secondary;
-  border-radius: 12px;
-  border: 1px solid $border-color;
-  overflow: hidden;
-  min-height: 0;
-}
-
-// ============================================================
-// CHAT PLACEHOLDER
-// ============================================================
-
-.chat-placeholder {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: $text-secondary;
-  padding: 2rem;
-  text-align: center;
-
-  svg {
-    color: $text-muted;
-    margin-bottom: 1rem;
-  }
-
-  h3 {
-    margin: 0 0 0.25rem;
-    font-weight: 600;
-    color: $text-primary;
-  }
-
-  p {
-    margin: 0;
-    color: $text-muted;
-  }
-}
-
-// ============================================================
-// CHAT HEADER AREA
-// ============================================================
-
-.chat-header-area {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.6rem 1rem;
-  border-bottom: 1px solid $border-color;
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.2);
-
-  .chat-user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    cursor: pointer;
-    padding: 4px 8px 4px 4px;
-    border-radius: 8px;
-    transition: background 0.2s;
-
-    &:hover {
-      background: $bg-hover;
-    }
-  }
-
-  .chat-user-avatar {
+  &__avatar {
     position: relative;
     flex-shrink: 0;
 
@@ -565,73 +556,282 @@ $danger: #f85149;
       display: block;
     }
 
-    .chat-user-status {
+    .status-dot {
       position: absolute;
-      bottom: 0;
-      right: 0;
+      bottom: 2px;
+      right: 2px;
       width: 12px;
       height: 12px;
       border-radius: 50%;
       border: 2px solid $bg-secondary;
-      background: $success;
-    }
-  }
+      background: $text-muted;
+      transition: $transition;
 
-  .chat-user-details {
-    display: flex;
-    flex-direction: column;
-
-    .chat-usuario {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    .chat-user-sub {
-      font-size: 0.7rem;
-      color: $text-muted;
-    }
-  }
-
-  .chat-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-
-    .btn-icon {
-      background: none;
-      border: none;
-      color: $text-secondary;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 6px;
-      transition: all 0.2s;
-
-      &:hover {
-        background: $bg-hover;
-        color: $text-primary;
+      &--online {
+        background: $success;
+        box-shadow: 0 0 8px rgba($success, 0.5);
       }
     }
+  }
 
-    .btn-mobile-back {
-      display: none;
-    }
+  &__content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__nombre {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    transition: $transition;
+  }
+
+  &__fecha {
+    font-size: 0.65rem;
+    color: $text-muted;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  &__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__preview {
+    font-size: 0.75rem;
+    color: $text-secondary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__badge {
+    background: $primary;
+    color: $bg-primary;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: $radius-full;
+    flex-shrink: 0;
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 0 8px rgba($primary, 0.4);
   }
 }
 
 // ============================================================
-// MENSAJES LISTA
+// OVERLAY MÓVIL
 // ============================================================
+.chat-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  animation: fadeIn 0.2s ease;
+}
 
-.mensajes-lista {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.75rem 1rem;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// ============================================================
+// ÁREA DE CHAT
+// ============================================================
+.chat-window {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+// ============================================================
+// PLACEHOLDER
+// ============================================================
+.chat-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 12px;
+
+  .placeholder-icon {
+    color: $primary;
+    opacity: 0.3;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    margin: 0;
+    max-width: 320px;
+  }
+}
+
+// ============================================================
+// HEADER CONVERSACIÓN
+// ============================================================
+.conv-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
+  min-width: 0;
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: $radius-sm;
+    transition: $transition;
+
+    &:hover {
+      background: $bg-hover;
+    }
+  }
+
+  &__avatar {
+    position: relative;
+    flex-shrink: 0;
+
+    kiert-avatar-frame {
+      display: block;
+    }
+
+    .status-dot {
+      position: absolute;
+      bottom: 1px;
+      right: 1px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 2px solid $bg-secondary;
+      background: $success;
+      box-shadow: 0 0 6px rgba($success, 0.5);
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__nombre {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__status {
+    font-size: 0.7rem;
+    color: $success;
+    font-weight: 500;
+  }
+}
+
+.btn-back {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  color: $text-primary;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &:hover {
+    background: $bg-hover;
+  }
+}
+
+.btn-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &:hover {
+    background: $bg-hover;
+    color: $primary;
+  }
+}
+
+// ============================================================
+// MENSAJES
+// ============================================================
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -639,324 +839,263 @@ $danger: #f85149;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: $border-color;
-    border-radius: 4px;
-  }
-}
+    background: $border;
+    border-radius: 3px;
 
-// ============================================================
-// FECHA DIVIDER
-// ============================================================
-
-.fecha-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0.75rem 0;
-
-  span {
-    background: $bg-secondary;
-    padding: 0.25rem 1rem;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    color: $text-muted;
-    border: 1px solid $border-color;
-  }
-}
-
-// ============================================================
-// LOADING / NO MENSAJES
-// ============================================================
-
-.loading-mensajes,
-.no-mensajes {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  color: $text-secondary;
-  text-align: center;
-
-  svg {
-    color: $text-muted;
-    margin-bottom: 0.75rem;
+    &:hover {
+      background: $text-muted;
+    }
   }
 
-  p {
-    margin: 0;
-    font-weight: 500;
-  }
+  &__loading,
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 40px 20px;
+    text-align: center;
+    color: $text-secondary;
+    gap: 12px;
 
-  span {
-    font-size: 0.85rem;
-    color: $text-muted;
+    .empty-chat-icon {
+      color: $primary;
+      opacity: 0.3;
+    }
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: $text-muted;
+      margin: 0;
+      max-width: 280px;
+    }
   }
 }
 
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid $border-color;
-  border-top: 3px solid $primary;
+  border: 3px solid $border;
+  border-top-color: $primary;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin-bottom: 0.75rem;
+}
+
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(13, 17, 23, 0.3);
+  border-top-color: $bg-primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// DIVISOR DE FECHA
+// ============================================================
+.date-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0 8px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: $border-light;
+  }
+
+  span {
+    position: relative;
+    background: $bg-secondary;
+    padding: 4px 14px;
+    border-radius: $radius-full;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: $text-secondary;
+    border: 1px solid $border-light;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 }
 
 // ============================================================
-// MENSAJE INDIVIDUAL
+// MENSAJE
 // ============================================================
-
-.mensaje {
+.message {
   display: flex;
-  gap: 0.5rem;
-  max-width: 80%;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 75%;
   animation: fadeInUp 0.2s ease;
 
-  &.propio {
+  &--mine {
     align-self: flex-end;
     flex-direction: row-reverse;
+    max-width: 75%;
 
-    .mensaje-wrapper {
+    .message__content {
       align-items: flex-end;
     }
 
-    .mensaje-contenido {
+    .message__bubble {
       background: $primary;
       color: $bg-primary;
-      border-radius: 16px 16px 4px 16px;
+      border-radius: $radius-lg $radius-lg 4px $radius-lg;
+      font-weight: 500;
     }
 
-    .mensaje-fecha {
-      color: $text-muted;
+    .message__time {
+      text-align: right;
     }
   }
 
-  &:not(.propio) {
-    .mensaje-contenido {
-      background: $bg-primary;
-      border: 1px solid $border-color;
-      border-radius: 16px 16px 16px 4px;
+  &:not(.message--mine) {
+    .message__bubble {
+      background: $bg-card;
+      color: $text-primary;
+      border-radius: $radius-lg $radius-lg $radius-lg 4px;
+      border: 1px solid $border-light;
     }
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+
+    kiert-avatar-frame {
+      display: block;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  &__bubble {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+
+  &__time {
+    font-size: 0.65rem;
+    color: $text-muted;
+    padding: 0 4px;
+  }
+
+  &__files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+    max-width: 100%;
   }
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.mensaje-avatar {
-  flex-shrink: 0;
-  align-self: flex-end;
-
-  kiert-avatar-frame {
-    display: block;
-  }
-}
-
-.mensaje-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-width: 100%;
-}
-
-.mensaje-contenido {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  word-break: break-word;
-  line-height: 1.5;
-  max-width: 100%;
-}
-
-.mensaje-fecha {
-  font-size: 0.6rem;
-  color: $text-muted;
-  padding: 0 4px;
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 // ============================================================
 // ARCHIVOS EN MENSAJES
 // ============================================================
-
-.mensaje-archivos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 4px;
-}
-
-.archivo-item {
+.file-item {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: $radius-sm;
   overflow: hidden;
-  transition: transform 0.2s;
+  transition: $transition;
+  max-width: 100%;
 
   &:hover {
     transform: scale(1.02);
   }
 
-  .archivo-imagen {
+  .file-image {
     position: relative;
-    max-width: 180px;
-    max-height: 140px;
-    border-radius: 8px;
+    width: 180px;
+    height: 130px;
+    max-width: 100%;
+    border-radius: $radius-sm;
     overflow: hidden;
+    border: 1px solid $border-light;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
-    .archivo-overlay {
+    &__overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: opacity 0.2s;
+      transition: $transition;
+      color: white;
 
       svg {
-        color: white;
         stroke: white;
       }
     }
 
-    &:hover .archivo-overlay {
+    &:hover .file-image__overlay {
       opacity: 1;
     }
   }
 
-  .archivo-link {
+  .file-doc {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.7rem;
+    gap: 8px;
+    padding: 10px 14px;
     background: rgba($primary, 0.1);
-    border-radius: 6px;
+    border: 1px solid rgba($primary, 0.2);
+    border-radius: $radius-sm;
     color: $primary;
-    font-size: 0.75rem;
-    text-decoration: none;
-
-    &:hover {
-      background: rgba($primary, 0.2);
-    }
-  }
-}
-
-// ============================================================
-// MENSAJE FOOTER
-// ============================================================
-
-.mensaje-footer {
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid $border-color;
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.15);
-}
-
-.mensaje-tools {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem 0;
-
-  label {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    border-radius: 6px;
-    transition: background 0.2s;
-    color: $text-secondary;
-
-    &:hover {
-      background: $bg-hover;
-      color: $text-primary;
-    }
+    font-size: 0.8rem;
+    max-width: 100%;
 
     svg {
-      stroke: currentColor;
-    }
-  }
-}
-
-.mensaje-form {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem 0.75rem;
-
-  .mensaje-input {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid $border-color;
-    border-radius: 20px;
-    color: $text-primary;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s;
-
-    &:focus {
-      border-color: $primary;
+      flex-shrink: 0;
     }
 
-    &::placeholder {
-      color: $text-muted;
-    }
-  }
-
-  .mensaje-btn {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: $primary;
-    color: $bg-primary;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-
-    &:hover:not(:disabled) {
-      transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba($primary, 0.3);
-    }
-
-    &:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .spinner-small {
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba($bg-primary, 0.3);
-      border-top: 2px solid $bg-primary;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
   }
 }
@@ -964,31 +1103,30 @@ $danger: #f85149;
 // ============================================================
 // PREVIEW DE ARCHIVOS
 // ============================================================
-
-.archivos-preview {
+.files-preview {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0.25rem 0.75rem 0.5rem;
-  border-top: 1px solid $border-color;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid $border;
+  background: rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
 
-  .archivo-preview-item {
+  &__item {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 6px;
+    padding: 6px 10px;
     background: rgba($primary, 0.08);
-    padding: 0.15rem 0.5rem 0.15rem 0.3rem;
-    border-radius: 14px;
+    border: 1px solid rgba($primary, 0.2);
+    border-radius: $radius-full;
     font-size: 0.75rem;
+    color: $text-primary;
+    max-width: 100%;
 
     svg {
-      stroke: $text-secondary;
+      color: $primary;
       flex-shrink: 0;
-    }
-
-    .archivo-size {
-      font-size: 0.65rem;
-      color: $text-muted;
     }
 
     button {
@@ -996,110 +1134,236 @@ $danger: #f85149;
       border: none;
       color: $danger;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.1rem;
       padding: 0 2px;
       line-height: 1;
+      flex-shrink: 0;
+      transition: $transition;
 
       &:hover {
         transform: scale(1.2);
       }
     }
   }
+
+  &__name {
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__size {
+    font-size: 0.65rem;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
 }
 
 // ============================================================
-// MOBILE OVERLAY
+// COMPOSER (INPUT)
 // ============================================================
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid $border;
+  background: rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
 
-.mobile-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  &__btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: $text-secondary;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: $transition;
+
+    &:hover {
+      background: $bg-hover;
+      color: $primary;
+    }
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 18px;
+    background: $bg-primary;
+    border: 1px solid $border;
+    border-radius: $radius-full;
+    color: $text-primary;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: inherit;
+    transition: $transition;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+  }
+
+  &__send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: $primary;
+    color: $bg-primary;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: $transition;
+
+    svg {
+      margin-left: 2px;
+    }
+
+    &:hover:not(:disabled) {
+      background: $primary-dark;
+      transform: scale(1.05);
+      box-shadow: 0 4px 16px rgba($primary, 0.4);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
 }
 
 // ============================================================
-// RESPONSIVE
+// RESPONSIVE - TABLET (<= 1024px)
 // ============================================================
-
-// ===== TABLET =====
 @media (max-width: 1024px) {
   .sidebar {
     width: 280px;
   }
 }
 
-// ===== MÓVIL =====
+// ============================================================
+// RESPONSIVE - MÓVIL (<= 768px)
+// ============================================================
 @media (max-width: 768px) {
   .chat-container {
-    padding: 0.5rem;
-    height: 100vh;
+    padding: 8px;
+    gap: 8px;
+    height: calc(100vh - 60px);
   }
 
   .chat-header {
-    .btn-mobile-menu {
-      display: flex;
-    }
+    padding: 10px 12px;
+    border-radius: $radius-sm;
+  }
+
+  .btn-menu {
+    display: flex;
   }
 
   .sidebar {
     position: fixed;
-    left: 0;
     top: 0;
+    left: 0;
     bottom: 0;
     width: 85%;
-    max-width: 340px;
-    z-index: 1000;
+    max-width: 360px;
+    z-index: 999;
     border-radius: 0;
+    border: none;
+    border-right: 1px solid $border;
     transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
 
-    &.mobile-open {
+    &--open {
       transform: translateX(0);
+    }
+
+    &__mobile-header {
+      display: flex;
     }
   }
 
-  .mobile-overlay {
+  .chat-overlay {
     display: block;
   }
 
-  .chat-area {
-    border-radius: 0;
-    border: none;
-    background: $bg-primary;
+  .btn-back {
+    display: flex;
   }
 
-  .chat-header-area {
-    .btn-mobile-back {
-      display: flex !important;
+  .chat-window {
+    border-radius: $radius-sm;
+  }
+
+  .conv-header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .conv-header__user {
+    padding: 4px 6px;
+  }
+
+  .message {
+    max-width: 85%;
+
+    &--mine {
+      max-width: 85%;
     }
   }
 
-  .mensaje {
-    max-width: 90%;
+  .messages {
+    padding: 12px;
   }
 
-  .archivo-item .archivo-imagen {
-    max-width: 140px;
-    max-height: 110px;
+  .composer {
+    padding: 10px 12px;
+  }
+
+  .file-item .file-image {
+    width: 140px;
+    height: 100px;
   }
 }
 
-// ===== MÓVIL PEQUEÑO =====
+// ============================================================
+// RESPONSIVE - MÓVIL PEQUEÑO (<= 480px)
+// ============================================================
 @media (max-width: 480px) {
   .chat-container {
-    padding: 0;
+    padding: 6px;
+    gap: 6px;
   }
 
   .chat-header {
-    padding: 0.5rem 0.75rem;
-    margin-bottom: 0;
-    border-bottom: none;
-    background: $bg-secondary;
+    padding: 10px;
+    border-radius: $radius-sm;
 
-    h2 {
+    &__title h1 {
       font-size: 1rem;
     }
+  }
+
+  .badge-pendientes {
+    display: none;
   }
 
   .sidebar {
@@ -1107,78 +1371,147 @@ $danger: #f85149;
     max-width: 100%;
   }
 
-  .chat-header-area {
-    padding: 0.5rem 0.75rem;
+  .sidebar__search {
+    padding: 10px 12px;
+  }
 
-    .chat-user-info {
-      padding: 2px 6px 2px 2px;
+  .conv-item {
+    padding: 10px;
+
+    &__avatar kiert-avatar-frame {
+      // Ajuste para móvil
     }
 
-    .chat-usuario {
+    &__nombre {
       font-size: 0.85rem;
     }
+
+    &__preview {
+      font-size: 0.7rem;
+    }
   }
 
-  .mensajes-lista {
-    padding: 0.5rem;
+  .conv-header {
+    padding: 8px;
+
+    &__nombre {
+      font-size: 0.9rem;
+    }
+
+    &__status {
+      font-size: 0.65rem;
+    }
   }
 
-  .mensaje {
-    max-width: 95%;
+  .message {
+    max-width: 90%;
 
-    .mensaje-contenido {
+    &--mine {
+      max-width: 90%;
+    }
+
+    &__bubble {
+      padding: 8px 12px;
       font-size: 0.85rem;
-      padding: 0.4rem 0.6rem;
+    }
+
+    &__time {
+      font-size: 0.6rem;
     }
   }
 
-  .mensaje-form {
-    padding: 0.25rem 0.5rem 0.5rem;
+  .messages {
+    padding: 10px;
+    gap: 3px;
+  }
 
-    .mensaje-input {
+  .date-divider span {
+    font-size: 0.65rem;
+    padding: 3px 10px;
+  }
+
+  .composer {
+    padding: 8px 10px;
+    gap: 6px;
+
+    &__btn-icon {
+      width: 38px;
+      height: 38px;
+    }
+
+    &__input {
+      padding: 10px 14px;
       font-size: 0.85rem;
-      padding: 0.4rem 0.6rem;
     }
 
-    .mensaje-btn {
-      width: 36px;
-      height: 36px;
-
-      svg {
-        width: 18px;
-        height: 18px;
-      }
+    &__send {
+      width: 38px;
+      height: 38px;
     }
   }
 
-  .archivo-item .archivo-imagen {
-    max-width: 100px;
-    max-height: 80px;
+  .files-preview {
+    padding: 8px 10px;
+
+    &__item {
+      font-size: 0.7rem;
+      padding: 5px 8px;
+    }
+
+    &__name {
+      max-width: 100px;
+    }
+  }
+
+  .file-item .file-image {
+    width: 110px;
+    height: 80px;
   }
 
   .solicitud-item {
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
+    padding: 8px;
 
-  .solicitud-acciones {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .conv-nombre {
-    font-size: 0.85rem;
-  }
-
-  .conv-ultimo {
-    font-size: 0.7rem;
+    &__avatar {
+      width: 34px;
+      height: 34px;
+    }
   }
 }
 
 // ============================================================
-// REDUCED MOTION
+// RESPONSIVE - MÓVIL MUY PEQUEÑO (<= 380px)
 // ============================================================
+@media (max-width: 380px) {
+  .chat-header__title h1 {
+    font-size: 0.95rem;
+  }
 
+  .conv-item {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .message {
+    max-width: 92%;
+
+    &--mine {
+      max-width: 92%;
+    }
+  }
+
+  .composer__input {
+    padding: 9px 12px;
+    font-size: 0.8rem;
+  }
+
+  .files-preview__name {
+    max-width: 70px;
+  }
+}
+
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

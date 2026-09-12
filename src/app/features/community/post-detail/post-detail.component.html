@@ -1,6 +1,6 @@
 <!-- APLICAR TEMA DE COLOR -->
 <div [ngClass]="'tema-' + personalizacionStore.temaId()" style="min-height: 100vh;">
-  
+
   @if (cargando()) {
     <div class="loading-container">
       <div class="spinner"></div>
@@ -26,32 +26,53 @@
     </div>
   } @else {
     @let postActual = post()!;
-    
+
     <article class="post-detail" [style.background]="personalizacionStore.fondoGradiente()">
-      
-   <!-- HEADER CON AVATAR Y NOMBRE CLICKEABLES -->
-<div class="post-detail__header">
-  <div class="post-detail__user">
-    <kiert-avatar-frame
-      [fotoUrl]="postActual.autor.fotoPerfilUrl || null"
-      [nombre]="postActual.autor.nombreUsuario"
-      [size]="48"
-      [alt]="postActual.autor.nombreUsuario"
-      [navigateToProfile]="true"
-      [usuarioId]="postActual.autor.id"
-    />
-    <div class="post-detail__user-info">
-      <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
-        @{{ postActual.autor.nombreUsuario }}
-      </span>
-      <!-- ✅ CATEGORÍA CON COLOR DINÁMICO -->
-      <span class="post-detail__badge" [style.background]="getColorCategoria(postActual.categoria)" [style.color]="'#0d1117'">
-        {{ getCategoriaFormateada(postActual.categoria) }}
-      </span>
-    </div>
-  </div>
-  <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
-</div>
+
+      <!-- HEADER CON AVATAR Y NOMBRE CLICKEABLES -->
+      <div class="post-detail__header">
+        <div class="post-detail__user">
+          <kiert-avatar-frame
+            [fotoUrl]="postActual.autor.fotoPerfilUrl || null"
+            [nombre]="postActual.autor.nombreUsuario"
+            [size]="48"
+            [alt]="postActual.autor.nombreUsuario"
+            [navigateToProfile]="true"
+            [usuarioId]="postActual.autor.id"
+          />
+          <div class="post-detail__user-info">
+            <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
+              @{{ postActual.autor.nombreUsuario }}
+            </span>
+            <!-- CATEGORÍA CON COLOR DINÁMICO -->
+            <span class="post-detail__badge" [style.background]="getColorCategoria(postActual.categoria)" [style.color]="'#0d1117'">
+              {{ getCategoriaFormateada(postActual.categoria) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="post-detail__header-right">
+          <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
+          <!-- BOTÓN COMPARTIR -->
+          <button class="btn-compartir-header" (click)="abrirModalCompartir()" title="Compartir publicación">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+          <!-- BOTÓN REPORTAR POST -->
+          <button class="btn-reportar" (click)="reportarPost()" title="Reportar publicación">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
       <h1 class="post-detail__titulo">{{ postActual.titulo }}</h1>
       <p class="post-detail__desc">{{ postActual.descripcion }}</p>
 
@@ -145,6 +166,18 @@
             </svg>
             <span class="reaction-count">{{ reacciones().angrys }}</span>
           </button>
+
+          <!-- BOTÓN COMPARTIR EN LA FILA DE REACCIONES -->
+          <button class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicación">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span class="reaction-count">{{ totalCompartidos() }}</span>
+          </button>
         </div>
 
         <div class="post-stats">
@@ -153,6 +186,16 @@
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
             {{ postActual.totalComentarios || 0 }} comentarios
+          </span>
+          <span class="post-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            {{ totalCompartidos() }} compartidos
           </span>
           @if (tieneAdjuntos()) {
             <span class="post-stat">
@@ -197,7 +240,6 @@
       <div class="comentarios__lista">
         @for (c of comentarios(); track c.id) {
           <div class="comentario">
-            <!-- AVATAR CLICKEABLE -->
             <div class="comentario__avatar" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
               @if (c.autor.fotoPerfilUrl) {
                 <img [src]="c.autor.fotoPerfilUrl" [alt]="c.autor.nombreUsuario" (error)="onAvatarError($event)">
@@ -207,12 +249,11 @@
             </div>
             <div class="comentario__body">
               <div class="comentario__header">
-                <!-- NOMBRE CLICKEABLE -->
                 <span class="comentario__autor" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
                   @{{ c.autor.nombreUsuario }}
                 </span>
                 <span class="comentario__fecha">{{ c.fechaCreacion | date:'dd MMM yyyy' }}</span>
-                <!-- BOTÓN ELIMINAR (solo para el autor) -->
+
                 @if (esAutor(c.autor)) {
                   <button class="comentario__eliminar" (click)="eliminarComentario(c.id)" title="Eliminar comentario">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -220,11 +261,17 @@
                       <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                     </svg>
                   </button>
+                } @else {
+                  <button class="comentario__reportar" (click)="reportarComentario(c.id)" title="Reportar comentario">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                      <line x1="4" y1="22" x2="4" y2="15"/>
+                    </svg>
+                  </button>
                 }
               </div>
               <p class="comentario__texto">{{ c.contenido }}</p>
-              
-              <!-- ACCIONES DEL COMENTARIO -->
+
               <div class="comentario__actions">
                 <button class="comentario__reaction" (click)="reaccionarComentario(c.id, 'like')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -244,7 +291,6 @@
                 </button>
               </div>
 
-              <!-- FORMULARIO DE RESPUESTA -->
               @if (c.mostrandoFormularioRespuesta) {
                 <div class="respuesta-form">
                   <form [formGroup]="formRespuesta" (ngSubmit)="enviarRespuesta(c.id)">
@@ -263,7 +309,6 @@
                 </div>
               }
 
-              <!-- RESPUESTAS -->
               @if (c.respuestas && c.respuestas.length > 0) {
                 <div class="respuestas-toggle">
                   <button class="respuestas-toggle__btn" (click)="toggleVerRespuestas(c.id)">
@@ -280,7 +325,6 @@
                 <div class="respuestas-lista">
                   @for (r of c.respuestas; track r.id) {
                     <div class="respuesta">
-                      <!-- AVATAR DE RESPUESTA CLICKEABLE -->
                       <div class="respuesta__avatar" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
                         @if (r.autor.fotoPerfilUrl) {
                           <img [src]="r.autor.fotoPerfilUrl" [alt]="r.autor.nombreUsuario" (error)="onAvatarError($event)">
@@ -294,11 +338,19 @@
                             @{{ r.autor.nombreUsuario }}
                           </span>
                           <span class="respuesta__fecha">{{ r.fechaCreacion | date:'dd MMM yyyy' }}</span>
+
                           @if (esAutor(r.autor)) {
                             <button class="respuesta__eliminar" (click)="eliminarRespuesta(c.id, r.id)" title="Eliminar respuesta">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"/>
                                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                              </svg>
+                            </button>
+                          } @else {
+                            <button class="respuesta__reportar" (click)="reportarRespuesta(r.id)" title="Reportar respuesta">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                                <line x1="4" y1="22" x2="4" y2="15"/>
                               </svg>
                             </button>
                           }
@@ -343,5 +395,26 @@
         }
       </div>
     </section>
+  }
+
+  <!-- MODAL DE REPORTE -->
+  @if (mostrarModalReporte()) {
+    <kiert-reporte-modal
+      [tipoReporte]="tipoReporteActual()"
+      [postId]="datosReporte().postId"
+      [comentarioId]="datosReporte().comentarioId"
+      [respuestaId]="datosReporte().respuestaId"
+      [usuarioReportadoId]="datosReporte().usuarioReportadoId"
+      (cerrar)="cerrarModalReporte()">
+    </kiert-reporte-modal>
+  }
+
+  <!-- MODAL DE COMPARTIR -->
+  @if (mostrarModalCompartir()) {
+    <kiert-compartir-modal
+      [postId]="postId"
+      [postTitulo]="post()?.titulo || ''"
+      (cerrar)="cerrarModalCompartir()">
+    </kiert-compartir-modal>
   }
 </div>

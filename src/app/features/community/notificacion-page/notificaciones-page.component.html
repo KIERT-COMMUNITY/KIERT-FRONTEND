@@ -1,0 +1,363 @@
+<div class="notif-page" [ngClass]="'tema-' + personalizacionStore.temaId()">
+
+  <!-- ===== HEADER ===== -->
+  <header class="notif-header">
+    <div class="notif-header__left">
+      <button class="btn-back" (click)="volver()" aria-label="Volver">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+
+      <div class="notif-header__title">
+        <h1>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span>Notificaciones</span>
+        </h1>
+        <p>{{ totalNoLeidas() }} sin leer de {{ notificaciones().length }} en total</p>
+      </div>
+    </div>
+
+    <div class="notif-header__actions">
+      @if (totalNoLeidas() > 0) {
+        <button class="btn-accion" (click)="marcarTodasComoLeidas()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>Marcar todas leídas</span>
+        </button>
+      }
+
+      @if (notificaciones().length > 0) {
+        <button class="btn-accion btn-accion--danger" (click)="eliminarTodas()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+          </svg>
+          <span>Eliminar todas</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  <!-- ===== ESTADÍSTICAS / FILTROS ===== -->
+  <div class="notif-stats">
+
+    <button
+      class="stat-item"
+      [class.stat-item--active]="filtroActual() === 'todas'"
+      (click)="cambiarFiltro('todas')"
+      type="button"
+    >
+      <span class="stat-number">{{ notificaciones().length }}</span>
+      <span class="stat-label">Todas</span>
+    </button>
+
+    <button
+      class="stat-item"
+      [class.stat-item--active]="filtroActual() === 'no-leidas'"
+      (click)="cambiarFiltro('no-leidas')"
+      type="button"
+    >
+      <span class="stat-number stat-number--primary">{{ totalNoLeidas() }}</span>
+      <span class="stat-label">Sin leer</span>
+    </button>
+
+    <!-- ✅ LIKE -->
+    <button
+      class="stat-item"
+      [class.stat-item--active]="filtroActual() === 'like'"
+      (click)="cambiarFiltro('like')"
+      type="button"
+    >
+      <span class="stat-number" [style.color]="getColorTipo('like')">
+        {{ totalPorTipo().like }}
+      </span>
+      <span class="stat-label">Me gusta</span>
+    </button>
+
+    <!-- ✅ COMENTARIO (singular) -->
+    <button
+      class="stat-item"
+      [class.stat-item--active]="filtroActual() === 'comentario'"
+      (click)="cambiarFiltro('comentario')"
+      type="button"
+    >
+      <span class="stat-number" [style.color]="getColorTipo('comentario')">
+        {{ totalPorTipo().comentario }}
+      </span>
+      <span class="stat-label">Comentarios</span>
+    </button>
+
+    <!-- ✅ RESPUESTA (singular) -->
+    <button
+      class="stat-item"
+      [class.stat-item--active]="filtroActual() === 'respuesta'"
+      (click)="cambiarFiltro('respuesta')"
+      type="button"
+    >
+      <span class="stat-number" [style.color]="getColorTipo('respuesta')">
+        {{ totalPorTipo().respuesta }}
+      </span>
+      <span class="stat-label">Respuestas</span>
+    </button>
+
+    <!-- ✅ SOLICITUD (singular) -->
+    <button
+      class="stat-item"
+      [class.stat-item--active]="filtroActual() === 'solicitud'"
+      (click)="cambiarFiltro('solicitud')"
+      type="button"
+    >
+      <span class="stat-number" [style.color]="getColorTipo('solicitud')">
+        {{ totalPorTipo().solicitud }}
+      </span>
+      <span class="stat-label">Solicitudes</span>
+    </button>
+
+  </div>
+
+  <!-- ===== BUSCADOR Y ACCIONES ===== -->
+  <div class="notif-toolbar">
+    <div class="notif-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="text"
+        placeholder="Buscar notificaciones..."
+        [(ngModel)]="busqueda"
+      >
+      @if (busqueda()) {
+        <button class="btn-clear" (click)="busqueda.set('')" aria-label="Limpiar" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      }
+    </div>
+
+    <div class="notif-toolbar__actions">
+      <button
+        class="btn-toggle-select"
+        [class.btn-toggle-select--active]="modoSeleccion()"
+        (click)="toggleModoSeleccion()"
+        title="Seleccionar múltiples"
+        type="button"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 11 12 14 22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        <span>{{ modoSeleccion() ? 'Cancelar' : 'Seleccionar' }}</span>
+      </button>
+
+      @if (filtroActual() !== 'todas' || busqueda()) {
+        <button class="btn-limpiar" (click)="limpiarFiltros()" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          <span>Limpiar</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ===== BARRA DE SELECCIÓN ===== -->
+  @if (modoSeleccion() && haySeleccionadas()) {
+    <div class="selection-bar">
+      <span class="selection-bar__count">{{ seleccionadas().size }} seleccionadas</span>
+      <div class="selection-bar__actions">
+        <button class="btn-selection" (click)="seleccionarTodas()" type="button">Seleccionar todas</button>
+        <button class="btn-selection" (click)="deseleccionarTodas()" type="button">Deseleccionar</button>
+        <button class="btn-selection btn-selection--danger" (click)="eliminarSeleccionadas()" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+          </svg>
+          Eliminar ({{ seleccionadas().size }})
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ===== LISTA ===== -->
+  <main class="notif-content">
+
+    @if (cargando()) {
+      <div class="notif-loading">
+        <div class="spinner"></div>
+        <span>Cargando notificaciones...</span>
+      </div>
+    } @else if (errorMsg()) {
+      <div class="notif-error">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>{{ errorMsg() }}</p>
+        <button (click)="cargarNotificaciones()" type="button">Reintentar</button>
+      </div>
+    } @else if (notificacionesFiltradas().length === 0) {
+      <div class="notif-empty">
+        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          <line x1="12" y1="11" x2="12" y2="13"/>
+          <line x1="12" y1="7" x2="12" y2="9"/>
+        </svg>
+        <h3>Sin notificaciones</h3>
+        <p>
+          {{ filtroActual() === 'todas' ? 'No tienes notificaciones aún' : 'No hay notificaciones con este filtro' }}
+        </p>
+        @if (filtroActual() !== 'todas' || busqueda()) {
+          <button class="btn-limpiar-filtros" (click)="limpiarFiltros()" type="button">Ver todas</button>
+        }
+      </div>
+    } @else {
+      <div class="notif-list">
+
+        @for (notificacion of notificacionesFiltradas(); track notificacion.id) {
+          <article
+            class="notif-card"
+            [class.notif-card--leida]="notificacion.leida"
+            [class.notif-card--seleccionada]="estaSeleccionada(notificacion.id)"
+            (click)="onClickNotificacion(notificacion)"
+          >
+
+            <!-- Checkbox de selección -->
+            @if (modoSeleccion()) {
+              <div class="notif-card__checkbox" (click)="toggleSeleccion(notificacion.id, $event)">
+                <div class="checkbox" [class.checkbox--checked]="estaSeleccionada(notificacion.id)">
+                  @if (estaSeleccionada(notificacion.id)) {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Icono del tipo -->
+            <div class="notif-card__icon" [style.background]="getColorTipo(notificacion.tipo) + '20'">
+              @switch (notificacion.tipo) {
+                @case ('like') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" [attr.stroke]="getColorTipo(notificacion.tipo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                }
+                @case ('comentario') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" [attr.stroke]="getColorTipo(notificacion.tipo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                }
+                @case ('respuesta') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" [attr.stroke]="getColorTipo(notificacion.tipo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 14 4 9 9 4"/>
+                    <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+                  </svg>
+                }
+                @case ('solicitud') {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" [attr.stroke]="getColorTipo(notificacion.tipo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                }
+                @default {
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" [attr.stroke]="getColorTipo(notificacion.tipo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                  </svg>
+                }
+              }
+            </div>
+
+            <!-- Contenido -->
+            <div class="notif-card__content">
+              <div class="notif-card__header">
+                <span class="notif-card__tipo" [style.color]="getColorTipo(notificacion.tipo)">
+                  {{ getEtiquetaTipo(notificacion.tipo) }}
+                </span>
+                @if (!notificacion.leida) {
+                  <span class="notif-card__nueva">Nueva</span>
+                }
+              </div>
+
+              <div class="notif-card__mensaje" [innerHTML]="notificacion.mensaje"></div>
+
+              <div class="notif-card__footer">
+                <span class="notif-card__fecha">{{ formatearFecha(notificacion.fecha) }}</span>
+
+                @if (notificacion.url && !modoSeleccion()) {
+                  <a
+                    [routerLink]="notificacion.url"
+                    class="notif-card__link"
+                    (click)="$event.stopPropagation()"
+                  >
+                    Ver
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                      <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </a>
+                }
+              </div>
+            </div>
+
+            <!-- Acciones -->
+            @if (!modoSeleccion()) {
+              <div class="notif-card__actions">
+                @if (!notificacion.leida) {
+                  <button
+                    class="btn-card-action"
+                    (click)="marcarComoLeida(notificacion.id, $event)"
+                    title="Marcar como leída"
+                    type="button"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </button>
+                } @else {
+                  <button
+                    class="btn-card-action"
+                    (click)="marcarComoNoLeida(notificacion.id, $event)"
+                    title="Marcar como no leída"
+                    type="button"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                }
+
+                <button
+                  class="btn-card-action btn-card-action--danger"
+                  (click)="eliminarNotificacion(notificacion.id, $event)"
+                  title="Eliminar"
+                  type="button"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            }
+
+          </article>
+        }
+
+      </div>
+    }
+
+  </main>
+</div>

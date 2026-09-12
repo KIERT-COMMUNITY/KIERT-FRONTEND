@@ -1,6 +1,6 @@
 <!-- src/app/features/biblioteca/biblioteca.component.html -->
 <div class="biblioteca-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
-  
+
   <!-- HEADER -->
   <div class="biblioteca-header">
     <div class="biblioteca-header__info">
@@ -12,7 +12,7 @@
           <line x1="8" y1="11" x2="16" y2="11"/>
           <line x1="8" y1="15" x2="12" y2="15"/>
         </svg>
-        Biblioteca de Recursos
+        <span>Biblioteca de Recursos</span>
       </h1>
       <p>Certificaciones, cursos, herramientas y más para tu desarrollo profesional</p>
     </div>
@@ -22,7 +22,7 @@
   <div class="biblioteca-stats">
     <div class="stat-item">
       <span class="stat-number">{{ totalRecursos() }}</span>
-      <span class="stat-label">Recursos totales</span>
+      <span class="stat-label">Recursos</span>
     </div>
     <div class="stat-item">
       <span class="stat-number">{{ totalCertificaciones() }}</span>
@@ -41,7 +41,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f9ca24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
         </svg>
-        Destacados
+        <span>Destacados</span>
       </h2>
       <div class="destacados-grid">
         @for (recurso of destacados(); track recurso.id) {
@@ -49,15 +49,15 @@
             <div class="destacado-card__icono" [innerHTML]="getIconoCategoria(recurso.categoria)"></div>
             <div class="destacado-card__info">
               <h4>{{ recurso.titulo }}</h4>
-              <p>{{ recurso.descripcion | slice:0:80 }}...</p>
-              <span class="destacado-card__categoria">{{ recurso.categoria }}</span>
+              <p>{{ recurso.descripcion | slice:0:60 }}...</p>
+              <span class="destacado-card__categoria">{{ formatearCategoria(recurso.categoria) }}</span>
             </div>
-            <button class="destacado-card__btn">
+            <button class="destacado-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"/>
                 <polyline points="12 5 19 12 12 19"/>
               </svg>
-              Ver más
+              <span>Ver</span>
             </button>
           </div>
         }
@@ -67,6 +67,8 @@
 
   <!-- FILTROS -->
   <div class="biblioteca-filtros">
+
+    <!-- Buscador + acciones -->
     <div class="filtros-busqueda">
       <div class="buscador">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -79,8 +81,16 @@
           [(ngModel)]="busqueda"
           (input)="buscarRecursos()"
         />
+        @if (busqueda()) {
+          <button class="btn-clear-input" (click)="busqueda.set('')" title="Limpiar búsqueda">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        }
       </div>
-      
+
       <div class="filtros-acciones">
         <button class="btn-vista" [class.active]="vista() === 'grid'" (click)="cambiarVista('grid')" title="Vista cuadrícula">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -105,25 +115,24 @@
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
           </svg>
-          Limpiar
+          <span>Limpiar</span>
         </button>
       </div>
     </div>
 
+    <!-- Categorías -->
     <div class="filtros-categorias">
-      <div class="filtro-grupo">
-        <label>Categoría</label>
-        <div class="filtro-opciones-scroll">
-          @for (cat of categorias(); track cat) {
-            <button 
-              class="filtro-btn"
-              [class.active]="categoriaSeleccionada() === cat"
-              (click)="filtrarPorCategoria(cat)"
-            >
-              {{ cat === 'todas' ? 'Todas' : cat }}
-            </button>
-          }
-        </div>
+      <label>Categoría</label>
+      <div class="filtro-opciones-scroll">
+        @for (cat of categorias(); track cat) {
+          <button
+            class="filtro-btn"
+            [class.active]="categoriaSeleccionada() === cat"
+            (click)="filtrarPorCategoria(cat)"
+          >
+            {{ formatearCategoria(cat) }}
+          </button>
+        }
       </div>
     </div>
   </div>
@@ -144,25 +153,36 @@
       </svg>
       <p>No se encontraron recursos</p>
       <span>Prueba con otros filtros o busca algo diferente</span>
-      <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar filtros</button>
+      <button class="btn-limpiar" (click)="limpiarFiltros()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+        Limpiar filtros
+      </button>
     </div>
   } @else {
     <div class="recursos-container" [class.vista-lista]="vista() === 'lista'">
       @for (recurso of recursosFiltradosComputed(); track recurso.id) {
         <div class="recurso-card" (click)="abrirEnlace(recurso.url)">
-          <div class="recurso-card__icono" [style.color]="getColorCategoria(recurso.categoria)" [innerHTML]="getIconoCategoria(recurso.categoria)">
+
+          <div class="recurso-card__icono"
+               [style.color]="getColorCategoria(recurso.categoria)"
+               [innerHTML]="getIconoCategoria(recurso.categoria)">
           </div>
-          
+
           <div class="recurso-card__info">
             <div class="recurso-card__header">
               <h3>{{ recurso.titulo }}</h3>
-              <span class="recurso-card__categoria" [style.background]="getColorCategoria(recurso.categoria) + '20'" [style.color]="getColorCategoria(recurso.categoria)">
-                {{ recurso.categoria }}
+              <span class="recurso-card__categoria"
+                    [style.background]="getColorCategoria(recurso.categoria) + '20'"
+                    [style.color]="getColorCategoria(recurso.categoria)">
+                {{ formatearCategoria(recurso.categoria) }}
               </span>
             </div>
-            
+
             <p class="recurso-card__descripcion">{{ recurso.descripcion }}</p>
-            
+
             <div class="recurso-card__meta">
               @if (recurso.autor) {
                 <span class="meta-item">
@@ -170,7 +190,7 @@
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                   </svg>
-                  {{ recurso.autor }}
+                  <span>{{ recurso.autor }}</span>
                 </span>
               }
               @if (recurso.plataforma) {
@@ -179,7 +199,7 @@
                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                   </svg>
-                  {{ recurso.plataforma }}
+                  <span>{{ recurso.plataforma }}</span>
                 </span>
               }
               @if (recurso.duracion) {
@@ -188,26 +208,34 @@
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                   </svg>
-                  {{ recurso.duracion }}
+                  <span>{{ recurso.duracion }}</span>
+                </span>
+              }
+              @if (recurso.nivel) {
+                <span class="meta-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                  <span>{{ formatearCategoria(recurso.nivel) }}</span>
                 </span>
               }
             </div>
 
             @if (recurso.tags && recurso.tags.length > 0) {
               <div class="recurso-card__tags">
-                @for (tag of recurso.tags; track tag) {
+                @for (tag of recurso.tags.slice(0, 5); track tag) {
                   <span class="tag">{{ tag }}</span>
                 }
               </div>
             }
           </div>
 
-          <button class="recurso-card__btn">
+          <button class="recurso-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"/>
               <polyline points="12 5 19 12 12 19"/>
             </svg>
-            Abrir recurso
+            <span>Abrir</span>
           </button>
         </div>
       }

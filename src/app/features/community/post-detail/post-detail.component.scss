@@ -1,4 +1,4 @@
-// post-detail.component.scss - COMPLETO Y PERSONALIZADO (SIN HERENCIAS)
+// post-detail.component.scss - COMPLETO Y PERSONALIZADO
 
 // ============================================================
 // VARIABLES PERSONALIZADAS
@@ -18,6 +18,7 @@ $text-secondary: #8b98a5;
 $text-muted: #5a6a7a;
 $danger: #f85149;
 $success: #2ea043;
+$primary-share: #1d9bf0;
 $radius: 12px;
 $radius-sm: 8px;
 $radius-lg: 16px;
@@ -48,9 +49,7 @@ $font-display: 'JetBrains Mono', monospace;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .error-container {
@@ -58,9 +57,7 @@ $font-display: 'JetBrains Mono', monospace;
     margin-bottom: 1rem;
     color: $text-muted;
 
-    svg {
-      stroke: currentColor;
-    }
+    svg { stroke: currentColor; }
   }
 
   h2 {
@@ -89,9 +86,7 @@ $font-display: 'JetBrains Mono', monospace;
   cursor: pointer;
   transition: $transition;
 
-  svg {
-    stroke: $bg-primary;
-  }
+  svg { stroke: $bg-primary; }
 
   &:hover {
     opacity: 0.85;
@@ -115,13 +110,18 @@ $font-display: 'JetBrains Mono', monospace;
     border-color: rgba(45, 212, 191, 0.2);
   }
 
-  // HEADER
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1rem;
     flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__header-right {
+    display: flex;
+    align-items: center;
     gap: 0.5rem;
   }
 
@@ -143,6 +143,7 @@ $font-display: 'JetBrains Mono', monospace;
     flex-shrink: 0;
     border: 2px solid transparent;
     transition: $transition;
+    cursor: pointer;
 
     &:hover {
       border-color: $primary;
@@ -174,9 +175,11 @@ $font-display: 'JetBrains Mono', monospace;
     font-size: 0.95rem;
     color: $text-primary;
     transition: $transition;
+    cursor: pointer;
 
     &:hover {
       color: $primary;
+      text-decoration: underline;
     }
   }
 
@@ -199,7 +202,6 @@ $font-display: 'JetBrains Mono', monospace;
     white-space: nowrap;
   }
 
-  // TÍTULO
   &__titulo {
     font-size: 1.4rem;
     font-weight: 700;
@@ -209,7 +211,6 @@ $font-display: 'JetBrains Mono', monospace;
     font-family: $font-display;
   }
 
-  // DESCRIPCIÓN
   &__desc {
     font-size: 0.95rem;
     line-height: 1.8;
@@ -217,7 +218,6 @@ $font-display: 'JetBrains Mono', monospace;
     margin-bottom: 1rem;
   }
 
-  // GALERÍA
   &__galeria {
     display: grid;
     grid-template-columns: 1fr;
@@ -245,11 +245,7 @@ $font-display: 'JetBrains Mono', monospace;
     border-radius: $radius-sm;
     transition: $transition;
 
-    &:hover {
-      img {
-        transform: scale(1.05);
-      }
-    }
+    &:hover img { transform: scale(1.05); }
 
     img {
       width: 100%;
@@ -259,23 +255,18 @@ $font-display: 'JetBrains Mono', monospace;
     }
 
     &::after {
-      content: '🔍';
+      content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      font-size: 2rem;
-      opacity: 0;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
       transition: $transition;
     }
 
     &:hover::after {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
+      background: rgba(0, 0, 0, 0.15);
     }
   }
 
-  // ADJUNTOS
   &__adjuntos {
     margin-top: 1rem;
     padding-top: 1rem;
@@ -318,9 +309,7 @@ $font-display: 'JetBrains Mono', monospace;
       transform: translateY(-2px);
     }
 
-    .adjunto-icono {
-      font-size: 0.9rem;
-    }
+    .adjunto-icono { font-size: 0.9rem; }
 
     .adjunto-nombre {
       max-width: 120px;
@@ -330,7 +319,6 @@ $font-display: 'JetBrains Mono', monospace;
     }
   }
 
-  // ========== INTERACCIONES ==========
   &__interactions {
     display: flex;
     flex-direction: column;
@@ -338,6 +326,55 @@ $font-display: 'JetBrains Mono', monospace;
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid $border-color;
+  }
+}
+
+// ============================================================
+// BOTONES HEADER: COMPARTIR Y REPORTAR
+// ============================================================
+.btn-compartir-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid $border-color;
+  border-radius: 50%;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  svg { stroke: currentColor; }
+
+  &:hover {
+    color: $primary-share;
+    border-color: $primary-share;
+    background: rgba(29, 155, 240, 0.1);
+    transform: scale(1.1);
+  }
+}
+
+.btn-reportar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid $border-color;
+  border-radius: 50%;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  svg { stroke: currentColor; }
+
+  &:hover {
+    color: $danger;
+    border-color: $danger;
+    background: rgba(248, 81, 73, 0.1);
+    transform: scale(1.1);
   }
 }
 
@@ -376,9 +413,7 @@ $font-display: 'JetBrains Mono', monospace;
     transform: translateY(-2px);
   }
 
-  &:active {
-    transform: scale(0.95);
-  }
+  &:active { transform: scale(0.95); }
 
   &.active {
     border-color: $primary;
@@ -389,6 +424,20 @@ $font-display: 'JetBrains Mono', monospace;
   .reaction-count {
     font-size: 0.75rem;
     min-width: 16px;
+  }
+}
+
+// Botón compartir en la fila de reacciones
+.reaction-btn.btn-compartir {
+  color: $primary-share;
+  border-color: rgba(29, 155, 240, 0.3);
+
+  svg { stroke: $primary-share; }
+
+  &:hover {
+    background: rgba(29, 155, 240, 0.1);
+    border-color: $primary-share;
+    color: $primary-share;
   }
 }
 
@@ -409,9 +458,7 @@ $font-display: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   color: $text-secondary;
 
-  svg {
-    stroke: currentColor;
-  }
+  svg { stroke: currentColor; }
 }
 
 // ============================================================
@@ -496,9 +543,7 @@ $font-display: 'JetBrains Mono', monospace;
     outline: none;
     font-family: inherit;
 
-    &::placeholder {
-      color: $text-muted;
-    }
+    &::placeholder { color: $text-muted; }
 
     &.disabled {
       opacity: 0.5;
@@ -521,9 +566,7 @@ $font-display: 'JetBrains Mono', monospace;
     transition: $transition;
     min-width: 44px;
 
-    svg {
-      stroke: $bg-primary;
-    }
+    svg { stroke: $bg-primary; }
 
     &:hover:not(.disabled) {
       opacity: 0.85;
@@ -572,9 +615,7 @@ $font-display: 'JetBrains Mono', monospace;
   border-radius: $radius-sm;
   transition: $transition;
 
-  &:hover {
-    background: $bg-card;
-  }
+  &:hover { background: $bg-card; }
 
   &__avatar {
     width: 32px;
@@ -589,6 +630,10 @@ $font-display: 'JetBrains Mono', monospace;
     font-weight: 700;
     font-size: 0.75rem;
     color: $bg-primary;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover { transform: scale(1.05); }
 
     .avatar-comentario-img {
       width: 100%;
@@ -597,21 +642,27 @@ $font-display: 'JetBrains Mono', monospace;
     }
   }
 
-  &__body {
-    flex: 1;
-  }
+  &__body { flex: 1; }
 
   &__header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.25rem;
+    flex-wrap: wrap;
   }
 
   &__autor {
     font-weight: 600;
     font-size: 0.85rem;
     color: $text-primary;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      color: $primary;
+      text-decoration: underline;
+    }
   }
 
   &__fecha {
@@ -630,6 +681,7 @@ $font-display: 'JetBrains Mono', monospace;
     display: flex;
     gap: 0.5rem;
     margin-top: 0.4rem;
+    align-items: center;
   }
 
   &__reaction {
@@ -645,17 +697,65 @@ $font-display: 'JetBrains Mono', monospace;
     border-radius: 12px;
     transition: $transition;
 
-    svg {
-      stroke: currentColor;
-    }
+    svg { stroke: currentColor; }
 
     &:hover {
       color: $primary;
       background: $primary-light;
     }
 
-    span {
-      font-weight: 500;
+    span { font-weight: 500; }
+  }
+
+  &__responder {
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 0.7rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: $transition;
+
+    &:hover {
+      color: $primary;
+      background: rgba(45, 212, 191, 0.05);
+    }
+  }
+
+  &__eliminar {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: $transition;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      color: $danger;
+      transform: scale(1.1);
+    }
+
+    svg { stroke: currentColor; }
+  }
+
+  &__reportar {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: $transition;
+    display: inline-flex;
+    align-items: center;
+
+    svg { stroke: currentColor; }
+
+    &:hover {
+      color: $danger;
+      transform: scale(1.1);
     }
   }
 }
@@ -678,15 +778,245 @@ $font-display: 'JetBrains Mono', monospace;
 }
 
 // ============================================================
+// RESPUESTAS
+// ============================================================
+.respuesta-form {
+  margin-top: 0.75rem;
+  margin-left: 2.5rem;
+
+  &__input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  &__input {
+    flex: 1;
+    padding: 0.4rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid $border-color;
+    border-radius: 6px;
+    color: $text-primary;
+    font-size: 0.85rem;
+    outline: none;
+
+    &:focus { border-color: $primary; }
+
+    &::placeholder { color: $text-muted; }
+  }
+
+  &__btn {
+    padding: 0.3rem 1rem;
+    background: $primary;
+    color: $bg-primary;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: $transition;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) { opacity: 0.85; }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.respuestas-toggle {
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+
+  &__btn {
+    background: none;
+    border: none;
+    color: $primary;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+    transition: $transition;
+
+    &:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+  }
+}
+
+.respuestas-lista {
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid rgba(45, 212, 191, 0.2);
+}
+
+.respuesta {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+
+  &:last-child { border-bottom: none; }
+
+  &__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 0.65rem;
+    color: $bg-primary;
+    cursor: pointer;
+    transition: $transition;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &:hover { transform: scale(1.05); }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.1rem;
+    flex-wrap: wrap;
+  }
+
+  &__autor {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: $text-primary;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      color: $primary;
+      text-decoration: underline;
+    }
+  }
+
+  &__fecha {
+    font-size: 0.6rem;
+    color: $text-muted;
+  }
+
+  &__eliminar {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0 2px;
+    transition: $transition;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      color: $danger;
+      transform: scale(1.1);
+    }
+
+    svg { stroke: currentColor; }
+  }
+
+  &__reportar {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0 2px;
+    transition: $transition;
+    display: inline-flex;
+    align-items: center;
+
+    svg { stroke: currentColor; }
+
+    &:hover {
+      color: $danger;
+      transform: scale(1.1);
+    }
+  }
+
+  &__texto {
+    font-size: 0.85rem;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+  }
+
+  &__reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 0.65rem;
+    cursor: pointer;
+    padding: 1px 4px;
+    border-radius: 8px;
+    transition: $transition;
+
+    svg { stroke: currentColor; }
+
+    &:hover {
+      color: $primary;
+      background: rgba(45, 212, 191, 0.05);
+    }
+
+    span { font-weight: 500; }
+  }
+}
+
+.cargando-respuestas {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  margin-left: 2.5rem;
+  color: $text-muted;
+  font-size: 0.75rem;
+
+  .spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+// ============================================================
 // RESPONSIVE
 // ============================================================
 @media (max-width: 768px) {
   .post-detail {
     padding: 1rem;
 
-    &__titulo {
-      font-size: 1.2rem;
-    }
+    &__titulo { font-size: 1.2rem; }
 
     &__galeria {
       &.galeria-multiple {
@@ -695,13 +1025,7 @@ $font-display: 'JetBrains Mono', monospace;
     }
   }
 
-  .comentarios {
-    padding: 1rem;
-  }
-
-  .post-detail__imagen::after {
-    font-size: 1.5rem;
-  }
+  .comentarios { padding: 1rem; }
 }
 
 @media (max-width: 480px) {
@@ -715,17 +1039,18 @@ $font-display: 'JetBrains Mono', monospace;
       font-size: 0.8rem;
     }
 
-    &__titulo {
-      font-size: 1rem;
-    }
+    &__titulo { font-size: 1rem; }
 
-    &__desc {
-      font-size: 0.85rem;
-    }
+    &__desc { font-size: 0.85rem; }
 
     &__header {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    &__header-right {
+      width: 100%;
+      justify-content: space-between;
     }
   }
 
@@ -733,9 +1058,7 @@ $font-display: 'JetBrains Mono', monospace;
     padding: 0.75rem;
     border-radius: 0;
 
-    &__input-wrapper {
-      flex-wrap: wrap;
-    }
+    &__input-wrapper { flex-wrap: wrap; }
 
     &__btn {
       width: 100%;
@@ -752,9 +1075,7 @@ $font-display: 'JetBrains Mono', monospace;
     }
   }
 
-  .reactions {
-    gap: 2px;
-  }
+  .reactions { gap: 2px; }
 
   .reaction-btn {
     padding: 4px 10px;
@@ -782,318 +1103,13 @@ $font-display: 'JetBrains Mono', monospace;
   }
 
   .adjunto-item {
-    .adjunto-nombre {
-      max-width: 80px;
-    }
-  }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-  .post-detail {
-    padding: 1.2rem;
+    .adjunto-nombre { max-width: 80px; }
   }
 
-  .comentarios {
-    padding: 1.2rem;
-  }
-}
-// Agregar al final de post-detail.component.scss
-
-.post-detail__avatar {
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    transform: scale(1.05);
-    border: 2px solid #2dd4bf;
-  }
-}
-
-.post-detail__username {
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: #2dd4bf;
-    text-decoration: underline;
-  }
-}
-// ============================================================
-// RESPUESTAS
-// ============================================================
-
-.respuesta-form {
-  margin-top: 0.75rem;
-  margin-left: 2.5rem;
-
-  &__input-wrapper {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  &__input {
-    flex: 1;
-    padding: 0.4rem 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #26313c;
-    border-radius: 6px;
-    color: #e6edf3;
-    font-size: 0.85rem;
-    outline: none;
-
-    &:focus {
-      border-color: #2dd4bf;
-    }
-
-    &::placeholder {
-      color: #5a6a7a;
-    }
-  }
-
-  &__btn {
-    padding: 0.3rem 1rem;
-    background: #2dd4bf;
-    color: #0d1117;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-
-    &:hover:not(:disabled) {
-      opacity: 0.85;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-}
-
-.respuestas-toggle {
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
-
-  &__btn {
-    background: none;
-    border: none;
-    color: #2dd4bf;
-    font-size: 0.75rem;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.2s;
-
-    &:hover {
-      text-decoration: underline;
-      opacity: 0.8;
-    }
-  }
-}
-
-.respuestas-lista {
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
-  padding-left: 0.5rem;
-  border-left: 2px solid rgba(45, 212, 191, 0.2);
-}
-
-.respuesta {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &__avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: linear-gradient(135deg, #2dd4bf, #17b6a4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-weight: 700;
-    font-size: 0.65rem;
-    color: #0d1117;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
-
-  &__body {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.1rem;
-    flex-wrap: wrap;
-  }
-
-  &__autor {
-    font-weight: 600;
-    font-size: 0.75rem;
-    color: #e6edf3;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      color: #2dd4bf;
-      text-decoration: underline;
-    }
-  }
-
-  &__fecha {
-    font-size: 0.6rem;
-    color: #5a6a7a;
-  }
-
-  &__eliminar {
-    background: none;
-    border: none;
-    color: #5a6a7a;
-    cursor: pointer;
-    padding: 0 2px;
-    transition: all 0.2s;
-
-    &:hover {
-      color: #f85149;
-    }
-
-    svg {
-      stroke: currentColor;
-    }
-  }
-
-  &__texto {
-    font-size: 0.85rem;
-    color: #8b98a5;
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  &__actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.2rem;
-  }
-
-  &__reaction {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    background: none;
-    border: none;
-    color: #5a6a7a;
-    font-size: 0.65rem;
-    cursor: pointer;
-    padding: 1px 4px;
-    border-radius: 8px;
-    transition: all 0.2s;
-
-    svg {
-      stroke: currentColor;
-    }
-
-    &:hover {
-      color: #2dd4bf;
-      background: rgba(45, 212, 191, 0.05);
-    }
-
-    span {
-      font-weight: 500;
-    }
-  }
-}
-
-.cargando-respuestas {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  margin-left: 2.5rem;
-  color: #5a6a7a;
-  font-size: 0.75rem;
-
-  .spinner-small {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: #2dd4bf;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-}
-
-// ============================================================
-// COMENTARIO - ACCIONES ADICIONALES
-// ============================================================
-
-.comentario__responder {
-  background: none;
-  border: none;
-  color: #5a6a7a;
-  font-size: 0.7rem;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.2s;
-
-  &:hover {
-    color: #2dd4bf;
-    background: rgba(45, 212, 191, 0.05);
-  }
-}
-
-.comentario__eliminar {
-  background: none;
-  border: none;
-  color: #5a6a7a;
-  cursor: pointer;
-  padding: 0 2px;
-  transition: all 0.2s;
-
-  &:hover {
-    color: #f85149;
-  }
-
-  svg {
-    stroke: currentColor;
-  }
-}
-
-// ============================================================
-// RESPONSIVE PARA RESPUESTAS
-// ============================================================
-
-@media (max-width: 480px) {
   .respuesta-form {
     margin-left: 1rem;
 
-    &__input-wrapper {
-      flex-wrap: wrap;
-    }
+    &__input-wrapper { flex-wrap: wrap; }
 
     &__btn {
       width: 100%;
@@ -1106,11 +1122,12 @@ $font-display: 'JetBrains Mono', monospace;
     padding-left: 0.25rem;
   }
 
-  .respuesta {
-    flex-wrap: wrap;
-  }
+  .respuesta { flex-wrap: wrap; }
 
-  .respuesta__body {
-    width: 100%;
-  }
+  .respuesta__body { width: 100%; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .post-detail { padding: 1.2rem; }
+  .comentarios { padding: 1.2rem; }
 }

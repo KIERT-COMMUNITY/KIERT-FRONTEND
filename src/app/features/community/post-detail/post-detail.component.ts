@@ -1,4 +1,4 @@
-import { Component, OnInit, input, signal, inject } from '@angular/core';
+import { Component, OnInit, input, signal, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -7,13 +7,23 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ReaccionService } from '../../../core/services/reaccion.service';
 import { ComentarioService } from '../../../core/services/comentario.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
+import { CompartidoService } from '../../../core/services/compartido.service';
 import { Post, Comentario, Respuesta, Adjunto, Autor } from '../../../core/models/post.model';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
+import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
+import { CompartirModalComponent } from '../../../shared/components/compartir-modal/compartir-modal.component';
 
 @Component({
   selector: 'kiert-post-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, AvatarFrameComponent],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    RouterLink,
+    AvatarFrameComponent,
+    ReporteModalComponent,
+    CompartirModalComponent
+  ],
   templateUrl: './post-detail.component.html',
   styleUrl: './post-detail.component.scss',
 })
@@ -21,12 +31,18 @@ export class PostDetailComponent implements OnInit {
   private postService = inject(PostService);
   private reaccionService = inject(ReaccionService);
   private comentarioService = inject(ComentarioService);
+  private compartidoService = inject(CompartidoService);
   public authService = inject(AuthService);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
   id = input.required<string>();
+
+  // ✅ GETTER PARA EL ID COMO NÚMERO (para usar en templates)
+  get postId(): number {
+    return Number(this.id());
+  }
 
   post = signal<Post | undefined>(undefined);
   comentarios = signal<Comentario[]>([]);
@@ -35,6 +51,20 @@ export class PostDetailComponent implements OnInit {
   enviandoRespuesta = signal<number | null>(null);
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
+
+  // ========== REPORTES ==========
+  mostrarModalReporte = signal(false);
+  tipoReporteActual = signal<'POST' | 'COMENTARIO' | 'RESPUESTA' | 'USUARIO'>('POST');
+  datosReporte = signal<{
+    postId?: number;
+    comentarioId?: number;
+    respuestaId?: number;
+    usuarioReportadoId?: number;
+  }>({});
+
+  // ========== COMPARTIR ==========
+  mostrarModalCompartir = signal(false);
+  totalCompartidos = signal(0);
 
   reacciones = signal({
     likes: 0, loves: 0, hahas: 0, wows: 0, sads: 0, angrys: 0
@@ -63,6 +93,7 @@ export class PostDetailComponent implements OnInit {
     this.cargarPost(postId);
     this.cargarComentarios(postId);
     this.cargarReacciones(postId);
+    this.cargarCompartidos(postId);
   }
 
   // ✅ MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
@@ -147,6 +178,14 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
+  // ========== CARGAR COMPARTIDOS ==========
+  cargarCompartidos(postId: number): void {
+    this.compartidoService.contarCompartidos(postId).subscribe({
+      next: (res) => this.totalCompartidos.set(res.total || 0),
+      error: () => {}
+    });
+  }
+
   // ========== REACCIONES AL POST ==========
   reaccionar(tipo: string): void {
     if (!this.authService.isAuthenticated()) {
@@ -199,7 +238,7 @@ export class PostDetailComponent implements OnInit {
             if (c.id === comentarioId && c.respuestas) {
               return {
                 ...c,
-                respuestas: c.respuestas.map(r => 
+                respuestas: c.respuestas.map(r =>
                   r.id === respuestaId ? { ...r, reacciones: data } : r
                 )
               };
@@ -228,8 +267,8 @@ export class PostDetailComponent implements OnInit {
 
     this.comentarioService.crear(Number(this.id()), contenido).subscribe({
       next: (nuevo) => {
-        this.comentarios.update((lista) => [...lista, { 
-          ...nuevo, 
+        this.comentarios.update((lista) => [...lista, {
+          ...nuevo,
           reacciones: { likes: 0, loves: 0 },
           respuestas: [],
           totalRespuestas: 0,
@@ -408,6 +447,71 @@ export class PostDetailComponent implements OnInit {
   esAutor(autor: Autor): boolean {
     const usuario = this.authService.usuario();
     return usuario?.id === autor.id;
+  }
+
+  // ========== REPORTES ==========
+  reportarPost(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para reportar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+    this.tipoReporteActual.set('POST');
+    this.datosReporte.set({ postId: Number(this.id()) });
+    this.mostrarModalReporte.set(true);
+  }
+
+  reportarComentario(comentarioId: number): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para reportar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+    this.tipoReporteActual.set('COMENTARIO');
+    this.datosReporte.set({ comentarioId });
+    this.mostrarModalReporte.set(true);
+  }
+
+  reportarRespuesta(respuestaId: number): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para reportar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+    this.tipoReporteActual.set('RESPUESTA');
+    this.datosReporte.set({ respuestaId });
+    this.mostrarModalReporte.set(true);
+  }
+
+  reportarUsuario(usuarioId: number): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para reportar');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+    this.tipoReporteActual.set('USUARIO');
+    this.datosReporte.set({ usuarioReportadoId: usuarioId });
+    this.mostrarModalReporte.set(true);
+  }
+
+  cerrarModalReporte(): void {
+    this.mostrarModalReporte.set(false);
+  }
+
+  // ========== COMPARTIR ==========
+  abrirModalCompartir(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.errorMsg.set('Inicia sesión para compartir');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+    this.mostrarModalCompartir.set(true);
+  }
+
+  cerrarModalCompartir(): void {
+    this.mostrarModalCompartir.set(false);
+    // Refrescar contador de compartidos
+    this.cargarCompartidos(Number(this.id()));
   }
 
   // ========== UTILIDADES ==========
