@@ -1,6 +1,6 @@
 <!-- src/app/features/documentos/documentos.component.html -->
 <div class="documentos-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
-  
+
   <!-- HEADER -->
   <div class="documentos-header">
     <div class="documentos-header__info">
@@ -50,19 +50,49 @@
 
   <!-- BÚSQUEDA Y FILTROS -->
   <div class="documentos-filtros">
-    <div class="buscador">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input
-        type="text"
-        placeholder="Buscar documentos..."
-        [(ngModel)]="busqueda"
-        (input)="buscar()"
-      />
+    <div class="filtros-fila">
+      <!-- Buscador -->
+      <div class="buscador">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Buscar documentos..."
+          [(ngModel)]="busqueda"
+          (input)="buscar()"
+        />
+      </div>
+
+      <!-- Select estático de categorías -->
+      <div class="categoria-select-wrapper">
+        <label class="categoria-select-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+          Categoría
+        </label>
+        <div class="select-wrapper">
+          <select
+            [ngModel]="categoriaSeleccionada()"
+            (ngModelChange)="filtrarPorCategoria($event)"
+          >
+            <option value="Todas">— Seleccionar —</option>
+            @for (cat of categorias(); track cat) {
+              @if (cat !== 'Todas') {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            }
+          </select>
+          <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
     </div>
 
+    <!-- Chips de categorías (accesos rápidos) -->
     <div class="categorias-wrapper">
       <div class="categorias-scroll">
         @for (cat of categorias(); track cat) {
@@ -100,17 +130,15 @@
     <div class="documentos-grid">
       @for (doc of documentosFiltrados(); track doc.id) {
         <div class="documento-card">
-          <!-- Icono y tipo -->
           <div class="doc-icono">
             <span class="doc-icono-grande" [innerHTML]="getIconoArchivo(doc.tipoArchivo)"></span>
             <span class="doc-tipo">{{ (doc.tipoArchivo || 'ARCHIVO') | uppercase }}</span>
           </div>
 
-          <!-- Contenido -->
           <div class="doc-contenido">
             <h3 class="doc-titulo">{{ doc.titulo }}</h3>
             <p class="doc-descripcion">{{ doc.descripcion }}</p>
-            
+
             <div class="doc-meta">
               <span class="doc-categoria">{{ doc.categoria }}</span>
               <span class="doc-autor">
@@ -157,7 +185,6 @@
             </div>
           </div>
 
-          <!-- Acciones -->
           <div class="doc-acciones">
             <button class="btn-descargar" (click)="descargarDocumento(doc)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -167,7 +194,7 @@
               </svg>
               Descargar
             </button>
-            
+
             @if (esAutor(doc)) {
               <button class="btn-editar" (click)="abrirModalEditar(doc)" title="Editar">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -234,7 +261,7 @@
             <label>Categoría</label>
             <div class="select-wrapper">
               <select [(ngModel)]="formCategoriaSeleccionada">
-                <option value="">Selecciona una categoría</option>
+                <option value="">— Seleccionar —</option>
                 @for (cat of categorias(); track cat) {
                   @if (cat !== 'Todas') {
                     <option [value]="cat">{{ cat }}</option>

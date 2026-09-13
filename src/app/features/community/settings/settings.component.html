@@ -1,12 +1,21 @@
-<!-- settings.component.html -->
+<!-- src/app/features/settings/settings.component.html -->
 <div class="settings-container">
-  
-  <!-- ===== HEADER CON BOTONES HORIZONTALES ===== -->
-  <div class="settings-header">
+
+  <!-- ===== HEADER TIPO STEAM ===== -->
+  <header class="settings-header">
     <div class="header-left">
-      <h1>Ajustes</h1>
-      <p class="settings-sub">Personaliza tu experiencia en Kiert</p>
+      <div class="header-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>Ajustes</h1>
+        <p class="settings-sub">Personaliza tu experiencia en Kiert</p>
+      </div>
     </div>
+
     <div class="nav-buttons">
       <div class="search-wrapper">
         <div class="search-input-group">
@@ -14,9 +23,9 @@
             <circle cx="11" cy="11" r="8"/>
             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input 
-            type="text" 
-            class="search-input" 
+          <input
+            type="text"
+            class="search-input"
             placeholder="Buscar usuario por nombre"
             [(ngModel)]="busquedaUsuario"
             (input)="onBusquedaChange()"
@@ -24,7 +33,7 @@
             [disabled]="buscando()"
           >
           @if (busquedaUsuario()) {
-            <button class="search-clear" (click)="limpiarBusqueda()">
+            <button class="search-clear" (click)="limpiarBusqueda()" aria-label="Limpiar">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
@@ -32,7 +41,7 @@
             </button>
           }
         </div>
-        <button class="nav-btn search-btn" (click)="buscarUsuario()" [disabled]="buscando() || !busquedaUsuario()">
+        <button class="nav-btn search-btn" (click)="buscarUsuario()" [disabled]="buscando() || !busquedaUsuario()" aria-label="Buscar">
           @if (buscando()) {
             <span class="spinner-mini"></span>
           } @else {
@@ -43,29 +52,29 @@
           }
         </button>
       </div>
-      
+
       <button class="nav-btn" (click)="irChat()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
-        Chat
+        <span>Chat</span>
       </button>
       <button class="nav-btn" (click)="irPerfil()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
-        Perfil
+        <span>Perfil</span>
       </button>
       <button class="nav-btn" (click)="irHistorial()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
-        Historial
+        <span>Historial</span>
       </button>
     </div>
-  </div>
+  </header>
 
   <!-- ===== RESULTADOS DE BÚSQUEDA ===== -->
   @if (mostrandoResultados()) {
@@ -83,7 +92,7 @@
               Resultado de búsqueda
             }
           </h3>
-          <button class="result-close" (click)="limpiarBusqueda()">✕</button>
+          <button class="result-close" (click)="limpiarBusqueda()" aria-label="Cerrar">✕</button>
         </div>
 
         @if (busquedaError()) {
@@ -144,227 +153,242 @@
   <!-- ===== ALERTAS ===== -->
   @if (errorMsg()) {
     <div class="alert alert-error">
-      {{ errorMsg() }}
-      <button (click)="errorMsg.set(null)">✕</button>
+      <span>{{ errorMsg() }}</span>
+      <button (click)="errorMsg.set(null)" aria-label="Cerrar">✕</button>
     </div>
   }
   @if (exitoMsg()) {
     <div class="alert alert-success">
-      {{ exitoMsg() }}
-      <button (click)="exitoMsg.set(null)">✕</button>
+      <span>{{ exitoMsg() }}</span>
+      <button (click)="exitoMsg.set(null)" aria-label="Cerrar">✕</button>
     </div>
   }
 
-  <!-- ===== PERFIL ===== -->
-  <div class="settings-section">
-    <div class="section-header">
-      <h2>Mi Perfil</h2>
-      <button class="btn-edit" (click)="toggleEditarPerfil()">
-        {{ editandoPerfil() ? 'Cancelar' : 'Editar' }}
-      </button>
-    </div>
+  <!-- ===== LAYOUT TIPO STEAM: SIDEBAR + CONTENIDO ===== -->
+  <div class="settings-layout">
 
-    <div class="profile-preview">
-      <div class="profile-avatar-wrapper">
-        <label class="profile-avatar-upload">
-          <div class="profile-avatar" 
-               [class]="personalizacionStore.marcoClase()" 
-               [style]="personalizacionStore.marcoEstilo()">
-            @if (usuario()?.fotoPerfilUrl) {
-              <img [src]="usuario()?.fotoPerfilUrl" [alt]="usuario()?.nombreUsuario">
-            } @else {
-              <span class="avatar-initial">{{ getInitials(usuario()?.nombreUsuario || '?') }}</span>
-            }
-            @if (cargando()) {
-              <div class="upload-overlay">
-                <div class="spinner-small"></div>
-              </div>
-            }
-          </div>
-          <span class="upload-hint">Cambiar foto</span>
-          <input type="file" accept="image/*" (change)="subirFotoPerfil($event)" hidden>
-        </label>
-        <div class="profile-name">&#64;{{ usuario()?.nombreUsuario }}</div>
-        <div class="marco-indicator">
-          <span class="marco-tag">Marco: {{ personalizacionStore.marcoId() }}</span>
-        </div>
+    <!-- Sidebar de navegación interna -->
+    <aside class="settings-sidebar">
+      <nav class="sidebar-nav">
+        <a class="sidebar-item active" href="#perfil">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Mi perfil</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-apply-sidebar" (click)="aplicarPersonalizacion()" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner-btn"></span>
+            <span>Aplicando...</span>
+          } @else {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Aplicar cambios</span>
+          }
+        </button>
       </div>
-    </div>
+    </aside>
 
-    @if (editandoPerfil()) {
-      <form [formGroup]="formPerfil" (ngSubmit)="guardarPerfil()" class="edit-form">
-        <div class="form-group">
-          <label>Nombre de usuario</label>
-          <input formControlName="nombreUsuario" type="text" placeholder="Usuario">
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input formControlName="email" type="email" placeholder="Email">
-        </div>
-        <div class="form-group">
-          <label>Bio</label>
-          <textarea formControlName="bio" rows="3" placeholder="Cuéntanos sobre ti..."></textarea>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn-save" [disabled]="cargando()">
-            {{ cargando() ? 'Guardando...' : 'Guardar cambios' }}
+    <!-- Contenido principal -->
+    <main class="settings-content">
+
+      <!-- ===== PERFIL ===== -->
+      <section class="settings-section" id="perfil">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Mi Perfil</h2>
+            <p class="section-desc">Tu identidad pública en la plataforma</p>
+          </div>
+          <button class="btn-edit" (click)="toggleEditarPerfil()">
+            {{ editandoPerfil() ? 'Cancelar' : 'Editar' }}
           </button>
         </div>
-      </form>
-    }
-  </div>
 
-  <!-- ===== TEMAS DE COLOR ===== -->
-  <div class="settings-section">
-    <div class="section-header">
-      <h2>Temas de color</h2>
-      <button class="btn-select" (click)="toggleThemeSelector()">
-        {{ showThemeSelector() ? 'Cerrar' : 'Seleccionar tema' }}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
-      </button>
-    </div>
-    <p class="settings-hint">Se aplica al fondo de toda la página</p>
-    
-    @if (showThemeSelector()) {
-      <div class="selector-grid themes-grid">
-        @for (theme of colorThemes(); track theme.id) {
-          <div class="selector-card theme-card" 
-               [class.active]="selectedTheme() === theme.id"
-               (click)="seleccionarTheme(theme.id)">
-            <div class="theme-preview" [style.background]="theme.gradient">
-              <div class="theme-preview-dot"></div>
+        <div class="profile-preview">
+          <div class="profile-avatar-wrapper">
+            <label class="profile-avatar-upload">
+              <div class="profile-avatar"
+                   [class]="personalizacionStore.marcoClase()"
+                   [style]="personalizacionStore.marcoEstilo()">
+                @if (usuario()?.fotoPerfilUrl) {
+                  <img [src]="usuario()?.fotoPerfilUrl" [alt]="usuario()?.nombreUsuario">
+                } @else {
+                  <span class="avatar-initial">{{ getInitials(usuario()?.nombreUsuario || '?') }}</span>
+                }
+                @if (cargando()) {
+                  <div class="upload-overlay">
+                    <div class="spinner-small"></div>
+                  </div>
+                }
+              </div>
+              <span class="upload-hint">Cambiar foto</span>
+              <input type="file" accept="image/*" (change)="subirFotoPerfil($event)" hidden>
+            </label>
+            <div class="profile-name">&#64;{{ usuario()?.nombreUsuario }}</div>
+            <div class="marco-indicator">
+              <span class="marco-tag">Marco: {{ personalizacionStore.marcoId() }}</span>
             </div>
-            <div class="selector-info">
-              <span class="selector-name">{{ theme.name }}</span>
-              @if (selectedTheme() === theme.id) {
-                <span class="selector-check">✓</span>
-              }
-            </div>
-          </div>
-        }
-      </div>
-    }
-  </div>
-
-  <!-- ===== MARCOS ===== -->
-  <div class="settings-section">
-    <div class="section-header">
-      <h2>Marcos de perfil</h2>
-      <button class="btn-select" (click)="toggleFrameSelector()">
-        {{ showFrameSelector() ? 'Cerrar' : 'Seleccionar marco' }}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
-      </button>
-    </div>
-    <p class="settings-hint">Se aplica a tu foto de perfil</p>
-    
-    @if (showFrameSelector()) {
-      <div class="selector-grid frames-grid">
-        @for (marco of marcosData(); track marco.id) {
-          <div class="selector-card frame-card" 
-               [class.active]="selectedFrame() === marco.id"
-               (click)="seleccionarFrame(marco.id)">
-            <div class="frame-preview" 
-                 [class]="'frame-' + marco.id"
-                 [style.border]="marco.borderStyle"
-                 [style.box-shadow]="marco.shadow"
-                 [style.background-image]="marco.gradient"
-                 [style.padding]="marco.gradient !== 'none' ? '4px' : '0px'">
-              <div class="frame-avatar-preview"></div>
-            </div>
-            <div class="selector-info">
-              <span class="selector-name">{{ marco.name }}</span>
-              @if (selectedFrame() === marco.id) {
-                <span class="selector-check">✓</span>
-              }
-            </div>
-            <span class="selector-desc">{{ marco.description }}</span>
-          </div>
-        }
-      </div>
-    }
-  </div>
-
-  <!-- ===== FONDOS ===== -->
-  <div class="settings-section">
-    <div class="section-header">
-      <h2>Fondos de perfil</h2>
-      <button class="btn-select" (click)="toggleBackgroundSelector()">
-        {{ showBackgroundSelector() ? 'Cerrar' : 'Seleccionar fondo' }}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
-      </button>
-    </div>
-    <p class="settings-hint">Se aplica al fondo de tu perfil</p>
-    
-    @if (showBackgroundSelector()) {
-      <div class="selector-grid backgrounds-grid">
-        @for (fondo of fondosData(); track fondo.id) {
-          <div class="selector-card bg-card" 
-               [class.active]="selectedBackground() === fondo.id"
-               (click)="seleccionarBackground(fondo.id)">
-            <div class="bg-preview" [style.background]="fondo.gradient"></div>
-            <div class="selector-info">
-              <span class="selector-name">{{ fondo.name }}</span>
-              @if (selectedBackground() === fondo.id) {
-                <span class="selector-check">✓</span>
-              }
-            </div>
-            <span class="selector-desc">{{ fondo.description }}</span>
-          </div>
-        }
-      </div>
-    }
-  </div>
-
-  <!-- ===== VISTA PREVIA FINAL ===== -->
-  <div class="settings-section preview-section">
-    <h2>Vista previa</h2>
-    <p class="settings-hint">Así se verá tu perfil con los cambios seleccionados</p>
-    <div class="preview-container" [style.background]="previewThemeGradient()">
-      <div class="preview-card">
-        <div class="preview-avatar-wrapper">
-          <div class="preview-avatar" 
-               [class]="previewFrameClass()" 
-               [style]="previewFrameStyle()">
-            @if (usuario()?.fotoPerfilUrl) {
-              <img [src]="usuario()?.fotoPerfilUrl" [alt]="usuario()?.nombreUsuario">
-            } @else {
-              <span class="avatar-initial">{{ getInitials(usuario()?.nombreUsuario || '?') }}</span>
-            }
-          </div>
-          <div class="preview-name">&#64;{{ usuario()?.nombreUsuario }}</div>
-          <div class="preview-tags">
-            <span class="preview-tag">Tema: {{ selectedTheme() }}</span>
-            <span class="preview-tag">Marco: {{ selectedFrame() }}</span>
-            <span class="preview-tag">Fondo: {{ selectedBackground() }}</span>
           </div>
         </div>
-        <div class="preview-chat" [style.background]="previewThemeGradient()">
-          <div class="preview-message propio">
-            <span>Me encanta mi nuevo estilo</span>
-          </div>
-          <div class="preview-message">
-            <span>Se ve increíble</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== BOTÓN APLICAR ===== -->
-  <div class="settings-section apply-section">
-    <button class="btn-apply-all" (click)="aplicarPersonalizacion()" [disabled]="cargando()">
-      @if (cargando()) {
-        <span class="spinner-btn"></span> Aplicando...
-      } @else {
-        Aplicar personalización
-      }
-    </button>
-    <p class="apply-hint">Los cambios se aplicarán en toda la plataforma</p>
+        @if (editandoPerfil()) {
+          <form [formGroup]="formPerfil" (ngSubmit)="guardarPerfil()" class="edit-form">
+            <div class="form-group">
+              <label>Nombre de usuario</label>
+              <input formControlName="nombreUsuario" type="text" placeholder="Usuario">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input formControlName="email" type="email" placeholder="Email">
+            </div>
+            <div class="form-group">
+              <label>Bio</label>
+              <textarea formControlName="bio" rows="3" placeholder="Cuéntanos sobre ti..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-save" [disabled]="cargando()">
+                {{ cargando() ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        <!-- ===== SELECTORES DENTRO DE MI PERFIL ===== -->
+
+        <!-- Temas -->
+        <div class="inline-selector">
+          <div class="inline-selector__header">
+            <div class="section-title">
+              <h3>Tema de color</h3>
+              <p class="section-desc">Se aplica al fondo de toda la página</p>
+            </div>
+            <button class="btn-select" (click)="toggleThemeSelector()">
+              {{ showThemeSelector() ? 'Cerrar' : 'Seleccionar tema' }}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+
+          @if (showThemeSelector()) {
+            <div class="selector-grid themes-grid">
+              @for (theme of colorThemes(); track theme.id) {
+                <div class="selector-card theme-card"
+                     [class.active]="selectedTheme() === theme.id"
+                     (click)="seleccionarTheme(theme.id)">
+                  <div class="theme-preview" [style.background]="theme.gradient">
+                    <div class="theme-preview-dot"></div>
+                  </div>
+                  <div class="selector-info">
+                    <span class="selector-name">{{ theme.name }}</span>
+                    @if (selectedTheme() === theme.id) {
+                      <span class="selector-check">✓</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Marcos -->
+        <div class="inline-selector">
+          <div class="inline-selector__header">
+            <div class="section-title">
+              <h3>Marco de perfil</h3>
+              <p class="section-desc">Se aplica a tu foto de perfil</p>
+            </div>
+            <button class="btn-select" (click)="toggleFrameSelector()">
+              {{ showFrameSelector() ? 'Cerrar' : 'Seleccionar marco' }}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+
+          @if (showFrameSelector()) {
+            <div class="selector-grid frames-grid">
+              @for (marco of marcosData(); track marco.id) {
+                <div class="selector-card frame-card"
+                     [class.active]="selectedFrame() === marco.id"
+                     (click)="seleccionarFrame(marco.id)">
+                  <div class="frame-preview"
+                       [class]="'frame-' + marco.id"
+                       [style.border]="marco.borderStyle"
+                       [style.box-shadow]="marco.shadow"
+                       [style.background-image]="marco.gradient"
+                       [style.padding]="marco.gradient !== 'none' ? '4px' : '0px'">
+                    <div class="frame-avatar-preview"></div>
+                  </div>
+                  <div class="selector-info">
+                    <span class="selector-name">{{ marco.name }}</span>
+                    @if (selectedFrame() === marco.id) {
+                      <span class="selector-check">✓</span>
+                    }
+                  </div>
+                  <span class="selector-desc">{{ marco.description }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Fondos -->
+        <div class="inline-selector">
+          <div class="inline-selector__header">
+            <div class="section-title">
+              <h3>Fondo de perfil</h3>
+              <p class="section-desc">Se aplica al fondo de tu perfil</p>
+            </div>
+            <button class="btn-select" (click)="toggleBackgroundSelector()">
+              {{ showBackgroundSelector() ? 'Cerrar' : 'Seleccionar fondo' }}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+
+          @if (showBackgroundSelector()) {
+            <div class="selector-grid backgrounds-grid">
+              @for (fondo of fondosData(); track fondo.id) {
+                <div class="selector-card bg-card"
+                     [class.active]="selectedBackground() === fondo.id"
+                     (click)="seleccionarBackground(fondo.id)">
+                  <div class="bg-preview" [style.background]="fondo.gradient"></div>
+                  <div class="selector-info">
+                    <span class="selector-name">{{ fondo.name }}</span>
+                    @if (selectedBackground() === fondo.id) {
+                      <span class="selector-check">✓</span>
+                    }
+                  </div>
+                  <span class="selector-desc">{{ fondo.description }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- ===== APLICAR (versión móvil) ===== -->
+      <section class="settings-section apply-section">
+        <button class="btn-apply-all" (click)="aplicarPersonalizacion()" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner-btn"></span> Aplicando...
+          } @else {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Aplicar personalización
+          }
+        </button>
+        <p class="apply-hint">Los cambios se aplicarán en toda la plataforma</p>
+      </section>
+
+    </main>
   </div>
 </div>

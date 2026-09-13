@@ -21,9 +21,28 @@ export class DocumentosComponent implements OnInit {
   public authService = inject(AuthService);
   public personalizacionStore = inject(PersonalizacionStore);
 
+  // Categorías estáticas por defecto
+  private readonly CATEGORIAS_BASE: string[] = [
+    'Arquitectura',
+    'Biología',
+    'Comunicación',
+    'Derecho',
+    'Diseño',
+    'Economía',
+    'Física',
+    'Geografía',
+    'Historia',
+    'Inglés',
+    'Integrales',
+    'Matemáticas',
+    'Medicina',
+    'Programación',
+    'Química'
+  ];
+
   // Estado
   documentos = signal<Documento[]>([]);
-  categorias = signal<string[]>([]);
+  categorias = signal<string[]>(['Todas', ...this.CATEGORIAS_BASE]);
   categoriaSeleccionada = signal<string>('Todas');
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
@@ -72,13 +91,23 @@ export class DocumentosComponent implements OnInit {
     this.cargarDocumentos();
   }
 
+  /**
+   * Combina las categorías base con las que devuelve el backend,
+   * evitando duplicados. 'Todas' siempre va primero.
+   */
   cargarCategorias(): void {
     this.documentoService.obtenerCategorias().subscribe({
       next: (data) => {
-        this.categorias.set(['Todas', ...data]);
+        const combinadas = new Set<string>([
+          ...this.CATEGORIAS_BASE,
+          ...(data || [])
+        ]);
+        this.categorias.set(['Todas', ...Array.from(combinadas).sort((a, b) => a.localeCompare(b, 'es'))]);
       },
       error: (err) => {
         console.error('Error al cargar categorías:', err);
+        // Mantener las categorías base si falla el backend
+        this.categorias.set(['Todas', ...this.CATEGORIAS_BASE]);
       }
     });
   }
@@ -239,7 +268,7 @@ export class DocumentosComponent implements OnInit {
 
   descargarDocumento(documento: Documento): void {
     window.open(documento.urlArchivo, '_blank');
-    
+
     this.documentoService.incrementarDescargas(documento.id).subscribe({
       next: () => {
         this.documentos.update(lista =>
@@ -291,7 +320,7 @@ export class DocumentosComponent implements OnInit {
       'zip': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fdcb6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>`,
       'rar': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fdcb6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>`
     };
-    const svg = iconos[tipoArchivo?.toLowerCase() || ''] || 
+    const svg = iconos[tipoArchivo?.toLowerCase() || ''] ||
       `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b98a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
     return this.sanitizer.bypassSecurityTrustHtml(svg);
   }

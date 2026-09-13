@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, inject, computed, OnDestroy, effect } from '@angular/core';
+// src/app/features/settings/settings.component.ts
+import { Component, OnInit, signal, inject, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -58,26 +59,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   marcosData = this.personalizacionStore.marcosData;
   fondosData = this.personalizacionStore.fondosData;
 
-  previewThemeGradient = computed(() => {
-    const theme = this.colorThemes().find(t => t.id === this.selectedTheme());
-    return theme?.gradient || 'linear-gradient(135deg, #2dd4bf, #0d1117)';
-  });
-
-  previewFrameClass = computed(() => `frame-${this.selectedFrame()}`);
-  
-  previewFrameStyle = computed(() => {
-    const id = this.selectedFrame();
-    const store = this.personalizacionStore as any;
-    return {
-      'border': store.marcoBorderStyle(),
-      'box-shadow': store.marcoShadowStyle(),
-      'background-image': store.marcoGradientStyle(),
-      'padding': store.marcoPaddingStyle(),
-      'background-origin': 'border-box',
-      'background-clip': 'padding-box, border-box',
-    };
-  });
-
   formPerfil = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
@@ -107,7 +88,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.selectedTheme.set(current.temaId || 'default');
       this.selectedFrame.set(current.marcoId || 'none');
       this.selectedBackground.set(current.fondoId || 'default');
-      
+
       // Aplicar tema guardado al cargar la página
       this.aplicarTemaGlobal(current.temaId || 'default');
     }
@@ -126,7 +107,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
         this.buscando.set(true);
         this.mostrandoResultados.set(true);
-        
+
         return this.userService.buscarUsuarios(username).pipe(
           catchError(error => {
             console.error('Error en búsqueda:', error);
@@ -138,12 +119,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (usuarios: User[]) => {
         this.buscando.set(false);
-        
+
         if (usuarios && usuarios.length > 0) {
           this.usuariosEncontrados.set(usuarios);
           this.usuarioBuscado.set(null);
           this.busquedaError.set(null);
-          
+
           if (usuarios.length === 1) {
             this.usuarioBuscado.set(usuarios[0]);
           }
@@ -170,11 +151,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   // ===== APLICAR TEMA GLOBALMENTE AL HTML =====
   aplicarTemaGlobal(themeId: string): void {
-    // Remover clase y atributo de tema anterior
     document.documentElement.className = '';
     document.documentElement.removeAttribute('data-theme');
-    
-    // Aplicar el nuevo tema como clase en el html
+
     if (themeId && themeId !== 'default') {
       document.documentElement.setAttribute('data-theme', themeId);
       document.documentElement.classList.add(`tema-${themeId}`);
@@ -233,19 +212,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (usuarios: User[]) => {
         this.buscando.set(false);
-        
+
         if (usuarios && usuarios.length > 0) {
           this.usuariosEncontrados.set(usuarios);
           this.usuarioBuscado.set(null);
           this.busquedaError.set(null);
-          
+
           if (usuarios.length === 1) {
             this.usuarioBuscado.set(usuarios[0]);
             this.exitoMsg.set(`Usuario @${usuarios[0].nombreUsuario} encontrado`);
           } else {
             this.exitoMsg.set(`Se encontraron ${usuarios.length} usuarios`);
           }
-          
+
           setTimeout(() => this.exitoMsg.set(null), 3000);
         } else {
           this.usuariosEncontrados.set([]);
@@ -287,7 +266,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   enviarSolicitud(usuarioId: number): void {
     if (!usuarioId) return;
-    
+
     this.enviandoSolicitud.set(true);
     this.userService.enviarSolicitudContacto(usuarioId).subscribe({
       next: (response) => {
@@ -311,7 +290,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // ===== MÉTODOS DE PERSONALIZACIÓN =====
   seleccionarTheme(themeId: string): void {
     this.selectedTheme.set(themeId);
-    // Aplicar el tema globalmente al hacer clic
     this.aplicarTemaGlobal(themeId);
   }
 
@@ -325,18 +303,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   aplicarPersonalizacion(): void {
     this.cargando.set(true);
-    
+
     const temaId = this.selectedTheme();
     const marcoId = this.selectedFrame();
     const fondoId = this.selectedBackground();
-    
+
     console.log('🎨 Aplicando personalización:', { temaId, marcoId, fondoId });
-    
-    // Aplicar tema globalmente
+
     this.aplicarTemaGlobal(temaId);
-    
+
     this.personalizacionStore.guardarPersonalizacion(temaId, marcoId, fondoId);
-    
+
     setTimeout(() => {
       this.cargando.set(false);
       this.exitoMsg.set('Personalización aplicada correctamente');
