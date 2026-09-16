@@ -1,3 +1,4 @@
+// src/app/features/chat/grupo-chat.component.ts
 import {
   Component,
   OnInit,
@@ -48,7 +49,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ===== TABS =====
   tabActual = signal<TabTipo>('grupos');
 
-  // ===== CONVERSACIONES (para sidebar) =====
+  // ===== CONVERSACIONES =====
   conversaciones = signal<Conversacion[]>([]);
   solicitudes = signal<SolicitudContacto[]>([]);
   usuarioSeleccionado = signal<number | null>(null);
@@ -70,6 +71,14 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   solicitudesExpandidas = signal(false);
   mostrarModalGrupo = signal(false);
   mostrarMiembros = signal(false);
+
+  // 🔥 NUEVOS: Opciones del grupo
+  mostrarOpcionesGrupo = signal(false);
+  mostrarConfirmEliminar = signal(false);
+  mostrarConfirmSalir = signal(false);
+  mostrarConfirmExpulsar = signal(false);
+  grupoAEliminar = signal<Grupo | null>(null);
+  miembroAExpulsar = signal<MiembroGrupo | null>(null);
 
   // ===== FORMS =====
   formMensaje = this.fb.group({
@@ -308,6 +317,137 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   toggleMiembros(): void {
     this.mostrarMiembros.update(val => !val);
+    const grupoId = this.grupoSeleccionado();
+    if (grupoId && this.mostrarMiembros()) {
+      this.cargarMiembros(grupoId);
+    }
+  }
+
+  // ============================================================
+  // 🔥 OPCIONES DEL GRUPO
+  // ============================================================
+  toggleOpcionesGrupo(): void {
+    this.mostrarOpcionesGrupo.update(v => !v);
+  }
+
+  esAdmin(): boolean {
+    const g = this.grupo();
+    return g?.rolDelUsuario === 'ADMIN';
+  }
+
+  esCreador(): boolean {
+    const g = this.grupo();
+    const usuario = this.authService.usuario();
+    return g?.creadorId === usuario?.id;
+  }
+
+  puedeEliminarGrupo(): boolean {
+    return this.esAdmin() || this.esCreador();
+  }
+
+  grupoActualId(): number {
+    return this.grupoSeleccionado() ?? 0;
+  }
+
+  // ============================================================
+  // 🔥 ELIMINAR GRUPO
+  // ============================================================
+  abrirConfirmEliminar(): void {
+    const g = this.grupo();
+    if (!g) return;
+    this.grupoAEliminar.set(g);
+    this.mostrarConfirmEliminar.set(true);
+    this.mostrarOpcionesGrupo.set(false);
+  }
+
+  cerrarConfirmEliminar(): void {
+    this.mostrarConfirmEliminar.set(false);
+    this.grupoAEliminar.set(null);
+  }
+
+  confirmarEliminarGrupo(): void {
+    const g = this.grupoAEliminar();
+    if (!g) return;
+
+    this.grupoService.eliminarGrupo(g.id).subscribe({
+      next: () => {
+        this.grupos.update(lista => lista.filter(x => x.id !== g.id));
+        this.cerrarConfirmEliminar();
+        this.cerrarGrupo();
+        this.exitoMsg.set(`Grupo "${g.nombre}" eliminado`);
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.cerrarConfirmEliminar();
+        this.errorMsg.set(err?.error?.error || 'Error al eliminar grupo');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ============================================================
+  // 🔥 SALIR DEL GRUPO
+  // ============================================================
+  abrirConfirmSalir(): void {
+    this.mostrarConfirmSalir.set(true);
+    this.mostrarOpcionesGrupo.set(false);
+  }
+
+  cerrarConfirmSalir(): void {
+    this.mostrarConfirmSalir.set(false);
+  }
+
+  confirmarSalirGrupo(): void {
+    const grupoId = this.grupoSeleccionado();
+    if (!grupoId) return;
+
+    this.grupoService.salirDelGrupo(grupoId).subscribe({
+      next: () => {
+        this.grupos.update(lista => lista.filter(g => g.id !== grupoId));
+        this.cerrarConfirmSalir();
+        this.cerrarGrupo();
+        this.exitoMsg.set('Saliste del grupo');
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.cerrarConfirmSalir();
+        this.errorMsg.set(err?.error?.error || 'Error al salir del grupo');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ============================================================
+  // 🔥 EXPULSAR MIEMBRO
+  // ============================================================
+  abrirConfirmExpulsar(miembro: MiembroGrupo): void {
+    this.miembroAExpulsar.set(miembro);
+    this.mostrarConfirmExpulsar.set(true);
+  }
+
+  cerrarConfirmExpulsar(): void {
+    this.mostrarConfirmExpulsar.set(false);
+    this.miembroAExpulsar.set(null);
+  }
+
+  confirmarExpulsarMiembro(): void {
+    const grupoId = this.grupoSeleccionado();
+    const miembro = this.miembroAExpulsar();
+    if (!grupoId || !miembro) return;
+
+    this.grupoService.expulsarMiembro(grupoId, miembro.usuarioId).subscribe({
+      next: () => {
+        this.miembros.update(lista => lista.filter(m => m.usuarioId !== miembro.usuarioId));
+        this.cerrarConfirmExpulsar();
+        this.exitoMsg.set(`@${miembro.nombreUsuario} expulsado del grupo`);
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.cerrarConfirmExpulsar();
+        this.errorMsg.set(err?.error?.error || 'Error al expulsar miembro');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
   }
 
   // ============================================================

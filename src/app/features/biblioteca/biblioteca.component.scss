@@ -1303,3 +1303,1473 @@ $transition: all 0.25s ease;
     animation: none !important;
   }
 }
+
+// ============================================================
+// VARIABLES
+// ============================================================
+$primary: #2dd4bf;
+$primary-light: rgba(45, 212, 191, 0.1);
+$bg-primary: #0d1117;
+$bg-secondary: #131a22;
+$bg-card: #1b232c;
+$border: rgba(255, 255, 255, 0.06);
+$border-hover: rgba(255, 255, 255, 0.12);
+$text-primary: #e6edf3;
+$text-secondary: #8b98a5;
+$text-muted: #5a6a7a;
+$danger: #f85149;
+$transition: all 0.25s ease;
+
+// ============================================================
+// RESET Y CONTROL DE DESBORDES GLOBAL
+// ============================================================
+* {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+// ============================================================
+// CONTENEDOR PRINCIPAL
+// ============================================================
+.biblioteca-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+// ============================================================
+// HEADER (con botón agregar)
+// ============================================================
+.biblioteca-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  width: 100%;
+
+  &__info {
+    flex: 1 1 300px;
+    min-width: 0;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      word-break: break-word;
+      overflow-wrap: break-word;
+
+      svg {
+        color: $primary;
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+      }
+
+      span {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        min-width: 0;
+      }
+    }
+
+    p {
+      color: $text-secondary;
+      font-size: 0.95rem;
+      margin: 0;
+      line-height: 1.5;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+  }
+}
+
+.btn-agregar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: $primary;
+  color: $bg-primary;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: inherit;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #22b8a8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ============================================================
+// ESTADÍSTICAS
+// ============================================================
+.biblioteca-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+  width: 100%;
+
+  .stat-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    transition: $transition;
+    min-width: 0;
+    overflow: hidden;
+
+    &:hover {
+      border-color: rgba(45, 212, 191, 0.2);
+      background: rgba(45, 212, 191, 0.04);
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: $primary;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+  }
+}
+
+// ============================================================
+// DESTACADOS
+// ============================================================
+.biblioteca-destacados {
+  margin-bottom: 24px;
+  width: 100%;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 12px;
+    word-break: break-word;
+
+    svg { flex-shrink: 0; }
+  }
+
+  .destacados-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 12px;
+    width: 100%;
+  }
+
+  .destacado-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(45, 212, 191, 0.04);
+    border: 1px solid rgba(45, 212, 191, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: $transition;
+    overflow: hidden;
+    width: 100%;
+    min-width: 0;
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.08);
+      transform: translateY(-2px);
+      border-color: rgba(45, 212, 191, 0.2);
+    }
+
+    &__icono {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      color: #f9ca24;
+
+      svg { width: 24px; height: 24px; }
+    }
+
+    &__info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+
+      h4 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 0 0 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+
+      p {
+        font-size: 0.7rem;
+        color: $text-secondary;
+        margin: 0 0 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+
+      .destacado-card__categoria {
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        color: $primary;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    &__btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: $primary;
+      color: $bg-primary;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: $transition;
+      flex-shrink: 0;
+      font-family: inherit;
+
+      svg { width: 14px; height: 14px; }
+
+      &:hover { background: #22b8a8; }
+    }
+  }
+}
+
+// ============================================================
+// FILTROS
+// ============================================================
+.biblioteca-filtros {
+  margin-bottom: 20px;
+  width: 100%;
+
+  .filtros-busqueda {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+
+    .buscador {
+      flex: 1 1 200px;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid $border;
+      border-radius: 8px;
+      padding: 0 14px;
+      transition: $transition;
+      max-width: 100%;
+
+      &:focus-within {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
+      }
+
+      > svg {
+        color: $text-secondary;
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        background: none;
+        border: none;
+        padding: 10px 0;
+        color: $text-primary;
+        font-size: 0.95rem;
+        outline: none;
+        width: 100%;
+        font-family: inherit;
+
+        &::placeholder {
+          color: $text-muted;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .btn-clear-input {
+        background: none;
+        border: none;
+        color: $text-secondary;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        transition: $transition;
+        flex-shrink: 0;
+
+        &:hover {
+          color: $danger;
+          background: rgba(248, 81, 73, 0.1);
+        }
+      }
+    }
+
+    .filtros-acciones {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .btn-vista {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid $border;
+      border-radius: 6px;
+      color: $text-secondary;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: $transition;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: $text-primary;
+      }
+
+      &.active {
+        background: rgba(45, 212, 191, 0.12);
+        border-color: $primary;
+        color: $primary;
+      }
+
+      svg { width: 16px; height: 16px; }
+    }
+
+    .btn-limpiar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(248, 81, 73, 0.08);
+      border: 1px solid rgba(248, 81, 73, 0.15);
+      border-radius: 6px;
+      color: $danger;
+      padding: 8px 14px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-family: inherit;
+
+      svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+      }
+
+      &:hover { background: rgba(248, 81, 73, 0.15); }
+    }
+  }
+
+  .filtros-categorias {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+
+    label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filtro-opciones-scroll {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 4px 2px 8px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(45, 212, 191, 0.3) transparent;
+      width: 100%;
+      max-width: 100%;
+
+      &::-webkit-scrollbar { height: 4px; }
+      &::-webkit-scrollbar-track { background: transparent; }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(45, 212, 191, 0.3);
+        border-radius: 4px;
+
+        &:hover { background: rgba(45, 212, 191, 0.5); }
+      }
+    }
+
+    .filtro-btn {
+      padding: 6px 16px;
+      border-radius: 16px;
+      border: 1px solid $border;
+      background: transparent;
+      color: $text-secondary;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-family: inherit;
+
+      &:hover {
+        color: $text-primary;
+        border-color: $border-hover;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      &.active {
+        background: $primary;
+        color: $bg-primary;
+        border-color: $primary;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// ============================================================
+// ESTADOS
+// ============================================================
+.estado-cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+  color: $text-secondary;
+  width: 100%;
+  text-align: center;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.05);
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 8px;
+  color: $text-secondary;
+  text-align: center;
+  width: 100%;
+
+  svg {
+    opacity: 0.4;
+    margin-bottom: 8px;
+    max-width: 100%;
+    height: auto;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: $text-primary;
+    margin: 8px 0 0;
+    font-weight: 500;
+    word-break: break-word;
+  }
+
+  span {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    word-break: break-word;
+  }
+
+  .btn-limpiar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: 6px;
+    color: $primary;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+    font-family: inherit;
+
+    &:hover { background: rgba(45, 212, 191, 0.15); }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// RECURSOS
+// ============================================================
+.recursos-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+
+  &.vista-lista {
+    .recurso-card {
+      padding: 14px 18px;
+      gap: 16px;
+
+      .recurso-card__icono svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .recurso-card__info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .recurso-card__descripcion {
+        font-size: 0.8rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    }
+  }
+}
+
+// ============================================================
+// TARJETA DE RECURSO
+// ============================================================
+.recurso-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid $border;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: $transition;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-2px);
+    border-color: $border-hover;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  // 🔥 ACCIONES DE USUARIO (editar/eliminar)
+  &__acciones-usuario {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: $transition;
+    z-index: 2;
+
+    .btn-accion {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid $border;
+      background: rgba(13, 17, 23, 0.9);
+      color: $text-secondary;
+      cursor: pointer;
+      transition: $transition;
+      backdrop-filter: blur(4px);
+      padding: 0;
+      font-family: inherit;
+
+      svg { width: 14px; height: 14px; }
+
+      &.btn-editar:hover {
+        color: $primary;
+        border-color: $primary;
+        background: rgba(45, 212, 191, 0.15);
+      }
+
+      &.btn-eliminar:hover {
+        color: $danger;
+        border-color: $danger;
+        background: rgba(248, 81, 73, 0.15);
+      }
+    }
+  }
+
+  &:hover &__acciones-usuario {
+    opacity: 1;
+  }
+
+  &__icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+
+    svg { width: 28px; height: 28px; }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 0;
+    width: 100%;
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+      line-height: 1.3;
+      flex: 1 1 100%;
+      min-width: 0;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+
+    .recurso-card__categoria {
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__descripcion {
+    font-size: 0.85rem;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+  }
+
+  &__meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      color: $text-secondary;
+      min-width: 0;
+      max-width: 100%;
+
+      svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+      span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        max-width: 100%;
+      }
+    }
+  }
+
+  &__tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+
+    .tag {
+      font-size: 0.65rem;
+      padding: 2px 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      color: $text-secondary;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(45, 212, 191, 0.08);
+    color: $primary;
+    border: 1px solid rgba(45, 212, 191, 0.15);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+    font-family: inherit;
+    width: 100%;
+    flex-shrink: 0;
+
+    svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.15);
+      border-color: rgba(45, 212, 191, 0.3);
+    }
+  }
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.25s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+  &--small { max-width: 400px; }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid $border;
+    flex-shrink: 0;
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+    }
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    color: $text-secondary;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    transition: $transition;
+
+    &:hover {
+      color: $danger;
+      background: rgba(248, 81, 73, 0.1);
+    }
+  }
+
+  &__body {
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+
+    .form-error {
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      color: $danger;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+
+      label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: $text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      input[type="text"],
+      input[type="url"],
+      textarea,
+      select {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid $border;
+        border-radius: 8px;
+        padding: 9px 12px;
+        color: $text-primary;
+        font-size: 0.85rem;
+        font-family: inherit;
+        outline: none;
+        transition: $transition;
+        width: 100%;
+        min-width: 0;
+
+        &::placeholder { color: $text-muted; }
+
+        &:focus {
+          border-color: $primary;
+          box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 70px;
+      }
+
+      select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b98a5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 36px;
+
+        option {
+          background: $bg-card;
+          color: $text-primary;
+        }
+      }
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .form-check {
+      label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 0.85rem;
+        color: $text-primary;
+        font-weight: 500;
+
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          accent-color: $primary;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+      }
+    }
+
+    .text-muted {
+      color: $text-muted;
+      font-size: 0.8rem;
+      margin: 4px 0 0;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid $border;
+    flex-shrink: 0;
+
+    button {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: $transition;
+      font-family: inherit;
+      border: 1px solid transparent;
+    }
+
+    .btn-cancelar {
+      background: transparent;
+      border-color: $border;
+      color: $text-secondary;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: $text-primary;
+        border-color: $border-hover;
+      }
+    }
+
+    .btn-guardar {
+      background: $primary;
+      color: $bg-primary;
+
+      &:hover {
+        background: #22b8a8;
+        box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+      }
+    }
+
+    .btn-eliminar-confirm {
+      background: $danger;
+      color: #fff;
+
+      &:hover {
+        background: #e03e36;
+        box-shadow: 0 4px 12px rgba(248, 81, 73, 0.3);
+      }
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+@media (min-width: 640px) {
+  .recurso-card {
+    &__header h3 { flex: 1 1 auto; }
+    &__btn { width: auto; align-self: flex-start; }
+  }
+}
+
+@media (min-width: 768px) {
+  .biblioteca-container { padding: 32px 24px; }
+
+  .recurso-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 20px 24px;
+    gap: 20px;
+
+    &__icono {
+      width: 56px;
+      height: 56px;
+
+      svg { width: 32px; height: 32px; }
+    }
+
+    &__info { gap: 10px; }
+
+    &__btn {
+      align-self: center;
+      flex-shrink: 0;
+      width: auto;
+    }
+  }
+
+  .recursos-container.vista-lista .recurso-card {
+    padding: 16px 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .biblioteca-header__info h1 {
+    font-size: 1.6rem;
+
+    svg { width: 28px; height: 28px; }
+  }
+}
+
+@media (max-width: 768px) {
+  .biblioteca-container { padding: 16px 14px; }
+
+  .biblioteca-header {
+    margin-bottom: 20px;
+
+    &__info {
+      h1 {
+        font-size: 1.35rem;
+        gap: 8px;
+
+        svg { width: 24px; height: 24px; }
+      }
+
+      p { font-size: 0.85rem; }
+    }
+  }
+
+  .btn-agregar {
+    padding: 9px 14px;
+    font-size: 0.8rem;
+
+    svg { width: 16px; height: 16px; }
+  }
+
+  .biblioteca-stats {
+    margin-bottom: 20px;
+    gap: 10px;
+
+    .stat-item {
+      padding: 12px 8px;
+
+      .stat-number { font-size: 1.3rem; }
+      .stat-label { font-size: 0.6rem; }
+    }
+  }
+
+  .biblioteca-destacados {
+    margin-bottom: 20px;
+
+    .destacados-grid { grid-template-columns: 1fr; }
+
+    .destacado-card {
+      padding: 12px 14px;
+
+      &__btn { padding: 5px 10px; font-size: 0.65rem; }
+    }
+  }
+
+  .biblioteca-filtros {
+    .filtros-busqueda {
+      .buscador {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+
+      .filtros-acciones {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  }
+
+  // Acciones de usuario siempre visibles en táctil
+  .recurso-card__acciones-usuario {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .biblioteca-container { padding: 14px 12px; }
+
+  .biblioteca-header {
+    &__info {
+      h1 {
+        font-size: 1.15rem;
+        gap: 6px;
+
+        svg { width: 20px; height: 20px; }
+      }
+
+      p { font-size: 0.78rem; }
+    }
+  }
+
+  .btn-agregar {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+  }
+
+  .biblioteca-stats {
+    gap: 6px;
+
+    .stat-item {
+      padding: 10px 6px;
+
+      .stat-number { font-size: 1.1rem; }
+      .stat-label { font-size: 0.52rem; letter-spacing: 0.2px; }
+    }
+  }
+
+  .biblioteca-destacados {
+    h2 { font-size: 1rem; }
+
+    .destacado-card {
+      gap: 10px;
+      padding: 12px;
+
+      &__icono {
+        width: 36px;
+        height: 36px;
+
+        svg { width: 20px; height: 20px; }
+      }
+
+      &__info {
+        h4 { font-size: 0.8rem; }
+        p { font-size: 0.65rem; }
+      }
+
+      &__btn {
+        padding: 4px 8px;
+        font-size: 0.6rem;
+
+        svg { width: 12px; height: 12px; }
+      }
+    }
+  }
+
+  .biblioteca-filtros {
+    .filtros-busqueda {
+      gap: 8px;
+      flex-direction: column;
+      align-items: stretch;
+
+      .buscador {
+        padding: 0 12px;
+        width: 100%;
+
+        input { padding: 9px 0; font-size: 0.85rem; }
+      }
+
+      .filtros-acciones {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .btn-limpiar {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 0.7rem;
+      }
+    }
+
+    .filtros-categorias {
+      .filtro-btn { padding: 5px 14px; font-size: 0.7rem; }
+    }
+  }
+
+  .recurso-card {
+    padding: 14px;
+    gap: 10px;
+
+    &__icono {
+      width: 42px;
+      height: 42px;
+
+      svg { width: 24px; height: 24px; }
+    }
+
+    &__header {
+      h3 { font-size: 0.9rem; flex: 1 1 100%; }
+
+      .recurso-card__categoria {
+        font-size: 0.55rem;
+        padding: 2px 8px;
+      }
+    }
+
+    &__descripcion {
+      font-size: 0.8rem;
+      -webkit-line-clamp: 2;
+    }
+
+    &__meta .meta-item {
+      font-size: 0.65rem;
+      gap: 3px;
+
+      svg { width: 12px; height: 12px; }
+    }
+
+    &__tags .tag { font-size: 0.6rem; padding: 1px 8px; }
+
+    &__btn { padding: 7px 12px; font-size: 0.75rem; }
+  }
+
+  .modal {
+    max-width: 100%;
+
+    &__body {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    &__footer {
+      button { flex: 1; }
+    }
+  }
+
+  .estado-vacio {
+    padding: 40px 16px;
+
+    svg { width: 48px; height: 48px; }
+    p { font-size: 1rem; }
+    span { font-size: 0.8rem; }
+  }
+}
+
+@media (max-width: 380px) {
+  .biblioteca-container { padding: 12px 10px; }
+
+  .biblioteca-header__info {
+    h1 {
+      font-size: 1.05rem;
+      gap: 6px;
+
+      svg { width: 18px; height: 18px; }
+    }
+
+    p { font-size: 0.75rem; }
+  }
+
+  .biblioteca-stats {
+    gap: 5px;
+
+    .stat-item {
+      padding: 8px 4px;
+
+      .stat-number { font-size: 0.95rem; }
+      .stat-label { font-size: 0.48rem; letter-spacing: 0; }
+    }
+  }
+
+  .biblioteca-destacados {
+    h2 { font-size: 0.95rem; }
+
+    .destacado-card {
+      padding: 10px;
+      gap: 8px;
+
+      &__icono {
+        width: 32px;
+        height: 32px;
+
+        svg { width: 18px; height: 18px; }
+      }
+
+      &__info {
+        h4 { font-size: 0.75rem; }
+        p { font-size: 0.6rem; }
+      }
+
+      &__btn {
+        padding: 3px 7px;
+        font-size: 0.55rem;
+
+        svg { width: 11px; height: 11px; }
+      }
+    }
+  }
+
+  .biblioteca-filtros {
+    .filtros-busqueda {
+      .buscador {
+        padding: 0 10px;
+
+        input { font-size: 0.8rem; padding: 8px 0; }
+        > svg { width: 16px; height: 16px; }
+      }
+
+      .btn-vista {
+        padding: 6px 8px;
+
+        svg { width: 14px; height: 14px; }
+      }
+
+      .btn-limpiar { padding: 7px 10px; font-size: 0.65rem; }
+    }
+
+    .filtros-categorias {
+      .filtro-btn { padding: 4px 12px; font-size: 0.65rem; }
+    }
+  }
+
+  .recurso-card {
+    padding: 12px;
+    gap: 8px;
+
+    &__icono {
+      width: 38px;
+      height: 38px;
+
+      svg { width: 22px; height: 22px; }
+    }
+
+    &__header h3 { font-size: 0.85rem; }
+    &__descripcion { font-size: 0.75rem; }
+
+    &__btn {
+      padding: 6px 10px;
+      font-size: 0.7rem;
+
+      svg { width: 14px; height: 14px; }
+    }
+  }
+}
+
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  .recurso-card,
+  .destacado-card,
+  .biblioteca-stats .stat-item,
+  .btn-vista,
+  .btn-limpiar,
+  .btn-agregar,
+  .filtro-btn,
+  .btn-accion {
+    transition: none !important;
+
+    &:hover { transform: none !important; }
+  }
+
+  .spinner { animation: none !important; }
+  .modal-overlay, .modal { animation: none !important; }
+}

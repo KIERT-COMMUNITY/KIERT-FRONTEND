@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
+// src/app/shared/components/bloqueo-modal/bloqueo-modal.component.ts
+import { Component, EventEmitter, Input, Output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BloqueoService } from '../../../core/services/bloqueo.service';
@@ -8,34 +9,53 @@ import { BloqueoService } from '../../../core/services/bloqueo.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './bloqueo-modal.component.html',
-  styleUrl: './bloqueo-modal.component.scss'
+  styleUrl: './bloqueo-modal.component.scss',
 })
 export class BloqueoModalComponent {
   private bloqueoService = inject(BloqueoService);
 
-  @Input({ required: true }) usuarioId!: number;
-  @Input({ required: true }) usuarioNombre!: string;
+  // ===== INPUTS / OUTPUTS =====
+  @Input() usuarioId!: number;
+  @Input() usuarioNombre!: string;
   @Output() cerrar = new EventEmitter<void>();
   @Output() bloqueado = new EventEmitter<void>();
 
-  motivo = signal('');
-  enviando = signal(false);
+  // ===== SIGNALS =====
+  motivo = signal<string>('');
+  enviando = signal<boolean>(false);
   errorMsg = signal<string | null>(null);
 
-  motivosRapidos = [
-    'Acoso o intimidación',
+  // 🔥 AQUÍ ESTÁ LA CLAVE: nombre correcto
+  motivosRapidos: string[] = [
+    'Acoso o ciberacoso',
     'Spam o publicidad',
-    'Contenido inapropiado',
     'Comportamiento ofensivo',
-    'Ya no quiero ver su contenido'
+    'Contenido inapropiado',
+    'Suplantación de identidad',
+    'Otro'
   ];
 
+  // ===== MÉTODOS =====
   seleccionarMotivo(m: string): void {
-    this.motivo.set(m);
+    if (this.motivo() === m) {
+      this.motivo.set('');
+    } else {
+      this.motivo.set(m);
+    }
+    this.errorMsg.set(null);
   }
 
+  /**
+   * 🔥 Método llamado por el HTML — `confirmar()`
+   */
   confirmar(): void {
-    if (!this.motivo().trim()) {
+    if (!this.usuarioId) {
+      this.errorMsg.set('ID de usuario inválido');
+      return;
+    }
+
+    const motivoFinal = this.motivo().trim();
+    if (!motivoFinal) {
       this.errorMsg.set('Debes indicar un motivo');
       return;
     }
@@ -43,10 +63,7 @@ export class BloqueoModalComponent {
     this.enviando.set(true);
     this.errorMsg.set(null);
 
-    this.bloqueoService.bloquear({
-      usuarioBloqueadoId: this.usuarioId,
-      motivo: this.motivo().trim()
-    }).subscribe({
+    this.bloqueoService.bloquear(this.usuarioId, motivoFinal).subscribe({
       next: () => {
         this.enviando.set(false);
         this.bloqueado.emit();
@@ -54,7 +71,10 @@ export class BloqueoModalComponent {
       },
       error: (err) => {
         this.enviando.set(false);
-        this.errorMsg.set(err.error?.error || 'Error al bloquear usuario');
+        const mensaje = err?.error?.error
+          || err?.error?.mensaje
+          || 'Error al bloquear usuario';
+        this.errorMsg.set(mensaje);
       }
     });
   }

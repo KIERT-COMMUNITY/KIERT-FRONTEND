@@ -4,10 +4,11 @@ export interface Conversacion {
   usuarioId: number;
   nombreUsuario: string;
   fotoPerfilUrl: string | null;
+  marcoId?: string | null;
   ultimoMensaje: string | null;
   ultimoMensajeFecha?: string | null;
   noLeidos: number;
-  online?: boolean; // ✅ Agregar propiedad online
+  online?: boolean; // 🔥 NUEVO
 }
 
 export interface MensajeArchivo {

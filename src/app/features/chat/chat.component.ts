@@ -1,3 +1,4 @@
+// src/app/features/chat/chat.component.ts
 import {
   Component,
   OnInit,
@@ -14,9 +15,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ChatService } from '../../core/services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
-import { GrupoService, Grupo, MensajeGrupo } from '../../core/services/grupo.service';
+import { GrupoService, Grupo, MensajeGrupo, MiembroGrupo } from '../../core/services/grupo.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
-import { Conversacion, Mensaje, SolicitudContacto, MensajeArchivo } from '../../core/models/chat.model';
+import { Conversacion, Mensaje, SolicitudContacto, MensajeArchivo, UsuarioDisponible } from '../../core/models/chat.model';
 import { AvatarFrameComponent } from '../../shared/components/avatar-frame/avatar-frame.component';
 import { CrearGrupoModalComponent } from '../../shared/components/crear-grupo-modal/crear-grupo-modal.component';
 
@@ -60,6 +61,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   grupos = signal<Grupo[]>([]);
   grupoSeleccionado = signal<number | null>(null);
   mensajesGrupo = signal<MensajeGrupo[]>([]);
+  miembros = signal<MiembroGrupo[]>([]);
   cargandoGrupo = signal(false);
   enviandoGrupo = signal(false);
 
@@ -71,6 +73,21 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   mobileMenuOpen = signal(false);
   solicitudesExpandidas = signal(false);
   mostrarModalGrupo = signal(false);
+  mostrarMiembros = signal(false);
+
+  // ===== BÚSQUEDA =====
+  busqueda = signal<string>('');
+  buscadorActivo = signal(false);
+  usuariosDisponibles = signal<UsuarioDisponible[]>([]);
+  cargandoUsuarios = signal(false);
+
+  // ===== OPCIONES DE GRUPO =====
+  mostrarOpcionesGrupo = signal(false);
+  mostrarConfirmEliminar = signal(false);
+  mostrarConfirmSalir = signal(false);
+  mostrarConfirmExpulsar = signal(false);
+  grupoAEliminar = signal<Grupo | null>(null);
+  miembroAExpulsar = signal<MiembroGrupo | null>(null);
 
   // ===== FORMS =====
   formMensaje = this.fb.group({
@@ -89,6 +106,39 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   get solicitudesPendientes(): SolicitudContacto[] {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
   }
+
+  // ============================================================
+  // COMPUTED DE BÚSQUEDA
+  // ============================================================
+  conversacionesFiltradas = computed(() => {
+    const query = this.busqueda().toLowerCase().trim();
+    if (!query) return this.conversaciones();
+    return this.conversaciones().filter(c =>
+      c.nombreUsuario?.toLowerCase().includes(query)
+    );
+  });
+
+  gruposFiltrados = computed(() => {
+    const query = this.busqueda().toLowerCase().trim();
+    if (!query) return this.grupos();
+    return this.grupos().filter(g =>
+      g.nombre?.toLowerCase().includes(query)
+    );
+  });
+
+  usuariosFiltrados = computed(() => {
+    const query = this.busqueda().toLowerCase().trim();
+    if (!query || query.length < 1) return [];
+    return this.usuariosDisponibles().filter(u =>
+      u.nombreUsuario?.toLowerCase().includes(query)
+    );
+  });
+
+  hayResultados = computed(() => {
+    return this.conversacionesFiltradas().length > 0
+        || this.gruposFiltrados().length > 0
+        || this.usuariosFiltrados().length > 0;
+  });
 
   // ===== AGRUPACIÓN POR FECHA (CHAT PRIVADO) =====
   mensajesAgrupados = computed(() => {
@@ -173,7 +223,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.cargarDatos();
     this.cargarGrupos();
 
-    // Detectar parámetros de ruta (usuarioId o grupoId)
     this.route.params.subscribe(params => {
       const usuarioId = params['usuarioId'];
       const grupoId = params['grupoId'];
@@ -192,11 +241,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         const id = Number(grupoId);
         this.grupoSeleccionado.set(id);
         this.cargarMensajesGrupo(id);
+        this.cargarMiembros(id);
         this.mobileMenuOpen.set(false);
       }
     });
 
-    // Polling cada 10s para conversaciones
     this.pollingInterval = setInterval(() => {
       this.actualizarConversacionesYContadores();
     }, 10000);
@@ -224,8 +273,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ============================================================
   cambiarTab(tab: TabTipo): void {
     this.tabActual.set(tab);
-
-    // Limpiar selección al cambiar de tab
     if (tab === 'chats') {
       this.grupoSeleccionado.set(null);
       this.mensajesGrupo.set([]);
@@ -233,6 +280,49 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.usuarioSeleccionado.set(null);
       this.mensajes.set([]);
     }
+  }
+
+  // ============================================================
+  // BÚSQUEDA
+  // ============================================================
+  onBusquedaChange(valor: string): void {
+    this.busqueda.set(valor);
+    this.buscadorActivo.set(true);
+
+    if (valor.trim().length >= 1) {
+      this.cargarUsuariosDisponibles();
+    }
+  }
+
+  limpiarBusqueda(): void {
+    this.busqueda.set('');
+    this.buscadorActivo.set(false);
+    this.usuariosDisponibles.set([]);
+  }
+
+  cerrarBuscador(): void {
+    this.buscadorActivo.set(false);
+  }
+
+  cargarUsuariosDisponibles(): void {
+    if (this.cargandoUsuarios()) return;
+
+    this.cargandoUsuarios.set(true);
+    this.chatService.listarUsuariosDisponibles().subscribe({
+      next: (usuarios) => {
+        this.usuariosDisponibles.set(usuarios || []);
+        this.cargandoUsuarios.set(false);
+      },
+      error: () => {
+        this.usuariosDisponibles.set([]);
+        this.cargandoUsuarios.set(false);
+      }
+    });
+  }
+
+  seleccionarUsuarioNuevo(usuarioId: number): void {
+    this.limpiarBusqueda();
+    this.router.navigate(['/usuario', usuarioId]);
   }
 
   // ============================================================
@@ -321,11 +411,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.exitoMsg.set(`Grupo "${grupo.nombre}" creado correctamente`);
     setTimeout(() => this.exitoMsg.set(null), 3000);
 
-    // Redirigir al chat del grupo después de 500ms
     setTimeout(() => {
       this.tabActual.set('grupos');
       this.grupoSeleccionado.set(grupo.id);
       this.cargarMensajesGrupo(grupo.id);
+      this.cargarMiembros(grupo.id);
     }, 500);
   }
 
@@ -334,15 +424,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.usuarioSeleccionado.set(null);
     this.mensajes.set([]);
     this.cargarMensajesGrupo(grupoId);
+    this.cargarMiembros(grupoId);
     this.mobileMenuOpen.set(false);
-
-    // Actualizar URL
     this.router.navigate(['/chat/grupo', grupoId]);
   }
 
   cerrarGrupo(): void {
     this.grupoSeleccionado.set(null);
     this.mensajesGrupo.set([]);
+    this.miembros.set([]);
+    this.mostrarMiembros.set(false);
     this.router.navigate(['/chat']);
   }
 
@@ -354,9 +445,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.cargandoGrupo.set(false);
         setTimeout(() => this.scrollToBottomGrupo(), 100);
       },
-      error: () => {
-        this.cargandoGrupo.set(false);
-      }
+      error: () => this.cargandoGrupo.set(false)
+    });
+  }
+
+  cargarMiembros(grupoId: number): void {
+    this.grupoService.listarMiembros(grupoId).subscribe({
+      next: (miembros) => this.miembros.set(miembros),
+      error: () => {}
     });
   }
 
@@ -386,6 +482,141 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   getGrupoActual(): Grupo | null {
     const id = this.grupoSeleccionado();
     return this.grupos().find(g => g.id === id) || null;
+  }
+
+  toggleMiembros(): void {
+    this.mostrarMiembros.update(v => !v);
+    const grupoId = this.grupoSeleccionado();
+    if (grupoId && this.mostrarMiembros()) {
+      this.cargarMiembros(grupoId);
+    }
+  }
+
+  // ============================================================
+  // OPCIONES DEL GRUPO
+  // ============================================================
+  toggleOpcionesGrupo(): void {
+    this.mostrarOpcionesGrupo.update(v => !v);
+  }
+
+  esAdmin(): boolean {
+    const grupo = this.getGrupoActual();
+    return grupo?.rolDelUsuario === 'ADMIN';
+  }
+
+  esCreador(): boolean {
+    const grupo = this.getGrupoActual();
+    const usuario = this.authService.usuario();
+    return grupo?.creadorId === usuario?.id;
+  }
+
+  puedeEliminarGrupo(): boolean {
+    return this.esAdmin() || this.esCreador();
+  }
+
+  grupoActualId(): number {
+    return this.grupoSeleccionado() ?? 0;
+  }
+
+  // ============================================================
+  // ELIMINAR GRUPO
+  // ============================================================
+  abrirConfirmEliminar(): void {
+    const grupo = this.getGrupoActual();
+    if (!grupo) return;
+    this.grupoAEliminar.set(grupo);
+    this.mostrarConfirmEliminar.set(true);
+    this.mostrarOpcionesGrupo.set(false);
+  }
+
+  cerrarConfirmEliminar(): void {
+    this.mostrarConfirmEliminar.set(false);
+    this.grupoAEliminar.set(null);
+  }
+
+  confirmarEliminarGrupo(): void {
+    const grupo = this.grupoAEliminar();
+    if (!grupo) return;
+
+    this.grupoService.eliminarGrupo(grupo.id).subscribe({
+      next: () => {
+        this.grupos.update(lista => lista.filter(g => g.id !== grupo.id));
+        this.cerrarConfirmEliminar();
+        this.cerrarGrupo();
+        this.exitoMsg.set(`Grupo "${grupo.nombre}" eliminado`);
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.cerrarConfirmEliminar();
+        this.errorMsg.set(err?.error?.error || 'Error al eliminar grupo');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ============================================================
+  // SALIR DEL GRUPO
+  // ============================================================
+  abrirConfirmSalir(): void {
+    this.mostrarConfirmSalir.set(true);
+    this.mostrarOpcionesGrupo.set(false);
+  }
+
+  cerrarConfirmSalir(): void {
+    this.mostrarConfirmSalir.set(false);
+  }
+
+  confirmarSalirGrupo(): void {
+    const grupoId = this.grupoSeleccionado();
+    if (!grupoId) return;
+
+    this.grupoService.salirDelGrupo(grupoId).subscribe({
+      next: () => {
+        this.grupos.update(lista => lista.filter(g => g.id !== grupoId));
+        this.cerrarConfirmSalir();
+        this.cerrarGrupo();
+        this.exitoMsg.set('Saliste del grupo');
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.cerrarConfirmSalir();
+        this.errorMsg.set(err?.error?.error || 'Error al salir del grupo');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ============================================================
+  // EXPULSAR MIEMBRO
+  // ============================================================
+  abrirConfirmExpulsar(miembro: MiembroGrupo): void {
+    this.miembroAExpulsar.set(miembro);
+    this.mostrarConfirmExpulsar.set(true);
+  }
+
+  cerrarConfirmExpulsar(): void {
+    this.mostrarConfirmExpulsar.set(false);
+    this.miembroAExpulsar.set(null);
+  }
+
+  confirmarExpulsarMiembro(): void {
+    const grupoId = this.grupoSeleccionado();
+    const miembro = this.miembroAExpulsar();
+    if (!grupoId || !miembro) return;
+
+    this.grupoService.expulsarMiembro(grupoId, miembro.usuarioId).subscribe({
+      next: () => {
+        this.miembros.update(lista => lista.filter(m => m.usuarioId !== miembro.usuarioId));
+        this.cerrarConfirmExpulsar();
+        this.exitoMsg.set(`@${miembro.nombreUsuario} expulsado del grupo`);
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        this.cerrarConfirmExpulsar();
+        this.errorMsg.set(err?.error?.error || 'Error al expulsar miembro');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
   }
 
   // ============================================================
@@ -435,8 +666,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.marcarMensajesComoLeidos(usuarioId);
     this.cargarMensajes(usuarioId);
     this.mobileMenuOpen.set(false);
-
-    // Actualizar URL
     this.router.navigate(['/chat', usuarioId]);
   }
 
@@ -489,10 +718,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.cargarConversaciones();
           setTimeout(() => this.scrollToBottom(), 100);
         },
-        error: () => {
-          this.errorMsg.set('Error al enviar mensaje');
+        error: (err) => {
           this.enviando.set(false);
-          setTimeout(() => this.errorMsg.set(null), 3000);
+          const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar mensaje';
+          this.errorMsg.set(mensaje);
+          setTimeout(() => this.errorMsg.set(null), 5000);
         }
       });
     } else {
@@ -504,10 +734,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.cargarConversaciones();
           setTimeout(() => this.scrollToBottom(), 100);
         },
-        error: () => {
-          this.errorMsg.set('Error al enviar mensaje');
+        error: (err) => {
           this.enviando.set(false);
-          setTimeout(() => this.errorMsg.set(null), 3000);
+          const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar mensaje';
+          this.errorMsg.set(mensaje);
+          setTimeout(() => this.errorMsg.set(null), 5000);
         }
       });
     }
@@ -582,5 +813,42 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   getFotoUsuario(usuarioId: number): string | null {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.fotoPerfilUrl || null;
+  }
+
+  // ============================================================
+  // ✅ NUEVO: MARCO DEL USUARIO
+  // ============================================================
+  getMarcoUsuario(usuarioId: number): string {
+    const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
+    return conv?.marcoId || 'none';
+  }
+
+  // ============================================================
+  // ✅ NUEVO: ESTADO ONLINE/OFFLINE
+  // ============================================================
+  estaEnLinea(usuarioId: number): boolean {
+    const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
+    return conv?.online ?? false;
+  }
+
+  getTextoEstado(usuarioId: number): string {
+    const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
+    if (!conv) return 'Desconocido';
+    if (conv.online) return 'En línea';
+    if (conv.ultimoMensajeFecha) {
+      const fecha = new Date(conv.ultimoMensajeFecha);
+      const ahora = new Date();
+      const diffMin = Math.floor((ahora.getTime() - fecha.getTime()) / 60000);
+
+      if (diffMin < 1) return 'Hace unos segundos';
+      if (diffMin < 60) return `Hace ${diffMin} min`;
+      if (diffMin < 1440) return `Hace ${Math.floor(diffMin / 60)} h`;
+
+      return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short'
+      })}`;
+    }
+    return 'Desconectado';
   }
 }

@@ -1,3 +1,4 @@
+// src/app/core/services/bloqueo.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -17,27 +18,25 @@ export interface Bloqueo {
 
 export interface EstadoBloqueo {
   bloqueado: boolean;
-  bloqueoId: number | null;
-  motivo: string | null;
-  fechaBloqueo: string | null;
-}
-
-export interface CrearBloqueo {
-  usuarioBloqueadoId: number;
-  motivo: string;
+  bloqueoId?: number;
+  motivo?: string;
+  fechaBloqueo?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class BloqueoService {
-  private readonly baseUrl = `${environment.apiUrl}/bloqueos`;
   private http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}/bloqueos`;
 
-  bloquear(dto: CrearBloqueo): Observable<any> {
-    return this.http.post(this.baseUrl, dto);
+  bloquear(usuarioId: number, motivo: string): Observable<any> {
+    return this.http.post<any>(this.baseUrl, {
+      usuarioBloqueadoId: usuarioId,
+      motivo: motivo || 'Sin motivo especificado'
+    });
   }
 
   desbloquear(usuarioId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${usuarioId}`);
+    return this.http.delete<any>(`${this.baseUrl}/${usuarioId}`);
   }
 
   verificarEstado(usuarioId: number): Observable<EstadoBloqueo> {

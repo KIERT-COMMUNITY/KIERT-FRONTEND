@@ -1,3 +1,4 @@
+// src/app/core/services/grupo.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -109,6 +110,16 @@ export class GrupoService {
 
   invitacionesPendientes(): Observable<InvitacionGrupo[]> {
     return this.http.get<InvitacionGrupo[]>(`${this.baseUrl}/invitaciones`);
+  }
+
+  // 🔥 NUEVO: Eliminar grupo
+  eliminarGrupo(grupoId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/${grupoId}`);
+  }
+
+  // 🔥 NUEVO: Expulsar miembro
+  expulsarMiembro(grupoId: number, usuarioId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/${grupoId}/miembros/${usuarioId}`);
   }
 
   // ===== MENSAJES =====

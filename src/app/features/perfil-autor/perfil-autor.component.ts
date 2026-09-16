@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+// src/app/features/perfil-autor/perfil-autor.component.ts
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -9,6 +10,8 @@ import { PersonalizacionStore } from '../../core/services/personalizacion-store.
 import { PersonalizacionService, Personalizacion } from '../../core/services/personalizacion.service';
 import { User } from '../../core/models/user.model';
 import { BloqueoModalComponent } from '../../shared/components/bloqueo-modal/bloqueo-modal.component';
+
+type EstadoContacto = 'ninguno' | 'pendiente-enviada' | 'pendiente-recibida' | 'contacto';
 
 @Component({
   selector: 'kiert-perfil-autor',
@@ -27,7 +30,6 @@ export class PerfilAutorComponent implements OnInit {
   private personalizacionService = inject(PersonalizacionService);
   public personalizacionStore = inject(PersonalizacionStore);
 
-  // ===== DATOS DEL AUTOR =====
   autor = signal<User | null>(null);
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
@@ -36,9 +38,16 @@ export class PerfilAutorComponent implements OnInit {
   usuarioActual = this.authService.usuario;
 
   // ===== CONTACTO =====
-  esContacto = signal(false);
-  solicitudPendiente = signal(false);
+  estadoContacto = signal<EstadoContacto>('ninguno');
   enviandoSolicitud = signal(false);
+  procesando = signal(false);
+
+  // ===== COMPATIBILIDAD CON HTML =====
+  esContacto = computed(() => this.estadoContacto() === 'contacto');
+  solicitudPendiente = computed(() =>
+    this.estadoContacto() === 'pendiente-enviada' ||
+    this.estadoContacto() === 'pendiente-recibida'
+  );
 
   // ===== BLOQUEO =====
   estaBloqueado = signal(false);
@@ -46,7 +55,7 @@ export class PerfilAutorComponent implements OnInit {
   bloqueoInfo = signal<EstadoBloqueo | null>(null);
   procesandoBloqueo = signal(false);
 
-  // ===== PERSONALIZACIÓN DEL AUTOR VISITADO =====
+  // ===== PERSONALIZACIÓN =====
   autorPersonalizacion = signal<Personalizacion | null>(null);
   autorTemaId = signal<string>('default');
   autorMarcoId = signal<string>('none');
@@ -54,7 +63,6 @@ export class PerfilAutorComponent implements OnInit {
   autorFotoPerfil = signal<string>('');
   autorFotoPortada = signal<string>('');
 
-  // ===== FONDO DE PERFIL DEL AUTOR =====
   get fondoPerfilDelAutor(): string {
     const fondoId = this.autorFondoId();
     const fondos = this.personalizacionStore.fondos();
@@ -62,17 +70,9 @@ export class PerfilAutorComponent implements OnInit {
     return encontrado?.gradiente || 'linear-gradient(135deg, #0d1117, #161b22)';
   }
 
-  // ===== TEMA DEL AUTOR =====
-  get temaClassDelAutor(): string {
-    return `tema-${this.autorTemaId()}`;
-  }
+  get temaClassDelAutor(): string { return `tema-${this.autorTemaId()}`; }
+  get marcoClaseDelAutor(): string { return `frame-${this.autorMarcoId()}`; }
 
-  // ===== MARCO DEL AUTOR =====
-  get marcoClaseDelAutor(): string {
-    return `frame-${this.autorMarcoId()}`;
-  }
-
-  // ===== ESTILO DEL MARCO DEL AUTOR =====
   get marcoEstiloDelAutor(): any {
     const marcoId = this.autorMarcoId();
     const gradientFrames = ['rainbow', 'pastel', 'ocean', 'sunset', 'galaxy', 'fire', 'ice', 'rose', 'crystal'];
@@ -97,12 +97,10 @@ export class PerfilAutorComponent implements OnInit {
     };
   }
 
-  // ===== FOTO DE PERFIL DEL AUTOR =====
   get fotoPerfilDelAutor(): string {
     return this.autorFotoPerfil() || this.autor()?.fotoPerfilUrl || '';
   }
 
-  // ===== MÉTODOS AUXILIARES PARA MARCOS =====
   getMarcoBorder(marcoId: string): string {
     const map: Record<string, string> = {
       'none': 'none',
@@ -145,7 +143,7 @@ export class PerfilAutorComponent implements OnInit {
       'cyber': '0 0 40px rgba(0,212,255,0.6)',
       'crystal': '0 0 40px rgba(255,255,255,0.2)',
       'double': '0 0 35px rgba(249,202,36,0.5)',
-      'star': '0 0 30px rgba(254,202,87,0.4)',
+      'star': '0 0 30px rgba(253,202,87,0.4)',
       'moon': '0 0 25px rgba(223,230,233,0.3)',
       'sun': '0 0 30px rgba(253,203,110,0.4)',
       'elite': '0 0 40px rgba(108,92,231,0.6)',
@@ -153,7 +151,6 @@ export class PerfilAutorComponent implements OnInit {
     return map[marcoId] || 'none';
   }
 
-  // ===== INIT =====
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.params['id']);
     const usuarioActual = this.usuarioActual();
@@ -176,15 +173,12 @@ export class PerfilAutorComponent implements OnInit {
     this.verificarBloqueo(userId);
   }
 
-  // ===== CARGA DE DATOS =====
   cargarAutor(userId: number): void {
     this.cargando.set(true);
     this.userService.obtenerUsuarioPorId(userId).subscribe({
       next: (user) => {
         this.autor.set(user);
-        if (user.fotoPerfilUrl) {
-          this.autorFotoPerfil.set(user.fotoPerfilUrl);
-        }
+        if (user.fotoPerfilUrl) this.autorFotoPerfil.set(user.fotoPerfilUrl);
         this.cargando.set(false);
       },
       error: () => {
@@ -201,34 +195,61 @@ export class PerfilAutorComponent implements OnInit {
         this.autorTemaId.set(data?.temaId || 'default');
         this.autorMarcoId.set(data?.marcoId || 'none');
         this.autorFondoId.set(data?.fondoId || 'default');
-        if (data?.fotoPerfilUrl) {
-          this.autorFotoPerfil.set(data.fotoPerfilUrl);
-        }
-        if (data?.fotoPortadaUrl) {
-          this.autorFotoPortada.set(data.fotoPortadaUrl);
-        }
+        if (data?.fotoPerfilUrl) this.autorFotoPerfil.set(data.fotoPerfilUrl);
+        if (data?.fotoPortadaUrl) this.autorFotoPortada.set(data.fotoPortadaUrl);
       },
-      error: (err) => {
-        console.error('Error al cargar personalización del autor:', err);
-        this.autorPersonalizacion.set(null);
-      }
+      error: () => this.autorPersonalizacion.set(null)
     });
   }
 
+  // ===== 🔥 VERIFICAR CONTACTO (AMBOS SENTIDOS) =====
   verificarEstadoContacto(userId: number): void {
     this.chatService.sonContactos(userId).subscribe({
-      next: (sonContactos) => this.esContacto.set(sonContactos),
-      error: () => this.esContacto.set(false)
-    });
+      next: (res: any) => {
+        const sonContactos = res?.sonContactos === true || res === true;
 
+        if (sonContactos) {
+          this.estadoContacto.set('contacto');
+          return;
+        }
+
+        this.verificarSolicitudesPendientes(userId);
+      },
+      error: () => this.verificarSolicitudesPendientes(userId)
+    });
+  }
+
+  private verificarSolicitudesPendientes(userId: number): void {
+    // 1. Verificar RECIBIDAS
     this.chatService.listarSolicitudes().subscribe({
-      next: (solicitudes) => {
-        const pendiente = solicitudes.some(s =>
+      next: (recibidas) => {
+        const recibida = recibidas.find(s =>
           s.usuarioId === userId && s.estado === 'PENDIENTE'
         );
-        this.solicitudPendiente.set(pendiente);
+
+        if (recibida) {
+          this.estadoContacto.set('pendiente-recibida');
+          return;
+        }
+
+        // 2. Verificar ENVIADAS
+        this.chatService.listarSolicitudesEnviadas().subscribe({
+          next: (enviadas) => {
+            const enviada = enviadas.find(s =>
+              s.usuarioId === userId && s.estado === 'PENDIENTE'
+            );
+
+            if (enviada) {
+              this.estadoContacto.set('pendiente-enviada');
+              return;
+            }
+
+            this.estadoContacto.set('ninguno');
+          },
+          error: () => this.estadoContacto.set('ninguno')
+        });
       },
-      error: () => this.solicitudPendiente.set(false)
+      error: () => this.estadoContacto.set('ninguno')
     });
   }
 
@@ -239,19 +260,12 @@ export class PerfilAutorComponent implements OnInit {
         this.estaBloqueado.set(estado.bloqueado);
         this.bloqueoInfo.set(estado);
       },
-      error: () => {
-        this.estaBloqueado.set(false);
-      }
+      error: () => this.estaBloqueado.set(false)
     });
   }
 
-  abrirModalBloqueo(): void {
-    this.mostrarModalBloqueo.set(true);
-  }
-
-  cerrarModalBloqueo(): void {
-    this.mostrarModalBloqueo.set(false);
-  }
+  abrirModalBloqueo(): void { this.mostrarModalBloqueo.set(true); }
+  cerrarModalBloqueo(): void { this.mostrarModalBloqueo.set(false); }
 
   onUsuarioBloqueado(): void {
     this.estaBloqueado.set(true);
@@ -274,7 +288,6 @@ export class PerfilAutorComponent implements OnInit {
         this.bloqueoInfo.set(null);
         this.exitoMsg.set('Usuario desbloqueado correctamente');
         setTimeout(() => this.exitoMsg.set(null), 3000);
-        // Refrescar estado de contacto
         this.verificarEstadoContacto(userId);
       },
       error: () => {
@@ -293,24 +306,73 @@ export class PerfilAutorComponent implements OnInit {
     this.enviandoSolicitud.set(true);
     this.chatService.enviarSolicitud(autorId).subscribe({
       next: () => {
-        this.solicitudPendiente.set(true);
+        this.estadoContacto.set('pendiente-enviada');
         this.enviandoSolicitud.set(false);
         this.exitoMsg.set('Solicitud enviada correctamente');
         setTimeout(() => this.exitoMsg.set(null), 3000);
       },
-      error: () => {
+      error: (err) => {
         this.enviandoSolicitud.set(false);
-        this.errorMsg.set('Error al enviar solicitud');
-        setTimeout(() => this.errorMsg.set(null), 3000);
+        const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar solicitud';
+        this.errorMsg.set(mensaje);
+
+        // Ajustar estado según el mensaje
+        if (mensaje.toLowerCase().includes('ya enviaste')) {
+          this.estadoContacto.set('pendiente-enviada');
+        } else if (mensaje.toLowerCase().includes('ya te envió')) {
+          this.estadoContacto.set('pendiente-recibida');
+        } else if (mensaje.toLowerCase().includes('ya son contactos')) {
+          this.estadoContacto.set('contacto');
+        }
+
+        setTimeout(() => this.errorMsg.set(null), 5000);
+      }
+    });
+  }
+
+  aceptarSolicitudRecibida(): void {
+    const autorId = this.autor()?.id;
+    if (!autorId) return;
+
+    this.chatService.listarSolicitudes().subscribe({
+      next: (solicitudes) => {
+        const solicitud = solicitudes.find(s =>
+          s.usuarioId === autorId && s.estado === 'PENDIENTE'
+        );
+
+        if (!solicitud) {
+          this.errorMsg.set('No se encontró la solicitud');
+          setTimeout(() => this.errorMsg.set(null), 3000);
+          return;
+        }
+
+        this.procesando.set(true);
+        this.chatService.aceptarSolicitud(solicitud.id).subscribe({
+          next: () => {
+            this.procesando.set(false);
+            this.estadoContacto.set('contacto');
+            this.exitoMsg.set('¡Solicitud aceptada! Ya pueden chatear');
+            setTimeout(() => this.exitoMsg.set(null), 3000);
+          },
+          error: (err) => {
+            this.procesando.set(false);
+            this.errorMsg.set(err?.error?.mensaje || 'Error al aceptar solicitud');
+            setTimeout(() => this.errorMsg.set(null), 3000);
+          }
+        });
       }
     });
   }
 
   irAlChat(): void {
-    const autorId = this.autor()?.id;
-    if (autorId) {
-      this.router.navigate(['/chat', autorId]);
+    if (this.estadoContacto() !== 'contacto') {
+      this.errorMsg.set('Primero deben ser contactos');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
     }
+
+    const autorId = this.autor()?.id;
+    if (autorId) this.router.navigate(['/chat', autorId]);
   }
 
   volver(): void {

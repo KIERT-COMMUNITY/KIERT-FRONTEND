@@ -170,7 +170,7 @@
   flex-wrap: wrap;
   margin: 1rem 0;
 
-  // ===== BOTÓN CHAT =====
+  // ===== BOTÓN CHAT (contacto) =====
   .btn-chat {
     display: inline-flex;
     align-items: center;
@@ -186,9 +186,7 @@
     font-family: inherit;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    svg {
-      flex-shrink: 0;
-    }
+    svg { flex-shrink: 0; }
 
     &:hover {
       opacity: 0.85;
@@ -196,12 +194,10 @@
       box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
     }
 
-    &:active {
-      transform: scale(0.95);
-    }
+    &:active { transform: scale(0.95); }
   }
 
-  // ===== BOTÓN SOLICITAR =====
+  // ===== BOTÓN SOLICITAR (nuevo) =====
   .btn-solicitar {
     display: inline-flex;
     align-items: center;
@@ -217,9 +213,7 @@
     font-family: inherit;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    svg {
-      flex-shrink: 0;
-    }
+    svg { flex-shrink: 0; }
 
     &:hover:not(:disabled) {
       opacity: 0.85;
@@ -232,12 +226,42 @@
       cursor: not-allowed;
     }
 
-    &:active:not(:disabled) {
-      transform: scale(0.95);
-    }
+    &:active:not(:disabled) { transform: scale(0.95); }
   }
 
-  // ===== BOTÓN PENDIENTE =====
+  // 🔥 NUEVO: BOTÓN ACEPTAR (solicitud recibida)
+  .btn-aceptar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #2ea043;
+    color: #ffffff !important;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg { flex-shrink: 0; }
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(46, 160, 67, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:active:not(:disabled) { transform: scale(0.95); }
+  }
+
+  // ===== BOTÓN PENDIENTE (enviada) =====
   .btn-pendiente {
     display: inline-flex;
     align-items: center;
@@ -252,9 +276,7 @@
     cursor: not-allowed;
     font-family: inherit;
 
-    svg {
-      flex-shrink: 0;
-    }
+    svg { flex-shrink: 0; }
   }
 
   // ===== BOTÓN BLOQUEAR =====
@@ -273,9 +295,7 @@
     font-family: inherit;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
-    svg {
-      flex-shrink: 0;
-    }
+    svg { flex-shrink: 0; }
 
     &:hover {
       background: rgba(248, 81, 73, 0.1);
@@ -284,9 +304,7 @@
       box-shadow: 0 4px 16px rgba(248, 81, 73, 0.15);
     }
 
-    &:active {
-      transform: scale(0.96);
-    }
+    &:active { transform: scale(0.96); }
   }
 
   // ===== BOTÓN DESBLOQUEAR =====
@@ -305,9 +323,7 @@
     font-family: inherit;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
-    svg {
-      flex-shrink: 0;
-    }
+    svg { flex-shrink: 0; }
 
     &:hover:not(:disabled) {
       opacity: 0.85;
@@ -320,9 +336,7 @@
       cursor: not-allowed;
     }
 
-    &:active:not(:disabled) {
-      transform: scale(0.96);
-    }
+    &:active:not(:disabled) { transform: scale(0.96); }
   }
 }
 
@@ -343,9 +357,7 @@
   font-weight: 500;
   width: 100%;
 
-  svg {
-    flex-shrink: 0;
-  }
+  svg { flex-shrink: 0; }
 }
 
 // ============================================================
@@ -388,6 +400,10 @@
   .btn-solicitar,
   .btn-desbloquear {
     color: #0d1117 !important;
+  }
+
+  .btn-aceptar {
+    color: #ffffff !important;
   }
 
   .btn-pendiente {
@@ -476,6 +492,7 @@
 
     .btn-chat,
     .btn-solicitar,
+    .btn-aceptar,      // 🔥 AÑADIDO
     .btn-pendiente,
     .btn-bloquear,
     .btn-desbloquear {
@@ -522,6 +539,7 @@
 
     .btn-chat,
     .btn-solicitar,
+    .btn-aceptar,      // 🔥 AÑADIDO
     .btn-pendiente,
     .btn-bloquear,
     .btn-desbloquear {

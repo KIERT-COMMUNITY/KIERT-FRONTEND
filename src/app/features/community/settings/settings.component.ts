@@ -1,5 +1,5 @@
 // src/app/features/settings/settings.component.ts
-import { Component, OnInit, signal, inject, OnDestroy, effect } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,7 +10,10 @@ import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionService } from '../../../core/services/personalizacion.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { UserService } from '../../../core/services/user.service';
+import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service';
 import { User } from '../../../core/models/user.model';
+
+type SeccionActiva = 'perfil' | 'bloqueados';
 
 @Component({
   selector: 'kiert-settings',
@@ -23,6 +26,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private personalizacionService = inject(PersonalizacionService);
   private userService = inject(UserService);
+  private bloqueoService = inject(BloqueoService);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -43,6 +47,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
   busquedaError = signal<string | null>(null);
   mostrandoResultados = signal(false);
   solicitudEnviada = signal<number | null>(null);
+
+  // 🔥 SECCIÓN ACTIVA
+  seccionActiva = signal<SeccionActiva>('perfil');
+
+  // 🔥 BLOQUEADOS
+  bloqueados = signal<Bloqueo[]>([]);
+  cargandoBloqueados = signal(false);
+  busquedaBloqueado = signal('');
+
+  bloqueadosFiltrados = computed(() => {
+    const query = this.busquedaBloqueado().toLowerCase().trim();
+    if (!query) return this.bloqueados();
+    return this.bloqueados().filter(b =>
+      b.usuarioBloqueadoNombre?.toLowerCase().includes(query) ||
+      b.motivo?.toLowerCase().includes(query)
+    );
+  });
 
   // Selectores toggle
   showThemeSelector = signal(false);
@@ -69,7 +90,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     effect(() => {
       const personalizacion = this.personalizacionStore.personalizacion();
       if (personalizacion) {
-        console.log('🔄 Settings - Personalización actualizada:', personalizacion);
         this.selectedTheme.set(personalizacion.temaId || 'default');
         this.selectedFrame.set(personalizacion.marcoId || 'none');
         this.selectedBackground.set(personalizacion.fondoId || 'default');
@@ -82,14 +102,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.personalizacionStore.cargarPersonalizacion();
     this.personalizacionStore.cargarMarcos();
     this.personalizacionStore.cargarFondos();
+    this.cargarBloqueados(); // 🔥 CARGAR AL INICIO
 
     const current = this.personalizacionStore.personalizacion();
     if (current) {
       this.selectedTheme.set(current.temaId || 'default');
       this.selectedFrame.set(current.marcoId || 'none');
       this.selectedBackground.set(current.fondoId || 'default');
-
-      // Aplicar tema guardado al cargar la página
       this.aplicarTemaGlobal(current.temaId || 'default');
     }
 
@@ -109,37 +128,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.mostrandoResultados.set(true);
 
         return this.userService.buscarUsuarios(username).pipe(
-          catchError(error => {
-            console.error('Error en búsqueda:', error);
-            return of([]);
-          })
+          catchError(() => of([]))
         );
       }),
       takeUntil(this.destroy$)
     ).subscribe({
       next: (usuarios: User[]) => {
         this.buscando.set(false);
-
         if (usuarios && usuarios.length > 0) {
           this.usuariosEncontrados.set(usuarios);
           this.usuarioBuscado.set(null);
           this.busquedaError.set(null);
-
-          if (usuarios.length === 1) {
-            this.usuarioBuscado.set(usuarios[0]);
-          }
+          if (usuarios.length === 1) this.usuarioBuscado.set(usuarios[0]);
         } else {
           this.usuariosEncontrados.set([]);
           this.usuarioBuscado.set(null);
           this.busquedaError.set('No se encontraron usuarios');
         }
       },
-      error: (error) => {
+      error: () => {
         this.buscando.set(false);
         this.usuariosEncontrados.set([]);
-        this.usuarioBuscado.set(null);
         this.busquedaError.set('Error al buscar usuarios');
-        console.error('Error en búsqueda:', error);
       }
     });
   }
@@ -149,7 +159,74 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ===== APLICAR TEMA GLOBALMENTE AL HTML =====
+  // ============================================================
+  // 🔥 NAVEGACIÓN ENTRE SECCIONES
+  // ============================================================
+  irASeccion(seccion: SeccionActiva): void {
+    this.seccionActiva.set(seccion);
+
+    // Recargar bloqueados si es necesario
+    if (seccion === 'bloqueados') {
+      this.cargarBloqueados();
+    }
+
+    // Scroll suave
+    setTimeout(() => {
+      const element = document.getElementById(seccion);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 50);
+  }
+
+  // ============================================================
+  // BLOQUEADOS
+  // ============================================================
+  cargarBloqueados(): void {
+    this.cargandoBloqueados.set(true);
+    this.bloqueoService.listarBloqueados().subscribe({
+      next: (data) => {
+        this.bloqueados.set(data || []);
+        this.cargandoBloqueados.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar bloqueados:', err);
+        this.cargandoBloqueados.set(false);
+      }
+    });
+  }
+
+  desbloquear(usuarioId: number, nombreUsuario: string): void {
+    if (!confirm(`¿Desbloquear a @${nombreUsuario}? Volverán a poder enviarse mensajes.`)) return;
+
+    this.bloqueoService.desbloquear(usuarioId).subscribe({
+      next: () => {
+        this.exitoMsg.set(`@${nombreUsuario} desbloqueado correctamente`);
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+        this.cargarBloqueados();
+      },
+      error: (err) => {
+        this.errorMsg.set(err?.error?.error || 'Error al desbloquear');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  formatearFecha(fecha: string | Date): string {
+    const d = new Date(fecha);
+    return d.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  // ============================================================
+  // APLICAR TEMA GLOBALMENTE
+  // ============================================================
   aplicarTemaGlobal(themeId: string): void {
     document.documentElement.className = '';
     document.documentElement.removeAttribute('data-theme');
@@ -162,26 +239,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== TOGGLES =====
+  // ============================================================
+  // TOGGLES DE SELECTORES
+  // ============================================================
   toggleThemeSelector(): void {
-    this.showThemeSelector.update(val => !val);
+    this.showThemeSelector.update(v => !v);
     this.showFrameSelector.set(false);
     this.showBackgroundSelector.set(false);
   }
 
   toggleFrameSelector(): void {
-    this.showFrameSelector.update(val => !val);
+    this.showFrameSelector.update(v => !v);
     this.showThemeSelector.set(false);
     this.showBackgroundSelector.set(false);
   }
 
   toggleBackgroundSelector(): void {
-    this.showBackgroundSelector.update(val => !val);
+    this.showBackgroundSelector.update(v => !v);
     this.showThemeSelector.set(false);
     this.showFrameSelector.set(false);
   }
 
-  // ===== MÉTODOS DE BÚSQUEDA =====
+  // ============================================================
+  // BÚSQUEDA DE USUARIOS
+  // ============================================================
   onBusquedaChange(): void {
     const query = this.busquedaUsuario().trim();
     if (query.startsWith('@')) {
@@ -197,47 +278,32 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.busquedaError.set('Ingresa un nombre de usuario');
       return;
     }
-
     const username = query.startsWith('@') ? query.substring(1) : query;
     this.buscando.set(true);
     this.busquedaError.set(null);
     this.mostrandoResultados.set(true);
 
     this.userService.buscarUsuarios(username).pipe(
-      catchError(error => {
-        console.error('Error en búsqueda:', error);
-        return of([]);
-      }),
+      catchError(() => of([])),
       takeUntil(this.destroy$)
     ).subscribe({
       next: (usuarios: User[]) => {
         this.buscando.set(false);
-
         if (usuarios && usuarios.length > 0) {
           this.usuariosEncontrados.set(usuarios);
           this.usuarioBuscado.set(null);
           this.busquedaError.set(null);
-
-          if (usuarios.length === 1) {
-            this.usuarioBuscado.set(usuarios[0]);
-            this.exitoMsg.set(`Usuario @${usuarios[0].nombreUsuario} encontrado`);
-          } else {
-            this.exitoMsg.set(`Se encontraron ${usuarios.length} usuarios`);
-          }
-
-          setTimeout(() => this.exitoMsg.set(null), 3000);
+          if (usuarios.length === 1) this.usuarioBuscado.set(usuarios[0]);
         } else {
           this.usuariosEncontrados.set([]);
           this.usuarioBuscado.set(null);
           this.busquedaError.set(`No se encontraron usuarios con "${username}"`);
         }
       },
-      error: (error) => {
+      error: () => {
         this.buscando.set(false);
         this.usuariosEncontrados.set([]);
-        this.usuarioBuscado.set(null);
         this.busquedaError.set('Error al buscar usuarios');
-        console.error('Error en búsqueda:', error);
       }
     });
   }
@@ -252,24 +318,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   verPerfilUsuario(usuarioId: number | undefined): void {
-    if (usuarioId) {
-      console.log(`👤 Navegando al perfil del usuario ID: ${usuarioId}`);
-      this.router.navigate(['/usuario', usuarioId]);
-    }
+    if (usuarioId) this.router.navigate(['/usuario', usuarioId]);
   }
 
   enviarMensaje(usuarioId: number | undefined): void {
-    if (usuarioId) {
-      this.router.navigate(['/chat', { usuarioId }]);
-    }
+    if (usuarioId) this.router.navigate(['/chat', usuarioId]);
   }
 
   enviarSolicitud(usuarioId: number): void {
     if (!usuarioId) return;
-
     this.enviandoSolicitud.set(true);
     this.userService.enviarSolicitudContacto(usuarioId).subscribe({
-      next: (response) => {
+      next: () => {
         this.enviandoSolicitud.set(false);
         this.solicitudEnviada.set(usuarioId);
         this.exitoMsg.set('Solicitud de contacto enviada correctamente');
@@ -280,14 +340,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.enviandoSolicitud.set(false);
-        const mensaje = error.error?.message || error.error || 'Error al enviar solicitud';
+        const mensaje = error.error?.mensaje || error.error?.error || 'Error al enviar solicitud';
         this.errorMsg.set(mensaje);
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
     });
   }
 
-  // ===== MÉTODOS DE PERSONALIZACIÓN =====
+  // ============================================================
+  // PERSONALIZACIÓN
+  // ============================================================
   seleccionarTheme(themeId: string): void {
     this.selectedTheme.set(themeId);
     this.aplicarTemaGlobal(themeId);
@@ -303,15 +365,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   aplicarPersonalizacion(): void {
     this.cargando.set(true);
-
     const temaId = this.selectedTheme();
     const marcoId = this.selectedFrame();
     const fondoId = this.selectedBackground();
 
-    console.log('🎨 Aplicando personalización:', { temaId, marcoId, fondoId });
-
     this.aplicarTemaGlobal(temaId);
-
     this.personalizacionStore.guardarPersonalizacion(temaId, marcoId, fondoId);
 
     setTimeout(() => {
@@ -322,7 +380,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }, 800);
   }
 
-  // ===== MÉTODOS DE PERFIL =====
+  // ============================================================
+  // PERFIL
+  // ============================================================
   cargarDatosUsuario(): void {
     const user = this.usuario();
     if (user) {
@@ -335,10 +395,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   toggleEditarPerfil(): void {
-    this.editandoPerfil.update(val => !val);
-    if (this.editandoPerfil()) {
-      this.cargarDatosUsuario();
-    }
+    this.editandoPerfil.update(v => !v);
+    if (this.editandoPerfil()) this.cargarDatosUsuario();
   }
 
   guardarPerfil(): void {
@@ -384,16 +442,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return nombre?.charAt(0)?.toUpperCase() || '?';
   }
 
-  // ===== NAVEGACIÓN =====
-  irChat(): void {
-    this.router.navigate(['/chat']);
-  }
-
-  irPerfil(): void {
-    this.router.navigate(['/perfil']);
-  }
-
-  irHistorial(): void {
-    this.router.navigate(['/mis-publicaciones']);
-  }
+  // ============================================================
+  // NAVEGACIÓN
+  // ============================================================
+  irChat(): void { this.router.navigate(['/chat']); }
+  irPerfil(): void { this.router.navigate(['/perfil']); }
+  irHistorial(): void { this.router.navigate(['/mis-publicaciones']); }
 }

@@ -16,6 +16,15 @@
       </h1>
       <p>Certificaciones, cursos, herramientas y más para tu desarrollo profesional</p>
     </div>
+
+    <!-- 🔥 BOTÓN AGREGAR RECURSO -->
+    <button class="btn-agregar" (click)="abrirModalAgregar()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span>Agregar recurso</span>
+    </button>
   </div>
 
   <!-- ESTADÍSTICAS -->
@@ -67,8 +76,6 @@
 
   <!-- FILTROS -->
   <div class="biblioteca-filtros">
-
-    <!-- Buscador + acciones -->
     <div class="filtros-busqueda">
       <div class="buscador">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -120,7 +127,6 @@
       </div>
     </div>
 
-    <!-- Categorías -->
     <div class="filtros-categorias">
       <label>Categoría</label>
       <div class="filtro-opciones-scroll">
@@ -165,6 +171,28 @@
     <div class="recursos-container" [class.vista-lista]="vista() === 'lista'">
       @for (recurso of recursosFiltradosComputed(); track recurso.id) {
         <div class="recurso-card" (click)="abrirEnlace(recurso.url)">
+
+          <!-- 🔥 ACCIONES DE USUARIO (solo recursos propios) -->
+          @if (recurso.esUsuario) {
+            <div class="recurso-card__acciones-usuario">
+              <button class="btn-accion btn-editar"
+                      (click)="abrirModalEditar(recurso, $event)"
+                      title="Editar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="btn-accion btn-eliminar"
+                      (click)="confirmarEliminar(recurso, $event)"
+                      title="Eliminar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+          }
 
           <div class="recurso-card__icono"
                [style.color]="getColorCategoria(recurso.categoria)"
@@ -239,6 +267,132 @@
           </button>
         </div>
       }
+    </div>
+  }
+
+  <!-- 🔥 MODAL AGREGAR/EDITAR -->
+  @if (mostrarModal()) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h2>{{ modoEdicion() ? 'Editar recurso' : 'Agregar recurso' }}</h2>
+          <button class="modal__close" (click)="cerrarModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal__body">
+          @if (formError()) {
+            <div class="form-error">{{ formError() }}</div>
+          }
+
+          <div class="form-group">
+            <label>Título *</label>
+            <input type="text" [(ngModel)]="formTitulo" placeholder="Ej: Curso de Angular Avanzado" />
+          </div>
+
+          <div class="form-group">
+            <label>URL *</label>
+            <input type="url" [(ngModel)]="formUrl" placeholder="https://..." />
+          </div>
+
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea [(ngModel)]="formDescripcion" rows="3" placeholder="Breve descripción..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select [(ngModel)]="formCategoria">
+                <option value="certificacion">Certificación</option>
+                <option value="curso">Curso</option>
+                <option value="video">Video</option>
+                <option value="articulo">Artículo</option>
+                <option value="herramienta">Herramienta</option>
+                <option value="libro">Libro</option>
+                <option value="idiomas">Idiomas</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Subcategoría</label>
+              <input type="text" [(ngModel)]="formSubcategoria" placeholder="Ej: Frontend" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Autor / Instructor</label>
+              <input type="text" [(ngModel)]="formAutor" placeholder="Ej: John Doe" />
+            </div>
+
+            <div class="form-group">
+              <label>Plataforma</label>
+              <input type="text" [(ngModel)]="formPlataforma" placeholder="Ej: Udemy, Coursera" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Duración</label>
+              <input type="text" [(ngModel)]="formDuracion" placeholder="Ej: 10h" />
+            </div>
+
+            <div class="form-group">
+              <label>Nivel</label>
+              <select [(ngModel)]="formNivel">
+                <option value="">-- Sin especificar --</option>
+                <option value="principiante">Principiante</option>
+                <option value="intermedio">Intermedio</option>
+                <option value="avanzado">Avanzado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Tags (separados por coma)</label>
+            <input type="text" [(ngModel)]="formTags" placeholder="angular, typescript, frontend" />
+          </div>
+
+          <div class="form-group form-check">
+            <label>
+              <input type="checkbox" [(ngModel)]="formDestacado" />
+              <span>Marcar como destacado</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-guardar" (click)="guardarRecurso()">
+            {{ modoEdicion() ? 'Guardar cambios' : 'Agregar recurso' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 🔥 CONFIRMAR ELIMINACIÓN -->
+  @if (recursoAEliminar()) {
+    <div class="modal-overlay" (click)="cancelarEliminar()">
+      <div class="modal modal--small" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h2>Eliminar recurso</h2>
+        </div>
+        <div class="modal__body">
+          <p>¿Seguro que quieres eliminar <strong>{{ recursoAEliminar()?.titulo }}</strong>?</p>
+          <p class="text-muted">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-cancelar" (click)="cancelarEliminar()">Cancelar</button>
+          <button class="btn-eliminar-confirm" (click)="eliminarRecurso()">Eliminar</button>
+        </div>
+      </div>
     </div>
   }
 </div>

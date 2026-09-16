@@ -1,4 +1,4 @@
-<!-- APLICAR TEMA + FONDO DE PERFIL DEL AUTOR -->
+<!-- src/app/features/perfil-autor/perfil-autor.component.html -->
 <div class="perfil-autor-container"
      [class]="temaClassDelAutor"
      [style.background]="fondoPerfilDelAutor">
@@ -47,6 +47,36 @@
         <div class="error-msg">{{ errorMsg() }}</div>
       }
 
+      <!-- 🔥 INDICADOR DE ESTADO DE CONTACTO -->
+      @if (estadoContacto() === 'pendiente-recibida') {
+        <div class="estado-badge estado-badge--info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span>Este usuario te envió una solicitud</span>
+        </div>
+      }
+
+      @if (estadoContacto() === 'pendiente-enviada') {
+        <div class="estado-badge estado-badge--warn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Esperando que acepte tu solicitud</span>
+        </div>
+      }
+
+      @if (estadoContacto() === 'contacto') {
+        <div class="estado-badge estado-badge--ok">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>Ya son contactos</span>
+        </div>
+      }
+
       <!-- ACCIONES -->
       <div class="perfil-acciones">
 
@@ -67,15 +97,19 @@
             <span>{{ procesandoBloqueo() ? 'Desbloqueando...' : 'Desbloquear' }}</span>
           </button>
         } @else {
-          <!-- 🔓 USUARIO NO BLOQUEADO -->
-          @if (esContacto()) {
+
+          <!-- Estado: CONTACTO → puede chatear -->
+          @if (estadoContacto() === 'contacto') {
             <button class="btn-chat" (click)="irAlChat()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
               <span>Ir al chat</span>
             </button>
-          } @else if (solicitudPendiente()) {
+          }
+
+          <!-- Estado: PENDIENTE ENVIADA -->
+          @if (estadoContacto() === 'pendiente-enviada') {
             <button class="btn-pendiente" disabled>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/>
@@ -83,7 +117,20 @@
               </svg>
               <span>Solicitud pendiente</span>
             </button>
-          } @else {
+          }
+
+          <!-- Estado: PENDIENTE RECIBIDA → puede aceptar -->
+          @if (estadoContacto() === 'pendiente-recibida') {
+            <button class="btn-aceptar" (click)="aceptarSolicitudRecibida()" [disabled]="procesando()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span>{{ procesando() ? 'Aceptando...' : 'Aceptar solicitud' }}</span>
+            </button>
+          }
+
+          <!-- Estado: NINGUNO → puede enviar solicitud -->
+          @if (estadoContacto() === 'ninguno') {
             <button class="btn-solicitar" (click)="enviarSolicitud()" [disabled]="enviandoSolicitud()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>

@@ -1,3 +1,4 @@
+// src/app/features/profile/profile.component.ts
 import { Component, signal, computed, inject, OnInit, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -80,7 +81,6 @@ export class ProfileComponent implements OnInit {
   }
 
   cargarEstadisticas(): void {
-    // Posts del usuario
     this.postService.listar().subscribe({
       next: (posts) => {
         const userId = this.usuario()?.id;
@@ -91,7 +91,6 @@ export class ProfileComponent implements OnInit {
       error: () => {}
     });
 
-    // Bloqueados
     this.bloqueoService.listarBloqueados().subscribe({
       next: (bloqueados) => this.totalBloqueados.set(bloqueados.length),
       error: () => {}
@@ -161,6 +160,9 @@ export class ProfileComponent implements OnInit {
     }, 1000);
   }
 
+  // ============================================================
+  // NAVEGACIÓN
+  // ============================================================
   irHistorialPublicaciones(): void {
     this.router.navigate(['/mis-publicaciones']);
   }
@@ -173,8 +175,11 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/ajustes']);
   }
 
+  /**
+   * 🔥 Ir a Ajustes → Sección Bloqueados
+   */
   irABloqueados(): void {
-    this.router.navigate(['/bloqueados']);
+    this.router.navigate(['/ajustes'], { fragment: 'bloqueados' });
   }
 
   logout(): void {

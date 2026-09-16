@@ -4,7 +4,7 @@ export interface RecursoBiblioteca {
   titulo: string;
   descripcion: string;
   url: string;
-  categoria: 'certificacion' | 'curso' | 'video' | 'articulo' | 'herramienta' | 'libro';
+  categoria: 'certificacion' | 'curso' | 'video' | 'articulo' | 'herramienta' | 'libro' | 'idiomas' | 'otro';
   subcategoria?: string;
   imagen?: string;
   autor?: string;
@@ -13,5 +13,9 @@ export interface RecursoBiblioteca {
   nivel?: 'principiante' | 'intermedio' | 'avanzado';
   destacado?: boolean;
   fechaAgregado: Date;
+  fechaActualizacion?: Date;
   tags?: string[];
+  esUsuario?: boolean;
+  usuarioId?: number;
+  usuarioNombre?: string;
 }

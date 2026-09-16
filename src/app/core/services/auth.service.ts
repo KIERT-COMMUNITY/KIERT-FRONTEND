@@ -10,7 +10,7 @@ import { User, AuthResponse, LoginRequest, RegisterRequest } from '../models/use
 export class AuthService {
   private readonly API_URL = environment.apiUrl;
   private readonly USER_KEY = 'usuario_actual';
- private readonly TOKEN_KEY = 'token';
+  private readonly TOKEN_KEY = 'token';
 
   usuario: WritableSignal<User | null> = signal<User | null>(null);
   token: WritableSignal<string | null> = signal<string | null>(null);
@@ -20,12 +20,13 @@ export class AuthService {
     private router: Router
   ) {
     this.cargarSesion();
+    this.setupBeforeUnloadListener(); // ✅ NUEVO
   }
 
   private cargarSesion(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
     const usuarioStr = localStorage.getItem(this.USER_KEY);
-    
+
     if (token && usuarioStr) {
       try {
         const usuario = JSON.parse(usuarioStr);
@@ -66,11 +67,10 @@ export class AuthService {
     );
   }
 
-  // ✅ MÉTODO PARA SUBIR FOTO DIRECTAMENTE (multipart)
   subirFotoMultipart(archivo: File): Observable<User> {
     const formData = new FormData();
     formData.append('archivo', archivo);
-    
+
     return this.http.post<User>(`${this.API_URL}/perfil/foto`, formData).pipe(
       tap((usuario) => {
         this.usuario.set(usuario);
@@ -79,7 +79,6 @@ export class AuthService {
     );
   }
 
-  // ✅ MÉTODO PARA ACTUALIZAR CON URL (para compatibilidad)
   actualizarFotoPerfil(urlFoto: string): Observable<User> {
     return this.http.patch<User>(`${this.API_URL}/perfil/foto-url`, { urlFoto }).pipe(
       tap((usuario) => {
@@ -98,17 +97,44 @@ export class AuthService {
     );
   }
 
-solicitarRecuperacion(email: string): Observable<any> {
-  return this.http.post(`${this.API_URL}/auth/recuperar`, { email });
-}
+  solicitarRecuperacion(email: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/recuperar`, { email });
+  }
 
-restablecerContrasena(token: string, password: string): Observable<any> {
-  return this.http.post(`${this.API_URL}/auth/restablecer`, { token, password });
-}
+  restablecerContrasena(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/restablecer`, { token, password });
+  }
 
+  // ========== LOGOUT CORREGIDO ==========
   logout(): void {
+    const token = this.token();
+
+    if (token) {
+      // 🔥 Notificar al backend ANTES de limpiar la sesión
+      this.http.post(`${this.API_URL}/auth/logout`, {}).subscribe({
+        next: () => this.finalizarLogout(),
+        error: () => this.finalizarLogout()
+      });
+    } else {
+      this.finalizarLogout();
+    }
+  }
+
+  private finalizarLogout(): void {
     this.limpiarSesion();
     this.router.navigate(['/login']);
+  }
+
+  // ========== BEFORE UNLOAD (cerrar pestaña/navegador) ==========
+  private setupBeforeUnloadListener(): void {
+    window.addEventListener('beforeunload', () => {
+      const usuario = this.usuario();
+      if (usuario?.id) {
+        // ✅ sendBeacon para asegurar el envío
+        const url = `${this.API_URL}/auth/logout-beacon?usuarioId=${usuario.id}`;
+        navigator.sendBeacon(url);
+      }
+    });
   }
 
   private guardarSesion(token: string, usuario: User): void {
