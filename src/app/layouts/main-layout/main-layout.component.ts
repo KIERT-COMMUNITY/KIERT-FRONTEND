@@ -1,3 +1,4 @@
+// src/app/shared/layouts/main-layout/main-layout.component.ts
 import {
   Component,
   OnInit,
@@ -31,11 +32,11 @@ export class MainLayoutComponent implements OnInit {
   readonly selectedTheme = this.personalizacionStore.temaId;
   readonly menuContraido = signal(false);
 
-  readonly fondoGradiente = computed(() => {
-    return this.personalizacionStore.fondoGradiente();
-  });
+  //  El fondo del PERFIL no se aplica aquí, se aplica en la tarjeta del perfil.
+  // Aquí no necesitamos exponerlo.
 
   constructor() {
+    //  Aplicar tema global cada vez que cambie el temaId
     effect(() => {
       const themeId = this.personalizacionStore.temaId();
       this.aplicarTemaGlobal(themeId);
@@ -46,10 +47,6 @@ export class MainLayoutComponent implements OnInit {
     const themeId = this.personalizacionStore.temaId();
     this.aplicarTemaGlobal(themeId);
     this.restaurarEstadoMenu();
-  }
-
-  getBackgroundGradient(): string {
-    return this.fondoGradiente();
   }
 
   actualizarEstadoMenu(estadoContraido: boolean): void {
@@ -93,11 +90,30 @@ export class MainLayoutComponent implements OnInit {
     }
   }
 
+  // ============================================================
+  //  APLICAR TEMA GLOBAL (fondo de página + color de letras)
+  // ============================================================
   private aplicarTemaGlobal(themeId: string): void {
-    document.documentElement.removeAttribute('data-theme');
+    const html = document.documentElement;
+    const body = document.body;
 
-    if (themeId && themeId !== 'default') {
-      document.documentElement.setAttribute('data-theme', themeId);
-    }
+    const limpiar = (el: HTMLElement) => {
+      el.removeAttribute('data-theme');
+      Array.from(el.classList)
+        .filter(c => c.startsWith('tema-'))
+        .forEach(c => el.classList.remove(c));
+    };
+
+    limpiar(html);
+    limpiar(body);
+
+    const tema = themeId && themeId !== 'default' ? themeId : 'default';
+
+    html.setAttribute('data-theme', tema);
+    html.classList.add(`tema-${tema}`);
+    body.setAttribute('data-theme', tema);
+    body.classList.add(`tema-${tema}`);
+
+    console.log(' Tema global aplicado:', tema);
   }
 }

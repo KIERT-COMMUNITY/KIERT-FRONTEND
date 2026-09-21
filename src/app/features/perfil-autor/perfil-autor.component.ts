@@ -55,7 +55,7 @@ export class PerfilAutorComponent implements OnInit {
   bloqueoInfo = signal<EstadoBloqueo | null>(null);
   procesandoBloqueo = signal(false);
 
-  // ===== PERSONALIZACIÓN =====
+  // ===== PERSONALIZACIÓN DEL AUTOR =====
   autorPersonalizacion = signal<Personalizacion | null>(null);
   autorTemaId = signal<string>('default');
   autorMarcoId = signal<string>('none');
@@ -63,6 +63,7 @@ export class PerfilAutorComponent implements OnInit {
   autorFotoPerfil = signal<string>('');
   autorFotoPortada = signal<string>('');
 
+  // 🔥 Fondo del perfil del autor (solo se aplica a la tarjeta)
   get fondoPerfilDelAutor(): string {
     const fondoId = this.autorFondoId();
     const fondos = this.personalizacionStore.fondos();
@@ -70,7 +71,6 @@ export class PerfilAutorComponent implements OnInit {
     return encontrado?.gradiente || 'linear-gradient(135deg, #0d1117, #161b22)';
   }
 
-  get temaClassDelAutor(): string { return `tema-${this.autorTemaId()}`; }
   get marcoClaseDelAutor(): string { return `frame-${this.autorMarcoId()}`; }
 
   get marcoEstiloDelAutor(): any {
@@ -202,17 +202,15 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  // ===== 🔥 VERIFICAR CONTACTO (AMBOS SENTIDOS) =====
+  // ===== VERIFICAR CONTACTO =====
   verificarEstadoContacto(userId: number): void {
     this.chatService.sonContactos(userId).subscribe({
       next: (res: any) => {
         const sonContactos = res?.sonContactos === true || res === true;
-
         if (sonContactos) {
           this.estadoContacto.set('contacto');
           return;
         }
-
         this.verificarSolicitudesPendientes(userId);
       },
       error: () => this.verificarSolicitudesPendientes(userId)
@@ -220,7 +218,6 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   private verificarSolicitudesPendientes(userId: number): void {
-    // 1. Verificar RECIBIDAS
     this.chatService.listarSolicitudes().subscribe({
       next: (recibidas) => {
         const recibida = recibidas.find(s =>
@@ -232,7 +229,6 @@ export class PerfilAutorComponent implements OnInit {
           return;
         }
 
-        // 2. Verificar ENVIADAS
         this.chatService.listarSolicitudesEnviadas().subscribe({
           next: (enviadas) => {
             const enviada = enviadas.find(s =>
@@ -316,7 +312,6 @@ export class PerfilAutorComponent implements OnInit {
         const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar solicitud';
         this.errorMsg.set(mensaje);
 
-        // Ajustar estado según el mensaje
         if (mensaje.toLowerCase().includes('ya enviaste')) {
           this.estadoContacto.set('pendiente-enviada');
         } else if (mensaje.toLowerCase().includes('ya te envió')) {

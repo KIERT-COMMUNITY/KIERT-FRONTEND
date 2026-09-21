@@ -1,11 +1,10 @@
-// feed.component.ts
+// src/app/features/feed/feed.component.ts
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PostService } from '../../../core/services/post.service';
 import { Post } from '../../../core/models/post.model';
 import { PostCardComponent } from '../../../shared/components/post-card/post-card.component';
-import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 
 @Component({
   selector: 'kiert-feed',
@@ -17,7 +16,6 @@ import { PersonalizacionStore } from '../../../core/services/personalizacion-sto
 export class FeedComponent implements OnInit {
   private postService = inject(PostService);
   private router = inject(Router);
-  public personalizacionStore = inject(PersonalizacionStore);
 
   posts = signal<Post[]>([]);
   cargando = signal(true);
@@ -32,7 +30,7 @@ export class FeedComponent implements OnInit {
     console.log('📋 FeedComponent: Cargando posts...');
     this.cargando.set(true);
     this.errorMsg.set(null);
-    
+
     this.postService.listar().subscribe({
       next: (data) => {
         console.log('✅ FeedComponent: Posts recibidos:', data.length);

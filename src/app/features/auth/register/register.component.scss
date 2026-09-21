@@ -1,18 +1,38 @@
-// register.component.scss - Sin marco gigante
+// register.component.scss
+
+// ============================================================
+// VARIABLES DEL TEMA
+// ============================================================
+$primary: var(--tema-accent, #2dd4bf);
+$primary-hover: #17b6a4;
+$text-primary: var(--tema-text, #e6edf3);
+$text-secondary: var(--tema-text-muted, #8b98a5);
+$text-muted: var(--tema-text-muted, #5a6a7a);
+$border: var(--tema-border, #26313c);
+$danger: #f85149;
+$success: #2ea043;
+$warning: #f9ca24;
+$transition: all 0.25s ease;
+
+// ============================================================
+// PAGINA
+// ============================================================
 .register-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background: #0d1117;
-  // ✅ SIN min-height: 100vh
+  background: transparent;
+  color: $text-primary;
 }
 
-// ========== HEADER ==========
+// ============================================================
+// HEADER (identico al login)
+// ============================================================
 .register-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .register-logo {
@@ -36,91 +56,148 @@
   font-weight: 700;
 }
 
-.register-prompt {
-  color: #2dd4bf;
-}
-
-.register-name {
-  color: #e6edf3;
-}
+.register-prompt { color: $primary; }
+.register-name   { color: $text-primary; }
 
 .register-desc {
-  color: #8b98a5;
+  color: $text-secondary;
   font-size: 0.7rem;
   margin: 4px 0 0;
   opacity: 0.6;
 }
 
-// ========== FORMULARIO ==========
-.register-form {
+// ============================================================
+// FORM / PASOS
+// ============================================================
+.register-form,
+.paso-box,
+.exito-box {
   width: 100%;
   max-width: 300px;
 }
 
-// ========== CAMPOS ==========
+// ============================================================
+// CAMPOS (identico al login)
+// ============================================================
 .field {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 
   input {
     width: 100%;
     padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(128, 128, 128, 0.04);
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    color: #e6edf3;
+    border-bottom: 1px solid $border;
+    color: $text-primary;
     font-size: 0.85rem;
-    transition: all 0.3s;
+    transition: $transition;
     border-radius: 0;
+    font-family: inherit;
 
     &::placeholder {
-      color: #8b98a5;
-      opacity: 0.3;
+      color: $text-secondary;
+      opacity: 0.4;
       font-size: 0.8rem;
     }
 
     &:focus {
       outline: none;
-      border-bottom-color: #2dd4bf;
-      background: rgba(255, 255, 255, 0.06);
+      border-bottom-color: $primary;
+      background: rgba(128, 128, 128, 0.08);
     }
 
     &.is-invalid {
-      border-bottom-color: #f85149;
+      border-bottom-color: $danger;
     }
+  }
+
+  &--codigo input {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    letter-spacing: 8px;
+    padding: 12px;
+    font-weight: 700;
+    text-indent: 8px;
   }
 
   .error-msg {
     display: block;
     margin-top: 4px;
     font-size: 0.65rem;
-    color: #f85149;
+    color: $danger;
   }
 }
 
-// ========== ALERTA ==========
+// ============================================================
+// ALERTAS (identicas al login + info)
+// ============================================================
 .form-alert {
   padding: 6px 12px;
   background: rgba(248, 81, 73, 0.06);
-  border: 1px solid #f85149;
-  color: #f85149;
+  border: 1px solid $danger;
+  color: $danger;
   border-radius: 4px;
   font-size: 0.7rem;
   margin-bottom: 12px;
   text-align: center;
 }
 
-// ========== BOTON ==========
+.form-info {
+  padding: 6px 12px;
+  background: rgba(46, 160, 67, 0.06);
+  border: 1px solid $success;
+  color: $success;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+// ============================================================
+// INFO TIP (aviso de spam)
+// ============================================================
+.info-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(249, 202, 36, 0.06);
+  border-left: 3px solid $warning;
+  border-radius: 4px;
+  margin-bottom: 14px;
+  text-align: left;
+
+  svg {
+    color: $warning;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  span {
+    font-size: 0.68rem;
+    color: $text-secondary;
+    line-height: 1.4;
+
+    strong { color: $warning; }
+  }
+}
+
+// ============================================================
+// BOTON (identico al login)
+// ============================================================
 .register-btn {
   width: 100%;
   padding: 10px;
-  background: #2dd4bf;
+  background: $primary;
   color: #0d1117;
   border: none;
   border-radius: 6px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: $transition;
+  font-family: inherit;
 
   &:hover:not(:disabled) {
     opacity: 0.85;
@@ -134,54 +211,137 @@
   }
 }
 
-// ========== LOGIN ==========
+// ============================================================
+// LOGIN LINK (identico al login)
+// ============================================================
 .register-login {
   text-align: center;
   font-size: 0.75rem;
-  color: #8b98a5;
-  margin-top: 12px;
+  color: $text-secondary;
+  margin-top: 14px;
 
   a {
-    color: #2dd4bf;
+    color: $primary;
     text-decoration: none;
     font-weight: 500;
 
-    &:hover {
-      text-decoration: underline;
-    }
+    &:hover { text-decoration: underline; }
   }
 }
 
-// ========== RESPONSIVE ==========
+// ============================================================
+// PASO BOX (codigo)
+// ============================================================
+.paso-box {
+  text-align: center;
+}
+
+.paso-icon {
+  color: $primary;
+  margin-bottom: 12px;
+
+  svg { stroke: currentColor; }
+}
+
+.paso-text {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin: 0 0 14px;
+  line-height: 1.5;
+
+  strong {
+    color: $text-primary;
+    font-weight: 600;
+    word-break: break-all;
+  }
+}
+
+.paso-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: $text-secondary;
+  font-size: 0.7rem;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 8px;
+  transition: $transition;
+
+  &:hover:not(:disabled) { color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ============================================================
+// EXITO
+// ============================================================
+.exito-box {
+  text-align: center;
+  padding: 16px 14px;
+  background: rgba(46, 160, 67, 0.06);
+  border: 1px solid rgba(46, 160, 67, 0.3);
+  border-radius: 6px;
+
+  .exito-icon {
+    color: $success;
+    margin-bottom: 8px;
+
+    svg { stroke: currentColor; }
+  }
+
+  h3 {
+    color: $success;
+    font-size: 1rem;
+    margin: 0 0 6px;
+    font-weight: 700;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 0.75rem;
+    margin: 0 0 6px;
+    line-height: 1.4;
+  }
+
+  .exito-small {
+    font-size: 0.68rem;
+    color: $text-muted;
+    margin-bottom: 12px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
 @media (max-width: 480px) {
-  .register-page {
-    padding: 20px 16px;
-  }
+  .register-page { padding: 20px 16px; }
+  .register-logo { width: 40px; height: 40px; }
+  .register-header-text { font-size: 1.1rem; }
+  .register-desc { font-size: 0.65rem; }
 
-  .register-logo {
-    width: 40px;
-    height: 40px;
-  }
-
-  .register-header-text {
-    font-size: 1.1rem;
-  }
-
-  .register-desc {
-    font-size: 0.65rem;
-  }
-
-  .register-form {
+  .register-form,
+  .paso-box,
+  .exito-box {
     max-width: 100%;
   }
 
-  .field input {
-    font-size: 0.8rem;
-    padding: 8px 12px;
+  .field {
+    input {
+      font-size: 0.8rem;
+      padding: 8px 12px;
+    }
+
+    &--codigo input {
+      font-size: 1.2rem;
+      letter-spacing: 6px;
+    }
   }
 
-  .register-btn {
-    font-size: 0.8rem;
-    padding: 8px;
-  }
+  .register-btn { font-size: 0.8rem; padding: 8px; }
 }

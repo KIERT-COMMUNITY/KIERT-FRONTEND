@@ -1,4 +1,5 @@
-import { Component, signal, OnInit } from '@angular/core';
+// src/app/shared/components/floating-social/floating-social.component.ts
+import { Component, signal, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafeHtmlPipe } from '../../pipes/safe.html.pipe';
 
@@ -30,48 +31,18 @@ export interface Colaborador {
   templateUrl: './floating-social.component.html',
   styleUrl: './floating-social.component.scss',
 })
-export class FloatingSocialComponent implements OnInit {
+export class FloatingSocialComponent implements OnInit, OnDestroy {
   // ===== CARRUSEL DE ANUNCIOS ESTÁTICOS =====
   showStaticAd = signal(true);
   indiceActual = signal(0);
 
   staticAds = signal<StaticAd[]>([
-    {
-      id: 1,
-      image: 'assets/images/frase-anuncio/frase.jpg',
-      link: 'http://localhost:4200/#/',
-      alt: 'Anuncio 1 - Kiert'
-    },
-    {
-      id: 2,
-      image: 'assets/images/frase-anuncio/anunci1.jpg',
-      link: 'https://www.facebook.com/confecciones.herliz/',
-      alt: 'Anuncio 2 - Kiert'
-    },
-    {
-      id: 3,
-      image: 'assets/images/frase-anuncio/anuncio2.jpg',
-      link: 'https://www.facebook.com/cykaconfeccion/?locale=es_LA',
-      alt: 'Anuncio 3 - Kiert'
-    },
-    {
-      id: 4,
-      image: 'assets/images/frase-anuncio/anuncio3.jpg',
-      link: 'https://www.ecosia.org/',
-      alt: 'Anuncio 4 - Kiert'
-    },
-    {
-      id: 5,
-      image: 'assets/images/frase-anuncio/anuncio4.jpg',
-      link: 'https://www.karnilcorp.com/index.html',
-      alt: 'Anuncio 5 - Kiert'
-    },
-    {
-      id: 6,
-      image: 'assets/images/frase-anuncio/anuncio5.jpg',
-      link: 'https://www.karnilcorp.com/index.html',
-      alt: 'Anuncio 6 - Kiert'
-    }
+    { id: 1, image: 'assets/images/frase-anuncio/frase.jpg', link: 'http://localhost:4200/#/', alt: 'Anuncio 1 - Kiert' },
+    { id: 2, image: 'assets/images/frase-anuncio/anunci1.jpg', link: 'https://www.facebook.com/confecciones.herliz/', alt: 'Anuncio 2 - Kiert' },
+    { id: 3, image: 'assets/images/frase-anuncio/anuncio2.jpg', link: 'https://www.facebook.com/cykaconfeccion/?locale=es_LA', alt: 'Anuncio 3 - Kiert' },
+    { id: 4, image: 'assets/images/frase-anuncio/anuncio3.jpg', link: 'https://www.ecosia.org/', alt: 'Anuncio 4 - Kiert' },
+    { id: 5, image: 'assets/images/frase-anuncio/anuncio4.jpg', link: 'https://www.karnilcorp.com/index.html', alt: 'Anuncio 5 - Kiert' },
+    { id: 6, image: 'assets/images/frase-anuncio/anuncio5.jpg', link: 'https://www.karnilcorp.com/index.html', alt: 'Anuncio 6 - Kiert' }
   ]);
 
   // ===== OTROS ANUNCIOS =====
@@ -80,26 +51,34 @@ export class FloatingSocialComponent implements OnInit {
   showPopUp = signal(false);
   showBanner = signal(true);
 
-  private popUpTimer: any;
+  private popUpTimer: ReturnType<typeof setTimeout> | null = null;
+  private carouselTimer: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.popUpTimer = setTimeout(() => {
       this.showPopUp.set(true);
     }, 3000);
+
+    // ✅ Auto-play del carrusel cada 5s
+    this.carouselTimer = setInterval(() => {
+      if (this.showStaticAd()) this.siguiente();
+    }, 5000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.popUpTimer) clearTimeout(this.popUpTimer);
+    if (this.carouselTimer) clearInterval(this.carouselTimer);
   }
 
   // ===== MÉTODOS DEL CARRUSEL =====
-
   siguiente(): void {
     const total = this.staticAds().length;
-    const nuevoIndice = (this.indiceActual() + 1) % total;
-    this.indiceActual.set(nuevoIndice);
+    this.indiceActual.set((this.indiceActual() + 1) % total);
   }
 
   anterior(): void {
     const total = this.staticAds().length;
-    const nuevoIndice = (this.indiceActual() - 1 + total) % total;
-    this.indiceActual.set(nuevoIndice);
+    this.indiceActual.set((this.indiceActual() - 1 + total) % total);
   }
 
   irAlIndice(indice: number): void {
@@ -108,9 +87,7 @@ export class FloatingSocialComponent implements OnInit {
     }
   }
 
-  closeStaticAd(): void {
-    this.showStaticAd.set(false);
-  }
+  closeStaticAd(): void { this.showStaticAd.set(false); }
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
@@ -118,21 +95,10 @@ export class FloatingSocialComponent implements OnInit {
   }
 
   // ===== MÉTODOS PARA OTROS ANUNCIOS =====
-  closeTopAd(): void {
-    this.showTopAd.set(false);
-  }
-
-  closeBottomAd(): void {
-    this.showBottomAd.set(false);
-  }
-
-  closePopUp(): void {
-    this.showPopUp.set(false);
-  }
-
-  closeBanner(): void {
-    this.showBanner.set(false);
-  }
+  closeTopAd(): void { this.showTopAd.set(false); }
+  closeBottomAd(): void { this.showBottomAd.set(false); }
+  closePopUp(): void { this.showPopUp.set(false); }
+  closeBanner(): void { this.showBanner.set(false); }
 
   // ===== COLABORADORES DEL PROYECTO =====
   colaboradores = signal<Colaborador[]>([
@@ -147,76 +113,19 @@ export class FloatingSocialComponent implements OnInit {
     return `https://github.com/${usuario}.png?size=80`;
   }
 
-  // ===== REDES SOCIALES REALES DE KIERT =====
+  // ===== REDES SOCIALES =====
   socialLinks = signal<SocialLink[]>([
-    {
-      id: 'github',
-      name: 'GitHub',
-      url: 'https://github.com/Ardamins',
-      icon: this.getGitHubIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#24292e'
-    },
-    {
-      id: 'discord',
-      name: 'Discord',
-      url: 'https://discord.gg/Ky9UwfqMF',
-      icon: this.getDiscordIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#5865F2'
-    },
-    {
-      id: 'facebook',
-      name: 'Facebook',
-      url: 'https://www.facebook.com/profile.php?id=61587247660638',
-      icon: this.getFacebookIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#1877F2'
-    },
-    {
-      id: 'tiktok',
-      name: 'TikTok',
-      url: 'https://www.tiktok.com/@kiert2005',
-      icon: this.getTikTokIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#000000'
-    },
-    {
-      id: 'instagram',
-      name: 'Instagram',
-      url: 'https://www.instagram.com/kiert_2005',
-      icon: this.getInstagramIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#E4405F'
-    },
-    {
-      id: 'youtube',
-      name: 'YouTube',
-      url: 'https://www.youtube.com/@kiert',
-      icon: this.getYouTubeIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#FF0000'
-    },
-    {
-      id: 'linkedin',
-      name: 'LinkedIn',
-      url: 'https://linkedin.com/company/kiert',
-      icon: this.getLinkedInIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#0A66C2'
-    },
-    {
-      id: 'twitch',
-      name: 'Twitch',
-      url: 'https://twitch.tv/kiert',
-      icon: this.getTwitchIcon(),
-      bgColor: '#ffffff',
-      iconColor: '#9146FF'
-    }
+    { id: 'github', name: 'GitHub', url: 'https://github.com/Ardamins', icon: this.getGitHubIcon(), bgColor: '#ffffff', iconColor: '#24292e' },
+    { id: 'discord', name: 'Discord', url: 'https://discord.gg/Ky9UwfqMF', icon: this.getDiscordIcon(), bgColor: '#ffffff', iconColor: '#5865F2' },
+    { id: 'facebook', name: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61587247660638', icon: this.getFacebookIcon(), bgColor: '#ffffff', iconColor: '#1877F2' },
+    { id: 'tiktok', name: 'TikTok', url: 'https://www.tiktok.com/@kiert2005', icon: this.getTikTokIcon(), bgColor: '#ffffff', iconColor: '#000000' },
+    { id: 'instagram', name: 'Instagram', url: 'https://www.instagram.com/kiert_2005', icon: this.getInstagramIcon(), bgColor: '#ffffff', iconColor: '#E4405F' },
+    { id: 'youtube', name: 'YouTube', url: 'https://www.youtube.com/@kiert', icon: this.getYouTubeIcon(), bgColor: '#ffffff', iconColor: '#FF0000' },
+    { id: 'linkedin', name: 'LinkedIn', url: 'https://linkedin.com/company/kiert', icon: this.getLinkedInIcon(), bgColor: '#ffffff', iconColor: '#0A66C2' },
+    { id: 'twitch', name: 'Twitch', url: 'https://twitch.tv/kiert', icon: this.getTwitchIcon(), bgColor: '#ffffff', iconColor: '#9146FF' }
   ]);
 
   // ===== ICONOS SVG =====
-
   private getGitHubIcon(): string {
     return `<svg viewBox="0 0 24 24" fill="#24292e"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>`;
   }

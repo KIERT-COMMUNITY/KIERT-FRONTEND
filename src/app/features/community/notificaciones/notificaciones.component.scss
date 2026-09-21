@@ -1,20 +1,22 @@
 // ============================================================
-// VARIABLES
+// NOTIFICACIONES (dropdown campana) - usa variables del tema
 // ============================================================
-$primary: #2dd4bf;
+
+$primary: var(--tema-accent, #2dd4bf);
+$primary-hover: #17b6a4;
 $purple: #6c5ce7;
 $purple-light: #a29bfe;
 $danger: #f85149;
 $success: #2ea043;
 
-$bg-primary: #0d1117;
-$bg-secondary: #131a22;
-$bg-card: #1b232c;
-$bg-hover: #232b36;
-$border: #26313c;
-$text-primary: #e6edf3;
-$text-secondary: #8b98a5;
-$text-muted: #5a6a7a;
+$bg-primary: var(--tema-bg-1, #0d1117);
+$bg-secondary: var(--tema-card-bg, rgba(19, 26, 34, 0.85));
+$bg-card: rgba(128, 128, 128, 0.08);
+$bg-hover: rgba(128, 128, 128, 0.14);
+$border: var(--tema-border, #26313c);
+$text-primary: var(--tema-text, #e6edf3);
+$text-secondary: var(--tema-text-muted, #8b98a5);
+$text-muted: var(--tema-text-muted, #5a6a7a);
 
 $radius: 16px;
 $radius-sm: 10px;
@@ -94,7 +96,7 @@ $transition: all 0.2s ease;
     border-radius: $radius-full;
     font-size: 0.65rem;
     font-weight: 700;
-    box-shadow: 0 2px 8px rgba($danger, 0.5);
+    box-shadow: 0 2px 8px rgba(248, 81, 73, 0.5);
   }
 }
 
@@ -129,6 +131,8 @@ $transition: all 0.2s ease;
   z-index: 999;
   overflow: hidden;
   animation: slideDown 0.25s ease-out;
+  color: $text-primary;
+  backdrop-filter: blur(12px);
 
   &::before {
     content: '';
@@ -194,7 +198,7 @@ $transition: all 0.2s ease;
   padding: 16px 20px;
   border-bottom: 1px solid $border;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.1);
 
   .dropdown-header-left {
     display: flex;
@@ -219,11 +223,11 @@ $transition: all 0.2s ease;
       font-size: 0.65rem;
       font-weight: 700;
       color: $primary;
-      background: rgba($primary, 0.12);
+      background: rgba(45, 212, 191, 0.12);
       padding: 3px 10px;
       border-radius: $radius-full;
       white-space: nowrap;
-      border: 1px solid rgba($primary, 0.2);
+      border: 1px solid rgba(45, 212, 191, 0.2);
     }
   }
 
@@ -257,10 +261,7 @@ $transition: all 0.2s ease;
   overflow-x: hidden;
   padding: 8px;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
+  &::-webkit-scrollbar { width: 6px; }
   &::-webkit-scrollbar-thumb {
     background: $border;
     border-radius: 3px;
@@ -349,21 +350,21 @@ $transition: all 0.2s ease;
   min-width: 0;
   border-radius: $radius-sm;
   border: 1px solid transparent;
+  color: $text-primary;
 
   &:hover {
     background: $bg-card;
-    border-color: rgba(255, 255, 255, 0.06);
+    border-color: $border;
   }
 
   &.leida {
-    opacity: 0.5;
+    opacity: 0.55;
 
     &:hover {
-      opacity: 0.75;
+      opacity: 0.8;
     }
   }
 
-  // ICONO
   .icono-tipo {
     display: flex;
     align-items: center;
@@ -379,7 +380,6 @@ $transition: all 0.2s ease;
     }
   }
 
-  // CONTENIDO
   .contenido-notificacion {
     flex: 1;
     min-width: 0;
@@ -414,7 +414,6 @@ $transition: all 0.2s ease;
     }
   }
 
-  // BOTÓN ELIMINAR
   .btn-eliminar {
     display: flex;
     align-items: center;
@@ -441,7 +440,6 @@ $transition: all 0.2s ease;
     opacity: 1;
   }
 
-  // PUNTO NO LEÍDA
   .punto-no-leida {
     position: absolute;
     top: 18px;
@@ -450,7 +448,7 @@ $transition: all 0.2s ease;
     height: 8px;
     background: $primary;
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba($primary, 0.8);
+    box-shadow: 0 0 10px rgba(45, 212, 191, 0.8);
     animation: pulse-dot 2s infinite;
   }
 }
@@ -522,13 +520,8 @@ $transition: all 0.2s ease;
       transition: transform 0.2s ease;
     }
 
-    &:hover svg {
-      transform: scale(1.15);
-    }
-
-    &:active {
-      transform: scale(0.9);
-    }
+    &:hover svg { transform: scale(1.15); }
+    &:active { transform: scale(0.9); }
   }
 
   .btn-aceptar-invitacion {
@@ -570,7 +563,7 @@ $transition: all 0.2s ease;
   padding: 14px 16px;
   border-top: 1px solid $border;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.15);
 
   button {
     display: flex;
@@ -587,28 +580,26 @@ $transition: all 0.2s ease;
     font-family: inherit;
     transition: $transition;
 
-    svg {
-      flex-shrink: 0;
-    }
+    svg { flex-shrink: 0; }
   }
 
   .btn-marcar-todas {
-    background: rgba($primary, 0.08);
+    background: rgba(45, 212, 191, 0.08);
     color: $primary;
-    border: 1px solid rgba($primary, 0.2);
+    border: 1px solid rgba(45, 212, 191, 0.2);
 
     &:hover {
-      background: rgba($primary, 0.15);
-      border-color: rgba($primary, 0.4);
+      background: rgba(45, 212, 191, 0.15);
+      border-color: rgba(45, 212, 191, 0.4);
     }
   }
 
   .btn-ver-todas {
-    background: linear-gradient(135deg, $primary, #17b6a4);
-    color: $bg-primary;
+    background: linear-gradient(135deg, $primary, $primary-hover);
+    color: #0d1117;
 
     &:hover {
-      box-shadow: 0 6px 20px rgba($primary, 0.4);
+      box-shadow: 0 6px 20px rgba(45, 212, 191, 0.4);
     }
   }
 }
@@ -624,9 +615,7 @@ $transition: all 0.2s ease;
       margin: 0;
       padding: 8px 14px;
 
-      .btn-texto {
-        display: inline;
-      }
+      .btn-texto { display: inline; }
 
       .badge-notificacion {
         position: static;
@@ -661,9 +650,7 @@ $transition: all 0.2s ease;
   .btn-notificaciones {
     padding: 8px 10px;
 
-    .btn-texto {
-      display: none;
-    }
+    .btn-texto { display: none; }
 
     .badge-notificacion {
       position: absolute;
@@ -677,9 +664,7 @@ $transition: all 0.2s ease;
     }
   }
 
-  .dropdown-notificaciones {
-    top: 56px;
-  }
+  .dropdown-notificaciones { top: 56px; }
 
   .notificacion-item {
     padding: 12px;
@@ -689,9 +674,7 @@ $transition: all 0.2s ease;
       height: 36px;
     }
 
-    .btn-eliminar {
-      opacity: 1;
-    }
+    .btn-eliminar { opacity: 1; }
   }
 
   .acciones-invitacion {
@@ -713,10 +696,7 @@ $transition: all 0.2s ease;
       width: 32px;
       height: 32px;
 
-      svg {
-        width: 14px;
-        height: 14px;
-      }
+      svg { width: 14px; height: 14px; }
     }
   }
 
@@ -731,10 +711,7 @@ $transition: all 0.2s ease;
     width: 30px;
     height: 30px;
 
-    svg {
-      width: 12px;
-      height: 12px;
-    }
+    svg { width: 12px; height: 12px; }
   }
 }
 

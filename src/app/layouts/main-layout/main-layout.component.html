@@ -1,8 +1,5 @@
-<div
-  class="app-container"
-  [attr.data-theme]="selectedTheme()"
-  [style.background]="getBackgroundGradient()"
->
+<!-- src/app/shared/layouts/main-layout/main-layout.component.html -->
+<div class="app-container">
   <div class="app-shell" [class.sidebar-collapsed]="menuContraido()">
     <kiert-navbar
       (estadoContraidoChange)="actualizarEstadoMenu($event)"

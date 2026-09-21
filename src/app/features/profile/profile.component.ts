@@ -56,18 +56,45 @@ export class ProfileComponent implements OnInit {
   });
 
   constructor() {
+    // 🔥 Aplicar tema GLOBAL cuando cambie la personalización
     effect(() => {
-      const personalizacion = this.personalizacionStore.personalizacion();
-      if (personalizacion) {
-        console.log('🔄 Profile - Personalización aplicada:', personalizacion);
-        this.cdr.detectChanges();
-      }
+      const tema = this.personalizacionStore.temaId();
+      this.aplicarTemaGlobal(tema);
     });
   }
 
   ngOnInit(): void {
     this.cargarEstadisticas();
     this.cargarDatosUsuario();
+
+    // Asegurar que el tema se aplique al entrar
+    const tema = this.personalizacionStore.temaId();
+    this.aplicarTemaGlobal(tema);
+  }
+
+  // ============================================================
+  // APLICAR TEMA GLOBAL (fondo de página + color de letras)
+  // ============================================================
+  private aplicarTemaGlobal(themeId: string): void {
+    const html = document.documentElement;
+    const body = document.body;
+
+    const limpiar = (el: HTMLElement) => {
+      el.removeAttribute('data-theme');
+      Array.from(el.classList)
+        .filter(c => c.startsWith('tema-'))
+        .forEach(c => el.classList.remove(c));
+    };
+
+    limpiar(html);
+    limpiar(body);
+
+    const tema = themeId && themeId !== 'default' ? themeId : 'default';
+
+    html.setAttribute('data-theme', tema);
+    html.classList.add(`tema-${tema}`);
+    body.setAttribute('data-theme', tema);
+    body.classList.add(`tema-${tema}`);
   }
 
   cargarDatosUsuario(): void {
@@ -175,9 +202,6 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/ajustes']);
   }
 
-  /**
-   * 🔥 Ir a Ajustes → Sección Bloqueados
-   */
   irABloqueados(): void {
     this.router.navigate(['/ajustes'], { fragment: 'bloqueados' });
   }

@@ -1,15 +1,35 @@
-// feed.component.scss
+// src/app/features/feed/feed.component.scss
+
+// ============================================================
+// VARIABLES DEL TEMA
+// ============================================================
+$primary: var(--tema-accent, #2dd4bf);
+$primary-hover: #17b6a4;
+$text-primary: var(--tema-text, #e6edf3);
+$text-secondary: var(--tema-text-muted, #8b98a5);
+$text-muted: var(--tema-text-muted, #5a6a7a);
+$bg-card: var(--tema-card-bg, rgba(19, 26, 34, 0.6));
+$border: var(--tema-border, #26313c);
+$danger: #f85149;
+$transition: all 0.2s ease;
+
+// ============================================================
+// CONTENEDOR
+// ============================================================
 .feed-container {
   max-width: 820px;
   margin: 0 auto;
   padding: 16px;
+  color: $text-primary;
 }
 
-// ========== LOGO ==========
+// ============================================================
+// LOGO DEL SITIO
+// ============================================================
 .feed-logo-section {
   text-align: center;
   padding: 16px 0 12px;
-  border-bottom: 1px solid #26313c;
+  border-bottom: 1px solid $border;
   margin-bottom: 16px;
 }
 
@@ -17,45 +37,53 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 8px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.2rem;
   font-weight: 700;
 }
 
+.feed-logo-text {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .feed-logo-img {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
   background: transparent;
   border: none;
+  flex-shrink: 0;
 }
 
 .feed-logo-prompt {
-  color: #2dd4bf;
+  color: $primary;
 }
 
 .feed-logo-name {
-  color: #e6edf3;
+  color: $text-primary;
 }
 
 .feed-logo-desc {
-  color: #8b98a5;
+  color: $text-secondary;
   font-size: 0.65rem;
   margin: 2px 0 0;
-  opacity: 0.6;
 }
 
-// ========== HEADER ==========
+// ============================================================
+// HEADER DEL FEED
+// ============================================================
 .feed-head {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
   padding: 16px 20px;
-  background: #131a22;
+  background: $bg-card;
   border-radius: 10px;
-  border: 1px solid #26313c;
+  border: 1px solid $border;
 
   @media (min-width: 768px) {
     flex-direction: row;
@@ -66,13 +94,14 @@
 
   &__info {
     flex: 1;
+    min-width: 0;
   }
 
   h1 {
     font-size: 1.3rem;
     font-weight: 700;
     margin: 0;
-    color: #e6edf3;
+    color: $text-primary;
     font-family: 'JetBrains Mono', monospace;
   }
 
@@ -92,7 +121,7 @@
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: $transition;
     text-decoration: none;
     white-space: nowrap;
 
@@ -102,11 +131,11 @@
     }
 
     &--primary {
-      background: #2dd4bf;
+      background: $primary;
       color: #0d1117;
 
       &:hover {
-        opacity: 0.85;
+        opacity: 0.9;
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
       }
@@ -117,13 +146,13 @@
     }
 
     &--secondary {
-      background: #1b232c;
-      color: #8b98a5;
-      border: 1px solid #26313c;
+      background: rgba(128, 128, 128, 0.1);
+      color: $text-secondary;
+      border: 1px solid $border;
 
       &:hover {
-        border-color: #2dd4bf;
-        color: #2dd4bf;
+        border-color: $primary;
+        color: $primary;
         transform: translateY(-2px);
       }
 
@@ -135,53 +164,60 @@
 }
 
 .feed-sub {
-  color: #8b98a5;
+  color: $text-secondary;
   font-size: 0.85rem;
   margin: 4px 0 0;
 }
 
-// ========== ERROR ==========
+// ============================================================
+// ERROR
+// ============================================================
 .feed-error {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
   background: rgba(248, 81, 73, 0.1);
-  border: 1px solid #f85149;
+  border: 1px solid $danger;
   border-radius: 8px;
-  color: #f85149;
+  color: $danger;
   margin-bottom: 16px;
   font-size: 0.9rem;
 
   button {
     background: none;
     border: none;
-    color: #f85149;
+    color: $danger;
     font-size: 1.2rem;
     cursor: pointer;
     padding: 0 4px;
+    transition: $transition;
+
+    &:hover { opacity: 0.7; }
   }
 }
 
-// ========== ESTADOS ==========
+// ============================================================
+// ESTADOS (cargando / vacío)
+// ============================================================
 .feed-estado {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 16px;
-  color: #8b98a5;
+  color: $text-secondary;
   text-align: center;
-  background: #131a22;
+  background: $bg-card;
   border-radius: 10px;
-  border: 1px solid #26313c;
+  border: 1px solid $border;
   min-height: 180px;
 
   .spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid #26313c;
-    border-top-color: #2dd4bf;
+    border: 3px solid $border;
+    border-top-color: $primary;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin-bottom: 12px;
@@ -190,8 +226,9 @@
   &--empty {
     .empty-icon {
       margin-bottom: 12px;
-      color: #26313c;
-      
+      color: $text-secondary;
+      opacity: 0.5;
+
       svg {
         stroke: currentColor;
       }
@@ -200,7 +237,7 @@
     p {
       margin: 0;
       font-size: 0.95rem;
-      color: #8b98a5;
+      color: $text-secondary;
     }
   }
 }
@@ -209,14 +246,26 @@
   to { transform: rotate(360deg); }
 }
 
-// ========== GRID DE POSTS ==========
+// ============================================================
+// GRID DE POSTS
+// ============================================================
 .feed-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-// ========== RESPONSIVE ==========
+// ============================================================
+// RESPONSIVE
+// ============================================================
+@media (max-width: 768px) {
+  .feed-head {
+    &__actions {
+      flex-wrap: wrap;
+    }
+  }
+}
+
 @media (max-width: 480px) {
   .feed-container {
     padding: 8px 4px;
@@ -228,11 +277,12 @@
 
   .feed-logo {
     font-size: 1rem;
+    gap: 6px;
   }
 
   .feed-logo-img {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
   }
 
   .feed-head {
@@ -263,13 +313,5 @@
   .feed-estado {
     padding: 24px 12px;
     min-height: 120px;
-  }
-}
-
-@media (max-width: 768px) {
-  .feed-head {
-    &__actions {
-      flex-wrap: wrap;
-    }
   }
 }

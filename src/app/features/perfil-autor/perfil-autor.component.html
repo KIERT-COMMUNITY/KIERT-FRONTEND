@@ -1,23 +1,23 @@
 <!-- src/app/features/perfil-autor/perfil-autor.component.html -->
-<div class="perfil-autor-container"
-     [class]="temaClassDelAutor"
-     [style.background]="fondoPerfilDelAutor">
+<div class="perfil-autor-container">
 
   @if (cargando()) {
     <div class="loading">
       <div class="spinner"></div>
       <p>Cargando perfil...</p>
     </div>
-  } @else if (errorMsg()) {
+  } @else if (errorMsg() && !autor()) {
     <div class="error">
       <p>{{ errorMsg() }}</p>
       <button class="btn-volver" (click)="volver()">Volver</button>
     </div>
   } @else if (autor()) {
-    <!-- TARJETA CON FONDO DE PERFIL DEL AUTOR -->
-    <div class="perfil-card" [style.background]="fondoPerfilDelAutor">
 
-      <!-- AVATAR CON MARCO -->
+    <!-- ✅ SOLO la tarjeta lleva el fondo del autor (con animación vía clase) -->
+    <div class="perfil-card"
+         [class]="'fondo-' + autorFondoId()">
+
+      <!-- AVATAR CON MARCO DEL AUTOR (solo el avatar) -->
       <div class="perfil-avatar-wrapper">
         <div class="perfil-avatar"
              [class]="marcoClaseDelAutor"
@@ -47,7 +47,7 @@
         <div class="error-msg">{{ errorMsg() }}</div>
       }
 
-      <!-- 🔥 INDICADOR DE ESTADO DE CONTACTO -->
+      <!-- INDICADOR DE ESTADO DE CONTACTO -->
       @if (estadoContacto() === 'pendiente-recibida') {
         <div class="estado-badge estado-badge--info">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -81,7 +81,7 @@
       <div class="perfil-acciones">
 
         @if (estaBloqueado()) {
-          <!-- 🔒 USUARIO BLOQUEADO -->
+          <!-- USUARIO BLOQUEADO -->
           <div class="bloqueo-aviso">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>

@@ -1,7 +1,5 @@
-<!-- PERFIL - TEMA + FONDO -->
-<div class="profile-container"
-     [ngClass]="personalizacionStore.temaClass()"
-     [style.background]="personalizacionStore.fondoGradiente()">
+<!-- src/app/features/profile/profile.component.html -->
+<div class="profile-container">
 
   <!-- ===== HEADER ===== -->
   <header class="profile-header">
@@ -48,10 +46,11 @@
     </div>
   }
 
-  <!-- ===== TARJETA PRINCIPAL ===== -->
-  <div class="profile-card" [style.background]="personalizacionStore.fondoGradiente()">
+  <!-- ===== TARJETA PRINCIPAL (solo aquí va el fondo de perfil) ===== -->
+  <div class="profile-card"
+       [class]="'fondo-' + personalizacionStore.fondoId()">
 
-    <!-- ===== SECCIÓN AVATAR ===== -->
+    <!-- ===== SECCIÓN AVATAR (solo aquí va el marco) ===== -->
     <section class="profile-avatar-section">
       <div class="profile-avatar-wrapper">
         <div class="profile-avatar"
@@ -92,7 +91,7 @@
     </section>
 
     <!-- ===== SECCIÓN INFO ===== -->
-    <section class="profile-info">
+    <section class="profile-info" [formGroup]="formEditar">
       <div class="profile-info__item">
         <div class="profile-info__icon">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -1,85 +1,174 @@
 <!-- register.component.html -->
 <div class="register-page">
-  
+
   <!-- HEADER -->
   <div class="register-header">
-    <img src="/assets/logokiert.png" alt="Kiert" class="register-logo">
+    <img src="assets/logokiert.png" alt="Kiert" class="register-logo">
     <div class="register-header-text">
       <span class="register-prompt">&gt;_</span>
       <span class="register-name">kiert</span>
     </div>
-    <p class="register-desc">Crea tu cuenta para comenzar</p>
+    <p class="register-desc">
+      @switch (paso()) {
+        @case ('form') { Crea tu cuenta para comenzar }
+        @case ('verificar') { Verifica tu correo }
+        @case ('exito') { Cuenta activada }
+      }
+    </p>
   </div>
 
-  <!-- FORMULARIO -->
-  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate class="register-form">
+  <!-- ===== PASO 1: FORMULARIO ===== -->
+  @if (paso() === 'form') {
+    <form [formGroup]="form" (ngSubmit)="enviar()" novalidate class="register-form">
 
-    <div class="field">
-      <input
-        id="nombreUsuario"
-        type="text"
-        formControlName="nombreUsuario"
-        placeholder="Nombre de usuario"
-        [class.is-invalid]="nombreUsuario.invalid && nombreUsuario.touched"
-        autocomplete="username"
-      >
-      @if (nombreUsuario.invalid && nombreUsuario.touched) {
-        <span class="error-msg">3 a 20 caracteres</span>
+      <div class="field">
+        <input
+          id="nombreUsuario"
+          type="text"
+          formControlName="nombreUsuario"
+          placeholder="Nombre de usuario"
+          [class.is-invalid]="nombreUsuario.invalid && nombreUsuario.touched"
+          autocomplete="username"
+        >
+        @if (nombreUsuario.invalid && nombreUsuario.touched) {
+          <span class="error-msg">3 a 20 caracteres</span>
+        }
+      </div>
+
+      <div class="field">
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Correo electronico"
+          [class.is-invalid]="email.invalid && email.touched"
+          autocomplete="email"
+        >
+        @if (email.invalid && email.touched) {
+          <span class="error-msg">Correo invalido</span>
+        }
+      </div>
+
+      <div class="field">
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Contrasena"
+          [class.is-invalid]="password.invalid && password.touched"
+          autocomplete="new-password"
+        >
+        @if (password.invalid && password.touched) {
+          <span class="error-msg">8+ caracteres, 1 mayuscula, 1 numero</span>
+        }
+      </div>
+
+      <div class="field">
+        <input
+          id="confirmarPassword"
+          type="password"
+          formControlName="confirmarPassword"
+          placeholder="Confirmar contrasena"
+          [class.is-invalid]="form.errors?.['contrasenasDistintas'] && confirmarPassword.touched"
+          autocomplete="new-password"
+        >
+        @if (form.errors?.['contrasenasDistintas'] && confirmarPassword.touched) {
+          <span class="error-msg">Las contrasenas no coinciden</span>
+        }
+      </div>
+
+      @if (errorMsg()) {
+        <p class="form-alert">{{ errorMsg() }}</p>
       }
+
+      <button type="submit" class="register-btn" [disabled]="cargando()">
+        {{ cargando() ? 'Creando cuenta...' : 'Registrarme' }}
+      </button>
+
+      <p class="register-login">
+        Ya tienes cuenta? <a routerLink="/login">Inicia sesion</a>
+      </p>
+    </form>
+  }
+
+  <!-- ===== PASO 2: VERIFICAR CODIGO ===== -->
+  @if (paso() === 'verificar') {
+    <div class="paso-box">
+      <div class="paso-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+
+      <p class="paso-text">
+        Enviamos un codigo de 6 digitos a <strong>{{ emailRegistrado() }}</strong>
+      </p>
+
+      <div class="info-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>No lo ves? Revisa tu carpeta de <strong>Spam</strong> o <strong>Promociones</strong> en Gmail.</span>
+      </div>
+
+      <form [formGroup]="formCodigo" (ngSubmit)="verificarCodigo()" novalidate>
+        <div class="field field--codigo">
+          <input
+            type="text"
+            formControlName="codigo"
+            placeholder="000000"
+            maxlength="6"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            [class.is-invalid]="codigo.invalid && codigo.touched"
+          >
+          @if (codigo.invalid && codigo.touched) {
+            <span class="error-msg">Ingresa el codigo de 6 digitos</span>
+          }
+        </div>
+
+        @if (errorMsg()) {
+          <p class="form-alert">{{ errorMsg() }}</p>
+        }
+
+        @if (codigoReenviado()) {
+          <p class="form-info">Codigo reenviado. Revisa tu correo y Spam.</p>
+        }
+
+        <button type="submit" class="register-btn" [disabled]="cargando()">
+          {{ cargando() ? 'Verificando...' : 'Verificar y activar cuenta' }}
+        </button>
+      </form>
+
+      <div class="paso-links">
+        <button type="button" class="link-btn" (click)="reenviarCodigo()" [disabled]="reenviando()">
+          {{ reenviando() ? 'Reenviando...' : 'No llego? Reenviar codigo' }}
+        </button>
+        <button type="button" class="link-btn" (click)="volverAlFormulario()">
+          Volver al formulario
+        </button>
+      </div>
     </div>
+  }
 
-    <div class="field">
-      <input
-        id="email"
-        type="email"
-        formControlName="email"
-        placeholder="Correo electrónico"
-        [class.is-invalid]="email.invalid && email.touched"
-        autocomplete="email"
-      >
-      @if (email.invalid && email.touched) {
-        <span class="error-msg">Correo inválido</span>
-      }
+  <!-- ===== PASO 3: EXITO ===== -->
+  @if (paso() === 'exito') {
+    <div class="exito-box">
+      <div class="exito-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h3>Cuenta activada</h3>
+      <p>Te enviamos un correo de bienvenida. Revisa tu bandeja (y la carpeta de Spam).</p>
+      <p class="exito-small">Redirigiendo al inicio de sesion...</p>
+      <button type="button" class="register-btn" (click)="irAlLogin()">
+        Ir al login ahora
+      </button>
     </div>
-
-    <div class="field">
-      <input
-        id="password"
-        type="password"
-        formControlName="password"
-        placeholder="Contraseña"
-        [class.is-invalid]="password.invalid && password.touched"
-        autocomplete="new-password"
-      >
-      @if (password.invalid && password.touched) {
-        <span class="error-msg">8+ caracteres, 1 mayúscula, 1 número</span>
-      }
-    </div>
-
-    <div class="field">
-      <input
-        id="confirmarPassword"
-        type="password"
-        formControlName="confirmarPassword"
-        placeholder="Confirmar contraseña"
-        [class.is-invalid]="form.errors?.['contraseñasDistintas'] && confirmarPassword.touched"
-        autocomplete="new-password"
-      >
-      @if (form.errors?.['contraseñasDistintas'] && confirmarPassword.touched) {
-        <span class="error-msg">Las contraseñas no coinciden</span>
-      }
-    </div>
-
-    @if (errorMsg()) {
-      <p class="form-alert">{{ errorMsg() }}</p>
-    }
-
-    <button type="submit" class="register-btn" [disabled]="cargando()">
-      {{ cargando() ? 'Creando cuenta...' : 'Registrarme' }}
-    </button>
-
-    <p class="register-login">
-      ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
-    </p>
-  </form>
+  }
 </div>

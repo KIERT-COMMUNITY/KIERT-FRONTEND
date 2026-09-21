@@ -48,10 +48,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   mostrandoResultados = signal(false);
   solicitudEnviada = signal<number | null>(null);
 
-  // 🔥 SECCIÓN ACTIVA
+  // ===== SECCIÓN ACTIVA =====
   seccionActiva = signal<SeccionActiva>('perfil');
 
-  // 🔥 BLOQUEADOS
+  // ===== BLOQUEADOS =====
   bloqueados = signal<Bloqueo[]>([]);
   cargandoBloqueados = signal(false);
   busquedaBloqueado = signal('');
@@ -87,12 +87,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
+    // Efecto: cuando cambia la personalización en el store, sincroniza los signals
     effect(() => {
       const personalizacion = this.personalizacionStore.personalizacion();
       if (personalizacion) {
         this.selectedTheme.set(personalizacion.temaId || 'default');
         this.selectedFrame.set(personalizacion.marcoId || 'none');
         this.selectedBackground.set(personalizacion.fondoId || 'default');
+        // Aplicar tema global siempre que cambie la personalización
+        this.aplicarTemaGlobal(personalizacion.temaId || 'default');
       }
     });
   }
@@ -102,7 +105,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.personalizacionStore.cargarPersonalizacion();
     this.personalizacionStore.cargarMarcos();
     this.personalizacionStore.cargarFondos();
-    this.cargarBloqueados(); // 🔥 CARGAR AL INICIO
+    this.cargarBloqueados();
 
     const current = this.personalizacionStore.personalizacion();
     if (current) {
@@ -160,24 +163,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // 🔥 NAVEGACIÓN ENTRE SECCIONES
+  // NAVEGACIÓN ENTRE SECCIONES
   // ============================================================
   irASeccion(seccion: SeccionActiva): void {
     this.seccionActiva.set(seccion);
 
-    // Recargar bloqueados si es necesario
     if (seccion === 'bloqueados') {
       this.cargarBloqueados();
     }
 
-    // Scroll suave
     setTimeout(() => {
       const element = document.getElementById(seccion);
       if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 50);
   }
@@ -225,18 +223,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // APLICAR TEMA GLOBALMENTE
+  // APLICAR TEMA GLOBAL (cambia fondo de página + color de letras)
   // ============================================================
   aplicarTemaGlobal(themeId: string): void {
-    document.documentElement.className = '';
-    document.documentElement.removeAttribute('data-theme');
+    const html = document.documentElement;
+    const body = document.body;
 
-    if (themeId && themeId !== 'default') {
-      document.documentElement.setAttribute('data-theme', themeId);
-      document.documentElement.classList.add(`tema-${themeId}`);
-    } else {
-      document.documentElement.classList.add('tema-default');
-    }
+    const limpiar = (el: HTMLElement) => {
+      el.removeAttribute('data-theme');
+      Array.from(el.classList)
+        .filter(c => c.startsWith('tema-'))
+        .forEach(c => el.classList.remove(c));
+    };
+
+    limpiar(html);
+    limpiar(body);
+
+    const tema = themeId && themeId !== 'default' ? themeId : 'default';
+
+    html.setAttribute('data-theme', tema);
+    html.classList.add(`tema-${tema}`);
+    body.setAttribute('data-theme', tema);
+    body.classList.add(`tema-${tema}`);
+
+    console.log('🎨 Tema aplicado globalmente:', tema);
   }
 
   // ============================================================
@@ -352,6 +362,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // ============================================================
   seleccionarTheme(themeId: string): void {
     this.selectedTheme.set(themeId);
+    // Aplicar en vivo (preview) al cambiar
     this.aplicarTemaGlobal(themeId);
   }
 

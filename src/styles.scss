@@ -168,453 +168,328 @@ img { max-width: 100%; display: block; }
 // ============================================================
 
 @keyframes waterFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 50% 100%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  75% {
-    background-position: 50% 0%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 100%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
 }
 
 @keyframes waveFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 // ============================================================
-// 🌍 TEMAS DE COLOR - CON ANIMACIÓN
+// 🌍 VARIABLES DE TEMA (cada clase .tema-xxx define sus colores)
 // ============================================================
 
-// ===== TEMA DEFAULT =====
+:root {
+  --tema-bg-1: #0d1117;
+  --tema-bg-2: #161b22;
+  --tema-bg-3: #0d1117;
+  --tema-text: #e6edf3;
+  --tema-text-muted: #8b98a5;
+  --tema-border: #26313c;
+  --tema-card-bg: rgba(19, 26, 34, 0.6);
+  --tema-accent: #2dd4bf;
+  --tema-speed: 8s;
+  --tema-anim: waterFlow;
+}
+
 .tema-default {
-  background: linear-gradient(135deg, #0d1117, #161b22, #0d1117) !important;
-  background-size: 300% 300% !important;
-  animation: waterFlow 8s ease-in-out infinite !important;
-  color: #e6edf3 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #0d1117; --tema-bg-2: #161b22; --tema-bg-3: #0d1117;
+  --tema-text: #e6edf3; --tema-text-muted: #8b98a5;
+  --tema-border: #26313c; --tema-card-bg: rgba(19, 26, 34, 0.6);
+  --tema-accent: #2dd4bf; --tema-speed: 8s; --tema-anim: waterFlow;
 }
-.tema-default .post-card,
-.tema-default .post-detail,
-.tema-default .comentarios,
-.tema-default .mis-publicaciones-container,
-.tema-default .create-post-container,
-.tema-default .perfil-autor-container,
-.tema-default .profile-container,
-.tema-default .feed-container,
-.tema-default .settings-container,
-.tema-default .chat-container,
-.tema-default .main-content {
-  background: transparent !important;
-  color: #e6edf3 !important;
-}
-.tema-default .post-card { background: rgba(19, 26, 34, 0.6) !important; border-color: #26313c !important; }
-.tema-default .post-detail { background: rgba(19, 26, 34, 0.6) !important; border-color: #26313c !important; }
-.tema-default .comentarios { background: rgba(19, 26, 34, 0.6) !important; border-color: #26313c !important; }
-.tema-default .post-card__username { color: #e6edf3 !important; }
-.tema-default .post-card__titulo { color: #e6edf3 !important; }
-.tema-default .post-card__desc { color: #8b98a5 !important; }
-.tema-default .post-card__fecha { color: #5a6a7a !important; }
-.tema-default .post-card__stat { color: #8b98a5 !important; }
-.tema-default .post-card__badge { color: #2dd4bf !important; background: rgba(45, 212, 191, 0.1) !important; }
-.tema-default .feed-head h1 { color: #e6edf3 !important; }
-.tema-default .feed-sub { color: #8b98a5 !important; }
-.tema-default .page-title { color: #e6edf3 !important; }
-.tema-default .page-sub { color: #8b98a5 !important; }
-.tema-default .settings-header h1 { color: #e6edf3 !important; }
-.tema-default .settings-sub { color: #8b98a5 !important; }
-.tema-default .settings-section { background: rgba(19, 26, 34, 0.6) !important; border-color: #26313c !important; }
-.tema-default .settings-section h2 { color: #e6edf3 !important; }
-.tema-default .settings-hint { color: #5a6a7a !important; }
-.tema-default .navbar { background: rgba(13, 17, 23, 0.8) !important; border-color: #26313c !important; backdrop-filter: blur(10px); }
-.tema-default .navbar-links a { color: #8b98a5 !important; }
-.tema-default .navbar-links a:hover { color: #e6edf3 !important; }
-.tema-default .navbar-links a.active { color: #2dd4bf !important; }
-.tema-default .footer { border-color: #26313c !important; }
-.tema-default .footer-content { color: #8b98a5 !important; }
-.tema-default .footer-name { color: #e6edf3 !important; }
 
-// ===== TEMA DARK =====
 .tema-dark {
-  background: linear-gradient(135deg, #1a1a2e, #0d1117, #1a1a2e) !important;
-  background-size: 300% 300% !important;
-  animation: waterFlow 8s ease-in-out infinite !important;
-  color: #d8c8f0 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #1a1a2e; --tema-bg-2: #0d1117; --tema-bg-3: #1a1a2e;
+  --tema-text: #d8c8f0; --tema-text-muted: #b8a8d8;
+  --tema-border: #333366; --tema-card-bg: rgba(34, 34, 68, 0.6);
+  --tema-accent: #a29bfe; --tema-speed: 8s; --tema-anim: waterFlow;
 }
-.tema-dark .post-card,
-.tema-dark .post-detail,
-.tema-dark .comentarios,
-.tema-dark .mis-publicaciones-container,
-.tema-dark .create-post-container,
-.tema-dark .perfil-autor-container,
-.tema-dark .profile-container,
-.tema-dark .feed-container,
-.tema-dark .settings-container,
-.tema-dark .chat-container,
-.tema-dark .main-content {
-  background: transparent !important;
-  color: #d8c8f0 !important;
-}
-.tema-dark .post-card { background: rgba(34, 34, 68, 0.6) !important; border-color: #333366 !important; }
-.tema-dark .post-detail { background: rgba(34, 34, 68, 0.6) !important; border-color: #333366 !important; }
-.tema-dark .comentarios { background: rgba(34, 34, 68, 0.6) !important; border-color: #333366 !important; }
-.tema-dark .post-card__username { color: #d8c8f0 !important; }
-.tema-dark .post-card__titulo { color: #d8c8f0 !important; }
-.tema-dark .post-card__desc { color: #b8a8d8 !important; }
-.tema-dark .post-card__fecha { color: #8b7aaa !important; }
-.tema-dark .post-card__stat { color: #b8a8d8 !important; }
-.tema-dark .post-card__badge { color: #a29bfe !important; background: rgba(162, 155, 254, 0.15) !important; }
-.tema-dark .feed-head h1 { color: #d8c8f0 !important; }
-.tema-dark .feed-sub { color: #b8a8d8 !important; }
-.tema-dark .page-title { color: #d8c8f0 !important; }
-.tema-dark .page-sub { color: #b8a8d8 !important; }
-.tema-dark .settings-header h1 { color: #d8c8f0 !important; }
-.tema-dark .settings-sub { color: #b8a8d8 !important; }
-.tema-dark .settings-section { background: rgba(34, 34, 68, 0.6) !important; border-color: #333366 !important; }
-.tema-dark .settings-section h2 { color: #d8c8f0 !important; }
-.tema-dark .settings-hint { color: #8b7aaa !important; }
-.tema-dark .navbar { background: rgba(26, 26, 46, 0.8) !important; border-color: #333366 !important; backdrop-filter: blur(10px); }
-.tema-dark .navbar-links a { color: #b8a8d8 !important; }
-.tema-dark .navbar-links a:hover { color: #d8c8f0 !important; }
-.tema-dark .navbar-links a.active { color: #a29bfe !important; }
-.tema-dark .footer { border-color: #333366 !important; }
-.tema-dark .footer-content { color: #b8a8d8 !important; }
-.tema-dark .footer-name { color: #d8c8f0 !important; }
 
-// ===== TEMA LIGHT =====
 .tema-light {
-  background: linear-gradient(135deg, #ffffff, #f0f0f0, #ffffff) !important;
-  background-size: 300% 300% !important;
-  animation: waterFlow 8s ease-in-out infinite !important;
-  color: #1a1a2e !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #ffffff; --tema-bg-2: #f0f0f0; --tema-bg-3: #ffffff;
+  --tema-text: #1a1a2e; --tema-text-muted: #555555;
+  --tema-border: #d0d0d0; --tema-card-bg: rgba(255, 255, 255, 0.85);
+  --tema-accent: #2dd4bf; --tema-speed: 8s; --tema-anim: waterFlow;
 }
-.tema-light .post-card,
-.tema-light .post-detail,
-.tema-light .comentarios,
-.tema-light .mis-publicaciones-container,
-.tema-light .create-post-container,
-.tema-light .perfil-autor-container,
-.tema-light .profile-container,
-.tema-light .feed-container,
-.tema-light .settings-container,
-.tema-light .chat-container,
-.tema-light .main-content {
-  background: transparent !important;
-  color: #1a1a2e !important;
-}
-.tema-light .post-card { background: rgba(255, 255, 255, 0.8) !important; border-color: #d0d0d0 !important; }
-.tema-light .post-detail { background: rgba(255, 255, 255, 0.8) !important; border-color: #d0d0d0 !important; }
-.tema-light .comentarios { background: rgba(255, 255, 255, 0.8) !important; border-color: #d0d0d0 !important; }
-.tema-light .post-card__username { color: #1a1a2e !important; }
-.tema-light .post-card__titulo { color: #1a1a2e !important; }
-.tema-light .post-card__desc { color: #444444 !important; }
-.tema-light .post-card__fecha { color: #666666 !important; }
-.tema-light .post-card__stat { color: #444444 !important; }
-.tema-light .post-card__badge { color: #2dd4bf !important; background: rgba(45, 212, 191, 0.1) !important; }
-.tema-light .feed-head h1 { color: #1a1a2e !important; }
-.tema-light .feed-sub { color: #555555 !important; }
-.tema-light .page-title { color: #1a1a2e !important; }
-.tema-light .page-sub { color: #555555 !important; }
-.tema-light .settings-header h1 { color: #1a1a2e !important; }
-.tema-light .settings-sub { color: #555555 !important; }
-.tema-light .settings-section { background: rgba(255, 255, 255, 0.8) !important; border-color: #d0d0d0 !important; }
-.tema-light .settings-section h2 { color: #1a1a2e !important; }
-.tema-light .settings-hint { color: #666666 !important; }
-.tema-light .navbar { background: rgba(255, 255, 255, 0.8) !important; border-color: #d0d0d0 !important; backdrop-filter: blur(10px); }
-.tema-light .navbar-links a { color: #555555 !important; }
-.tema-light .navbar-links a:hover { color: #1a1a2e !important; }
-.tema-light .navbar-links a.active { color: #2dd4bf !important; }
-.tema-light .footer { border-color: #d0d0d0 !important; }
-.tema-light .footer-content { color: #666666 !important; }
-.tema-light .footer-name { color: #1a1a2e !important; }
 
-// ===== TEMA SUNSET =====
 .tema-sunset {
-  background: linear-gradient(135deg, #2d1b1b, #4a2a2a, #5a3d3d, #2d1b1b) !important;
-  background-size: 400% 400% !important;
-  animation: waterFlow 10s ease-in-out infinite !important;
-  color: #f0d8c8 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #2d1b1b; --tema-bg-2: #4a2a2a; --tema-bg-3: #5a3d3d;
+  --tema-text: #f0d8c8; --tema-text-muted: #c8a898;
+  --tema-border: #5a3d3d; --tema-card-bg: rgba(61, 43, 43, 0.6);
+  --tema-accent: #ff9f7a; --tema-speed: 10s; --tema-anim: waterFlow;
 }
-.tema-sunset .post-card,
-.tema-sunset .post-detail,
-.tema-sunset .comentarios,
-.tema-sunset .mis-publicaciones-container,
-.tema-sunset .create-post-container,
-.tema-sunset .perfil-autor-container,
-.tema-sunset .profile-container,
-.tema-sunset .feed-container,
-.tema-sunset .settings-container,
-.tema-sunset .chat-container,
-.tema-sunset .main-content {
-  background: transparent !important;
-  color: #f0d8c8 !important;
-}
-.tema-sunset .post-card { background: rgba(61, 43, 43, 0.6) !important; border-color: #5a3d3d !important; }
-.tema-sunset .post-detail { background: rgba(61, 43, 43, 0.6) !important; border-color: #5a3d3d !important; }
-.tema-sunset .comentarios { background: rgba(61, 43, 43, 0.6) !important; border-color: #5a3d3d !important; }
-.tema-sunset .post-card__username { color: #f0d8c8 !important; }
-.tema-sunset .post-card__titulo { color: #f0d8c8 !important; }
-.tema-sunset .post-card__desc { color: #d0b8a8 !important; }
-.tema-sunset .post-card__fecha { color: #b89888 !important; }
-.tema-sunset .post-card__stat { color: #d0b8a8 !important; }
-.tema-sunset .post-card__badge { color: #ff9f7a !important; background: rgba(255, 159, 122, 0.15) !important; }
-.tema-sunset .feed-head h1 { color: #f0d8c8 !important; }
-.tema-sunset .feed-sub { color: #c8a898 !important; }
-.tema-sunset .page-title { color: #f0d8c8 !important; }
-.tema-sunset .page-sub { color: #c8a898 !important; }
-.tema-sunset .settings-header h1 { color: #f0d8c8 !important; }
-.tema-sunset .settings-sub { color: #c8a898 !important; }
-.tema-sunset .settings-section { background: rgba(61, 43, 43, 0.6) !important; border-color: #5a3d3d !important; }
-.tema-sunset .settings-section h2 { color: #f0d8c8 !important; }
-.tema-sunset .settings-hint { color: #b89888 !important; }
-.tema-sunset .navbar { background: rgba(45, 27, 27, 0.8) !important; border-color: #5a3d3d !important; backdrop-filter: blur(10px); }
-.tema-sunset .navbar-links a { color: #c8a898 !important; }
-.tema-sunset .navbar-links a:hover { color: #f0d8c8 !important; }
-.tema-sunset .navbar-links a.active { color: #ff9f7a !important; }
-.tema-sunset .footer { border-color: #5a3d3d !important; }
-.tema-sunset .footer-content { color: #c8a898 !important; }
-.tema-sunset .footer-name { color: #f0d8c8 !important; }
 
-// ===== TEMA OCEAN =====
 .tema-ocean {
-  background: linear-gradient(135deg, #0d1a2d, #1a3a5a, #2a4a6a, #0d1a2d) !important;
-  background-size: 400% 400% !important;
-  animation: waveFlow 6s ease-in-out infinite !important;
-  color: #b0d8e8 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #0d1a2d; --tema-bg-2: #1a3a5a; --tema-bg-3: #2a4a6a;
+  --tema-text: #b0d8e8; --tema-text-muted: #70a8b8;
+  --tema-border: #2a4a5a; --tema-card-bg: rgba(26, 42, 61, 0.6);
+  --tema-accent: #5ab8d8; --tema-speed: 6s; --tema-anim: waveFlow;
 }
-.tema-ocean .post-card,
-.tema-ocean .post-detail,
-.tema-ocean .comentarios,
-.tema-ocean .mis-publicaciones-container,
-.tema-ocean .create-post-container,
-.tema-ocean .perfil-autor-container,
-.tema-ocean .profile-container,
-.tema-ocean .feed-container,
-.tema-ocean .settings-container,
-.tema-ocean .chat-container,
-.tema-ocean .main-content {
-  background: transparent !important;
-  color: #b0d8e8 !important;
-}
-.tema-ocean .post-card { background: rgba(26, 42, 61, 0.6) !important; border-color: #2a4a5a !important; }
-.tema-ocean .post-detail { background: rgba(26, 42, 61, 0.6) !important; border-color: #2a4a5a !important; }
-.tema-ocean .comentarios { background: rgba(26, 42, 61, 0.6) !important; border-color: #2a4a5a !important; }
-.tema-ocean .post-card__username { color: #b0d8e8 !important; }
-.tema-ocean .post-card__titulo { color: #b0d8e8 !important; }
-.tema-ocean .post-card__desc { color: #90b8c8 !important; }
-.tema-ocean .post-card__fecha { color: #7098a8 !important; }
-.tema-ocean .post-card__stat { color: #90b8c8 !important; }
-.tema-ocean .post-card__badge { color: #5ab8d8 !important; background: rgba(90, 184, 216, 0.15) !important; }
-.tema-ocean .feed-head h1 { color: #b0d8e8 !important; }
-.tema-ocean .feed-sub { color: #70a8b8 !important; }
-.tema-ocean .page-title { color: #b0d8e8 !important; }
-.tema-ocean .page-sub { color: #70a8b8 !important; }
-.tema-ocean .settings-header h1 { color: #b0d8e8 !important; }
-.tema-ocean .settings-sub { color: #70a8b8 !important; }
-.tema-ocean .settings-section { background: rgba(26, 42, 61, 0.6) !important; border-color: #2a4a5a !important; }
-.tema-ocean .settings-section h2 { color: #b0d8e8 !important; }
-.tema-ocean .settings-hint { color: #7098a8 !important; }
-.tema-ocean .navbar { background: rgba(13, 26, 45, 0.8) !important; border-color: #2a4a5a !important; backdrop-filter: blur(10px); }
-.tema-ocean .navbar-links a { color: #70a8b8 !important; }
-.tema-ocean .navbar-links a:hover { color: #b0d8e8 !important; }
-.tema-ocean .navbar-links a.active { color: #5ab8d8 !important; }
-.tema-ocean .footer { border-color: #2a4a5a !important; }
-.tema-ocean .footer-content { color: #70a8b8 !important; }
-.tema-ocean .footer-name { color: #b0d8e8 !important; }
 
-// ===== TEMA AURORA =====
 .tema-aurora {
-  background: linear-gradient(135deg, #1a0d2d, #3a1a5a, #2a1a4a, #1a0d2d) !important;
-  background-size: 400% 400% !important;
-  animation: waterFlow 9s ease-in-out infinite !important;
-  color: #d8c8f0 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #1a0d2d; --tema-bg-2: #3a1a5a; --tema-bg-3: #2a1a4a;
+  --tema-text: #d8c8f0; --tema-text-muted: #a898c8;
+  --tema-border: #4a2a6a; --tema-card-bg: rgba(42, 26, 74, 0.6);
+  --tema-accent: #a29bfe; --tema-speed: 9s; --tema-anim: waterFlow;
 }
 
-// ===== TEMA GALAXY =====
 .tema-galaxy {
-  background: linear-gradient(135deg, #0d0d1a, #2a2a4a, #1a1a3a, #0d0d1a) !important;
-  background-size: 400% 400% !important;
-  animation: waveFlow 7s ease-in-out infinite !important;
-  color: #c8c8f0 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #0d0d1a; --tema-bg-2: #2a2a4a; --tema-bg-3: #1a1a3a;
+  --tema-text: #c8c8f0; --tema-text-muted: #9898c8;
+  --tema-border: #3a3a5a; --tema-card-bg: rgba(26, 26, 58, 0.6);
+  --tema-accent: #6c5ce7; --tema-speed: 7s; --tema-anim: waveFlow;
 }
 
-// ===== TEMA LAVA =====
 .tema-lava {
-  background: linear-gradient(135deg, #1a0a0a, #4a1a1a, #6a2a2a, #1a0a0a) !important;
-  background-size: 400% 400% !important;
-  animation: waveFlow 5s ease-in-out infinite !important;
-  color: #ff6b6b !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #1a0a0a; --tema-bg-2: #4a1a1a; --tema-bg-3: #6a2a2a;
+  --tema-text: #ffb0b0; --tema-text-muted: #d08080;
+  --tema-border: #6a2a2a; --tema-card-bg: rgba(74, 26, 26, 0.6);
+  --tema-accent: #ff6b6b; --tema-speed: 5s; --tema-anim: waveFlow;
 }
 
-// ===== TEMA FOREST =====
 .tema-forest {
-  background: linear-gradient(135deg, #0a1a0a, #1a3a2a, #2a4a3a, #0a1a0a) !important;
-  background-size: 400% 400% !important;
-  animation: waterFlow 9s ease-in-out infinite !important;
-  color: #55efc4 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #0a1a0a; --tema-bg-2: #1a3a2a; --tema-bg-3: #2a4a3a;
+  --tema-text: #b0e8d0; --tema-text-muted: #70b898;
+  --tema-border: #2a5a3a; --tema-card-bg: rgba(26, 58, 42, 0.6);
+  --tema-accent: #55efc4; --tema-speed: 9s; --tema-anim: waterFlow;
 }
 
-// ===== TEMA CANDY =====
 .tema-candy {
-  background: linear-gradient(135deg, #1a0a1a, #4a1a3a, #3a1a4a, #1a0a1a) !important;
-  background-size: 400% 400% !important;
-  animation: waveFlow 7s ease-in-out infinite !important;
-  color: #fd79a8 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #1a0a1a; --tema-bg-2: #4a1a3a; --tema-bg-3: #3a1a4a;
+  --tema-text: #ffd0e8; --tema-text-muted: #d090b8;
+  --tema-border: #5a2a5a; --tema-card-bg: rgba(58, 26, 74, 0.6);
+  --tema-accent: #fd79a8; --tema-speed: 7s; --tema-anim: waveFlow;
 }
 
-// ===== TEMA CYBER =====
 .tema-cyber {
-  background: linear-gradient(135deg, #0a0a1a, #1a2a4a, #0a1a3a, #0a0a1a) !important;
-  background-size: 400% 400% !important;
-  animation: waterFlow 6s ease-in-out infinite !important;
-  color: #00d4ff !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #0a0a1a; --tema-bg-2: #1a2a4a; --tema-bg-3: #0a1a3a;
+  --tema-text: #b0e8ff; --tema-text-muted: #70a8d8;
+  --tema-border: #1a3a5a; --tema-card-bg: rgba(10, 26, 58, 0.6);
+  --tema-accent: #00d4ff; --tema-speed: 6s; --tema-anim: waterFlow;
 }
 
-// ===== TEMA BLOOD =====
 .tema-blood {
-  background: linear-gradient(135deg, #1a0000, #3a0000, #5a0a0a, #1a0000) !important;
-  background-size: 400% 400% !important;
-  animation: waveFlow 5s ease-in-out infinite !important;
-  color: #ff0044 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #1a0000; --tema-bg-2: #3a0000; --tema-bg-3: #5a0a0a;
+  --tema-text: #ffb0b0; --tema-text-muted: #d08080;
+  --tema-border: #5a0a0a; --tema-card-bg: rgba(58, 0, 0, 0.6);
+  --tema-accent: #ff0044; --tema-speed: 5s; --tema-anim: waveFlow;
 }
 
-// ===== TEMA ROYAL =====
 .tema-royal {
-  background: linear-gradient(135deg, #0a0a1a, #2a1a4a, #1a0a3a, #0a0a1a) !important;
-  background-size: 400% 400% !important;
-  animation: waterFlow 8s ease-in-out infinite !important;
-  color: #6c5ce7 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #0a0a1a; --tema-bg-2: #2a1a4a; --tema-bg-3: #1a0a3a;
+  --tema-text: #d0c8f0; --tema-text-muted: #a898d8;
+  --tema-border: #3a2a5a; --tema-card-bg: rgba(26, 10, 58, 0.6);
+  --tema-accent: #6c5ce7; --tema-speed: 8s; --tema-anim: waterFlow;
 }
 
-// ===== TEMA GOLD =====
 .tema-gold {
-  background: linear-gradient(135deg, #1a1a00, #3a3a00, #2a2a0a, #1a1a00) !important;
-  background-size: 400% 400% !important;
-  animation: waveFlow 7s ease-in-out infinite !important;
-  color: #f9ca24 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #1a1a00; --tema-bg-2: #3a3a00; --tema-bg-3: #2a2a0a;
+  --tema-text: #ffe8a0; --tema-text-muted: #d8b860;
+  --tema-border: #5a5a0a; --tema-card-bg: rgba(42, 42, 10, 0.6);
+  --tema-accent: #f9ca24; --tema-speed: 7s; --tema-anim: waveFlow;
 }
 
-// ===== TEMA PASTEL =====
 .tema-pastel {
-  background: linear-gradient(135deg, #1a0a1a, #3a1a3a, #2a1a2a, #1a0a1a) !important;
-  background-size: 400% 400% !important;
-  animation: waterFlow 9s ease-in-out infinite !important;
-  color: #fd79a8 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #1a0a1a; --tema-bg-2: #3a1a3a; --tema-bg-3: #2a1a2a;
+  --tema-text: #ffd0e8; --tema-text-muted: #d090b8;
+  --tema-border: #4a2a4a; --tema-card-bg: rgba(42, 26, 42, 0.6);
+  --tema-accent: #fd79a8; --tema-speed: 9s; --tema-anim: waterFlow;
 }
 
-// ===== TEMA NEON =====
 .tema-neon {
-  background: linear-gradient(135deg, #0a0a1a, #1a2a4a, #0a1a3a, #0a0a1a) !important;
-  background-size: 400% 400% !important;
-  animation: waveFlow 4s ease-in-out infinite !important;
-  color: #fd79a8 !important;
-  transition: all 0.5s ease;
+  --tema-bg-1: #0a0a1a; --tema-bg-2: #1a2a4a; --tema-bg-3: #0a1a3a;
+  --tema-text: #ffd0e8; --tema-text-muted: #00d4ff;
+  --tema-border: #2a3a5a; --tema-card-bg: rgba(10, 26, 58, 0.6);
+  --tema-accent: #fd79a8; --tema-speed: 4s; --tema-anim: waveFlow;
 }
 
 // ============================================================
-// 🎨 FONDOS DE PERFIL - CON ANIMACIÓN
+// BODY: aplica fondo animado + color de texto del tema
 // ============================================================
 
-.fondo-default { 
+body {
+  background: linear-gradient(
+    135deg,
+    var(--tema-bg-1),
+    var(--tema-bg-2),
+    var(--tema-bg-3),
+    var(--tema-bg-1)
+  ) !important;
+  background-size: 400% 400% !important;
+  animation: var(--tema-anim) var(--tema-speed) ease-in-out infinite !important;
+  color: var(--tema-text) !important;
+  transition: color 0.5s ease, background 0.5s ease;
+}
+
+// Forzar herencia de color en toda la app
+body, body * {
+  color: inherit;
+}
+
+// Títulos y textos principales
+h1, h2, h3, h4,
+.settings-header h1,
+.settings-section h2,
+.feed-head h1,
+.page-title,
+.profile-name,
+.post-card__username,
+.post-card__titulo,
+.bloqueado-name {
+  color: var(--tema-text) !important;
+}
+
+// Textos secundarios / muted
+.settings-sub,
+.section-desc,
+.page-sub,
+.feed-sub,
+.settings-hint,
+.post-card__desc,
+.post-card__fecha,
+.post-card__stat,
+.result-email,
+.result-bio,
+.upload-hint,
+.bloqueado-motivo,
+.bloqueado-fecha,
+.apply-hint {
+  color: var(--tema-text-muted) !important;
+}
+
+// Acentos
+.badge,
+.post-card__badge,
+.navbar-links a.active,
+.result-name,
+.marco-tag,
+.selector-check,
+.btn-select,
+.sidebar-item--active {
+  color: var(--tema-accent) !important;
+}
+
+// Tarjetas y contenedores
+.post-card,
+.post-detail,
+.comentarios,
+.settings-section,
+.result-card,
+.create-post-container,
+.profile-container {
+  background: var(--tema-card-bg) !important;
+  border-color: var(--tema-border) !important;
+}
+
+// Navbar y footer
+.navbar {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-color: var(--tema-border) !important;
+  backdrop-filter: blur(10px);
+}
+
+.tema-light .navbar {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+.footer {
+  border-color: var(--tema-border) !important;
+}
+
+// Inputs
+input, textarea {
+  color: var(--tema-text) !important;
+  border-color: var(--tema-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--tema-text-muted) !important;
+  opacity: 0.7;
+}
+
+// ============================================================
+// 🎨 FONDOS DE PERFIL (solo se aplican a la sección #perfil)
+// ============================================================
+
+.fondo-default {
   background: linear-gradient(135deg, #0d1117, #161b22, #0d1117) !important;
   background-size: 300% 300% !important;
   animation: waterFlow 8s ease-in-out infinite !important;
 }
-.fondo-dark { 
+.fondo-dark {
   background: linear-gradient(135deg, #1a1a2e, #0d1117, #1a1a2e) !important;
   background-size: 300% 300% !important;
   animation: waterFlow 8s ease-in-out infinite !important;
 }
-.fondo-light { 
+.fondo-light {
   background: linear-gradient(135deg, #ffffff, #f0f0f0, #ffffff) !important;
   background-size: 300% 300% !important;
   animation: waterFlow 8s ease-in-out infinite !important;
 }
-.fondo-sunset { 
+.fondo-sunset {
   background: linear-gradient(135deg, #ff6b6b, #feca57, #fd79a8, #ff6b6b) !important;
   background-size: 400% 400% !important;
   animation: waterFlow 10s ease-in-out infinite !important;
 }
-.fondo-ocean { 
+.fondo-ocean {
   background: linear-gradient(135deg, #00b894, #00cec9, #0984e3, #00b894) !important;
   background-size: 400% 400% !important;
   animation: waveFlow 6s ease-in-out infinite !important;
 }
-.fondo-aurora { 
+.fondo-aurora {
   background: linear-gradient(135deg, #6c5ce7, #00b894, #fdcb6e, #6c5ce7) !important;
   background-size: 400% 400% !important;
   animation: waterFlow 9s ease-in-out infinite !important;
 }
-.fondo-galaxy { 
+.fondo-galaxy {
   background: linear-gradient(135deg, #2d3436, #6c5ce7, #fd79a8, #2d3436) !important;
   background-size: 400% 400% !important;
   animation: waveFlow 7s ease-in-out infinite !important;
 }
-.fondo-lava { 
+.fondo-lava {
   background: linear-gradient(135deg, #ff6b6b, #e17055, #d63031, #ff6b6b) !important;
   background-size: 400% 400% !important;
   animation: waveFlow 5s ease-in-out infinite !important;
 }
-.fondo-forest { 
+.fondo-forest {
   background: linear-gradient(135deg, #00b894, #55efc4, #00cec9, #00b894) !important;
   background-size: 400% 400% !important;
   animation: waterFlow 9s ease-in-out infinite !important;
 }
-.fondo-candy { 
+.fondo-candy {
   background: linear-gradient(135deg, #fd79a8, #fdcb6e, #a29bfe, #fd79a8) !important;
   background-size: 400% 400% !important;
   animation: waveFlow 7s ease-in-out infinite !important;
 }
-.fondo-cyber { 
+.fondo-cyber {
   background: linear-gradient(135deg, #00d4ff, #6c5ce7, #fd79a8, #00d4ff) !important;
   background-size: 400% 400% !important;
   animation: waterFlow 6s ease-in-out infinite !important;
 }
-.fondo-blood { 
+.fondo-blood {
   background: linear-gradient(135deg, #ff0044, #d63031, #ff6b6b, #ff0044) !important;
   background-size: 400% 400% !important;
   animation: waveFlow 5s ease-in-out infinite !important;
 }
-.fondo-royal { 
+.fondo-royal {
   background: linear-gradient(135deg, #6c5ce7, #a29bfe, #fd79a8, #6c5ce7) !important;
   background-size: 400% 400% !important;
   animation: waterFlow 8s ease-in-out infinite !important;
 }
-.fondo-gold { 
+.fondo-gold {
   background: linear-gradient(135deg, #f9ca24, #fdcb6e, #feca57, #f9ca24) !important;
   background-size: 400% 400% !important;
   animation: waveFlow 7s ease-in-out infinite !important;
 }
-.fondo-pastel { 
+.fondo-pastel {
   background: linear-gradient(135deg, #fd79a8, #a29bfe, #55efc4, #fd79a8) !important;
   background-size: 400% 400% !important;
   animation: waterFlow 9s ease-in-out infinite !important;
@@ -655,7 +530,7 @@ img { max-width: 100%; display: block; }
 .frame-classic { border: 4px solid #2dd4bf !important; }
 .frame-gold { border: 4px solid #f9ca24 !important; box-shadow: 0 0 20px rgba(249, 202, 36, 0.3) !important; }
 .frame-silver { border: 4px solid #b2bec3 !important; box-shadow: 0 0 20px rgba(178, 190, 195, 0.3) !important; }
-.frame-rainbow { 
+.frame-rainbow {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #ff6b6b, #feca57, #55efc4, #0984e3, #6c5ce7) !important;
   background-origin: border-box !important;
@@ -664,7 +539,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 30px rgba(255, 107, 107, 0.3) !important;
 }
 .frame-rainbow img { border-radius: 50% !important; }
-.frame-pastel { 
+.frame-pastel {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #fd79a8, #fdcb6e, #a29bfe, #55efc4) !important;
   background-origin: border-box !important;
@@ -674,7 +549,7 @@ img { max-width: 100%; display: block; }
 }
 .frame-pastel img { border-radius: 50% !important; }
 .frame-neon { border: 4px solid #fd79a8 !important; box-shadow: 0 0 25px rgba(253, 121, 168, 0.5) !important; }
-.frame-ocean { 
+.frame-ocean {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #00b894, #00cec9, #0984e3) !important;
   background-origin: border-box !important;
@@ -683,7 +558,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 30px rgba(0, 206, 201, 0.4) !important;
 }
 .frame-ocean img { border-radius: 50% !important; }
-.frame-sunset { 
+.frame-sunset {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #ff6b6b, #feca57, #fd79a8) !important;
   background-origin: border-box !important;
@@ -692,7 +567,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 30px rgba(255, 107, 107, 0.4) !important;
 }
 .frame-sunset img { border-radius: 50% !important; }
-.frame-galaxy { 
+.frame-galaxy {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #2d3436, #6c5ce7, #fd79a8) !important;
   background-origin: border-box !important;
@@ -701,7 +576,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 35px rgba(108, 92, 231, 0.5) !important;
 }
 .frame-galaxy img { border-radius: 50% !important; }
-.frame-fire { 
+.frame-fire {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #ff6b6b, #e17055, #d63031) !important;
   background-origin: border-box !important;
@@ -710,7 +585,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 35px rgba(255, 107, 107, 0.6) !important;
 }
 .frame-fire img { border-radius: 50% !important; }
-.frame-ice { 
+.frame-ice {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #74b9ff, #0984e3, #00cec9) !important;
   background-origin: border-box !important;
@@ -719,7 +594,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 35px rgba(90, 184, 216, 0.5) !important;
 }
 .frame-ice img { border-radius: 50% !important; }
-.frame-rose { 
+.frame-rose {
   border: 4px solid transparent !important;
   background-image: linear-gradient(135deg, #fd79a8, #fdcb6e, #f9ca24) !important;
   background-origin: border-box !important;
@@ -729,7 +604,7 @@ img { max-width: 100%; display: block; }
 }
 .frame-rose img { border-radius: 50% !important; }
 .frame-cyber { border: 4px solid #00d4ff !important; box-shadow: 0 0 40px rgba(0, 212, 255, 0.6) !important; }
-.frame-crystal { 
+.frame-crystal {
   border: 4px solid rgba(255, 255, 255, 0.2) !important;
   box-shadow: 0 0 40px rgba(255, 255, 255, 0.1), inset 0 0 40px rgba(255, 255, 255, 0.05) !important;
   backdrop-filter: blur(4px) !important;
@@ -752,7 +627,7 @@ img { max-width: 100%; display: block; }
     padding: v.$sp-2 v.$sp-3;
     font-size: 0.85rem;
   }
-  
+
   .avatar-frame,
   .profile-avatar,
   .preview-avatar,

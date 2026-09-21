@@ -23,10 +23,7 @@ export const routes: Routes = [
         path: 'recuperar-contrasena', 
         loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) 
       },
-      { 
-        path: 'restablecer-contrasena', 
-        loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) 
-      },
+     
     ],
   },
 

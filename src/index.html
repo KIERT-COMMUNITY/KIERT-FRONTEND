@@ -1,47 +1,68 @@
 <!doctype html>
-<!-- Documento HTML raíz. Angular reemplaza <kiert-root></kiert-root> por el componente principal -->
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <title>Kiert · Comunidad</title>
   <meta name="description" content="Kiert: comunidad donde compartir casos, archivos y ayudarse entre usuarios.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <!-- ✅ ESTA LÍNEA FALTABA - CRÍTICA PARA LAS RUTAS -->
+
+  <!-- ✅ Base para rutas -->
   <base href="/">
-  
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- ✅ FAVICON con el logo de Kiert -->
+  <link rel="icon" type="image/png" href="assets/logokiert.png">
+  <link rel="shortcut icon" type="image/png" href="assets/logokiert.png">
+
+  <!-- ✅ Icono para iOS / Android (guardar en pantalla de inicio) -->
+  <link rel="apple-touch-icon" href="assets/logokiert.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/logokiert.png">
+
+  <!-- ✅ Theme color (barra del navegador en móvil) -->
+  <meta name="theme-color" content="#0d1117">
+
+  <!-- ✅ Open Graph (para compartir en WhatsApp, Facebook, Discord, etc.) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Kiert · Comunidad">
+  <meta property="og:description" content="Comunidad donde compartir casos, archivos y ayudarse entre usuarios.">
+  <meta property="og:image" content="/assets/logokiert.png">
+  <meta property="og:url" content="https://kiert.app/">
+
+  <!-- ✅ Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kiert · Comunidad">
+  <meta name="twitter:description" content="Comunidad donde compartir casos, archivos y ayudarse entre usuarios.">
+  <meta name="twitter:image" content="/assets/logokiert.png">
 
   <!-- ✅ POLYFILLS PARA SOCKJS-CLIENT - DEBE IR ANTES QUE TODO -->
   <script>
     if (typeof global === 'undefined') {
       window.global = window;
     }
-    
+
     if (typeof process === 'undefined') {
       window.process = {
         env: { DEBUG: undefined },
         version: '',
-        nextTick: function(cb) { 
-          setTimeout(cb, 0); 
+        nextTick: function(cb) {
+          setTimeout(cb, 0);
         },
         browser: true
       };
     }
-    
+
     if (typeof Buffer === 'undefined') {
       window.Buffer = {
-        from: function(data) { 
+        from: function(data) {
           if (typeof data === 'string') {
             return data.split('').map(c => c.charCodeAt(0));
           }
-          return data; 
+          return data;
         },
         isBuffer: function() { return false; },
         alloc: function(size) { return new Array(size).fill(0); }
       };
     }
-    
+
     console.log('✅ Polyfills cargados correctamente');
   </script>
 
@@ -51,7 +72,6 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- kiert-root es el "selector" definido en app.component.ts -->
   <kiert-root></kiert-root>
 </body>
 </html>

@@ -1,6 +1,20 @@
 // src/app/shared/components/floating-social/floating-social.component.scss
 
 // ============================================================
+// VARIABLES DEL TEMA
+// ============================================================
+$primary: var(--tema-accent, #2dd4bf);
+$primary-hover: #17b6a4;
+$bg-panel: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
+$bg-panel-solid: rgba(19, 26, 34, 0.92);
+$bg-img: rgba(19, 26, 34, 0.9);
+$border: var(--tema-border, #26313c);
+$text-primary: var(--tema-text, #e6edf3);
+$text-secondary: var(--tema-text-muted, #8b98a5);
+$text-muted: var(--tema-text-muted, #5a6a7a);
+$danger: #f85149;
+
+// ============================================================
 // CARRUSEL DE ANUNCIOS ESTÁTICOS
 // ============================================================
 
@@ -8,8 +22,8 @@
   position: fixed;
   z-index: 9997;
   bottom: 20px;
-  left: 20px;
-  width: 180px;
+  left: 275px;
+  width: 150px;
   border-radius: 12px;
   overflow: visible;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -22,7 +36,8 @@
     width: 100%;
     border-radius: 12px;
     overflow: hidden;
-    background: #1b232c;
+    background: var(--tema-card-bg, #1b232c);
+    border: 1px solid $border;
   }
 
   &__close {
@@ -69,7 +84,7 @@
     object-fit: cover;
     transition: none;
     animation: none;
-    background: #1b232c;
+    background: var(--tema-card-bg, #1b232c);
   }
 
   &__dots {
@@ -93,8 +108,8 @@
     transition: background 0.2s ease;
 
     &.active {
-      background: #2dd4bf;
-      border-color: #2dd4bf;
+      background: $primary;
+      border-color: $primary;
     }
 
     &:hover {
@@ -107,8 +122,8 @@
     bottom: 8px;
     right: 10px;
     font-size: 0.55rem;
-    color: rgba(255, 255, 255, 0.6);
-    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.5);
     padding: 2px 8px;
     border-radius: 10px;
     font-family: 'Inter', -apple-system, sans-serif;
@@ -145,39 +160,27 @@
       stroke: currentColor;
     }
 
-    &--prev {
-      left: 4px;
-    }
-
-    &--next {
-      right: 4px;
-    }
+    &--prev { left: 4px; }
+    &--next { right: 4px; }
   }
 }
 
 // ============================================================
 // COLABORADORES DEL PROYECTO
 // ============================================================
-
-// ============================================================
-// COLABORADORES DEL PROYECTO - ARRIBA IZQUIERDA
-// ============================================================
 .floating-colaboradores {
   position: fixed;
   z-index: 9999;
-  top: 400px;              // ✅ ARRIBA en lugar de bottom
-  left: 10px;             // ✅ Izquierda
-  // bottom: 90px;        // ❌ Eliminar esta línea
-  background: rgba(19, 26, 34, 0.92);
+  top: 300px;
+  left: 1630px;
+  background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(45, 212, 191, 0.12);
+  border: 1px solid $border;
   border-radius: 16px;
   padding: 14px 16px 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   min-width: 220px;
   max-width: 260px;
-
-  // ...el resto del estilo se mantiene igual
 
   &__close {
     position: absolute;
@@ -188,7 +191,7 @@
     border-radius: 50%;
     border: none;
     background: rgba(248, 81, 73, 0.15);
-    color: #f85149;
+    color: $danger;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -196,9 +199,7 @@
     transition: background 0.2s ease;
     padding: 0;
 
-    &:hover {
-      background: rgba(248, 81, 73, 0.25);
-    }
+    &:hover { background: rgba(248, 81, 73, 0.25); }
 
     svg {
       width: 12px;
@@ -212,17 +213,17 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    color: #e6edf3;
+    color: $text-primary;
     font-size: 0.75rem;
     font-weight: 600;
     font-family: 'Inter', -apple-system, sans-serif;
     margin-bottom: 12px;
     padding-right: 8px;
     letter-spacing: 0.3px;
-    opacity: 0.85;
+    opacity: 0.9;
 
     svg {
-      color: #2dd4bf;
+      color: $primary;
       flex-shrink: 0;
     }
   }
@@ -241,7 +242,7 @@
     height: 40px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid rgba(45, 212, 191, 0.2);
+    border: 2px solid $border;
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     flex-shrink: 0;
@@ -251,7 +252,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      background: #1b232c;
+      background: var(--tema-card-bg, #1b232c);
     }
 
     &::after {
@@ -266,23 +267,21 @@
 
     &:hover {
       transform: translateY(-3px) scale(1.1);
-      border-color: #2dd4bf;
+      border-color: $primary;
       box-shadow: 0 6px 16px rgba(45, 212, 191, 0.35);
 
-      &::after {
-        opacity: 1;
-      }
+      &::after { opacity: 1; }
     }
   }
 
   &__footer {
     text-align: center;
-    color: rgba(255, 255, 255, 0.35);
+    color: $text-muted;
     font-size: 0.6rem;
     font-family: 'Inter', -apple-system, sans-serif;
     letter-spacing: 0.5px;
     padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid $border;
   }
 }
 
@@ -295,9 +294,9 @@
   z-index: 9998;
   bottom: 90px;
   right: 20px;
-  background: rgba(19, 26, 34, 0.92);
+  background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(45, 212, 191, 0.12);
+  border: 1px solid $border;
   border-radius: 16px;
   padding: 14px 16px 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -315,7 +314,7 @@
     border-radius: 50%;
     border: none;
     background: rgba(248, 81, 73, 0.15);
-    color: #f85149;
+    color: $danger;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -323,9 +322,7 @@
     transition: background 0.2s ease;
     padding: 0;
 
-    &:hover {
-      background: rgba(248, 81, 73, 0.25);
-    }
+    &:hover { background: rgba(248, 81, 73, 0.25); }
 
     svg {
       width: 12px;
@@ -338,14 +335,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #e6edf3;
+    color: $text-primary;
     font-size: 0.7rem;
     font-weight: 600;
     font-family: 'Inter', -apple-system, sans-serif;
     margin-bottom: 10px;
     padding-right: 12px;
     letter-spacing: 0.3px;
-    opacity: 0.7;
+    opacity: 0.85;
   }
 
   &__grid {
@@ -364,7 +361,7 @@
     border-radius: 10px;
     transition: none;
     text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border: 1px solid $border;
     background: transparent !important;
 
     .social-icon {
@@ -383,19 +380,19 @@
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 0.05) !important;
-      border-color: rgba(255, 255, 255, 0.1);
+      background: rgba(128, 128, 128, 0.12) !important;
+      border-color: $primary;
     }
   }
 
   &__footer {
     text-align: center;
-    color: rgba(255, 255, 255, 0.3);
+    color: $text-muted;
     font-size: 0.6rem;
     font-family: 'Inter', -apple-system, sans-serif;
     letter-spacing: 0.5px;
     padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid $border;
   }
 }
 
@@ -406,9 +403,9 @@
 .floating-ad {
   position: fixed;
   z-index: 9998;
-  background: rgba(19, 26, 34, 0.92);
+  background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(45, 212, 191, 0.15);
+  border: 1px solid $border;
   border-radius: 12px;
   padding: 8px 14px 8px 18px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -430,7 +427,7 @@
     border-radius: 50%;
     border: none;
     background: rgba(248, 81, 73, 0.15);
-    color: #f85149;
+    color: $danger;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -438,9 +435,7 @@
     transition: background 0.2s ease;
     padding: 0;
 
-    &:hover {
-      background: rgba(248, 81, 73, 0.25);
-    }
+    &:hover { background: rgba(248, 81, 73, 0.25); }
 
     svg {
       width: 12px;
@@ -453,7 +448,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #e6edf3;
+    color: $text-primary;
   }
 
   &__text {
@@ -471,7 +466,7 @@
 .banner-ad {
   position: relative;
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.08), rgba(45, 212, 191, 0.02));
-  border: 1px solid rgba(45, 212, 191, 0.12);
+  border: 1px solid $border;
   border-radius: 16px;
   padding: 16px 24px;
   margin: 16px 0 24px;
@@ -489,15 +484,15 @@
     right: 8px;
     background: none;
     border: none;
-    color: #8b98a5;
+    color: $text-secondary;
     cursor: pointer;
-    opacity: 0.4;
+    opacity: 0.5;
     transition: opacity 0.2s ease;
     padding: 4px;
 
     &:hover {
       opacity: 1;
-      color: #f85149;
+      color: $danger;
     }
 
     svg {
@@ -525,19 +520,19 @@
       font-size: 0.95rem;
       font-weight: 600;
       font-family: 'Inter', -apple-system, sans-serif;
-      color: #e6edf3;
+      color: $text-primary;
     }
 
     span {
       font-size: 0.8rem;
-      color: #8b98a5;
+      color: $text-secondary;
       font-family: 'Inter', -apple-system, sans-serif;
     }
   }
 
   &__btn {
     padding: 8px 20px;
-    background: #2dd4bf;
+    background: $primary;
     color: #0d1117;
     border: none;
     border-radius: 8px;
@@ -549,9 +544,7 @@
     text-decoration: none;
     white-space: nowrap;
 
-    &:hover {
-      background: #22b8a8;
-    }
+    &:hover { background: $primary-hover; }
   }
 }
 
@@ -578,8 +571,8 @@
 
 .popup {
   position: relative;
-  background: #131a22;
-  border: 1px solid rgba(45, 212, 191, 0.15);
+  background: var(--tema-card-bg, #131a22);
+  border: 1px solid $border;
   border-radius: 20px;
   padding: 40px 48px 36px;
   max-width: 480px;
@@ -604,12 +597,12 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(128, 128, 128, 0.1);
     border: none;
     border-radius: 50%;
     width: 36px;
     height: 36px;
-    color: #8b98a5;
+    color: $text-secondary;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -618,7 +611,7 @@
 
     &:hover {
       background: rgba(248, 81, 73, 0.1);
-      color: #f85149;
+      color: $danger;
     }
 
     svg {
@@ -639,14 +632,14 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 1.6rem;
     font-weight: 700;
-    color: #e6edf3;
+    color: $text-primary;
     margin: 0 0 8px;
   }
 
   &__desc {
     font-family: 'Inter', -apple-system, sans-serif;
     font-size: 0.95rem;
-    color: #8b98a5;
+    color: $text-secondary;
     line-height: 1.6;
     margin: 0 0 20px;
   }
@@ -664,18 +657,18 @@
     align-items: center;
     justify-content: center;
     padding: 12px 8px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(128, 128, 128, 0.08);
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border: 1px solid $border;
     font-family: 'Inter', -apple-system, sans-serif;
     font-size: 0.7rem;
-    color: #8b98a5;
+    color: $text-secondary;
     font-weight: 500;
   }
 
   &__btn {
     padding: 12px 40px;
-    background: linear-gradient(135deg, #2dd4bf, #17b6a4);
+    background: linear-gradient(135deg, $primary, $primary-hover);
     color: #0d1117;
     border: none;
     border-radius: 10px;
@@ -686,7 +679,7 @@
     transition: none;
 
     &:hover {
-      background: linear-gradient(135deg, #22b8a8, #14a094);
+      background: linear-gradient(135deg, $primary-hover, #14a094);
     }
   }
 }
@@ -703,35 +696,15 @@
     border-radius: 10px;
 
     &__close {
-      width: 22px;
-      height: 22px;
-      top: -8px;
-      right: -8px;
-
-      svg {
-        width: 10px;
-        height: 10px;
-      }
+      width: 22px; height: 22px;
+      top: -8px; right: -8px;
+      svg { width: 10px; height: 10px; }
     }
-
-    &__dot {
-      width: 6px;
-      height: 6px;
-    }
-
-    &__counter {
-      font-size: 0.5rem;
-      padding: 1px 6px;
-    }
-
+    &__dot { width: 6px; height: 6px; }
+    &__counter { font-size: 0.5rem; padding: 1px 6px; }
     &__nav {
-      width: 22px;
-      height: 22px;
-
-      svg {
-        width: 12px;
-        height: 12px;
-      }
+      width: 22px; height: 22px;
+      svg { width: 12px; height: 12px; }
     }
   }
 
@@ -746,38 +719,15 @@
     &__title {
       font-size: 0.6rem;
       margin-bottom: 8px;
-
-      svg {
-        width: 12px;
-        height: 12px;
-      }
+      svg { width: 12px; height: 12px; }
     }
-
-    &__grid {
-      gap: 5px;
-    }
-
-    &__link {
-      width: 32px;
-      height: 32px;
-      border-width: 1.5px;
-    }
-
-    &__footer {
-      font-size: 0.5rem;
-      padding-top: 5px;
-    }
-
+    &__grid { gap: 5px; }
+    &__link { width: 32px; height: 32px; border-width: 1.5px; }
+    &__footer { font-size: 0.5rem; padding-top: 5px; }
     &__close {
-      width: 18px;
-      height: 18px;
-      top: -6px;
-      right: -6px;
-
-      svg {
-        width: 10px;
-        height: 10px;
-      }
+      width: 18px; height: 18px;
+      top: -6px; right: -6px;
+      svg { width: 10px; height: 10px; }
     }
   }
 
@@ -789,39 +739,17 @@
     padding: 10px 10px 12px;
     border-radius: 12px;
 
-    &__title {
-      font-size: 0.55rem;
-      margin-bottom: 6px;
-    }
-
-    &__grid {
-      gap: 4px;
-    }
-
+    &__title { font-size: 0.55rem; margin-bottom: 6px; }
+    &__grid { gap: 4px; }
     &__link {
       border-radius: 8px;
-
-      .social-icon svg {
-        width: 20px;
-        height: 20px;
-      }
+      .social-icon svg { width: 20px; height: 20px; }
     }
-
-    &__footer {
-      font-size: 0.5rem;
-      padding-top: 4px;
-    }
-
+    &__footer { font-size: 0.5rem; padding-top: 4px; }
     &__close {
-      width: 18px;
-      height: 18px;
-      top: -6px;
-      right: -6px;
-
-      svg {
-        width: 10px;
-        height: 10px;
-      }
+      width: 18px; height: 18px;
+      top: -6px; right: -6px;
+      svg { width: 10px; height: 10px; }
     }
   }
 
@@ -833,21 +761,11 @@
       padding: 6px 10px 6px 12px;
       border-radius: 10px;
     }
-
-    &__text {
-      font-size: 0.65rem;
-    }
-
+    &__text { font-size: 0.65rem; }
     &__close {
-      width: 18px;
-      height: 18px;
-      top: -6px;
-      right: -6px;
-
-      svg {
-        width: 10px;
-        height: 10px;
-      }
+      width: 18px; height: 18px;
+      top: -6px; right: -6px;
+      svg { width: 10px; height: 10px; }
     }
   }
 
@@ -859,16 +777,11 @@
       strong { font-size: 0.85rem; }
       span { font-size: 0.7rem; }
     }
-
-    &__btn {
-      padding: 6px 14px;
-      font-size: 0.7rem;
-    }
+    &__btn { padding: 6px 14px; font-size: 0.7rem; }
   }
 
   .popup {
     padding: 28px 20px 24px;
-
     &__title { font-size: 1.2rem; }
     &__desc { font-size: 0.85rem; }
     &__features { grid-template-columns: 1fr; gap: 8px; }
@@ -889,42 +802,19 @@
     border-radius: 8px;
 
     &__close {
-      width: 18px;
-      height: 18px;
-      top: -6px;
-      right: -6px;
-
-      svg {
-        width: 8px;
-        height: 8px;
-      }
+      width: 18px; height: 18px;
+      top: -6px; right: -6px;
+      svg { width: 8px; height: 8px; }
     }
-
-    &__dot {
-      width: 5px;
-      height: 5px;
-    }
-
-    &__dots {
-      gap: 4px;
-      bottom: 5px;
-    }
-
+    &__dot { width: 5px; height: 5px; }
+    &__dots { gap: 4px; bottom: 5px; }
     &__counter {
-      font-size: 0.45rem;
-      padding: 1px 5px;
-      bottom: 5px;
-      right: 6px;
+      font-size: 0.45rem; padding: 1px 5px;
+      bottom: 5px; right: 6px;
     }
-
     &__nav {
-      width: 18px;
-      height: 18px;
-
-      svg {
-        width: 10px;
-        height: 10px;
-      }
+      width: 18px; height: 18px;
+      svg { width: 10px; height: 10px; }
     }
   }
 
@@ -940,38 +830,15 @@
       font-size: 0.5rem;
       margin-bottom: 6px;
       gap: 4px;
-
-      svg {
-        width: 10px;
-        height: 10px;
-      }
+      svg { width: 10px; height: 10px; }
     }
-
-    &__grid {
-      gap: 4px;
-    }
-
-    &__link {
-      width: 28px;
-      height: 28px;
-      border-width: 1.5px;
-    }
-
-    &__footer {
-      font-size: 0.45rem;
-      padding-top: 4px;
-    }
-
+    &__grid { gap: 4px; }
+    &__link { width: 28px; height: 28px; border-width: 1.5px; }
+    &__footer { font-size: 0.45rem; padding-top: 4px; }
     &__close {
-      width: 16px;
-      height: 16px;
-      top: -5px;
-      right: -5px;
-
-      svg {
-        width: 8px;
-        height: 8px;
-      }
+      width: 16px; height: 16px;
+      top: -5px; right: -5px;
+      svg { width: 8px; height: 8px; }
     }
   }
 
@@ -983,39 +850,17 @@
     padding: 8px 8px 10px;
     border-radius: 10px;
 
-    &__title {
-      font-size: 0.5rem;
-      margin-bottom: 4px;
-    }
-
-    &__grid {
-      gap: 3px;
-    }
-
+    &__title { font-size: 0.5rem; margin-bottom: 4px; }
+    &__grid { gap: 3px; }
     &__link {
       border-radius: 6px;
-
-      .social-icon svg {
-        width: 16px;
-        height: 16px;
-      }
+      .social-icon svg { width: 16px; height: 16px; }
     }
-
-    &__footer {
-      font-size: 0.45rem;
-      padding-top: 3px;
-    }
-
+    &__footer { font-size: 0.45rem; padding-top: 3px; }
     &__close {
-      width: 16px;
-      height: 16px;
-      top: -5px;
-      right: -5px;
-
-      svg {
-        width: 8px;
-        height: 8px;
-      }
+      width: 16px; height: 16px;
+      top: -5px; right: -5px;
+      svg { width: 8px; height: 8px; }
     }
   }
 
@@ -1027,41 +872,25 @@
       padding: 4px 8px 4px 10px;
       border-radius: 8px;
     }
-
-    &__text {
-      font-size: 0.55rem;
-    }
-
+    &__text { font-size: 0.55rem; }
     &__close {
-      width: 16px;
-      height: 16px;
-      top: -5px;
-      right: -5px;
-
-      svg {
-        width: 8px;
-        height: 8px;
-      }
+      width: 16px; height: 16px;
+      top: -5px; right: -5px;
+      svg { width: 8px; height: 8px; }
     }
   }
 
   .banner-ad {
     padding: 12px 14px;
-
     &__text {
       strong { font-size: 0.8rem; }
       span { font-size: 0.65rem; }
     }
-
-    &__btn {
-      padding: 4px 12px;
-      font-size: 0.65rem;
-    }
+    &__btn { padding: 4px 12px; font-size: 0.65rem; }
   }
 
   .popup {
     padding: 20px 16px;
-
     &__title { font-size: 1rem; }
     &__desc { font-size: 0.75rem; }
     &__btn { padding: 8px 20px; font-size: 0.8rem; }
@@ -1076,21 +905,13 @@
   .floating-colaboradores {
     min-width: 120px;
     max-width: 145px;
-
-    &__link {
-      width: 26px;
-      height: 26px;
-    }
+    &__link { width: 26px; height: 26px; }
   }
 
   .floating-social {
     min-width: 100px;
     max-width: 115px;
-
-    &__link .social-icon svg {
-      width: 14px;
-      height: 14px;
-    }
+    &__link .social-icon svg { width: 14px; height: 14px; }
   }
 }
 

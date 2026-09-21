@@ -44,8 +44,12 @@ export class LoginComponent {
         this.cargando.set(false);
         this.router.navigate(['/comunidad']);
       },
-      error: () => {
-        this.errorMsg.set('Correo o contraseña incorrectos');
+      error: (err) => {
+        // Mostrar el mensaje del backend si existe
+        const mensaje = err.error?.error
+          || err.error?.mensaje
+          || (err.status === 401 ? 'Correo o contrasena incorrectos' : 'No se pudo iniciar sesion');
+        this.errorMsg.set(mensaje);
         this.cargando.set(false);
       },
     });
