@@ -111,12 +111,13 @@ $transition: all 0.2s ease;
 // DROPDOWN
 // ============================================================
 .dropdown-notificaciones {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
+  position: fixed;
+  top: 16px;
+  left: 272px;
+  right: auto;
   width: 420px;
-  max-width: calc(100vw - 24px);
-  max-height: 560px;
+  max-width: calc(100vw - 296px);
+  max-height: calc(100vh - 32px);
   display: flex;
   flex-direction: column;
   background: $bg-secondary;
@@ -148,8 +149,38 @@ $transition: all 0.2s ease;
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+:host-context(.navbar.menu-contraido) .notificaciones-container {
+  .dropdown-notificaciones {
+    left: 90px;
+    max-width: calc(100vw - 114px);
+  }
+
+  .btn-notificaciones {
+    justify-content: center;
+    width: 54px;
+    min-height: 46px;
+    margin: 0 auto;
+    padding: 11px;
+
+    .btn-texto {
+      display: none;
+    }
+
+    .badge-notificacion {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      font-size: 0.58rem;
+      border: 2px solid $bg-primary;
+    }
+  }
 }
 
 // ============================================================
@@ -586,6 +617,34 @@ $transition: all 0.2s ease;
 // RESPONSIVE
 // ============================================================
 @media (max-width: 768px) {
+  :host-context(.navbar.menu-contraido) .notificaciones-container {
+    .btn-notificaciones {
+      justify-content: flex-start;
+      width: 100%;
+      margin: 0;
+      padding: 8px 14px;
+
+      .btn-texto {
+        display: inline;
+      }
+
+      .badge-notificacion {
+        position: static;
+        min-width: 20px;
+        height: 20px;
+        margin-left: auto;
+        padding: 0 6px;
+        font-size: 0.65rem;
+        border: 0;
+      }
+    }
+
+    .dropdown-notificaciones {
+      left: 0;
+      max-width: 100%;
+    }
+  }
+
   .dropdown-notificaciones {
     position: fixed;
     top: 60px;

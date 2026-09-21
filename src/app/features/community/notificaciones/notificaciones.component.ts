@@ -1,6 +1,6 @@
-import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, inject, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { NotificationService, Notificacion } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { GrupoService } from '../../../core/services/grupo.service';
@@ -25,7 +25,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   cargando = signal<boolean>(false);
 
   private subscription: Subscription | null = null;
-  private intervalId: any = null;
+  private intervalId: ReturnType<typeof setInterval> | null = null;
 
   // ✅ Solo mostrar las últimas 5 en el dropdown
   get notificacionesRecientes(): Notificacion[] {
@@ -56,7 +56,17 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
-    clearInterval(this.intervalId);
+    if (this.intervalId !== null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.mostrando()) {
+      this.cerrarMenu();
+    }
   }
 
   actualizarContadorNoLeidas(): void {

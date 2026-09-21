@@ -1,6 +1,12 @@
-// main-layout.component.ts
-import { Component, inject, OnInit, effect, computed } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {
+  Component,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal
+} from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
@@ -9,23 +15,27 @@ import { FloatingSocialComponent } from '../../shared/components/floating-social
 @Component({
   selector: 'kiert-main-layout',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent, FloatingSocialComponent],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    NavbarComponent,
+    FooterComponent,
+    FloatingSocialComponent
+  ],
   templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.scss',
+  styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent implements OnInit {
-  public personalizacionStore = inject(PersonalizacionStore);
+  public readonly personalizacionStore = inject(PersonalizacionStore);
 
-  // Signal para el tema seleccionado
-  selectedTheme = this.personalizacionStore.temaId;
+  readonly selectedTheme = this.personalizacionStore.temaId;
+  readonly menuContraido = signal(false);
 
-  // Computed para el fondo dinámico
-  fondoGradiente = computed(() => {
+  readonly fondoGradiente = computed(() => {
     return this.personalizacionStore.fondoGradiente();
   });
 
   constructor() {
-    // Efecto para actualizar cuando cambie el tema
     effect(() => {
       const themeId = this.personalizacionStore.temaId();
       this.aplicarTemaGlobal(themeId);
@@ -33,20 +43,22 @@ export class MainLayoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Aplicar tema al cargar el componente
     const themeId = this.personalizacionStore.temaId();
     this.aplicarTemaGlobal(themeId);
+    this.restaurarEstadoMenu();
   }
 
-  // Método para obtener el fondo gradiente (usado en el HTML)
   getBackgroundGradient(): string {
     return this.fondoGradiente();
   }
 
-  // ✅ Manejo de error de imagen
+  actualizarEstadoMenu(estadoContraido: boolean): void {
+    this.menuContraido.set(estadoContraido);
+  }
+
   onBannerError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    // Fallback a SVG si la imagen no existe
+
     img.src = `data:image/svg+xml,${encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200">
         <defs>
@@ -71,11 +83,19 @@ export class MainLayoutComponent implements OnInit {
     `)}`;
   }
 
+  private restaurarEstadoMenu(): void {
+    try {
+      this.menuContraido.set(
+        localStorage.getItem('kiert-menu-contraido') === 'true'
+      );
+    } catch {
+      this.menuContraido.set(false);
+    }
+  }
+
   private aplicarTemaGlobal(themeId: string): void {
-    // Remover atributo data-theme anterior
     document.documentElement.removeAttribute('data-theme');
-    
-    // Aplicar el nuevo tema
+
     if (themeId && themeId !== 'default') {
       document.documentElement.setAttribute('data-theme', themeId);
     }

@@ -1,33 +1,41 @@
-<!-- main-layout.component.html -->
-<div class="app-container" 
-     [attr.data-theme]="selectedTheme()"
-     [style.background]="getBackgroundGradient()">
-  
-  <kiert-navbar></kiert-navbar>
+<div
+  class="app-container"
+  [attr.data-theme]="selectedTheme()"
+  [style.background]="getBackgroundGradient()"
+>
+  <div class="app-shell" [class.sidebar-collapsed]="menuContraido()">
+    <kiert-navbar
+      (estadoContraidoChange)="actualizarEstadoMenu($event)"
+    ></kiert-navbar>
 
-  <!-- ===== BANNER PUBLICITARIO PRINCIPAL ===== -->
-  <div class="main-banner">
-    <div class="main-banner__content">
-      <div class="main-banner__image">
-        <img src="assets/images/anuncio/bannergood.jpg" 
-             alt="Kiert Banner" 
-             loading="lazy"
-             (error)="onBannerError($event)">
+    <div class="app-main">
+      <div class="main-banner">
+        <div class="main-banner__content">
+          <div class="main-banner__image">
+            <img
+              src="assets/images/anuncio/bannergood.jpg"
+              alt="Kiert Banner"
+              loading="lazy"
+              (error)="onBannerError($event)"
+            >
+          </div>
+
+          <div class="main-banner__overlay">
+            <h2>Unete a la comunidad</h2>
+            <p>Comparte tus proyectos, aprende de otros y crece profesionalmente</p>
+            <a routerLink="/comunidad" class="main-banner__btn">
+              Explorar ahora
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="main-banner__overlay">
-        <h2>Únete a la comunidad</h2>
-        <p>Comparte tus proyectos, aprende de otros y crece profesionalmente</p>
-        <a href="#" class="main-banner__btn">Explorar ahora</a>
-      </div>
+
+      <main class="main-content">
+        <router-outlet></router-outlet>
+      </main>
+
+      <kiert-footer></kiert-footer>
+      <kiert-floating-social></kiert-floating-social>
     </div>
   </div>
-
-  <main class="main-content">
-    <router-outlet></router-outlet>
-  </main>
-
-  <kiert-footer></kiert-footer>
-
-  <!-- ===== ANUNCIOS FLOTANTES ===== -->
-  <kiert-floating-social></kiert-floating-social>
 </div>

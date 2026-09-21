@@ -1,8 +1,6 @@
-// ============================================================
-// VARIABLES
-// ============================================================
 $primary: #2dd4bf;
 $primary-light: rgba(45, 212, 191, 0.1);
+$primary-border: rgba(45, 212, 191, 0.28);
 $bg-primary: #0d1117;
 $bg-secondary: #131a22;
 $bg-card: #1b232c;
@@ -11,434 +9,651 @@ $text-primary: #e6edf3;
 $text-secondary: #8b98a5;
 $text-muted: #5a6a7a;
 $danger: #f85149;
-$transition: all 0.25s ease;
+$sidebar-expanded: 260px;
+$sidebar-collapsed: 78px;
+$transition: 0.25s ease;
 
-// ============================================================
-// NAVBAR BASE
-// ============================================================
+:host {
+  display: block;
+  flex: 0 0 $sidebar-expanded;
+  width: $sidebar-expanded;
+  min-width: $sidebar-expanded;
+  transition: flex-basis $transition, width $transition, min-width $transition;
+}
+
 .navbar {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  inset: 0 auto 0 0;
   z-index: 1000;
-  background: rgba(13, 17, 23, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid $border;
-  width: 100%;
+  width: $sidebar-expanded;
+  height: 100vh;
+  background: rgba(13, 17, 23, 0.97);
+  border-right: 1px solid $border;
+  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.16);
+  transition: width $transition;
 }
 
 .navbar-container {
-  position: relative;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.navbar-mobile-header {
+  display: none;
+}
+
+.sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
-  gap: 16px;
+  min-height: 72px;
+  padding: 0 14px 0 20px;
+  border-bottom: 1px solid $border;
 }
 
-// ============================================================
-// LOGO
-// ============================================================
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 2px;
-  text-decoration: none;
+  gap: 4px;
+  min-width: 0;
+  color: inherit;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  transition: opacity 0.2s;
-  flex-shrink: 0;
-  z-index: 2;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.82;
     text-decoration: none;
   }
 
-  .brand-prompt { color: $primary; }
-  .brand-name { color: $text-primary; }
+  .brand-prompt {
+    color: $primary;
+  }
+
+  .brand-name {
+    color: $text-primary;
+  }
 }
 
-// ============================================================
-// BOTÓN HAMBURGUESA (oculto en desktop)
-// ============================================================
-.navbar-toggle {
-  display: none;
-  flex-direction: column;
+.collapse-button {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  gap: 5px;
-  background: transparent;
-  border: none;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  padding: 0;
+  color: $text-secondary;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: 10px;
   cursor: pointer;
-  padding: 10px;
-  border-radius: 8px;
-  transition: $transition;
-  z-index: 3;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 
-  .toggle-line {
-    display: block;
-    width: 24px;
-    height: 2px;
-    background: $text-primary;
-    border-radius: 2px;
-    transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
-    transform-origin: center;
+  svg {
+    width: 19px;
+    height: 19px;
   }
 
   &:hover {
-    background: $bg-card;
+    color: $primary;
+    background: $primary-light;
+    border-color: $primary-border;
+    transform: translateY(-1px);
+  }
 
-    .toggle-line {
-      background: $primary;
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.navbar-menu {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.navbar-menu-inner {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: $border transparent;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border;
+    border-radius: 10px;
+  }
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  & + .menu-section {
+    margin-top: 20px;
+  }
+}
+
+.menu-section-title {
+  display: block;
+  margin: 0 10px 7px;
+  color: $text-muted;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: opacity 0.16s ease, height 0.2s ease, margin 0.2s ease;
+}
+
+.menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  gap: 12px;
+  padding: 10px 12px;
+  color: $text-secondary;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 0.91rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -1px;
+    width: 3px;
+    height: 0;
+    background: $primary;
+    border-radius: 0 4px 4px 0;
+    transform: translateY(-50%);
+    transition: height 0.2s ease;
+  }
+
+  &:hover {
+    color: $text-primary;
+    background: $bg-card;
+    border-color: rgba(255, 255, 255, 0.035);
+    text-decoration: none;
+    transform: translateX(2px);
+
+    .menu-icon {
+      color: $primary;
     }
   }
 
-  // Animación a X
-  &.is-active {
-    .toggle-line:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
-      background: $primary;
+  &.active {
+    color: $primary;
+    background: $primary-light;
+    border-color: $primary-border;
+    font-weight: 600;
+
+    &::before {
+      height: 24px;
     }
 
-    .toggle-line:nth-child(2) {
-      opacity: 0;
-      transform: scaleX(0);
+    .menu-icon {
+      color: $primary;
     }
+  }
 
-    .toggle-line:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
-      background: $primary;
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.menu-button {
+  appearance: none;
+}
+
+.menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  color: $text-muted;
+  transition: color 0.2s ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.menu-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.15s ease, width 0.2s ease;
+}
+
+.menu-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 21px;
+  height: 21px;
+  margin-left: auto;
+  padding: 0 6px;
+  color: #ffffff;
+  background: $danger;
+  border: 2px solid $bg-primary;
+  border-radius: 20px;
+  box-sizing: border-box;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.menu-item-notificaciones {
+  display: block;
+  width: 100%;
+  min-width: 0;
+
+  kiert-notificaciones {
+    display: block;
+    width: 100%;
+  }
+}
+
+.navbar-footer {
+  flex: 0 0 auto;
+  padding: 12px;
+  border-top: 1px solid $border;
+  background: rgba(13, 17, 23, 0.86);
+}
+
+.btn-logout {
+  color: $danger;
+  border-color: rgba(248, 81, 73, 0.18);
+
+  .menu-icon {
+    color: $danger;
+  }
+
+  &:hover {
+    color: $danger;
+    background: rgba(248, 81, 73, 0.1);
+    border-color: rgba(248, 81, 73, 0.45);
+
+    .menu-icon {
+      color: $danger;
     }
   }
 }
 
-// ============================================================
-// MENÚ (DESKTOP POR DEFECTO - HORIZONTAL)
-// ============================================================
-.navbar-menu {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  justify-content: flex-end;
+.navbar-toggle,
+.navbar-overlay {
+  display: none;
+}
+
+.navbar.menu-contraido {
+  width: $sidebar-collapsed;
+
+  .sidebar-header {
+    justify-content: center;
+    min-height: 72px;
+    padding: 0 10px;
+  }
+
+  .sidebar-brand {
+    display: none;
+  }
+
+  .collapse-button {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
 
   .navbar-menu-inner {
-    display: flex;
+    padding: 14px 10px;
+  }
+
+  .menu-section {
     align-items: center;
-    gap: 4px;
+
+    & + .menu-section {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid $border;
+    }
+  }
+
+  .menu-section-title {
+    width: 0;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+    opacity: 0;
   }
 
   .menu-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: $text-secondary;
-    text-decoration: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: $transition;
-    white-space: nowrap;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    font-family: inherit;
+    justify-content: center;
+    width: 54px;
+    min-height: 46px;
+    padding: 11px;
+    gap: 0;
 
-    svg {
-      flex-shrink: 0;
-      transition: color 0.2s ease;
+    &::before {
+      left: -10px;
     }
 
     &:hover {
-      color: $text-primary;
-      background: $bg-card;
-      text-decoration: none;
-
-      svg { color: $primary; }
-    }
-
-    &.active {
-      color: $primary;
-      background: $primary-light;
-
-      svg { color: $primary; }
+      transform: none;
     }
   }
 
-  .menu-item-notificaciones {
-    display: inline-flex;
-    align-items: center;
+  .menu-label {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
   }
 
   .menu-badge {
-    display: inline-flex;
-    align-items: center;
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    font-size: 0.58rem;
+  }
+
+  .menu-item-notificaciones {
+    display: flex;
     justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    background: $danger;
-    color: #fff;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    margin-left: 4px;
-    animation: pulseBadge 2s infinite;
+    width: 54px;
+    min-height: 46px;
+    overflow: visible;
   }
 
-  .btn-logout {
-    color: $danger;
-    border: 1px solid $border;
-    margin-left: 8px;
-
-    &:hover {
-      background: rgba(248, 81, 73, 0.1);
-      border-color: $danger;
-      color: $danger;
-
-      svg { color: $danger; }
-    }
+  .navbar-footer {
+    display: flex;
+    justify-content: center;
+    padding: 12px 10px;
   }
 }
 
-@keyframes pulseBadge {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+:host:has(.navbar.menu-contraido) {
+  flex-basis: $sidebar-collapsed;
+  width: $sidebar-collapsed;
+  min-width: $sidebar-collapsed;
 }
 
-// ============================================================
-// RESPONSIVE - TABLET Y MÓVIL (<= 1024px)
-// ============================================================
 @media (max-width: 1024px) {
-  .navbar-container {
-    padding: 0 16px;
+  :host,
+  :host:has(.navbar.menu-contraido) {
+    width: 100%;
+    min-width: 0;
     height: 60px;
+    flex: 0 0 60px;
+  }
+
+  .navbar,
+  .navbar.menu-contraido {
+    position: fixed;
+    inset: 0 0 auto;
+    width: 100%;
+    height: 60px;
+    border-right: 0;
+    border-bottom: 1px solid $border;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+    transition: none;
+  }
+
+  .navbar-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  .sidebar-header {
+    display: none;
   }
 
   .navbar-toggle {
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    gap: 5px;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    cursor: pointer;
+
+    .toggle-line {
+      display: block;
+      width: 22px;
+      height: 2px;
+      margin: 0 auto;
+      background: $text-primary;
+      border-radius: 2px;
+      transform-origin: center;
+      transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+    }
+
+    &:hover {
+      background: $bg-card;
+      border-color: $border;
+    }
+
+    &.is-active {
+      .toggle-line:nth-child(1) {
+        background: $primary;
+        transform: translateY(7px) rotate(45deg);
+      }
+
+      .toggle-line:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+
+      .toggle-line:nth-child(3) {
+        background: $primary;
+        transform: translateY(-7px) rotate(-45deg);
+      }
+    }
   }
 
-  // MENÚ DESPLEGABLE HACIA ABAJO
-  .navbar-menu {
-    position: absolute;
-    top: 100%;
+  .navbar-container {
+    position: fixed;
+    top: 60px;
+    bottom: 0;
     left: 0;
-    right: 0;
-    width: 100%;
-    background: $bg-primary;
-    border-bottom: 1px solid $border;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-
-    // Animación de despliegue
-    max-height: 0;
-    overflow: hidden;
+    width: min(86vw, 310px);
+    height: calc(100vh - 60px);
+    background: rgba(13, 17, 23, 0.99);
+    border-right: 1px solid $border;
+    box-shadow: 18px 0 40px rgba(0, 0, 0, 0.3);
     opacity: 0;
     visibility: hidden;
-    transition:
-      max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.3s ease,
-      visibility 0.3s ease;
+    transform: translateX(-102%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, visibility 0.25s ease;
+  }
 
-    &.is-open {
-      max-height: calc(100vh - 60px);
-      overflow-y: auto;
-      opacity: 1;
-      visibility: visible;
-    }
+  .navbar.menu-abierto .navbar-container {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
 
-    // Scroll personalizado
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: $border;
-      border-radius: 2px;
-    }
-
+  .navbar.menu-contraido {
     .navbar-menu-inner {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 4px;
-      padding: 12px 16px 20px;
-      width: 100%;
+      padding: 16px 14px;
+    }
 
-      // Animación escalonada de los items
-      .menu-item {
-        opacity: 0;
-        transform: translateY(-8px);
-        transition:
-          opacity 0.3s ease,
-          transform 0.3s ease,
-          background 0.2s ease,
-          color 0.2s ease;
+    .menu-section {
+      align-items: stretch;
+
+      & + .menu-section {
+        margin-top: 20px;
+        padding-top: 0;
+        border-top: 0;
       }
     }
 
-    &.is-open .navbar-menu-inner .menu-item {
+    .menu-section-title {
+      width: auto;
+      height: auto;
+      margin: 0 10px 7px;
+      overflow: visible;
       opacity: 1;
-      transform: translateY(0);
     }
-
-    // Retraso escalonado
-    &.is-open .navbar-menu-inner .menu-item:nth-child(1) { transition-delay: 0.05s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(2) { transition-delay: 0.08s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(3) { transition-delay: 0.11s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(4) { transition-delay: 0.14s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(5) { transition-delay: 0.17s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(6) { transition-delay: 0.20s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(7) { transition-delay: 0.23s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(8) { transition-delay: 0.26s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(9) { transition-delay: 0.29s; }
-    &.is-open .navbar-menu-inner .menu-item:nth-child(10) { transition-delay: 0.32s; }
 
     .menu-item {
+      justify-content: flex-start;
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 0.95rem;
+      min-height: 46px;
+      padding: 11px 12px;
       gap: 12px;
 
-      svg {
-        width: 20px;
-        height: 20px;
-        color: $text-muted;
-      }
-
-      span {
-        flex: 1;
-        text-align: left;
-      }
-
-      &:hover {
-        svg { transform: translateX(2px); }
+      &::before {
+        left: -1px;
       }
     }
 
-    .menu-item-notificaciones {
-      width: 100%;
-      padding: 4px 0;
-      display: block;
+    .menu-label {
+      width: auto;
+      height: auto;
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .menu-badge {
+      position: static;
+      min-width: 21px;
+      height: 21px;
       margin-left: auto;
-      min-width: 22px;
-      height: 22px;
-      font-size: 0.7rem;
+      padding: 0 6px;
+      font-size: 0.66rem;
     }
 
-    .btn-logout {
+    .menu-item-notificaciones {
+      display: block;
       width: 100%;
-      margin-left: 0;
-      margin-top: 8px;
-      justify-content: center;
-      padding: 12px 14px;
-      border-radius: 10px;
-
-      &:hover {
-        transform: none;
-      }
+      min-height: 0;
     }
+
+    .navbar-footer {
+      display: block;
+      padding: 12px 14px;
+    }
+  }
+
+  .navbar-overlay {
+    position: fixed;
+    inset: 60px 0 0;
+    z-index: 990;
+    display: block;
+    width: 100%;
+    height: calc(100vh - 60px);
+    padding: 0;
+    background: rgba(0, 0, 0, 0.58);
+    border: 0;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
   }
 }
 
-// ============================================================
-// RESPONSIVE - MÓVIL (<= 640px)
-// ============================================================
 @media (max-width: 640px) {
-  .navbar-container {
-    padding: 0 12px;
+  :host,
+  :host:has(.navbar.menu-contraido) {
+    height: 56px;
+    flex-basis: 56px;
+  }
+
+  .navbar,
+  .navbar.menu-contraido,
+  .navbar-mobile-header {
     height: 56px;
   }
 
+  .navbar-mobile-header {
+    padding: 0 12px;
+  }
+
   .navbar-brand {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
-  .navbar-toggle {
-    padding: 8px;
-
-    .toggle-line {
-      width: 22px;
-    }
+  .navbar-container {
+    top: 56px;
+    height: calc(100vh - 56px);
   }
 
-  .navbar-menu {
-    &.is-open {
-      max-height: calc(100vh - 56px);
-    }
-
-    .navbar-menu-inner {
-      padding: 10px 12px 16px;
-    }
-
-    .menu-item {
-      padding: 11px 12px;
-      font-size: 0.9rem;
-      gap: 10px;
-
-      svg {
-        width: 18px;
-        height: 18px;
-      }
-    }
-
-    .btn-logout {
-      padding: 11px 12px;
-      font-size: 0.9rem;
-    }
+  .navbar-overlay {
+    inset: 56px 0 0;
+    height: calc(100vh - 56px);
   }
 }
 
-// ============================================================
-// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
-// ============================================================
 @media (max-width: 380px) {
+  .navbar-container {
+    width: 90vw;
+  }
+
   .navbar-brand {
-    font-size: 0.9rem;
+    font-size: 0.96rem;
   }
 
-  .navbar-toggle {
-    padding: 6px;
-
-    .toggle-line {
-      width: 20px;
-      height: 2px;
-    }
-  }
-
-  .navbar-menu {
-    .menu-item {
-      padding: 10px;
-      font-size: 0.85rem;
-      gap: 8px;
-
-      svg {
-        width: 16px;
-        height: 16px;
-      }
-    }
-
-    .btn-logout {
-      padding: 10px;
-      font-size: 0.85rem;
-    }
+  .menu-item,
+  .navbar.menu-contraido .menu-item {
+    min-height: 42px;
+    padding: 9px 10px;
+    font-size: 0.85rem;
   }
 }
 
-// ============================================================
-// ACCESIBILIDAD
-// ============================================================
 @media (prefers-reduced-motion: reduce) {
-  .navbar-menu,
-  .navbar-menu .menu-item,
+  :host,
+  .navbar,
+  .navbar-container,
+  .menu-item,
+  .menu-label,
+  .menu-section-title,
+  .collapse-button,
   .navbar-toggle .toggle-line {
     transition: none !important;
   }
