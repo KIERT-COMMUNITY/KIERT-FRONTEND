@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     tools {
-        // Este nombre debe coincidir EXACTAMENTE con el que configures
-        // en Manage Jenkins → Global Tool Configuration → NodeJS
+        // ✅ Coincide con el nombre en Global Tool Configuration
         nodejs 'node-22'
     }
 
@@ -26,9 +25,8 @@ pipeline {
     }
 
     environment {
-        // Variables de entorno útiles durante el pipeline
         NODE_ENV = "${params.ENVIRONMENT}"
-        CI       = 'true'
+        CI       = 'true'   // Fuerza a Vitest a correr en modo CI (single run)
     }
 
     stages {
@@ -74,15 +72,9 @@ pipeline {
             }
             steps {
                 bat '''
-                    echo "Ejecutando pruebas unitarias..."
-                    npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+                    echo "Ejecutando pruebas unitarias con Vitest..."
+                    npm test -- --no-watch
                 '''
-            }
-            post {
-                always {
-                    // Publicar reporte de cobertura si existe
-                    junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
-                }
             }
         }
 
