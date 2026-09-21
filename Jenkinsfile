@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        // ✅ Coincide con el nombre en Global Tool Configuration
+        // ✅ Ya actualizado a Node 22.22.2 en Global Tool Configuration
         nodejs 'node-22'
     }
 
@@ -26,7 +26,7 @@ pipeline {
 
     environment {
         NODE_ENV = "${params.ENVIRONMENT}"
-        CI       = 'true'   // Vitest detecta CI y corre en modo single-run
+        CI       = 'true'   // ✅ Fuerza a Vitest a correr en modo CI (single-run)
     }
 
     stages {
@@ -73,7 +73,7 @@ pipeline {
             steps {
                 bat '''
                     echo "Ejecutando pruebas unitarias con Vitest..."
-                    npm test -- --watch=false
+                    npm test
                 '''
             }
         }
