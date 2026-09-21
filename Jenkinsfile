@@ -26,7 +26,7 @@ pipeline {
 
     environment {
         NODE_ENV = "${params.ENVIRONMENT}"
-        CI       = 'true'   // Fuerza a Vitest a correr en modo CI (single run)
+        CI       = 'true'   // Vitest detecta CI y corre en modo single-run
     }
 
     stages {
@@ -73,7 +73,7 @@ pipeline {
             steps {
                 bat '''
                     echo "Ejecutando pruebas unitarias con Vitest..."
-                    npm test -- --no-watch
+                    npm test -- --watch=false
                 '''
             }
         }
