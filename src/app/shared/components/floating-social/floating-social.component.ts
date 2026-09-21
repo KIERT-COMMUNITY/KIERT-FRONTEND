@@ -106,7 +106,8 @@ export class FloatingSocialComponent implements OnInit, OnDestroy {
     { usuario: 'keanovpaginawebyproyectos-maker', url: 'https://github.com/keanovpaginawebyproyectos-maker' },
     { usuario: 'Makintosh28', url: 'https://github.com/Makintosh28' },
     { usuario: 'Thok4', url: 'https://github.com/Thok4' },
-    { usuario: 'redbwoy67X', url: 'https://github.com/redbwoy67X' }
+    { usuario: 'redbwoy67X', url: 'https://github.com/redbwoy67X' },
+    { usuario: 'markkos2003', url: 'https://github.com/markkos2003' }
   ]);
 
   getAvatarColaborador(usuario: string): string {

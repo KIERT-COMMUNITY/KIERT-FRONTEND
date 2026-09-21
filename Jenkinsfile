@@ -56,11 +56,6 @@ pipeline {
             }
         }
 
-        // ❌ ELIMINADO: Lint (no existe el script)
-        // stage('Lint') { ... }
-
-        // ❌ ELIMINADO: Unit Tests (no existe el script)
-        // stage('Unit Tests') { ... }
 
         stage('Build') {
             steps {
