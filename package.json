@@ -29,6 +29,8 @@
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
     "@types/sockjs-client": "^1.5.4",
-    "typescript": "5.8"
+    "jsdom": "^30.1.0",
+    "typescript": "5.8",
+    "vitest": "^3.2.7"
   }
 }
