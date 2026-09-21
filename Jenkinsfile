@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+        // Este nombre debe coincidir EXACTAMENTE con el que configures
+        // en Manage Jenkins → Global Tool Configuration → NodeJS
+        nodejs 'nodejs-22'
+    }
+
     parameters {
         choice(
             name: 'ENVIRONMENT',
@@ -17,6 +23,12 @@ pipeline {
             defaultValue: true,
             description: 'Ejecutar pruebas unitarias'
         )
+    }
+
+    environment {
+        // Variables de entorno útiles durante el pipeline
+        NODE_ENV = "${params.ENVIRONMENT}"
+        CI       = 'true'
     }
 
     stages {
@@ -40,7 +52,7 @@ pipeline {
         stage('Setup Node.js') {
             steps {
                 bat '''
-                    echo "Verificando Node.js..."
+                    echo "Verificando Node.js y npm..."
                     node --version
                     npm --version
                 '''
@@ -50,19 +62,34 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat '''
-                    echo "Instalando dependencias..."
-                    npm install
+                    echo "Instalando dependencias con npm ci..."
+                    npm ci
                 '''
             }
         }
 
+        stage('Test') {
+            when {
+                expression { params.RUN_TESTS == true }
+            }
+            steps {
+                bat '''
+                    echo "Ejecutando pruebas unitarias..."
+                    npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+                '''
+            }
+            post {
+                always {
+                    // Publicar reporte de cobertura si existe
+                    junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
+                }
+            }
+        }
 
         stage('Build') {
             steps {
-                bat """
-                    echo "Construyendo para entorno: ${params.ENVIRONMENT}"
-                    npm run build -- --configuration=${params.ENVIRONMENT} --output-path=dist
-                """
+                bat "echo \"Construyendo para entorno: ${params.ENVIRONMENT}\""
+                bat "npm run build -- --configuration=${params.ENVIRONMENT}"
             }
             post {
                 success {
@@ -73,7 +100,9 @@ pipeline {
 
         stage('Deploy') {
             when {
-                expression { params.ENVIRONMENT == 'production' || params.ENVIRONMENT == 'staging' }
+                expression {
+                    params.ENVIRONMENT == 'production' || params.ENVIRONMENT == 'staging'
+                }
             }
             steps {
                 bat """
