@@ -21,11 +21,18 @@ pipeline {
             defaultValue: true,
             description: 'Ejecutar pruebas unitarias'
         )
+        booleanParam(
+            name: 'BUILD_DOCKER',
+            defaultValue: false,
+            description: 'Construir imagen Docker (solo staging/production)'
+        )
     }
 
     environment {
-        NODE_ENV = "${params.ENVIRONMENT}"
-        CI       = 'true'
+        NODE_ENV    = "${params.ENVIRONMENT}"
+        CI          = 'true'
+        IMAGE_NAME  = 'kiert-frontend'
+        IMAGE_TAG   = "${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -72,7 +79,7 @@ pipeline {
             steps {
                 bat '''
                     echo "Ejecutando pruebas unitarias con Vitest..."
-                    npm test -- --passWithNoTests
+                    npm test -- --no-watch
                 '''
             }
         }
@@ -86,6 +93,21 @@ pipeline {
                 success {
                     archiveArtifacts artifacts: 'dist/**/*', fingerprint: true
                 }
+            }
+        }
+
+        stage('Docker Build') {
+            when {
+                expression {
+                    params.BUILD_DOCKER == true &&
+                    (params.ENVIRONMENT == 'production' || params.ENVIRONMENT == 'staging')
+                }
+            }
+            steps {
+                bat """
+                    echo "Construyendo imagen Docker..."
+                    docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} -t ${env.IMAGE_NAME}:latest .
+                """
             }
         }
 
