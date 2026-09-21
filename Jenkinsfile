@@ -4,7 +4,7 @@ pipeline {
     tools {
         // Este nombre debe coincidir EXACTAMENTE con el que configures
         // en Manage Jenkins → Global Tool Configuration → NodeJS
-        nodejs 'nodejs-22'
+        nodejs 'node-22'
     }
 
     parameters {
