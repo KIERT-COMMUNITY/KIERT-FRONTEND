@@ -1,5 +1,5 @@
 // src/app/features/biblioteca/biblioteca.component.ts
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -32,6 +32,49 @@ export class BibliotecaComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   vista = signal<'grid' | 'lista'>('grid');
 
+  // ===== DROPDOWN CATEGORÍA =====
+  dropdownCategoriaAbierto = signal(false);
+
+  // ===== DESTACADOS EXPANDIBLES =====
+  destacadosExpandidos = signal(false);
+  destacadosPorPagina = 4; // 🔧 Solo 4 destacados por defecto
+
+  destacadosMostrados = computed(() => {
+    const todos = this.recursos().filter(r => r.destacado);
+    if (this.destacadosExpandidos()) return todos;
+    return todos.slice(0, this.destacadosPorPagina);
+  });
+
+  destacadosOcultos = computed(() => {
+    const total = this.recursos().filter(r => r.destacado).length;
+    const mostrados = this.destacadosMostrados().length;
+    return Math.max(0, total - mostrados);
+  });
+
+  toggleDestacados(): void {
+    this.destacadosExpandidos.update(v => !v);
+  }
+
+  // ===== PAGINACIÓN DE RECURSOS =====
+  recursosExpandidos = signal(false);
+  recursosPorPagina = 8; // 🔧 Solo 8 recursos por defecto
+
+  recursosMostrados = computed(() => {
+    const filtrados = this.recursosFiltradosComputed();
+    if (this.recursosExpandidos()) return filtrados;
+    return filtrados.slice(0, this.recursosPorPagina);
+  });
+
+  recursosOcultos = computed(() => {
+    const total = this.recursosFiltradosComputed().length;
+    const mostrados = this.recursosMostrados().length;
+    return Math.max(0, total - mostrados);
+  });
+
+  toggleRecursos(): void {
+    this.recursosExpandidos.update(v => !v);
+  }
+
   // ===== MODAL =====
   mostrarModal = signal(false);
   modoEdicion = signal(false);
@@ -61,12 +104,37 @@ export class BibliotecaComponent implements OnInit {
   cargarCategorias(): void {
     this.bibliotecaService.obtenerCategorias().subscribe({
       next: (data) => {
-        const base = ['certificacion', 'curso', 'video', 'articulo', 'herramienta', 'libro', 'idiomas', 'otro'];
+        const base = [
+          'certificacion',
+          'curso',
+          'video',
+          'articulo',
+          'herramienta',
+          'libro',
+          'idiomas',
+          'otro',
+          'entretenimiento',
+          'juego',
+          'recurso'
+        ];
         const unicas = Array.from(new Set([...base, ...(data || [])]));
         this.categorias.set(['todas', ...unicas]);
       },
       error: () => {
-        this.categorias.set(['todas', 'certificacion', 'curso', 'video', 'articulo', 'herramienta', 'libro', 'idiomas', 'otro']);
+        this.categorias.set([
+          'todas',
+          'certificacion',
+          'curso',
+          'video',
+          'articulo',
+          'herramienta',
+          'libro',
+          'idiomas',
+          'otro',
+          'entretenimiento',
+          'juego',
+          'recurso'
+        ]);
       }
     });
   }
@@ -112,21 +180,67 @@ export class BibliotecaComponent implements OnInit {
     return resultado;
   });
 
-  destacados = computed(() => this.recursos().filter(r => r.destacado));
   totalRecursos = computed(() => this.recursos().length);
-  totalCertificaciones = computed(() => this.recursos().filter(r => r.categoria === 'certificacion').length);
-  totalCursos = computed(() => this.recursos().filter(r => r.categoria === 'curso').length);
+  totalCertificaciones = computed(() =>
+    this.recursos().filter(r => r.categoria === 'certificacion').length
+  );
+  totalCursos = computed(() =>
+    this.recursos().filter(r => r.categoria === 'curso').length
+  );
+
+  // ===== DROPDOWN CATEGORÍA =====
+  contarPorCategoria(categoria: string): number {
+    if (categoria === 'todas') return this.recursos().length;
+    return this.recursos().filter(r => r.categoria === categoria).length;
+  }
+
+  toggleDropdownCategoria(event: Event): void {
+    event.stopPropagation();
+    this.dropdownCategoriaAbierto.update(v => !v);
+  }
+
+  seleccionarCategoria(categoria: string): void {
+    this.categoriaSeleccionada.set(categoria);
+    this.dropdownCategoriaAbierto.set(false);
+    this.recursosExpandidos.set(false); // 🔥 Resetear paginación
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.dropdownCategoriaAbierto()) return;
+
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.dropdown-categoria');
+
+    if (!clickedInside) {
+      this.dropdownCategoriaAbierto.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.dropdownCategoriaAbierto()) {
+      this.dropdownCategoriaAbierto.set(false);
+    }
+  }
 
   // ===== ACCIONES =====
   filtrarPorCategoria(categoria: string): void {
     this.categoriaSeleccionada.set(categoria);
+    this.dropdownCategoriaAbierto.set(false);
+    this.recursosExpandidos.set(false);
   }
 
-  buscarRecursos(): void {}
+  buscarRecursos(): void {
+    this.recursosExpandidos.set(false); // 🔥 Resetear al buscar
+  }
 
   limpiarFiltros(): void {
     this.categoriaSeleccionada.set('todas');
     this.busqueda.set('');
+    this.dropdownCategoriaAbierto.set(false);
+    this.recursosExpandidos.set(false); // 🔥 Resetear
+    this.destacadosExpandidos.set(false);
   }
 
   cambiarVista(vista: 'grid' | 'lista'): void {
@@ -136,6 +250,10 @@ export class BibliotecaComponent implements OnInit {
   abrirEnlace(url: string): void {
     if (!url) return;
     window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ===== MODAL =====
@@ -282,6 +400,9 @@ export class BibliotecaComponent implements OnInit {
       'herramienta': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
       'libro': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>`,
       'idiomas': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+      'entretenimiento': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8"/><path d="M2 8l3-5h14l3 5"/><path d="M6 12h.01"/><path d="M10 12h.01"/><path d="M14 12h.01"/><path d="M18 12h.01"/><path d="M6 16h.01"/><path d="M10 16h.01"/><path d="M14 16h.01"/><path d="M18 16h.01"/></svg>`,
+      'juego': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.152A4 4 0 0 0 17.32 5z"/></svg>`,
+      'recurso': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
       'otro': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`
     };
     const svg = iconos[categoria?.toLowerCase()] || iconos['libro'];
@@ -297,6 +418,9 @@ export class BibliotecaComponent implements OnInit {
       'herramienta': '#6c5ce7',
       'libro': '#fd79a8',
       'idiomas': '#feca57',
+      'entretenimiento': '#a29bfe',
+      'juego': '#ff9f7a',
+      'recurso': '#55efc4',
       'otro': '#8b98a5'
     };
     return colores[categoria?.toLowerCase()] || '#8b98a5';
