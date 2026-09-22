@@ -8,7 +8,8 @@ export interface Conversacion {
   ultimoMensaje: string | null;
   ultimoMensajeFecha?: string | null;
   noLeidos: number;
-  online?: boolean; // 🔥 NUEVO
+  online?: boolean;
+  ultimaConexion?: string | null;   // ✅ fecha real de desconexión
 }
 
 export interface MensajeArchivo {

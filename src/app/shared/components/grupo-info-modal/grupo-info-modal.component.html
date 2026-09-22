@@ -1,0 +1,200 @@
+<div class="modal-overlay" (click)="cerrar.emit()">
+  <div class="modal-content modal-content--info" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>Información del grupo</h2>
+      <button class="btn-close" (click)="cerrar.emit()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    @if (cargando()) {
+      <div class="loading">
+        <div class="spinner"></div>
+      </div>
+    } @else if (grupo()) {
+      <div class="modal-body">
+
+        <!-- FOTO + INFO -->
+        <div class="grupo-header">
+          <div class="grupo-foto-wrapper">
+            @if (grupo()!.fotoUrl) {
+              <img [src]="grupo()!.fotoUrl" [alt]="grupo()!.nombre" class="grupo-foto">
+            } @else {
+              <div class="grupo-foto grupo-foto--placeholder">
+                <span>{{ grupo()!.nombre.charAt(0).toUpperCase() }}</span>
+              </div>
+            }
+
+            @if (esAdmin()) {
+              <label class="btn-cambiar-foto" title="Cambiar foto">
+                @if (subiendoFoto()) {
+                  <div class="spinner-mini"></div>
+                } @else {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                }
+                <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden>
+              </label>
+            }
+
+            @if (grupo()!.fotoUrl && esAdmin()) {
+              <button class="btn-eliminar-foto" (click)="eliminarFoto()" title="Eliminar foto">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                </svg>
+              </button>
+            }
+          </div>
+
+          @if (!editando()) {
+            <h1 class="grupo-nombre">{{ grupo()!.nombre }}</h1>
+            @if (grupo()!.descripcion) {
+              <p class="grupo-desc">{{ grupo()!.descripcion }}</p>
+            }
+            <span class="grupo-meta">
+              {{ miembros().length }} miembros · Creado por {{ grupo()!.creadorNombre }}
+            </span>
+          } @else {
+            <div class="edit-form">
+              <input type="text" [(ngModel)]="editNombre" placeholder="Nombre del grupo" maxlength="100">
+              <textarea [(ngModel)]="editDescripcion" placeholder="Descripción" rows="2" maxlength="500"></textarea>
+              <div class="edit-actions">
+                <button class="btn-secondary" (click)="toggleEditar()">Cancelar</button>
+                <button class="btn-primary" (click)="guardarInfo()">Guardar</button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="acciones-grid">
+          <button class="accion-btn" (click)="invitar()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="8.5" cy="7" r="4"/>
+              <line x1="20" y1="8" x2="20" y2="14"/>
+              <line x1="23" y1="11" x2="17" y2="11"/>
+            </svg>
+            <span>Invitar</span>
+          </button>
+
+          @if (esAdmin()) {
+            <button class="accion-btn" (click)="toggleEditar()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              <span>Editar</span>
+            </button>
+          }
+        </div>
+
+        <!-- MIEMBROS -->
+        <div class="miembros-section">
+          <div class="section-title">
+            <span>{{ miembros().length }} miembros</span>
+          </div>
+
+          <div class="miembros-list">
+            @for (m of miembros(); track m.usuarioId) {
+              <button class="miembro-item" (click)="abrirPerfil(m.usuarioId)">
+                <div class="miembro-avatar">
+                  @if (m.fotoPerfilUrl) {
+                    <img [src]="m.fotoPerfilUrl" [alt]="m.nombreUsuario">
+                  } @else {
+                    <span>{{ m.nombreUsuario.charAt(0).toUpperCase() }}</span>
+                  }
+                  <!-- 🔥 PUNTO DE ESTADO ONLINE/OFFLINE -->
+                  <span class="miembro-status"
+                        [class.miembro-status--online]="m.enLinea"
+                        [class.miembro-status--offline]="!m.enLinea"></span>
+                </div>
+                <div class="miembro-info">
+                  <span class="miembro-name">{{ m.nombreUsuario }}</span>
+                  <!-- 🔥 TEXTO DE ESTADO -->
+                  <span class="miembro-estado"
+                        [class.miembro-estado--online]="m.enLinea">
+                    {{ getEstadoMiembro(m) }}
+                  </span>
+                </div>
+                @if (m.rol === 'ADMIN') {
+                  <span class="miembro-badge">Admin</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div class="historial-section">
+          <button class="historial-toggle" (click)="toggleHistorial()">
+            <div class="historial-toggle__left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>Historial del grupo ({{ historial().length }})</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 [class.rotated]="mostrarHistorial()">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          @if (mostrarHistorial()) {
+            <div class="historial-list">
+              @if (historial().length === 0) {
+                <p class="historial-empty">Sin actividad todavía</p>
+              } @else {
+                @for (h of historial(); track h.id) {
+                  <div class="historial-item">
+                    <div class="historial-item__icon">{{ getAccionIcono(h.accion) }}</div>
+                    <div class="historial-item__body">
+                      <div class="historial-item__header">
+                        <span class="historial-item__user">
+                          @if (h.usuarioFoto) {
+                            <img [src]="h.usuarioFoto" [alt]="h.usuarioNombre">
+                          } @else {
+                            <span class="avatar-mini">{{ h.usuarioNombre.charAt(0).toUpperCase() }}</span>
+                          }
+                          <strong>{{ h.usuarioNombre }}</strong>
+                        </span>
+                        <span class="historial-item__time" [title]="formatearFechaHora(h.fecha)">
+                          {{ formatearRelativo(h.fecha) }}
+                        </span>
+                      </div>
+                      <div class="historial-item__action">{{ getAccionTexto(h.accion) }}</div>
+
+                      @if (h.valorAnterior && h.valorNuevo) {
+                        <div class="historial-item__change">
+                          <span class="change-old" [title]="h.valorAnterior">{{ h.valorAnterior }}</span>
+                          <span class="change-arrow">→</span>
+                          <span class="change-new" [title]="h.valorNuevo">{{ h.valorNuevo }}</span>
+                        </div>
+                      } @else if (h.valorNuevo) {
+                        <div class="historial-item__change">
+                          <span class="change-new">→ {{ h.valorNuevo }}</span>
+                        </div>
+                      } @else if (h.detalle) {
+                        <div class="historial-item__detail">{{ h.detalle }}</div>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+  </div>
+</div>

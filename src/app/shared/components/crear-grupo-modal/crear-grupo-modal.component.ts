@@ -33,7 +33,7 @@ export class CrearGrupoModalComponent {
   // ===== ESTADO =====
   enviando = signal(false);
   errorMsg = signal<string | null>(null);
-  paso = signal<1 | 2>(1); // Paso 1: info, Paso 2: miembros
+  paso = signal<1 | 2>(1);
 
   buscarUsuarios(): void {
     const query = this.busquedaUsuario().trim();

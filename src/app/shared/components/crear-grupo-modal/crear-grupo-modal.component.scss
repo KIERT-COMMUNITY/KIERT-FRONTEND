@@ -1,32 +1,6 @@
 // ============================================================
-// VARIABLES — TU PALETA
+// CREAR GRUPO MODAL — Estilos con variables de tema dinámicas
 // ============================================================
-$bg-modal: #121a21;          // fondo principal del modal
-$bg-modal-alt: #141b21;      // fondo secundario (header, footer, inputs)
-$bg-input: #0d1419;          // inputs más oscuros
-$bg-hover: #1a242d;          // hover
-
-$border: #26313c;
-$border-soft: rgba(255, 255, 255, 0.06);
-
-$text-primary: #e6edf3;
-$text-secondary: #8b98a5;
-$text-muted: #5a6a7a;
-
-// Acento (turquesa/verde de tu app — cámbialo si quieres)
-$accent: #2dd4bf;
-$accent-dark: #17b6a4;
-$accent-soft: rgba(45, 212, 191, 0.12);
-
-$success: #2ea043;
-$danger: #f85149;
-
-$radius-sm: 8px;
-$radius: 12px;
-$radius-lg: 16px;
-$radius-full: 999px;
-
-$transition: all 0.2s ease;
 
 // ============================================================
 // OVERLAY
@@ -59,14 +33,15 @@ $transition: all 0.2s ease;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  background: $bg-modal;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: 16px;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.7),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset;
   overflow: hidden;
   animation: scaleIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 @keyframes scaleIn {
@@ -88,9 +63,10 @@ $transition: all 0.2s ease;
   align-items: center;
   justify-content: space-between;
   padding: 18px 22px;
-  background: $bg-modal-alt;
-  border-bottom: 1px solid $border;
+  background: var(--bg-chat);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  transition: background 0.3s ease, border-color 0.3s ease;
 
   h2 {
     display: flex;
@@ -99,11 +75,11 @@ $transition: all 0.2s ease;
     margin: 0;
     font-size: 1.05rem;
     font-weight: 700;
-    color: $text-primary;
+    color: var(--text-primary);
     letter-spacing: -0.2px;
 
     svg {
-      color: $accent;
+      color: var(--primary);
       flex-shrink: 0;
     }
   }
@@ -117,13 +93,13 @@ $transition: all 0.2s ease;
     background: transparent;
     border: none;
     border-radius: 50%;
-    color: $text-secondary;
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: $transition;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: $bg-hover;
-      color: $text-primary;
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
   }
 }
@@ -137,28 +113,29 @@ $transition: all 0.2s ease;
   justify-content: center;
   gap: 12px;
   padding: 16px 22px;
-  background: $bg-modal-alt;
-  border-bottom: 1px solid $border;
+  background: var(--bg-chat);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  transition: background 0.3s ease, border-color 0.3s ease;
 
   .step {
     display: flex;
     align-items: center;
     gap: 8px;
     opacity: 0.45;
-    transition: $transition;
+    transition: all 0.2s ease;
 
     &--active {
       opacity: 1;
 
       .step__num {
-        background: $accent;
-        color: #0d1117;
-        box-shadow: 0 0 0 4px $accent-soft;
+        background: var(--primary);
+        color: var(--bubble-mine-text);
+        box-shadow: 0 0 0 4px var(--primary-light);
       }
 
       .step__label {
-        color: $text-primary;
+        color: var(--text-primary);
       }
     }
   }
@@ -169,26 +146,26 @@ $transition: all 0.2s ease;
     justify-content: center;
     width: 28px;
     height: 28px;
-    background: $bg-hover;
+    background: var(--bg-hover);
     border-radius: 50%;
     font-size: 0.8rem;
     font-weight: 700;
-    color: $text-secondary;
+    color: var(--text-secondary);
     flex-shrink: 0;
-    transition: $transition;
+    transition: all 0.2s ease;
   }
 
   .step__label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: $text-secondary;
-    transition: $transition;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
   }
 
   .step-line {
     width: 40px;
     height: 2px;
-    background: $border;
+    background: var(--border);
     border-radius: 1px;
   }
 }
@@ -210,11 +187,11 @@ $transition: all 0.2s ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: $border;
+    background: var(--border);
     border-radius: 3px;
 
     &:hover {
-      background: $text-muted;
+      background: var(--text-muted);
     }
   }
 }
@@ -236,7 +213,7 @@ $transition: all 0.2s ease;
   label {
     font-size: 0.78rem;
     font-weight: 600;
-    color: $text-secondary;
+    color: var(--text-secondary);
     letter-spacing: 0.3px;
     text-transform: uppercase;
   }
@@ -245,24 +222,24 @@ $transition: all 0.2s ease;
   textarea {
     width: 100%;
     padding: 12px 16px;
-    background: $bg-input;
-    border: 1px solid $border;
-    border-radius: $radius-sm;
-    color: $text-primary;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
     font-size: 0.9rem;
     font-family: inherit;
     outline: none;
-    transition: $transition;
+    transition: all 0.2s ease;
     resize: vertical;
 
     &::placeholder {
-      color: $text-muted;
+      color: var(--text-muted);
     }
 
     &:focus {
-      background: $bg-hover;
-      border-color: $accent;
-      box-shadow: 0 0 0 3px $accent-soft;
+      background: var(--bg-hover);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
     }
   }
 
@@ -275,7 +252,7 @@ $transition: all 0.2s ease;
   .char-count {
     align-self: flex-end;
     font-size: 0.68rem;
-    color: $text-muted;
+    color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
 }
@@ -295,47 +272,47 @@ $transition: all 0.2s ease;
   align-items: flex-start;
   gap: 6px;
   padding: 14px;
-  background: $bg-input;
-  border: 2px solid $border;
-  border-radius: $radius;
-  color: $text-secondary;
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-secondary);
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: $transition;
+  transition: all 0.2s ease;
 
   svg {
-    color: $text-muted;
-    transition: $transition;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
   }
 
   strong {
     font-size: 0.85rem;
     font-weight: 700;
-    color: $text-primary;
+    color: var(--text-primary);
   }
 
   span {
     font-size: 0.7rem;
-    color: $text-muted;
+    color: var(--text-muted);
     line-height: 1.3;
   }
 
   &:hover {
-    background: $bg-hover;
-    border-color: rgba($accent, 0.3);
+    background: var(--bg-hover);
+    border-color: var(--primary-light);
   }
 
   &--active {
-    background: $accent-soft;
-    border-color: $accent;
+    background: var(--primary-light);
+    border-color: var(--primary);
 
     svg {
-      color: $accent;
+      color: var(--primary);
     }
 
     strong {
-      color: $accent;
+      color: var(--primary);
     }
   }
 }
@@ -348,20 +325,20 @@ $transition: all 0.2s ease;
   align-items: center;
   gap: 10px;
   padding: 0 14px;
-  background: $bg-input;
-  border: 1px solid $border;
-  border-radius: $radius-full;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 999px;
   margin-bottom: 14px;
-  transition: $transition;
+  transition: all 0.2s ease;
 
   &:focus-within {
-    background: $bg-hover;
-    border-color: $accent;
-    box-shadow: 0 0 0 3px $accent-soft;
+    background: var(--bg-hover);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
   }
 
   svg {
-    color: $text-muted;
+    color: var(--text-muted);
     flex-shrink: 0;
   }
 
@@ -371,13 +348,13 @@ $transition: all 0.2s ease;
     padding: 12px 0;
     background: transparent;
     border: none;
-    color: $text-primary;
+    color: var(--text-primary);
     font-size: 0.9rem;
     font-family: inherit;
     outline: none;
 
     &::placeholder {
-      color: $text-muted;
+      color: var(--text-muted);
     }
   }
 }
@@ -394,10 +371,10 @@ $transition: all 0.2s ease;
   &__count {
     font-size: 0.72rem;
     font-weight: 700;
-    color: $accent;
-    background: $accent-soft;
+    color: var(--primary);
+    background: var(--primary-light);
     padding: 4px 10px;
-    border-radius: $radius-full;
+    border-radius: 999px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
   }
@@ -418,7 +395,7 @@ $transition: all 0.2s ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: $border;
+    background: var(--border);
     border-radius: 3px;
   }
 }
@@ -428,18 +405,18 @@ $transition: all 0.2s ease;
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: $radius-sm;
+  border-radius: 8px;
   cursor: pointer;
-  transition: $transition;
+  transition: all 0.2s ease;
   border: 1px solid transparent;
 
   &:hover {
-    background: $bg-hover;
+    background: var(--bg-hover);
   }
 
   &--selected {
-    background: $accent-soft;
-    border-color: rgba($accent, 0.4);
+    background: var(--primary-light);
+    border-color: var(--primary);
   }
 }
 
@@ -448,13 +425,13 @@ $transition: all 0.2s ease;
   height: 40px;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(135deg, $accent, $accent-dark);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 0.9rem;
-  color: #0d1117;
+  color: var(--bubble-mine-text);
   flex-shrink: 0;
 
   img {
@@ -475,7 +452,7 @@ $transition: all 0.2s ease;
 .user-nombre {
   font-size: 0.88rem;
   font-weight: 600;
-  color: $text-primary;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -483,7 +460,7 @@ $transition: all 0.2s ease;
 
 .user-email {
   font-size: 0.72rem;
-  color: $text-muted;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -495,15 +472,15 @@ $transition: all 0.2s ease;
   justify-content: center;
   width: 22px;
   height: 22px;
-  border: 2px solid $border;
+  border: 2px solid var(--border);
   border-radius: 50%;
-  color: #0d1117;
+  color: var(--bubble-mine-text);
   flex-shrink: 0;
-  transition: $transition;
+  transition: all 0.2s ease;
 
   &--active {
-    background: $accent;
-    border-color: $accent;
+    background: var(--primary);
+    border-color: var(--primary);
   }
 }
 
@@ -516,15 +493,15 @@ $transition: all 0.2s ease;
   justify-content: center;
   gap: 10px;
   padding: 30px 20px;
-  color: $text-secondary;
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 
 .spinner-small {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba($accent, 0.3);
-  border-top-color: $accent;
+  border: 2px solid var(--primary-light);
+  border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -537,7 +514,7 @@ $transition: all 0.2s ease;
 .ayuda {
   text-align: center;
   padding: 30px 20px;
-  color: $text-muted;
+  color: var(--text-muted);
   font-size: 0.85rem;
 
   p { margin: 0; }
@@ -549,10 +526,10 @@ $transition: all 0.2s ease;
 .error-message {
   margin-top: 14px;
   padding: 10px 14px;
-  background: rgba($danger, 0.1);
-  border: 1px solid rgba($danger, 0.3);
-  border-radius: $radius-sm;
-  color: $danger;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 8px;
+  color: var(--danger);
   font-size: 0.8rem;
   font-weight: 500;
 }
@@ -566,9 +543,10 @@ $transition: all 0.2s ease;
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 22px;
-  background: $bg-modal-alt;
-  border-top: 1px solid $border;
+  background: var(--bg-chat);
+  border-top: 1px solid var(--border);
   flex-shrink: 0;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-secondary,
@@ -579,12 +557,12 @@ $transition: all 0.2s ease;
   gap: 8px;
   padding: 11px 22px;
   border: none;
-  border-radius: $radius-full;
+  border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: $transition;
+  transition: all 0.2s ease;
 
   &:disabled {
     opacity: 0.45;
@@ -594,25 +572,25 @@ $transition: all 0.2s ease;
 
 .btn-secondary {
   background: transparent;
-  color: $text-secondary;
-  border: 1px solid $border;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
 
   &:hover:not(:disabled) {
-    background: $bg-hover;
-    color: $text-primary;
-    border-color: $text-muted;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--text-muted);
   }
 }
 
 .btn-primary {
-  background: $accent;
-  color: #0d1117;
-  box-shadow: 0 4px 14px rgba($accent, 0.25);
+  background: var(--primary);
+  color: var(--bubble-mine-text);
+  box-shadow: 0 4px 14px rgba(45, 212, 191, 0.25);
 
   &:hover:not(:disabled) {
-    background: $accent-dark;
+    background: var(--primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba($accent, 0.4);
+    box-shadow: 0 6px 20px rgba(45, 212, 191, 0.4);
   }
 }
 
@@ -628,7 +606,7 @@ $transition: all 0.2s ease;
   .modal-content {
     max-width: 100%;
     max-height: 92vh;
-    border-radius: $radius-lg $radius-lg 0 0;
+    border-radius: 16px 16px 0 0;
   }
 
   .modal-header,
@@ -646,5 +624,29 @@ $transition: all 0.2s ease;
   .btn-secondary,
   .btn-primary {
     flex: 1;
+  }
+}
+// ============================================================
+// INFO HINT
+// ============================================================
+.info-hint {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  color: var(--primary);
+
+  svg { flex-shrink: 0; margin-top: 1px; }
+
+  p {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+
+    strong { color: var(--primary); }
   }
 }

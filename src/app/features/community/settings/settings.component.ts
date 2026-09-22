@@ -223,7 +223,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // APLICAR TEMA GLOBAL (cambia fondo de página + color de letras)
+  // APLICAR TEMA GLOBAL
   // ============================================================
   aplicarTemaGlobal(themeId: string): void {
     const html = document.documentElement;

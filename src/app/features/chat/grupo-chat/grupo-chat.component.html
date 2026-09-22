@@ -24,14 +24,101 @@
       </div>
     </div>
 
-    <div class="sidebar-search">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" placeholder="Buscar en Messenger">
+    <!-- BÚSQUEDA -->
+    <div class="sidebar-search-wrapper">
+      <div class="sidebar-search" [class.sidebar-search--active]="buscadorActivo()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Buscar chats o grupos..."
+          [value]="busqueda()"
+          (input)="onBusquedaChange($any($event.target).value)"
+          (focus)="buscadorActivo.set(true)"
+          autocomplete="off"
+        >
+        @if (busqueda()) {
+          <button class="btn-clear-search" (click)="limpiarBusqueda()" title="Limpiar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        }
+      </div>
+
+      @if (buscadorActivo() && busqueda().length > 0) {
+        <div class="search-results">
+          @if (conversacionesFiltradas().length > 0) {
+            <div class="search-section">
+              <span class="search-section__title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Chats ({{ conversacionesFiltradas().length }})
+              </span>
+              @for (conv of conversacionesFiltradas(); track conv.usuarioId) {
+                <button class="search-result" (click)="seleccionarConversacion(conv.usuarioId); limpiarBusqueda()">
+                  <div class="search-result__avatar">
+                    @if (conv.fotoPerfilUrl) {
+                      <img [src]="conv.fotoPerfilUrl" [alt]="conv.nombreUsuario">
+                    } @else {
+                      <span>{{ conv.nombreUsuario.charAt(0).toUpperCase() }}</span>
+                    }
+                  </div>
+                  <div class="search-result__info">
+                    <span class="search-result__name">{{ conv.nombreUsuario }}</span>
+                    <span class="search-result__sub">{{ conv.ultimoMensaje || 'Sin mensajes' }}</span>
+                  </div>
+                </button>
+              }
+            </div>
+          }
+
+          @if (gruposFiltrados().length > 0) {
+            <div class="search-section">
+              <span class="search-section__title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                </svg>
+                Grupos ({{ gruposFiltrados().length }})
+              </span>
+              @for (g of gruposFiltrados(); track g.id) {
+                <button class="search-result" (click)="seleccionarGrupo(g.id); limpiarBusqueda()">
+                  <div class="search-result__avatar search-result__avatar--grupo">
+                    @if (g.fotoUrl) {
+                      <img [src]="g.fotoUrl" [alt]="g.nombre">
+                    } @else {
+                      <span>{{ g.nombre.charAt(0).toUpperCase() }}</span>
+                    }
+                  </div>
+                  <div class="search-result__info">
+                    <span class="search-result__name">{{ g.nombre }}</span>
+                    <span class="search-result__sub">{{ g.totalMiembros }} miembros</span>
+                  </div>
+                </button>
+              }
+            </div>
+          }
+
+          @if (!hayResultados() && busqueda().length > 0) {
+            <div class="search-empty">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <p>Sin resultados para "<strong>{{ busqueda() }}</strong>"</p>
+              <span>Prueba con otro nombre</span>
+            </div>
+          }
+        </div>
+      }
     </div>
 
+    <!-- Tabs -->
     <div class="sidebar-tabs">
       <button class="tab-btn" [class.tab-btn--active]="tabActual() === 'chats'" (click)="cambiarTab('chats')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -243,7 +330,8 @@
           </svg>
         </button>
 
-        <div class="chat-top__user" (click)="toggleMiembros()">
+        <!-- 🔥 CLICK ABRE INFO DEL GRUPO -->
+        <div class="chat-top__user" (click)="abrirInfoGrupo()">
           <div class="chat-top__avatar chat-top__avatar--grupo">
             @if (grupo()!.fotoUrl) {
               <img [src]="grupo()!.fotoUrl" [alt]="grupo()!.nombre">
@@ -253,11 +341,10 @@
           </div>
           <div class="chat-top__info">
             <span class="chat-top__name">{{ grupo()!.nombre }}</span>
-            <span class="chat-top__sub">{{ grupo()!.totalMiembros }} miembros · Click para ver</span>
+            <span class="chat-top__sub">{{ grupo()!.totalMiembros }} miembros · Click para ver info</span>
           </div>
         </div>
 
-        <!-- 🔥 MENÚ DE OPCIONES -->
         <div class="chat-top__menu-wrapper">
           <button class="chat-top__action" (click)="toggleOpcionesGrupo()" title="Opciones">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -269,6 +356,25 @@
 
           @if (mostrarOpcionesGrupo()) {
             <div class="dropdown-menu">
+              <!-- Info del grupo -->
+              <button class="dropdown-item" (click)="abrirInfoGrupo(); mostrarOpcionesGrupo.set(false)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>Info del grupo</span>
+              </button>
+
+              <!-- Invitar con link -->
+              <button class="dropdown-item" (click)="abrirInvitarLink()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                <span>Invitar con link</span>
+              </button>
+
               <button class="dropdown-item" (click)="toggleMiembros(); mostrarOpcionesGrupo.set(false)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -340,9 +446,30 @@
                   @if (!msg.propio) {
                     <span class="msg__author">{{ msg.emisorNombre }}</span>
                   }
+
+                  <!-- ARCHIVO IMAGEN -->
+                  @if (msg.urlArchivo && esImagen(msg.nombreArchivo)) {
+                    <div class="msg__img" (click)="abrirArchivo(msg.urlArchivo)">
+                      <img [src]="msg.urlArchivo" [alt]="msg.nombreArchivo" loading="lazy">
+                    </div>
+                  }
+
+                  <!-- ARCHIVO DOCUMENTO -->
+                  @if (msg.urlArchivo && !esImagen(msg.nombreArchivo)) {
+                    <button class="msg__file" (click)="abrirArchivo(msg.urlArchivo)">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                      </svg>
+                      <span>{{ msg.nombreArchivo }}</span>
+                    </button>
+                  }
+
+                  <!-- TEXTO -->
                   @if (msg.contenido) {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }
+
                   <span class="msg__time">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
                 </div>
               </div>
@@ -351,7 +478,31 @@
         }
       </div>
 
+      <!-- PREVIEW ARCHIVOS SELECCIONADOS -->
+      @if (archivosSeleccionados().length > 0) {
+        <div class="files-preview">
+          @for (archivo of archivosSeleccionados(); track $index) {
+            <div class="files-preview__item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span class="files-preview__name">{{ archivo.name }}</span>
+              <span class="files-preview__size">{{ (archivo.size / 1024).toFixed(1) }} KB</span>
+              <button type="button" (click)="quitarArchivo($index)">×</button>
+            </div>
+          }
+        </div>
+      }
+
       <form class="chat-input" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
+        <label class="chat-input__file" title="Adjuntar archivo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+          <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden>
+        </label>
+
         <input
           formControlName="contenido"
           type="text"
@@ -362,7 +513,7 @@
 
         <button type="submit"
                 class="chat-input__send"
-                [disabled]="enviando() || !formMensaje.valid">
+                [disabled]="enviando() || (!formMensaje.valid && archivosSeleccionados().length === 0)">
           @if (enviando()) {
             <div class="spinner-mini"></div>
           } @else {
@@ -385,10 +536,24 @@
   </kiert-crear-grupo-modal>
 }
 
-<!-- ============================================================ -->
-<!-- 🔥 MODALES NUEVOS                                          -->
-<!-- ============================================================ -->
+<!-- Modal invitar con link -->
+@if (mostrarInvitarLink() && grupo()) {
+  <kiert-invitar-link-modal
+    [grupoId]="grupo()!.id"
+    [grupoNombre]="grupo()!.nombre"
+    (cerrar)="cerrarInvitarLink()">
+  </kiert-invitar-link-modal>
+}
 
+<!-- 🔥 Modal INFO DEL GRUPO -->
+@if (mostrarInfoGrupo() && grupo()) {
+  <kiert-grupo-info-modal
+    [grupoId]="grupo()!.id"
+    (cerrar)="cerrarInfoGrupo()"
+    (grupoActualizado)="onGrupoActualizado($event)"
+    (abrirInvitarLink)="abrirInvitarLink()">
+  </kiert-grupo-info-modal>
+}
 <!-- MODAL: MIEMBROS -->
 @if (mostrarMiembros()) {
   <div class="modal-overlay" (click)="toggleMiembros()">
@@ -411,9 +576,18 @@
               } @else {
                 <span>{{ m.nombreUsuario.charAt(0).toUpperCase() }}</span>
               }
+              <span class="miembro-status"
+                    [class.miembro-status--online]="m.enLinea"
+                    [class.miembro-status--offline]="!m.enLinea"></span>
             </div>
             <div class="miembro-info">
-              <span class="miembro-name">{{ m.nombreUsuario }}</span>
+              <div class="miembro-text">
+                <span class="miembro-name">{{ m.nombreUsuario }}</span>
+                <span class="miembro-estado"
+                      [class.miembro-estado--online]="m.enLinea">
+                  {{ getEstadoMiembro(m) }}
+                </span>
+              </div>
               @if (m.rol === 'ADMIN') {
                 <span class="miembro-badge">Admin</span>
               }
