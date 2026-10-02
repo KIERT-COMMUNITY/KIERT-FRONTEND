@@ -47,7 +47,7 @@ export class PersonalizacionService {
     return this.http.get<Personalizacion>(`${this.API_URL}/usuario/${usuarioId}`);
   }
 
-  // ✅ GUARDAR PERSONALIZACIÓN CON DTO (PUT)
+  //  GUARDAR PERSONALIZACIÓN CON DTO (PUT)
   guardarPersonalizacion(datos: Partial<Personalizacion>): Observable<Personalizacion> {
     // Asegurar que los campos necesarios estén presentes
     const payload = {
@@ -61,7 +61,7 @@ export class PersonalizacionService {
     return this.http.put<Personalizacion>(this.API_URL, payload);
   }
 
-  // ✅ GUARDAR CON PARÁMETROS (POST - alternativa)
+  // GUARDAR CON PARÁMETROS (POST - alternativa)
   guardarPersonalizacionParams(temaId: string, marcoId: string, fondoId: string): Observable<Personalizacion> {
     const params = new URLSearchParams();
     params.set('temaId', temaId);

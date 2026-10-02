@@ -36,7 +36,7 @@ export interface Post {
   autor: Autor;
   titulo: string;
   descripcion: string;
-  categoria: string;  // ✅ String libre
+  categoria: string;  //String libre
   adjuntos: Adjunto[];
   totalComentarios: number;
   fechaCreacion: string;

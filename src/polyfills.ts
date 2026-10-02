@@ -28,4 +28,4 @@ if (typeof (window as any).Buffer === 'undefined') {
   };
 }
 
-console.log('✅ Polyfills de Angular cargados');
+console.log('Polyfills de Angular cargados');

@@ -59,7 +59,7 @@ export class FloatingSocialComponent implements OnInit, OnDestroy {
       this.showPopUp.set(true);
     }, 3000);
 
-    // ✅ Auto-play del carrusel cada 5s
+    //  Auto-play del carrusel cada 5s
     this.carouselTimer = setInterval(() => {
       if (this.showStaticAd()) this.siguiente();
     }, 5000);

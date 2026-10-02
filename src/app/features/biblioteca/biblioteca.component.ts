@@ -37,7 +37,7 @@ export class BibliotecaComponent implements OnInit {
 
   // ===== DESTACADOS EXPANDIBLES =====
   destacadosExpandidos = signal(false);
-  destacadosPorPagina = 4; // 🔧 Solo 4 destacados por defecto
+  destacadosPorPagina = 4; // Solo 4 destacados por defecto
 
   destacadosMostrados = computed(() => {
     const todos = this.recursos().filter(r => r.destacado);
@@ -57,7 +57,7 @@ export class BibliotecaComponent implements OnInit {
 
   // ===== PAGINACIÓN DE RECURSOS =====
   recursosExpandidos = signal(false);
-  recursosPorPagina = 8; // 🔧 Solo 8 recursos por defecto
+  recursosPorPagina = 8; // Solo 8 recursos por defecto
 
   recursosMostrados = computed(() => {
     const filtrados = this.recursosFiltradosComputed();
@@ -145,12 +145,12 @@ export class BibliotecaComponent implements OnInit {
 
     this.bibliotecaService.obtenerTodos().subscribe({
       next: (data) => {
-        console.log('✅ Recursos cargados desde backend:', data);
+        console.log('Recursos cargados desde backend:', data);
         this.recursos.set(data || []);
         this.cargando.set(false);
       },
       error: (err) => {
-        console.error('❌ Error al cargar recursos:', err);
+        console.error('Error al cargar recursos:', err);
         this.errorMsg.set('Error al cargar los recursos');
         this.recursos.set([]);
         this.cargando.set(false);
@@ -202,7 +202,7 @@ export class BibliotecaComponent implements OnInit {
   seleccionarCategoria(categoria: string): void {
     this.categoriaSeleccionada.set(categoria);
     this.dropdownCategoriaAbierto.set(false);
-    this.recursosExpandidos.set(false); // 🔥 Resetear paginación
+    this.recursosExpandidos.set(false); // Resetear paginación
   }
 
   @HostListener('document:click', ['$event'])
@@ -232,14 +232,14 @@ export class BibliotecaComponent implements OnInit {
   }
 
   buscarRecursos(): void {
-    this.recursosExpandidos.set(false); // 🔥 Resetear al buscar
+    this.recursosExpandidos.set(false); // Resetear al buscar
   }
 
   limpiarFiltros(): void {
     this.categoriaSeleccionada.set('todas');
     this.busqueda.set('');
     this.dropdownCategoriaAbierto.set(false);
-    this.recursosExpandidos.set(false); // 🔥 Resetear
+    this.recursosExpandidos.set(false); // Resetear
     this.destacadosExpandidos.set(false);
   }
 
@@ -347,12 +347,12 @@ export class BibliotecaComponent implements OnInit {
 
     op$.subscribe({
       next: (guardado) => {
-        console.log('✅ Guardado en BD:', guardado);
+        console.log('Guardado en BD:', guardado);
         this.cerrarModal();
         this.cargarRecursos();
       },
       error: (err) => {
-        console.error('❌ Error al guardar:', err);
+        console.error('Error al guardar:', err);
         console.error('Detalle:', err.error);
         this.formError.set(
           err?.error?.message ||
@@ -380,12 +380,12 @@ export class BibliotecaComponent implements OnInit {
 
     this.bibliotecaService.eliminarRecursoUsuario(recurso.id).subscribe({
       next: () => {
-        console.log('✅ Eliminado');
+        console.log('Eliminado');
         this.recursoAEliminar.set(null);
         this.cargarRecursos();
       },
       error: (err) => {
-        console.error('❌ Error al eliminar:', err);
+        console.error('Error al eliminar:', err);
       }
     });
   }

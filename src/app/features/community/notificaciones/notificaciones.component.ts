@@ -21,7 +21,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private grupoService = inject(GrupoService);
   private router = inject(Router);
-  private elementRef = inject(ElementRef); // ✅ Referencia al host del componente
+  private elementRef = inject(ElementRef); //Referencia al host del componente
 
   notificaciones = signal<Notificacion[]>([]);
   noLeidas = signal<number>(0);
@@ -31,7 +31,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   private subscription: Subscription | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
-  // ✅ Solo mostrar las últimas 5 en el dropdown
+  // Solo mostrar las últimas 5 en el dropdown
   get notificacionesRecientes(): Notificacion[] {
     return this.notificaciones().slice(0, 5);
   }
@@ -66,7 +66,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ Cerrar con tecla Escape
+  // Cerrar con tecla Escape
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.mostrando()) {
@@ -74,7 +74,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ NUEVO: Cerrar al hacer clic fuera del componente
+  // NUEVO: Cerrar al hacer clic fuera del componente
   @HostListener('document:click', ['$event'])
   onClickFuera(event: MouseEvent): void {
     if (!this.mostrando()) return;
@@ -183,7 +183,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     this.cerrarMenu();
   }
 
-  // ✅ Ver todas las notificaciones
+  // Ver todas las notificaciones
   verTodas(): void {
     this.cerrarMenu();
     this.router.navigate(['/notificaciones']);

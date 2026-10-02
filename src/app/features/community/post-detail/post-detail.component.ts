@@ -39,7 +39,7 @@ export class PostDetailComponent implements OnInit {
 
   id = input.required<string>();
 
-  // ✅ GETTER PARA EL ID COMO NÚMERO (para usar en templates)
+  // GETTER PARA EL ID COMO NÚMERO (para usar en templates)
   get postId(): number {
     return Number(this.id());
   }
@@ -96,7 +96,7 @@ export class PostDetailComponent implements OnInit {
     this.cargarCompartidos(postId);
   }
 
-  // ✅ MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
+  // MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
   getCategoriaFormateada(categoria: string): string {
     if (!categoria) return 'Sin categoría';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
@@ -106,7 +106,7 @@ export class PostDetailComponent implements OnInit {
       .join(' ');
   }
 
-  // ✅ MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
+  // MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
   getColorCategoria(categoria: string): string {
     if (!categoria) return '#8b98a5';
     const categoriaLower = categoria.toLowerCase();
@@ -131,7 +131,7 @@ export class PostDetailComponent implements OnInit {
     return '#2dd4bf';
   }
 
-  // ✅ OBTENER EL MARCO DEL AUTOR
+  // OBTENER EL MARCO DEL AUTOR
   getMarcoDelAutor(): string {
     return this.post()?.autor?.marcoId || 'none';
   }
@@ -140,14 +140,14 @@ export class PostDetailComponent implements OnInit {
     this.cargando.set(true);
     this.postService.obtenerPorId(postId).subscribe({
       next: (data) => {
-        console.log('📌 Post cargado:', data);
-        console.log('📌 Categoría:', data.categoria);
-        console.log('📌 Marco del autor:', data.autor?.marcoId);
+        console.log('Post cargado:', data);
+        console.log('Categoría:', data.categoria);
+        console.log('Marco del autor:', data.autor?.marcoId);
         this.post.set(data);
         this.cargando.set(false);
       },
       error: (error) => {
-        console.error('❌ Error al cargar post:', error);
+        console.error('Error al cargar post:', error);
         this.cargando.set(false);
         this.errorMsg.set('Error al cargar la publicación');
       }
@@ -408,7 +408,7 @@ export class PostDetailComponent implements OnInit {
     this.comentarioService.eliminar(comentarioId).subscribe({
       next: () => {
         this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
-        console.log('✅ Comentario eliminado');
+        console.log('Comentario eliminado');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar comentario');
@@ -434,7 +434,7 @@ export class PostDetailComponent implements OnInit {
             return c;
           })
         );
-        console.log('✅ Respuesta eliminada');
+        console.log('Respuesta eliminada');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar respuesta');

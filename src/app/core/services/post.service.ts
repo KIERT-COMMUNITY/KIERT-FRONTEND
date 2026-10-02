@@ -18,14 +18,14 @@ export class PostService {
     return this.http.get<Post>(`${this.baseUrl}/${id}`);
   }
 
-  // ✅ CREAR POST - Envía FormData con categoría como string
+  //  CREAR POST - Envía FormData con categoría como string
   crear(formData: FormData): Observable<Post> {
-    // ✅ Verificar que la categoría existe y no está vacía
+    //  Verificar que la categoría existe y no está vacía
     const categoria = formData.get('categoria');
-    console.log('📌 PostService - Categoría enviada:', categoria);
+    console.log(' PostService - Categoría enviada:', categoria);
     
     if (!categoria || typeof categoria !== 'string' || categoria.trim() === '') {
-      console.warn('⚠️ Categoría vacía, usando "otro" por defecto');
+      console.warn(' Categoría vacía, usando "otro" por defecto');
       formData.set('categoria', 'otro');
     }
     

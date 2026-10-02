@@ -246,7 +246,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     body.setAttribute('data-theme', tema);
     body.classList.add(`tema-${tema}`);
 
-    console.log('🎨 Tema aplicado globalmente:', tema);
+    console.log('Tema aplicado globalmente:', tema);
   }
 
   // ============================================================

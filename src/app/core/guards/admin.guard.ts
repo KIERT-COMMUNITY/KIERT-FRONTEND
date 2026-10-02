@@ -14,13 +14,13 @@ export const adminGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // ✅ Si tienes un campo 'rol' en el usuario:
+  //Si tienes un campo 'rol' en el usuario:
   // if (usuario.rol !== 'ADMIN') {
   //   router.navigate(['/comunidad']);
   //   return false;
   // }
 
-  // ⚠️ TEMPORAL: permitir cualquier usuario logueado
+  // TEMPORAL: permitir cualquier usuario logueado
   // (quitar esto cuando agregues roles reales)
   return true;
 };

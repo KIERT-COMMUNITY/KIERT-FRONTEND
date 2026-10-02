@@ -247,7 +247,7 @@ export class PersonalizacionStore {
     effect(() => {
       const usuario = this.authService.usuario();
       if (usuario) {
-        console.log('👤 Usuario logueado, cargando personalización...');
+        console.log('Usuario logueado, cargando personalización...');
         this.cargarTodos();
       }
     });
@@ -264,7 +264,7 @@ export class PersonalizacionStore {
   cargarPersonalizacion(): void {
     this.personalizacionService.obtenerPersonalizacion().subscribe({
       next: (data) => {
-        console.log('📥 Personalización cargada:', data);
+        console.log('Personalización cargada:', data);
         this.personalizacionSignal.set(data);
         const usuario = this.authService.usuario();
         if (usuario && data.fotoPerfilUrl && usuario.fotoPerfilUrl !== data.fotoPerfilUrl) {
@@ -275,7 +275,7 @@ export class PersonalizacionStore {
         }
       },
       error: (error) => {
-        console.error('❌ Error al cargar personalización:', error);
+        console.error('Error al cargar personalización:', error);
         this.personalizacionSignal.set({
           id: 0,
           usuarioId: 0,
@@ -293,11 +293,11 @@ export class PersonalizacionStore {
   cargarMarcos(): void {
     this.personalizacionService.obtenerMarcos().subscribe({
       next: (data) => {
-        console.log('📥 Marcos cargados:', data.length);
+        console.log('Marcos cargados:', data.length);
         this.marcosSignal.set(data);
       },
       error: (error) => {
-        console.error('❌ Error al cargar marcos:', error);
+        console.error('Error al cargar marcos:', error);
       }
     });
   }
@@ -305,17 +305,17 @@ export class PersonalizacionStore {
   cargarFondos(): void {
     this.personalizacionService.obtenerFondos().subscribe({
       next: (data) => {
-        console.log('📥 Fondos cargados:', data.length);
+        console.log('Fondos cargados:', data.length);
         this.fondosSignal.set(data);
       },
       error: (error) => {
-        console.error('❌ Error al cargar fondos:', error);
+        console.error('Error al cargar fondos:', error);
       }
     });
   }
 
   guardarPersonalizacion(temaId: string, marcoId: string, fondoId: string): void {
-    console.log('💾 Guardando personalización:', { temaId, marcoId, fondoId });
+    console.log('Guardando personalización:', { temaId, marcoId, fondoId });
     this.loadingSignal.set(true);
     
     const datos = {
@@ -326,7 +326,7 @@ export class PersonalizacionStore {
     
     this.personalizacionService.guardarPersonalizacion(datos).subscribe({
       next: (data) => {
-        console.log(' Personalización guardada:', data);
+        console.log('Personalización guardada:', data);
         this.personalizacionSignal.set(data);
         this.loadingSignal.set(false);
         const usuario = this.authService.usuario();
@@ -338,14 +338,14 @@ export class PersonalizacionStore {
         }
       },
       error: (error) => {
-        console.error('❌ Error al guardar personalización:', error);
+        console.error('Error al guardar personalización:', error);
         this.loadingSignal.set(false);
       }
     });
   }
 
   recargar(): void {
-    console.log('🔄 Recargando personalización...');
+    console.log('Recargando personalización...');
     this.cargarTodos();
   }
 }

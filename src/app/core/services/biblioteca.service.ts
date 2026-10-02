@@ -41,7 +41,7 @@ export class BibliotecaService {
   }
 
   // ============================================================
-  // 🔥 CRUD DEL USUARIO (usa HTTP real)
+  // CRUD DEL USUARIO (usa HTTP real)
   // ============================================================
 
   agregarRecursoUsuario(datos: Omit<RecursoBiblioteca, 'id' | 'fechaAgregado' | 'esUsuario'>): Observable<RecursoBiblioteca> {
@@ -58,7 +58,7 @@ export class BibliotecaService {
       destacado: datos.destacado ?? false,
       tags: datos.tags || []
     };
-    console.log('📤 POST /biblioteca/usuario', payload);
+    console.log('POST /biblioteca/usuario', payload);
     return this.http.post<RecursoBiblioteca>(`${this.apiUrl}/biblioteca/usuario`, payload);
   }
 
@@ -76,12 +76,12 @@ export class BibliotecaService {
       destacado: datos.destacado ?? false,
       tags: datos.tags || []
     };
-    console.log('📤 PUT /biblioteca/usuario/' + id, payload);
+    console.log('PUT /biblioteca/usuario/' + id, payload);
     return this.http.put<RecursoBiblioteca>(`${this.apiUrl}/biblioteca/usuario/${id}`, payload);
   }
 
   eliminarRecursoUsuario(id: number | string): Observable<void> {
-    console.log('📤 DELETE /biblioteca/usuario/' + id);
+    console.log('DELETE /biblioteca/usuario/' + id);
     return this.http.delete<void>(`${this.apiUrl}/biblioteca/usuario/${id}`);
   }
 }

@@ -23,12 +23,12 @@ export class UploadService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ SUBIR ARCHIVO A CLOUDINARY DESDE EL FRONTEND
+  //  SUBIR ARCHIVO A CLOUDINARY DESDE EL FRONTEND
   subirArchivoCloudinary(archivo: File): Observable<CloudinaryResponse> {
     const formData = new FormData();
     formData.append('file', archivo);
     formData.append('upload_preset', this.CLOUDINARY_UPLOAD_PRESET);
-    formData.append('folder', 'chat'); // ✅ Carpeta "chat" en Cloudinary
+    formData.append('folder', 'chat'); // Carpeta "chat" en Cloudinary
     
     return this.http.post<CloudinaryResponse>(
       `https://api.cloudinary.com/v1_1/${this.CLOUDINARY_CLOUD_NAME}/auto/upload`,

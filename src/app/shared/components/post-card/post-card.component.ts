@@ -28,7 +28,7 @@ export class PostCardComponent implements OnInit {
     return 'tema-' + this.personalizacionStore.temaId();
   }
 
-  // ✅ MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
+  // MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
   getCategoriaFormateada(categoria: string): string {
     if (!categoria) return 'Sin categoría';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
@@ -38,7 +38,7 @@ export class PostCardComponent implements OnInit {
       .join(' ');
   }
 
-  // ✅ MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
+  // MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
   getColorCategoria(categoria: string): string {
     if (!categoria) return '#8b98a5';
     const categoriaLower = categoria.toLowerCase();
@@ -63,7 +63,7 @@ export class PostCardComponent implements OnInit {
     return '#2dd4bf';
   }
 
-  // ✅ OBTENER EL MARCO DEL AUTOR
+  // OBTENER EL MARCO DEL AUTOR
   getMarcoDelAutor(): string {
     return this.post().autor?.marcoId || 'none';
   }
@@ -188,7 +188,7 @@ export class PostCardComponent implements OnInit {
     if (parent) {
       const errorMsg = document.createElement('div');
       errorMsg.className = 'post-card__video-error';
-      errorMsg.textContent = '❌ Video no disponible';
+      errorMsg.textContent = 'Video no disponible';
       parent.appendChild(errorMsg);
     }
   }
@@ -201,6 +201,6 @@ export class PostCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('📌 PostCard - Marco del autor:', this.getMarcoDelAutor());
+    console.log('PostCard - Marco del autor:', this.getMarcoDelAutor());
   }
 }

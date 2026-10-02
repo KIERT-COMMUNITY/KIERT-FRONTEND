@@ -835,10 +835,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     if (!conv) return 'Desconocido';
 
-    // 🟢 Online
+    // Online
     if (conv.online) return 'En línea';
 
-    // 🔴 Última conexión real
+    // Última conexión real
     if (conv.ultimaConexion) {
       const fecha = new Date(conv.ultimaConexion);
       const ahora = new Date();
@@ -865,10 +865,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ESTADO DE MIEMBRO DE GRUPO
   // ============================================================
   getEstadoMiembro(m: MiembroGrupo): string {
-    // 🟢 Online
+    // Online
     if (m.enLinea) return 'En línea';
 
-    // 🔴 Última conexión
+    // Última conexión
     if (m.ultimaConexion) {
       const fecha = new Date(m.ultimaConexion);
       const ahora = new Date();

@@ -63,7 +63,7 @@ export class PerfilAutorComponent implements OnInit {
   autorFotoPerfil = signal<string>('');
   autorFotoPortada = signal<string>('');
 
-  // 🔥 Fondo del perfil del autor (solo se aplica a la tarjeta)
+  //  Fondo del perfil del autor (solo se aplica a la tarjeta)
   get fondoPerfilDelAutor(): string {
     const fondoId = this.autorFondoId();
     const fondos = this.personalizacionStore.fondos();
