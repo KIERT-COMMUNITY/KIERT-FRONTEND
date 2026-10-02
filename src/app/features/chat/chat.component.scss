@@ -1531,3 +1531,103 @@
     font-weight: 600;
   }
 }
+// ============================================================
+// BOTÓN ADJUNTAR (label con input file)
+// ============================================================
+.chat-input__file {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--primary);
+  }
+}
+
+// ============================================================
+// PREVIEW DE ARCHIVOS SELECCIONADOS
+// ============================================================
+.files-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 20px;
+  background: var(--bg-chat);
+  border-top: 1px solid var(--border);
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+
+    button {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0 2px;
+    }
+  }
+
+  &__name {
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+  }
+
+  &__size {
+    color: var(--text-muted);
+  }
+}
+
+// ============================================================
+// IMÁGENES Y ARCHIVOS EN MENSAJES
+// ============================================================
+.msg__img {
+  max-width: 240px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  margin-top: 4px;
+
+  img {
+    width: 100%;
+    display: block;
+  }
+}
+
+.msg__file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 4px;
+  font-family: inherit;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
