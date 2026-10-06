@@ -2,6 +2,16 @@
 // MODELOS PARA POSTS, COMENTARIOS Y RESPUESTAS
 // ============================================================
 
+export interface Subtitulo {
+  id: number;
+  idioma: string;            // 'es', 'en', 'pt', etc.
+  etiqueta: string;          // 'Español', 'English', 'Português'
+  url: string;               // URL del archivo .vtt
+  porDefecto?: boolean;      // si se activa por defecto
+  esAutoGenerado?: boolean;  // si fue generado automáticamente
+  fechaCreacion?: string;
+}
+
 export interface Adjunto {
   id: number;
   tipo: 'archivo' | 'link' | 'imagen' | 'video' | 'gif';
@@ -12,6 +22,9 @@ export interface Adjunto {
   ancho?: number;
   alto?: number;
   formato?: string;
+  mimeType?: string;            // ← NUEVO: ej. "video/mp4"
+  miniaturaUrl?: string;        // ← NUEVO: poster/thumbnail del video
+  subtitulos?: Subtitulo[];     // ← NUEVO: subtítulos disponibles
 }
 
 export interface Autor {
@@ -36,7 +49,7 @@ export interface Post {
   autor: Autor;
   titulo: string;
   descripcion: string;
-  categoria: string;  //String libre
+  categoria: string;
   adjuntos: Adjunto[];
   totalComentarios: number;
   fechaCreacion: string;
