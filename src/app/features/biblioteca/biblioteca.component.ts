@@ -37,7 +37,7 @@ export class BibliotecaComponent implements OnInit {
 
   // ===== DESTACADOS EXPANDIBLES =====
   destacadosExpandidos = signal(false);
-  destacadosPorPagina = 4; // Solo 4 destacados por defecto
+  destacadosPorPagina = 4;
 
   destacadosMostrados = computed(() => {
     const todos = this.recursos().filter(r => r.destacado);
@@ -57,7 +57,7 @@ export class BibliotecaComponent implements OnInit {
 
   // ===== PAGINACIÓN DE RECURSOS =====
   recursosExpandidos = signal(false);
-  recursosPorPagina = 8; // Solo 8 recursos por defecto
+  recursosPorPagina = 8;
 
   recursosMostrados = computed(() => {
     const filtrados = this.recursosFiltradosComputed();
@@ -83,12 +83,12 @@ export class BibliotecaComponent implements OnInit {
   formTitulo = signal('');
   formDescripcion = signal('');
   formUrl = signal('');
-  formCategoria = signal<RecursoBiblioteca['categoria']>('curso');
+  formCategoria = signal<string>('curso');
   formSubcategoria = signal('');
   formAutor = signal('');
   formPlataforma = signal('');
   formDuracion = signal('');
-  formNivel = signal<'' | 'principiante' | 'intermedio' | 'avanzado'>('');
+  formNivel = signal<string>('');
   formTags = signal('');
   formDestacado = signal(false);
   formError = signal<string | null>(null);
@@ -145,7 +145,12 @@ export class BibliotecaComponent implements OnInit {
 
     this.bibliotecaService.obtenerTodos().subscribe({
       next: (data) => {
-        console.log('Recursos cargados desde backend:', data);
+        console.log('=== DEBUG BIBLIOTECA ===');
+        console.log('Total recursos:', data?.length);
+        console.log('Recursos oficiales (esUsuario=false):', data?.filter(r => !r.esUsuario).length);
+        console.log('Recursos de usuarios (esUsuario=true):', data?.filter(r => r.esUsuario).length);
+        console.log('Recursos completos:', data);
+
         this.recursos.set(data || []);
         this.cargando.set(false);
       },
@@ -174,7 +179,8 @@ export class BibliotecaComponent implements OnInit {
         r.tags?.some(tag => tag.toLowerCase().includes(query)) ||
         r.subcategoria?.toLowerCase().includes(query) ||
         r.autor?.toLowerCase().includes(query) ||
-        r.plataforma?.toLowerCase().includes(query)
+        r.plataforma?.toLowerCase().includes(query) ||
+        r.usuarioNombre?.toLowerCase().includes(query)
       );
     }
     return resultado;
@@ -186,6 +192,9 @@ export class BibliotecaComponent implements OnInit {
   );
   totalCursos = computed(() =>
     this.recursos().filter(r => r.categoria === 'curso').length
+  );
+  totalDeUsuarios = computed(() =>
+    this.recursos().filter(r => r.esUsuario).length
   );
 
   // ===== DROPDOWN CATEGORÍA =====
@@ -202,16 +211,14 @@ export class BibliotecaComponent implements OnInit {
   seleccionarCategoria(categoria: string): void {
     this.categoriaSeleccionada.set(categoria);
     this.dropdownCategoriaAbierto.set(false);
-    this.recursosExpandidos.set(false); // Resetear paginación
+    this.recursosExpandidos.set(false);
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.dropdownCategoriaAbierto()) return;
-
     const target = event.target as HTMLElement;
     const clickedInside = target.closest('.dropdown-categoria');
-
     if (!clickedInside) {
       this.dropdownCategoriaAbierto.set(false);
     }
@@ -232,14 +239,14 @@ export class BibliotecaComponent implements OnInit {
   }
 
   buscarRecursos(): void {
-    this.recursosExpandidos.set(false); // Resetear al buscar
+    this.recursosExpandidos.set(false);
   }
 
   limpiarFiltros(): void {
     this.categoriaSeleccionada.set('todas');
     this.busqueda.set('');
     this.dropdownCategoriaAbierto.set(false);
-    this.recursosExpandidos.set(false); // Resetear
+    this.recursosExpandidos.set(false);
     this.destacadosExpandidos.set(false);
   }
 
@@ -273,12 +280,12 @@ export class BibliotecaComponent implements OnInit {
     this.formTitulo.set(recurso.titulo || '');
     this.formDescripcion.set(recurso.descripcion || '');
     this.formUrl.set(recurso.url || '');
-    this.formCategoria.set((recurso.categoria as any) || 'curso');
+    this.formCategoria.set(recurso.categoria || 'curso');
     this.formSubcategoria.set(recurso.subcategoria || '');
     this.formAutor.set(recurso.autor || '');
     this.formPlataforma.set(recurso.plataforma || '');
     this.formDuracion.set(recurso.duracion || '');
-    this.formNivel.set((recurso.nivel as any) || '');
+    this.formNivel.set((recurso.nivel as string) || '');
     this.formTags.set((recurso.tags || []).join(', '));
     this.formDestacado.set(!!recurso.destacado);
     this.formError.set(null);
@@ -342,8 +349,8 @@ export class BibliotecaComponent implements OnInit {
     };
 
     const op$ = (this.modoEdicion() && this.recursoEditandoId() !== null)
-      ? this.bibliotecaService.actualizarRecursoUsuario(this.recursoEditandoId()!, datos)
-      : this.bibliotecaService.agregarRecursoUsuario(datos);
+      ? this.bibliotecaService.actualizarRecursoUsuario(this.recursoEditandoId()!, datos as any)
+      : this.bibliotecaService.agregarRecursoUsuario(datos as any);
 
     op$.subscribe({
       next: (guardado) => {
@@ -430,5 +437,14 @@ export class BibliotecaComponent implements OnInit {
     if (!categoria) return '';
     if (categoria === 'todas') return 'Todas';
     return categoria.charAt(0).toUpperCase() + categoria.slice(1);
+  }
+
+  // ===== HELPERS PARA EL TEMPLATE =====
+  esRecursoDeUsuario(recurso: RecursoBiblioteca): boolean {
+    return !!recurso.esUsuario;
+  }
+
+  getNombreAutor(recurso: RecursoBiblioteca): string {
+    return recurso.usuarioNombre || 'Usuario anónimo';
   }
 }

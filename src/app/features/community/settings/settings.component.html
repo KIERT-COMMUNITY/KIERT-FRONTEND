@@ -199,6 +199,19 @@
             <span class="sidebar-badge">{{ bloqueados().length }}</span>
           }
         </button>
+        <button
+  class="sidebar-item"
+  [class.sidebar-item--active]="seccionActiva() === 'accesibilidad'"
+  (click)="irASeccion('accesibilidad')"
+  type="button"
+>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="4 7 4 4 20 4 20 7"/>
+    <line x1="9" y1="20" x2="15" y2="20"/>
+    <line x1="12" y1="4" x2="12" y2="20"/>
+  </svg>
+  <span>Tamaño de texto</span>
+</button>
 
       </nav>
 
@@ -477,6 +490,141 @@
           </div>
         }
       </section>
+      <!-- ===== TAMAÑO DE TEXTO / ACCESIBILIDAD ===== -->
+<section class="settings-section" id="accesibilidad">
+  <div class="section-header">
+    <div class="section-title">
+      <h2>Tamaño de texto</h2>
+      <p class="section-desc">Ajusta el tamaño de toda la interfaz para que sea más cómoda de leer</p>
+    </div>
+    <div class="fuente-indicator">
+      <span class="fuente-indicator__label">{{ etiquetaEscala() }}</span>
+      <span class="fuente-indicator__value">{{ porcentajeEscala() }}%</span>
+    </div>
+  </div>
+
+  <!-- PREVIEW EN VIVO -->
+  <div class="fuente-preview" [style.font-size.rem]="escalaFuente()">
+    <span class="fuente-preview__label">Vista previa:</span>
+    <p class="fuente-preview__texto">
+      <strong>&#64;kiert</strong> · Este es un ejemplo del texto que verás en la app.
+      Se adapta automáticamente a tus preferencias sin importar dónde estés.
+    </p>
+  </div>
+
+  <!-- TAMAÑOS PREDEFINIDOS -->
+  <div class="fuente-presets">
+    @for (tamano of tamanosPredefinidos; track tamano.id) {
+      <button
+        type="button"
+        class="fuente-preset-btn"
+        [class.fuente-preset-btn--active]="esTamanoActivo(tamano.valor)"
+        (click)="seleccionarTamanoFuente(tamano.valor)"
+        [attr.aria-label]="tamano.label"
+        [title]="tamano.label"
+      >
+        <span class="fuente-preset-btn__icono" [style.font-size.rem]="tamano.valor">
+          {{ tamano.icono }}
+        </span>
+        <span class="fuente-preset-btn__label">{{ tamano.label }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- SLIDER FINO -->
+  <div class="fuente-slider-row">
+    <button
+      type="button"
+      class="fuente-step-btn"
+      (click)="ajustarFuente(-0.05)"
+      title="Reducir tamaño"
+      aria-label="Reducir tamaño"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    <div class="fuente-slider-wrapper">
+      <input
+        type="range"
+        class="fuente-slider"
+        min="0.75"
+        max="1.5"
+        step="0.01"
+        [value]="escalaFuente()"
+        (input)="onSliderFuenteChange($event)"
+        aria-label="Ajustar tamaño de texto"
+      />
+      <div class="fuente-slider-info">
+        <span class="fuente-slider-info__label">{{ etiquetaEscala() }}</span>
+        <span class="fuente-slider-info__value">{{ porcentajeEscala() }}%</span>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="fuente-step-btn"
+      (click)="ajustarFuente(0.05)"
+      title="Aumentar tamaño"
+      aria-label="Aumentar tamaño"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ACCIONES -->
+  <div class="fuente-actions">
+    <button
+      type="button"
+      class="fuente-btn fuente-btn--secondary"
+      (click)="resetearFuente()"
+      [disabled]="porcentajeEscala() === 100"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1 4 1 10 7 10"/>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+      </svg>
+      Restablecer
+    </button>
+
+    <button
+      type="button"
+      class="fuente-btn fuente-btn--primary"
+      (click)="toggleFontSizeSelector()"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      Opciones avanzadas
+    </button>
+  </div>
+
+  @if (showFontSizeSelector()) {
+    <div class="fuente-avanzado">
+      <div class="fuente-avanzado__row">
+        <label for="escala-directa">Escala exacta:</label>
+        <input
+          id="escala-directa"
+          type="number"
+          min="75"
+          max="150"
+          step="1"
+          [value]="porcentajeEscala()"
+          (input)="onInputPorcentajeChange($event)"
+        />
+        <span>%</span>
+      </div>
+      <p class="fuente-avanzado__hint">
+        Rango: 75% a 150%. El tamaño se guarda automáticamente y se aplica en toda la app.
+      </p>
+    </div>
+  }
+</section>
 
       <!-- ===== APLICAR (versión móvil) ===== -->
       <section class="settings-section apply-section">

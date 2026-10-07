@@ -1,17 +1,26 @@
-// src/app/shared/layouts/main-layout/main-layout.component.ts
+// src/app/layouts/main-layout/main-layout.component.ts
 import {
   Component,
   OnInit,
-  computed,
   effect,
   inject,
   signal
 } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+
+// ⚠️ RUTAS CORREGIDAS:
+// Estás en src/app/layouts/main-layout/
+// → ../../              = src/app/
+// → ../../shared/       = src/app/shared/
+// → ../../core/         = src/app/core/
+
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
-import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { FloatingSocialComponent } from '../../shared/components/floating-social/floating-social.component';
+import { KeyboardHelpComponent } from '../../shared/components/keyboard-help/keyboard-help.component';
+
+import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
+import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts.service';
 
 @Component({
   selector: 'kiert-main-layout',
@@ -21,22 +30,21 @@ import { FloatingSocialComponent } from '../../shared/components/floating-social
     RouterLink,
     NavbarComponent,
     FooterComponent,
-    FloatingSocialComponent
+    FloatingSocialComponent,
+    KeyboardHelpComponent
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent implements OnInit {
   public readonly personalizacionStore = inject(PersonalizacionStore);
+  public readonly shortcuts = inject(KeyboardShortcutsService);
 
   readonly selectedTheme = this.personalizacionStore.temaId;
   readonly menuContraido = signal(false);
 
-  //  El fondo del PERFIL no se aplica aquí, se aplica en la tarjeta del perfil.
-  // Aquí no necesitamos exponerlo.
-
   constructor() {
-    //  Aplicar tema global cada vez que cambie el temaId
+    // Aplicar tema global cada vez que cambie
     effect(() => {
       const themeId = this.personalizacionStore.temaId();
       this.aplicarTemaGlobal(themeId);
@@ -51,6 +59,10 @@ export class MainLayoutComponent implements OnInit {
 
   actualizarEstadoMenu(estadoContraido: boolean): void {
     this.menuContraido.set(estadoContraido);
+  }
+
+  abrirAyudaAtajos(): void {
+    this.shortcuts.mostrarAyuda.set(true);
   }
 
   onBannerError(event: Event): void {
@@ -90,9 +102,6 @@ export class MainLayoutComponent implements OnInit {
     }
   }
 
-  // ============================================================
-  //  APLICAR TEMA GLOBAL (fondo de página + color de letras)
-  // ============================================================
   private aplicarTemaGlobal(themeId: string): void {
     const html = document.documentElement;
     const body = document.body;
@@ -113,7 +122,5 @@ export class MainLayoutComponent implements OnInit {
     html.classList.add(`tema-${tema}`);
     body.setAttribute('data-theme', tema);
     body.classList.add(`tema-${tema}`);
-
-    console.log(' Tema global aplicado:', tema);
   }
 }

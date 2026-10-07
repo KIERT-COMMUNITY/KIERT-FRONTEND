@@ -1,3 +1,4 @@
+// src/app/core/services/personalizacion-store.service.ts
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { PersonalizacionService, Personalizacion, Marco, Fondo } from './personalizacion.service';
 import { AuthService } from './auth.service';
@@ -50,17 +51,17 @@ export class PersonalizacionStore {
     const p = this.personalizacionSignal();
     return p?.temaId || 'default';
   });
-  
+
   readonly marcoId = computed(() => {
     const p = this.personalizacionSignal();
     return p?.marcoId || 'none';
   });
-  
+
   readonly fondoId = computed(() => {
     const p = this.personalizacionSignal();
     return p?.fondoId || 'default';
   });
-  
+
   readonly fotoPerfil = computed(() => {
     const p = this.personalizacionSignal();
     return p?.fotoPerfilUrl || '';
@@ -159,7 +160,7 @@ export class PersonalizacionStore {
   readonly marcoEstilo = computed(() => {
     const id = this.marcoId();
     const gradientFrames = ['rainbow', 'pastel', 'ocean', 'sunset', 'galaxy', 'fire', 'ice', 'rose', 'crystal'];
-    
+
     if (gradientFrames.includes(id)) {
       return {
         'border': '4px solid transparent',
@@ -171,13 +172,43 @@ export class PersonalizacionStore {
         'border-radius': '50%',
       };
     }
-    
+
     return {
       'border': this.marcoBorderStyle(),
       'box-shadow': this.marcoShadowStyle(),
       'border-radius': '50%',
     };
   });
+
+  // ============================================================
+  // NUEVO: ESCALA DE FUENTE
+  // ============================================================
+  /** Factor de escala: 0.75 → 1.5 (normal = 1.0) */
+  readonly escalaFuente = signal<number>(this.cargarEscalaGuardada());
+
+  /** Etiqueta legible de la escala actual */
+  readonly etiquetaEscala = computed(() => {
+    const v = this.escalaFuente();
+    if (v <= 0.9) return 'Muy pequeño';
+    if (v <= 0.98) return 'Pequeño';
+    if (v <= 1.05) return 'Normal';
+    if (v <= 1.18) return 'Grande';
+    if (v <= 1.3) return 'Muy grande';
+    return 'Enorme';
+  });
+
+  /** Porcentaje para mostrar en la UI (100 = normal) */
+  readonly porcentajeEscala = computed(() => Math.round(this.escalaFuente() * 100));
+
+  /** Lista de tamaños predefinidos */
+  readonly tamanosPredefinidos = [
+    { id: 'xs',  label: 'Muy pequeño', valor: 0.85, icono: 'A' },
+    { id: 'sm',  label: 'Pequeño',     valor: 0.92, icono: 'A' },
+    { id: 'md',  label: 'Normal',      valor: 1.00, icono: 'A' },
+    { id: 'lg',  label: 'Grande',      valor: 1.12, icono: 'A+' },
+    { id: 'xl',  label: 'Muy grande',  valor: 1.25, icono: 'A++' },
+    { id: 'xxl', label: 'Enorme',      valor: 1.40, icono: 'A+++' },
+  ];
 
   // ===== TEMAS DE COLOR =====
   readonly colorThemes = signal<ColorTheme[]>([
@@ -242,8 +273,9 @@ export class PersonalizacionStore {
     { id: 'pastel', name: 'Pastel', gradient: 'linear-gradient(135deg, #fd79a8, #a29bfe, #55efc4)', isFree: true, description: 'Tonos suaves' },
   ]);
 
-  // ===== MÉTODOS PÚBLICOS =====
+  // ===== CONSTRUCTOR =====
   constructor() {
+    // Efecto: cargar personalización cuando el usuario esté logueado
     effect(() => {
       const usuario = this.authService.usuario();
       if (usuario) {
@@ -251,7 +283,78 @@ export class PersonalizacionStore {
         this.cargarTodos();
       }
     });
+
+    // Efecto: aplicar escala de fuente al <html> cuando cambie
+    effect(() => {
+      const escala = this.escalaFuente();
+      this.aplicarEscalaFuente(escala);
+    });
   }
+
+  // ============================================================
+  // MÉTODOS DE ESCALA DE FUENTE
+  // ============================================================
+
+  /**
+   * Aplica el font-size base al elemento <html>.
+   * Como todo el CSS usa rem/em, TODO se escala proporcionalmente.
+   */
+  private aplicarEscalaFuente(escala: number): void {
+    const basePx = 16 * escala;
+    document.documentElement.style.fontSize = `${basePx}px`;
+    document.documentElement.style.setProperty('--escala-fuente', String(escala));
+    document.documentElement.style.setProperty('--escala-fuente-px', `${basePx}px`);
+
+    try {
+      localStorage.setItem('kiert_escala_fuente', String(escala));
+    } catch {}
+
+    console.log(`🔤 Escala de fuente aplicada: ${basePx}px (${Math.round(escala * 100)}%)`);
+  }
+
+  private cargarEscalaGuardada(): number {
+    try {
+      const guardada = localStorage.getItem('kiert_escala_fuente');
+      if (guardada) {
+        const num = parseFloat(guardada);
+        if (num >= 0.75 && num <= 1.5) return num;
+      }
+    } catch {}
+    return 1.0;
+  }
+
+  /**
+   * Establece una escala específica (entre 0.75 y 1.5)
+   */
+  setEscalaFuente(escala: number): void {
+    const clamped = Math.max(0.75, Math.min(1.5, escala));
+    this.escalaFuente.set(clamped);
+  }
+
+  /**
+   * Incrementa/decrementa la escala en un paso
+   */
+  ajustarEscala(delta: number): void {
+    this.setEscalaFuente(this.escalaFuente() + delta);
+  }
+
+  /**
+   * Resetea al tamaño normal
+   */
+  resetearEscala(): void {
+    this.setEscalaFuente(1.0);
+  }
+
+  /**
+   * Verifica si un preset está activo (con margen de tolerancia)
+   */
+  esPresetActivo(valor: number): boolean {
+    return Math.abs(this.escalaFuente() - valor) < 0.02;
+  }
+
+  // ============================================================
+  // MÉTODOS PÚBLICOS EXISTENTES
+  // ============================================================
 
   cargarTodos(): void {
     this.loadingSignal.set(true);
@@ -317,13 +420,13 @@ export class PersonalizacionStore {
   guardarPersonalizacion(temaId: string, marcoId: string, fondoId: string): void {
     console.log('Guardando personalización:', { temaId, marcoId, fondoId });
     this.loadingSignal.set(true);
-    
+
     const datos = {
       temaId: temaId || 'default',
       marcoId: marcoId || 'none',
       fondoId: fondoId || 'default'
     };
-    
+
     this.personalizacionService.guardarPersonalizacion(datos).subscribe({
       next: (data) => {
         console.log('Personalización guardada:', data);
