@@ -743,8 +743,13 @@ $transition: all 0.2s ease;
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: $success;
+    background: $text-muted;
     border: 2px solid $bg-sidebar;
+
+    &--online {
+      background: $success;
+      box-shadow: 0 0 8px rgba($success, 0.6);
+    }
   }
 
   &__info {
@@ -1874,3 +1879,94 @@ $transition: all 0.2s ease;
     opacity: 0.6;
   }
 }
+
+// ============================================================
+// AJUSTES PARA ADJUNTOS MULTIPLES
+// ============================================================
+.msg__files {
+  width: min(100%, 520px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.msg__files .file {
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+}
+
+.msg__files .file__img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  background: $bg-input;
+  border: 1px solid $border;
+}
+
+.msg__files .file__doc {
+  width: 100%;
+  min-height: 46px;
+  overflow: hidden;
+}
+
+.msg__files .file__doc span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.files-preview {
+  max-height: 150px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.files-preview__item {
+  max-width: min(100%, 360px);
+}
+
+.files-preview__item button {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.chat-top__sub {
+  max-width: min(55vw, 420px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 768px) {
+  .msg__files {
+    width: min(100%, 360px);
+  }
+
+  .files-preview {
+    padding: 8px 14px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .msg__files {
+    grid-template-columns: 1fr;
+    width: min(100%, 280px);
+  }
+
+  .files-preview__item {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .files-preview__name {
+    flex: 1;
+    max-width: none;
+  }
+}
+

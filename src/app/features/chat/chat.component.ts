@@ -70,6 +70,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   exitoMsg = signal<string | null>(null);
   enviando = signal(false);
   archivosSeleccionados = signal<File[]>([]);
+  archivosGrupoSeleccionados = signal<File[]>([]);
   mobileMenuOpen = signal(false);
   solicitudesExpandidas = signal(false);
   mostrarModalGrupo = signal(false);
@@ -206,7 +207,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }));
   });
 
-  private pollingInterval: any;
+  private pollingInterval?: ReturnType<typeof setInterval>;
 
   constructor() {
     this.chatService.conversaciones$.subscribe(conversaciones => {
@@ -457,24 +458,32 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   enviarMensajeGrupo(): void {
-    const contenido = this.formMensajeGrupo.value.contenido?.trim();
+    const contenido = this.formMensajeGrupo.value.contenido?.trim() ?? '';
     const grupoId = this.grupoSeleccionado();
+    const archivos = this.archivosGrupoSeleccionados();
 
-    if (!contenido || !grupoId) return;
+    if (!grupoId) return;
+    if (!contenido && archivos.length === 0) {
+      this.mostrarError('Escribe un mensaje o adjunta un archivo');
+      return;
+    }
 
     this.enviandoGrupo.set(true);
+    const solicitud = archivos.length > 0
+      ? this.grupoService.enviarMensajeConArchivos(grupoId, contenido, archivos)
+      : this.grupoService.enviarMensaje(grupoId, contenido);
 
-    this.grupoService.enviarMensaje(grupoId, contenido).subscribe({
+    solicitud.subscribe({
       next: (msg) => {
         this.mensajesGrupo.update(lista => [...lista, msg]);
         this.formMensajeGrupo.reset();
+        this.archivosGrupoSeleccionados.set([]);
         this.enviandoGrupo.set(false);
         setTimeout(() => this.scrollToBottomGrupo(), 100);
       },
-      error: () => {
-        this.errorMsg.set('Error al enviar mensaje');
+      error: (error: unknown) => {
         this.enviandoGrupo.set(false);
-        setTimeout(() => this.errorMsg.set(null), 3000);
+        this.mostrarError(this.obtenerMensajeError(error, 'Error al enviar mensaje'));
       }
     });
   }
@@ -688,85 +697,82 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   enviarMensaje(): void {
     const receptorId = this.usuarioSeleccionado();
     if (!receptorId) {
-      this.errorMsg.set('Selecciona un usuario para chatear');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.mostrarError('Selecciona un usuario para chatear');
       return;
     }
 
-    const contenido = this.formMensaje.getRawValue().contenido || '';
+    const contenido = this.formMensaje.getRawValue().contenido ?? '';
     const archivos = this.archivosSeleccionados();
-
     if (!contenido.trim() && archivos.length === 0) {
-      this.errorMsg.set('Escribe un mensaje o adjunta un archivo');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.mostrarError('Escribe un mensaje o adjunta un archivo');
       return;
     }
 
     this.enviando.set(true);
-
-    if (archivos.length > 0) {
-      const formData = new FormData();
-      formData.append('contenido', contenido);
-      archivos.forEach(archivo => formData.append('archivos', archivo));
-
-      this.chatService.enviarMensajeConArchivos(receptorId, formData).subscribe({
-        next: (nuevoMensaje) => {
-          this.mensajes.update(lista => [...lista, nuevoMensaje]);
-          this.formMensaje.reset();
-          this.archivosSeleccionados.set([]);
-          this.enviando.set(false);
-          this.cargarConversaciones();
-          setTimeout(() => this.scrollToBottom(), 100);
-        },
-        error: (err) => {
-          this.enviando.set(false);
-          const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar mensaje';
-          this.errorMsg.set(mensaje);
-          setTimeout(() => this.errorMsg.set(null), 5000);
-        }
-      });
-    } else {
-      this.chatService.enviarMensaje(receptorId, contenido).subscribe({
-        next: (nuevoMensaje) => {
-          this.mensajes.update(lista => [...lista, nuevoMensaje]);
-          this.formMensaje.reset();
-          this.enviando.set(false);
-          this.cargarConversaciones();
-          setTimeout(() => this.scrollToBottom(), 100);
-        },
-        error: (err) => {
-          this.enviando.set(false);
-          const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar mensaje';
-          this.errorMsg.set(mensaje);
-          setTimeout(() => this.errorMsg.set(null), 5000);
-        }
-      });
-    }
+    this.chatService.enviarMensajeCompleto(receptorId, contenido, archivos).subscribe({
+      next: (nuevoMensaje) => {
+        this.mensajes.update(lista => [...lista, nuevoMensaje]);
+        this.formMensaje.reset();
+        this.archivosSeleccionados.set([]);
+        this.enviando.set(false);
+        this.cargarConversaciones();
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (error: unknown) => {
+        this.enviando.set(false);
+        this.mostrarError(this.obtenerMensajeError(error, 'Error al enviar mensaje'), 5000);
+      }
+    });
   }
 
   // ============================================================
   // ARCHIVOS
   // ============================================================
   onArchivosSeleccionados(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-
-    const archivos = Array.from(input.files);
-    const totalSize = archivos.reduce((acc, f) => acc + f.size, 0);
-
-    if (totalSize > 15 * 1024 * 1024) {
-      this.errorMsg.set('El tamaño total no debe superar los 15MB');
-      setTimeout(() => this.errorMsg.set(null), 3000);
-      input.value = '';
-      return;
-    }
-
-    this.archivosSeleccionados.update(lista => [...lista, ...archivos]);
-    input.value = '';
+    this.procesarArchivosSeleccionados(event, false);
   }
 
   quitarArchivo(index: number): void {
     this.archivosSeleccionados.update(lista => lista.filter((_, i) => i !== index));
+  }
+
+  onArchivosGrupoSeleccionados(event: Event): void {
+    this.procesarArchivosSeleccionados(event, true);
+  }
+
+  quitarArchivoGrupo(index: number): void {
+    this.archivosGrupoSeleccionados.update(lista => lista.filter((_, i) => i !== index));
+  }
+
+  private procesarArchivosSeleccionados(event: Event, esGrupo: boolean): void {
+    const input = event.target as HTMLInputElement;
+    const nuevos = Array.from(input.files ?? []);
+    const actuales = esGrupo ? this.archivosGrupoSeleccionados() : this.archivosSeleccionados();
+    const combinados = [...actuales, ...nuevos];
+    input.value = '';
+
+    const error = this.validarArchivos(combinados);
+    if (error) {
+      this.mostrarError(error);
+      return;
+    }
+
+    if (esGrupo) this.archivosGrupoSeleccionados.set(combinados);
+    else this.archivosSeleccionados.set(combinados);
+  }
+
+  private validarArchivos(archivos: File[]): string | null {
+    if (archivos.length > 5) return 'Solo puedes adjuntar hasta 5 archivos por mensaje';
+    const total = archivos.reduce((suma, archivo) => suma + archivo.size, 0);
+    if (total > 30 * 1024 * 1024) return 'El tamaño total no debe superar los 30 MB';
+
+    const bloqueadas = new Set(['exe', 'bat', 'cmd', 'ps1', 'msi', 'apk', 'jar', 'scr', 'dll', 'sh', 'com', 'vbs']);
+    for (const archivo of archivos) {
+      const extension = archivo.name.includes('.') ? archivo.name.split('.').pop()?.toLowerCase() ?? '' : '';
+      if (!extension) return `El archivo ${archivo.name} no tiene una extensión válida`;
+      if (bloqueadas.has(extension)) return `El archivo ${archivo.name} usa un formato bloqueado`;
+    }
+    return null;
   }
 
   esImagen(archivo: MensajeArchivo): boolean {
@@ -835,8 +841,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     if (!conv) return 'Desconocido';
     if (conv.online) return 'En línea';
-    if (conv.ultimoMensajeFecha) {
-      const fecha = new Date(conv.ultimoMensajeFecha);
+    if (conv.ultimaConexion) {
+      const fecha = new Date(conv.ultimaConexion);
       const ahora = new Date();
       const diffMin = Math.floor((ahora.getTime() - fecha.getTime()) / 60000);
 
@@ -851,4 +857,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
     return 'Desconectado';
   }
+  private mostrarError(mensaje: string, duracion = 3000): void {
+    this.errorMsg.set(mensaje);
+    setTimeout(() => this.errorMsg.set(null), duracion);
+  }
+
+  private obtenerMensajeError(error: unknown, predeterminado: string): string {
+    if (typeof error !== 'object' || error === null) return predeterminado;
+    const respuesta = error as { error?: { mensaje?: string; error?: string } };
+    return respuesta.error?.mensaje ?? respuesta.error?.error ?? predeterminado;
+  }
+
 }

@@ -1,37 +1,42 @@
-// src/app/core/services/chat.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   Conversacion,
   Mensaje,
   SolicitudContacto,
-  UsuarioDisponible,
-  SolicitudContactoDTO
+  SolicitudContactoDTO,
+  UsuarioDisponible
 } from '../models/chat.model';
+
+export type RespuestaSonContactos = boolean | { sonContactos: boolean };
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/chat`;
 
-  private conversacionesSubject = new BehaviorSubject<Conversacion[]>([]);
-  conversaciones$ = this.conversacionesSubject.asObservable();
+  private readonly conversacionesSubject = new BehaviorSubject<Conversacion[]>([]);
+  readonly conversaciones$ = this.conversacionesSubject.asObservable();
 
-  private mensajesCache = new Map<number, Mensaje[]>();
+  private readonly mensajesCache = new Map<number, Mensaje[]>();
 
-  // ========== CONVERSACIONES ==========
   listarConversaciones(): Observable<Conversacion[]> {
-    return this.http.get<Conversacion[]>(`${this.baseUrl}/conversaciones`).pipe(
-      tap((conversaciones) => this.conversacionesSubject.next(conversaciones))
-    );
+    return this.http
+      .get<Conversacion[]>(`${this.baseUrl}/conversaciones`)
+      .pipe(
+        tap((conversaciones) =>
+          this.conversacionesSubject.next(conversaciones)
+        )
+      );
   }
 
   cargarConversaciones(): void {
     this.listarConversaciones().subscribe({
-      error: (error) => console.error('Error al cargar conversaciones:', error)
+      error: (error: unknown) =>
+        console.error('Error al cargar conversaciones:', error)
     });
   }
 
@@ -39,102 +44,178 @@ export class ChatService {
     return this.conversacionesSubject.getValue();
   }
 
-  // ========== MENSAJES ==========
   listarMensajes(usuarioId: number): Observable<Mensaje[]> {
-    return this.http.get<Mensaje[]>(`${this.baseUrl}/${usuarioId}`).pipe(
-      tap((mensajes) => this.mensajesCache.set(usuarioId, mensajes))
-    );
+    return this.http
+      .get<Mensaje[]>(`${this.baseUrl}/${usuarioId}`)
+      .pipe(
+        tap((mensajes) => this.mensajesCache.set(usuarioId, mensajes))
+      );
   }
 
   getMensajes(usuarioId: number): Mensaje[] {
-    return this.mensajesCache.get(usuarioId) || [];
+    return this.mensajesCache.get(usuarioId) ?? [];
   }
 
   enviarMensaje(usuarioId: number, contenido: string): Observable<Mensaje> {
-    return this.http.post<Mensaje>(`${this.baseUrl}/${usuarioId}`, { contenido });
+    return this.http.post<Mensaje>(`${this.baseUrl}/${usuarioId}`, {
+      contenido
+    });
   }
 
-  enviarMensajeConArchivos(usuarioId: number, formData: FormData): Observable<Mensaje> {
-    return this.http.post<Mensaje>(`${this.baseUrl}/${usuarioId}/archivos`, formData);
+  enviarMensajeConArchivos(
+    usuarioId: number,
+    contenidoOFormulario: string | FormData | null,
+    archivos: File[] = []
+  ): Observable<Mensaje> {
+    const formData =
+      contenidoOFormulario instanceof FormData
+        ? contenidoOFormulario
+        : this.crearFormularioAdjuntos(contenidoOFormulario, archivos);
+
+    return this.http.post<Mensaje>(
+      `${this.baseUrl}/${usuarioId}/archivos`,
+      formData
+    );
   }
 
-  // ========== MARCAR COMO LEÍDOS ==========
+  enviarMensajeCompleto(
+    usuarioId: number,
+    contenido: string | null,
+    archivos: File[]
+  ): Observable<Mensaje> {
+    const texto = contenido?.trim() ?? '';
+
+    if (archivos.length === 0) {
+      return this.enviarMensaje(usuarioId, texto);
+    }
+
+    return this.enviarMensajeConArchivos(usuarioId, texto, archivos);
+  }
+
   marcarComoLeidos(usuarioId: number): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/mensajes/${usuarioId}/leidos`, {});
+    return this.http.put<void>(
+      `${this.baseUrl}/mensajes/${usuarioId}/leidos`,
+      {}
+    );
   }
 
-  // ========== SOLICITUDES ==========
   listarSolicitudes(): Observable<SolicitudContacto[]> {
-    return this.http.get<SolicitudContacto[]>(`${this.baseUrl}/solicitudes`);
+    return this.http.get<SolicitudContacto[]>(
+      `${this.baseUrl}/solicitudes`
+    );
+  }
+
+  listarSolicitudesEnviadas(): Observable<SolicitudContacto[]> {
+    return this.http.get<SolicitudContacto[]>(
+      `${this.baseUrl}/solicitudes/enviadas`
+    );
   }
 
   enviarSolicitud(usuarioId: number): Observable<SolicitudContactoDTO> {
-    return this.http.post<SolicitudContactoDTO>(`${this.baseUrl}/solicitudes`, { usuarioId });
+    return this.http.post<SolicitudContactoDTO>(
+      `${this.baseUrl}/solicitudes`,
+      { usuarioId }
+    );
   }
 
   aceptarSolicitud(solicitudId: number): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/solicitudes/${solicitudId}/aceptar`, {});
+    return this.http.put<void>(
+      `${this.baseUrl}/solicitudes/${solicitudId}/aceptar`,
+      {}
+    );
   }
 
   rechazarSolicitud(solicitudId: number): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/solicitudes/${solicitudId}/rechazar`, {});
+    return this.http.put<void>(
+      `${this.baseUrl}/solicitudes/${solicitudId}/rechazar`,
+      {}
+    );
   }
 
-  // ========== CONTACTOS ==========
-  /** Devuelve any porque el backend puede devolver `{ sonContactos: boolean }` o `boolean` */
-sonContactos(usuarioId: number): Observable<any> {
-  return this.http.get<any>(`${this.baseUrl}/contactos/${usuarioId}`);
-}
+  sonContactos(usuarioId: number): Observable<RespuestaSonContactos> {
+    return this.http.get<RespuestaSonContactos>(
+      `${this.baseUrl}/contactos/${usuarioId}`
+    );
+  }
 
   listarUsuariosDisponibles(): Observable<UsuarioDisponible[]> {
-    return this.http.get<UsuarioDisponible[]>(`${this.baseUrl}/usuarios/disponibles`);
+    return this.http.get<UsuarioDisponible[]>(
+      `${this.baseUrl}/usuarios/disponibles`
+    );
   }
 
   eliminarContacto(usuarioId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/contactos/${usuarioId}`);
+    return this.http.delete<void>(
+      `${this.baseUrl}/contactos/${usuarioId}`
+    );
   }
-  
 
-  // ========== ACTUALIZACIONES EN TIEMPO REAL ==========
-  actualizarConversacion(usuarioId: number, cambios: Partial<Conversacion>): void {
-    const conversaciones = this.conversacionesSubject.getValue();
-    const index = conversaciones.findIndex(c => c.usuarioId === usuarioId);
-    if (index !== -1) {
-      conversaciones[index] = { ...conversaciones[index], ...cambios };
-      this.conversacionesSubject.next([...conversaciones]);
+  actualizarConversacion(
+    usuarioId: number,
+    cambios: Partial<Conversacion>
+  ): void {
+    const conversaciones = [...this.conversacionesSubject.getValue()];
+    const index = conversaciones.findIndex(
+      (conversacion) => conversacion.usuarioId === usuarioId
+    );
+
+    if (index === -1) {
+      return;
     }
+
+    conversaciones[index] = {
+      ...conversaciones[index],
+      ...cambios
+    };
+    this.conversacionesSubject.next(conversaciones);
   }
 
   incrementarNoLeidos(usuarioId: number): void {
-    const conversaciones = this.conversacionesSubject.getValue();
-    const index = conversaciones.findIndex(c => c.usuarioId === usuarioId);
-    if (index !== -1) {
-      conversaciones[index] = {
-        ...conversaciones[index],
-        noLeidos: (conversaciones[index].noLeidos || 0) + 1
-      };
-      this.conversacionesSubject.next([...conversaciones]);
+    const conversacion = this.conversacionesSubject
+      .getValue()
+      .find((item) => item.usuarioId === usuarioId);
+
+    if (!conversacion) {
+      return;
     }
+
+    this.actualizarConversacion(usuarioId, {
+      noLeidos: conversacion.noLeidos + 1
+    });
   }
 
   resetearNoLeidos(usuarioId: number): void {
-    const conversaciones = this.conversacionesSubject.getValue();
-    const index = conversaciones.findIndex(c => c.usuarioId === usuarioId);
-    if (index !== -1) {
-      conversaciones[index] = { ...conversaciones[index], noLeidos: 0 };
-      this.conversacionesSubject.next([...conversaciones]);
-    }
+    this.actualizarConversacion(usuarioId, { noLeidos: 0 });
   }
 
-  // ========== MENSAJES NO LEÍDOS ==========
   obtenerMensajesNoLeidos(): Observable<number> {
     return this.http.get<number>(`${this.baseUrl}/no-leidos`);
   }
-  // src/app/core/services/chat.service.ts
-// Añade estos métodos
 
-listarSolicitudesEnviadas(): Observable<SolicitudContacto[]> {
-  return this.http.get<SolicitudContacto[]>(`${this.baseUrl}/solicitudes/enviadas`);
-}
+  limpiarCacheMensajes(usuarioId?: number): void {
+    if (usuarioId === undefined) {
+      this.mensajesCache.clear();
+      return;
+    }
 
+    this.mensajesCache.delete(usuarioId);
+  }
+
+  private crearFormularioAdjuntos(
+    contenido: string | null,
+    archivos: File[]
+  ): FormData {
+    const formData = new FormData();
+    const texto = contenido?.trim();
+
+    if (texto) {
+      formData.append('contenido', texto);
+    }
+
+    archivos.forEach((archivo) => {
+      formData.append('archivos', archivo, archivo.name);
+    });
+
+    return formData;
+  }
 }

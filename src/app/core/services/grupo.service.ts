@@ -1,33 +1,40 @@
-// src/app/core/services/grupo.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { MensajeArchivo } from '../models/chat.model';
+
+export interface RespuestaGrupo {
+  mensaje: string;
+}
 
 export interface MiembroGrupo {
   id: number;
   usuarioId: number;
   nombreUsuario: string;
   email: string;
-  fotoPerfilUrl: string;
+  fotoPerfilUrl: string | null;
   rol: string;
   estado: string;
   fechaUnion: string;
-  invitadoPor: string;
+  invitadoPor: string | null;
+  online?: boolean;
+  ultimaConexion?: string | null;
 }
 
 export interface Grupo {
   id: number;
   nombre: string;
-  descripcion: string;
-  fotoUrl: string;
+  descripcion: string | null;
+  fotoUrl: string | null;
   creadorId: number;
   creadorNombre: string;
   tipo: string;
   fechaCreacion: string;
   totalMiembros: number;
   miembros: MiembroGrupo[];
-  rolDelUsuario: string;
+  rolDelUsuario: string | null;
+  miembrosEnLinea?: number;
 }
 
 export interface CrearGrupo {
@@ -42,21 +49,22 @@ export interface MensajeGrupo {
   grupoId: number;
   emisorId: number;
   emisorNombre: string;
-  emisorFoto: string;
-  contenido: string;
+  emisorFoto: string | null;
+  contenido: string | null;
   tipoMensaje: string;
-  urlArchivo: string;
-  nombreArchivo: string;
+  urlArchivo: string | null;
+  nombreArchivo: string | null;
   fechaEnvio: string;
   propio: boolean;
+  archivos?: MensajeArchivo[] | null;
 }
 
 export interface InvitacionGrupo {
   id: number;
   grupoId: number;
   grupoNombre: string;
-  grupoFoto: string;
-  invitadorId: number;
+  grupoFoto: string | null;
+  invitadorId: number | null;
   invitadorNombre: string;
   fechaInvitacion: string;
 }
@@ -64,9 +72,8 @@ export interface InvitacionGrupo {
 @Injectable({ providedIn: 'root' })
 export class GrupoService {
   private readonly baseUrl = `${environment.apiUrl}/grupos`;
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  // ===== GRUPOS =====
   crearGrupo(dto: CrearGrupo): Observable<Grupo> {
     return this.http.post<Grupo>(this.baseUrl, dto);
   }
@@ -84,50 +91,104 @@ export class GrupoService {
   }
 
   listarMiembros(grupoId: number): Observable<MiembroGrupo[]> {
-    return this.http.get<MiembroGrupo[]>(`${this.baseUrl}/${grupoId}/miembros`);
+    return this.http.get<MiembroGrupo[]>(
+      `${this.baseUrl}/${grupoId}/miembros`
+    );
   }
 
-  // ===== INVITACIONES =====
-  invitarUsuarios(grupoId: number, usuariosIds: number[]): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${grupoId}/invitar`, { usuariosIds });
+  invitarUsuarios(
+    grupoId: number,
+    usuariosIds: number[]
+  ): Observable<RespuestaGrupo> {
+    return this.http.post<RespuestaGrupo>(
+      `${this.baseUrl}/${grupoId}/invitar`,
+      { usuariosIds }
+    );
   }
 
-  aceptarInvitacion(grupoId: number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${grupoId}/aceptar`, {});
+  aceptarInvitacion(grupoId: number): Observable<RespuestaGrupo> {
+    return this.http.post<RespuestaGrupo>(
+      `${this.baseUrl}/${grupoId}/aceptar`,
+      {}
+    );
   }
 
-  rechazarInvitacion(grupoId: number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${grupoId}/rechazar`, {});
+  rechazarInvitacion(grupoId: number): Observable<RespuestaGrupo> {
+    return this.http.post<RespuestaGrupo>(
+      `${this.baseUrl}/${grupoId}/rechazar`,
+      {}
+    );
   }
 
-  unirseAGrupo(grupoId: number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${grupoId}/unirse`, {});
+  unirseAGrupo(grupoId: number): Observable<RespuestaGrupo> {
+    return this.http.post<RespuestaGrupo>(
+      `${this.baseUrl}/${grupoId}/unirse`,
+      {}
+    );
   }
 
-  salirDelGrupo(grupoId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${grupoId}/salir`);
+  salirDelGrupo(grupoId: number): Observable<RespuestaGrupo> {
+    return this.http.delete<RespuestaGrupo>(
+      `${this.baseUrl}/${grupoId}/salir`
+    );
   }
 
   invitacionesPendientes(): Observable<InvitacionGrupo[]> {
-    return this.http.get<InvitacionGrupo[]>(`${this.baseUrl}/invitaciones`);
+    return this.http.get<InvitacionGrupo[]>(
+      `${this.baseUrl}/invitaciones`
+    );
   }
 
-  // 🔥 NUEVO: Eliminar grupo
-  eliminarGrupo(grupoId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${grupoId}`);
+  eliminarGrupo(grupoId: number): Observable<RespuestaGrupo> {
+    return this.http.delete<RespuestaGrupo>(
+      `${this.baseUrl}/${grupoId}`
+    );
   }
 
-  // 🔥 NUEVO: Expulsar miembro
-  expulsarMiembro(grupoId: number, usuarioId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${grupoId}/miembros/${usuarioId}`);
+  expulsarMiembro(
+    grupoId: number,
+    usuarioId: number
+  ): Observable<RespuestaGrupo> {
+    return this.http.delete<RespuestaGrupo>(
+      `${this.baseUrl}/${grupoId}/miembros/${usuarioId}`
+    );
   }
 
-  // ===== MENSAJES =====
   obtenerMensajes(grupoId: number): Observable<MensajeGrupo[]> {
-    return this.http.get<MensajeGrupo[]>(`${this.baseUrl}/${grupoId}/mensajes`);
+    return this.http.get<MensajeGrupo[]>(
+      `${this.baseUrl}/${grupoId}/mensajes`
+    );
   }
 
-  enviarMensaje(grupoId: number, contenido: string): Observable<MensajeGrupo> {
-    return this.http.post<MensajeGrupo>(`${this.baseUrl}/${grupoId}/mensajes`, { contenido });
+  enviarMensaje(
+    grupoId: number,
+    contenido: string
+  ): Observable<MensajeGrupo> {
+    return this.http.post<MensajeGrupo>(
+      `${this.baseUrl}/${grupoId}/mensajes`,
+      { contenido }
+    );
+  }
+
+  enviarMensajeConArchivos(
+    grupoId: number,
+    contenido: string | null,
+    archivos: File[]
+  ): Observable<MensajeGrupo> {
+    const formData = new FormData();
+    const texto = contenido?.trim();
+
+    if (texto) {
+      formData.append('contenido', texto);
+    }
+
+    archivos.forEach((archivo) => {
+      formData.append('archivos', archivo, archivo.name);
+    });
+
+    return this.http.post<MensajeGrupo>(
+      `${this.baseUrl}/${grupoId}/mensajes/archivos`,
+      formData
+    );
   }
 }
