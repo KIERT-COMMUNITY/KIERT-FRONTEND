@@ -1,18 +1,4 @@
-export type TipoArchivoChat =
-  | 'imagen'
-  | 'video'
-  | 'audio'
-  | 'nota_voz'
-  | 'documento'
-  | 'zip'
-  | 'pdf'
-  | 'word'
-  | 'excel'
-  | 'powerpoint'
-  | 'texto'
-  | 'comprimido';
-
-export type ResourceTypeCloudinary = 'image' | 'video' | 'raw';
+// src/app/core/models/chat.model.ts
 
 export interface Conversacion {
   usuarioId: number;
@@ -21,40 +7,28 @@ export interface Conversacion {
   marcoId?: string | null;
   ultimoMensaje: string | null;
   ultimoMensajeFecha?: string | null;
-  ultimaConexion?: string | null;
   noLeidos: number;
   online?: boolean;
-<<<<<<< HEAD
-=======
   ultimaConexion?: string | null;   //fecha real de desconexión
->>>>>>> origin/develop11
 }
 
 export interface MensajeArchivo {
-  id?: number | null;
+  id?: number;
   nombre: string;
   url: string;
-  tipo: TipoArchivoChat | string;
-  pesoKb?: number | null;
+  tipo: string;
+  pesoKb?: number;
   esSensible?: boolean;
-  publicId?: string | null;
-  tipoMime?: string | null;
-  formato?: string | null;
-  resourceType?: ResourceTypeCloudinary | string | null;
-  tamanoBytes?: number | null;
-  duracionSegundos?: number | null;
-  ancho?: number | null;
-  alto?: number | null;
 }
 
 export interface Mensaje {
   id: number;
   emisorId: number;
-  contenido: string | null;
+  contenido: string;
   fechaEnvio: string;
   propio: boolean;
   leido?: boolean;
-  archivos?: MensajeArchivo[] | null;
+  archivos?: MensajeArchivo[];
 }
 
 export interface SolicitudContacto {
