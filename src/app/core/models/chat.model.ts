@@ -24,6 +24,10 @@ export interface Conversacion {
   ultimaConexion?: string | null;
   noLeidos: number;
   online?: boolean;
+<<<<<<< HEAD
+=======
+  ultimaConexion?: string | null;   //fecha real de desconexión
+>>>>>>> origin/develop11
 }
 
 export interface MensajeArchivo {

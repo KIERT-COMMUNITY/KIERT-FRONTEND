@@ -13,7 +13,7 @@ import { UserService } from '../../../core/services/user.service';
 import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service';
 import { User } from '../../../core/models/user.model';
 
-type SeccionActiva = 'perfil' | 'bloqueados';
+type SeccionActiva = 'perfil' | 'bloqueados' | 'accesibilidad';
 
 @Component({
   selector: 'kiert-settings',
@@ -69,6 +69,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showThemeSelector = signal(false);
   showFrameSelector = signal(false);
   showBackgroundSelector = signal(false);
+  showFontSizeSelector = signal(false);
 
   private busquedaSubject = new Subject<string>();
 
@@ -80,6 +81,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   marcosData = this.personalizacionStore.marcosData;
   fondosData = this.personalizacionStore.fondosData;
 
+  // ===== ESCALA DE FUENTE (expuestas del store) =====
+  escalaFuente = this.personalizacionStore.escalaFuente;
+  etiquetaEscala = this.personalizacionStore.etiquetaEscala;
+  porcentajeEscala = this.personalizacionStore.porcentajeEscala;
+  tamanosPredefinidos = this.personalizacionStore.tamanosPredefinidos;
+
   formPerfil = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
@@ -87,14 +94,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
-    // Efecto: cuando cambia la personalización en el store, sincroniza los signals
+    // Efecto: sincroniza personalización
     effect(() => {
       const personalizacion = this.personalizacionStore.personalizacion();
       if (personalizacion) {
         this.selectedTheme.set(personalizacion.temaId || 'default');
         this.selectedFrame.set(personalizacion.marcoId || 'none');
         this.selectedBackground.set(personalizacion.fondoId || 'default');
-        // Aplicar tema global siempre que cambie la personalización
         this.aplicarTemaGlobal(personalizacion.temaId || 'default');
       }
     });
@@ -223,7 +229,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // APLICAR TEMA GLOBAL (cambia fondo de página + color de letras)
+  // APLICAR TEMA GLOBAL
   // ============================================================
   aplicarTemaGlobal(themeId: string): void {
     const html = document.documentElement;
@@ -246,7 +252,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     body.setAttribute('data-theme', tema);
     body.classList.add(`tema-${tema}`);
 
-    console.log('🎨 Tema aplicado globalmente:', tema);
+    console.log('Tema aplicado globalmente:', tema);
   }
 
   // ============================================================
@@ -256,18 +262,65 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.showThemeSelector.update(v => !v);
     this.showFrameSelector.set(false);
     this.showBackgroundSelector.set(false);
+    this.showFontSizeSelector.set(false);
   }
 
   toggleFrameSelector(): void {
     this.showFrameSelector.update(v => !v);
     this.showThemeSelector.set(false);
     this.showBackgroundSelector.set(false);
+    this.showFontSizeSelector.set(false);
   }
 
   toggleBackgroundSelector(): void {
     this.showBackgroundSelector.update(v => !v);
     this.showThemeSelector.set(false);
     this.showFrameSelector.set(false);
+    this.showFontSizeSelector.set(false);
+  }
+
+  toggleFontSizeSelector(): void {
+    this.showFontSizeSelector.update(v => !v);
+    this.showThemeSelector.set(false);
+    this.showFrameSelector.set(false);
+    this.showBackgroundSelector.set(false);
+  }
+
+  // ============================================================
+  // ESCALA DE FUENTE
+  // ============================================================
+  seleccionarTamanoFuente(valor: number): void {
+    this.personalizacionStore.setEscalaFuente(valor);
+    this.exitoMsg.set(`Tamaño de texto: ${this.personalizacionStore.etiquetaEscala()}`);
+    setTimeout(() => this.exitoMsg.set(null), 2000);
+  }
+
+  esTamanoActivo(valor: number): boolean {
+    return this.personalizacionStore.esPresetActivo(valor);
+  }
+
+  ajustarFuente(delta: number): void {
+    this.personalizacionStore.ajustarEscala(delta);
+  }
+
+  resetearFuente(): void {
+    this.personalizacionStore.resetearEscala();
+    this.exitoMsg.set('Tamaño de texto restablecido');
+    setTimeout(() => this.exitoMsg.set(null), 2000);
+  }
+
+  onSliderFuenteChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valor = parseFloat(input.value);
+    this.personalizacionStore.setEscalaFuente(valor);
+  }
+
+  onInputPorcentajeChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valor = parseFloat(input.value) / 100;
+    if (!isNaN(valor)) {
+      this.personalizacionStore.setEscalaFuente(valor);
+    }
   }
 
   // ============================================================
@@ -362,7 +415,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // ============================================================
   seleccionarTheme(themeId: string): void {
     this.selectedTheme.set(themeId);
-    // Aplicar en vivo (preview) al cambiar
     this.aplicarTemaGlobal(themeId);
   }
 

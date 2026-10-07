@@ -10,13 +10,12 @@ $mobile-header-small: 56px;
   overflow-x: clip;
 }
 
-// ✅ El contenedor es transparente para que se vea el fondo del body
 .app-container {
   position: relative;
   min-width: 0;
   min-height: 100vh;
   color: var(--tema-text, #e6edf3);
-  background: transparent;   // 👈 antes era var(--kiert-bg, #0d1117)
+  background: transparent;
   transition: color 0.6s ease;
   overflow-x: clip;
 }
@@ -131,7 +130,7 @@ $mobile-header-small: 56px;
     }
 
     &:focus-visible {
-      outline: 2px solid #e6edf3;
+      outline: 3px solid #e6edf3;
       outline-offset: 3px;
     }
   }
@@ -149,20 +148,65 @@ $mobile-header-small: 56px;
   padding: 1.5rem 1rem;
   box-sizing: border-box;
   animation: fadeIn 0.5s ease;
+
+  // Focus con teclado en el main
+  &:focus-visible {
+    outline: 3px solid var(--tema-accent, #2dd4bf);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// ============================================================
+// FAB (Floating Action Button) para atajos de teclado
+// ============================================================
+.kbd-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2dd4bf, #17b6a4);
+  color: #0d1117;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  box-shadow:
+    0 8px 32px rgba(45, 212, 191, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  svg { stroke: currentColor; }
+
+  &:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow:
+      0 12px 40px rgba(45, 212, 191, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.2) inset;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  &:active {
+    transform: translateY(-1px) scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
   }
 }
 
+// ============================================================
+// RESPONSIVE
+// ============================================================
 @media (max-width: 1024px) {
   .app-shell,
   .app-shell.sidebar-collapsed {
@@ -186,21 +230,13 @@ $mobile-header-small: 56px;
     margin: 12px 0.75rem 0;
     border-radius: 12px;
 
-    &__content {
-      height: 160px;
-    }
+    &__content { height: 160px; }
 
     &__overlay {
       padding: 16px 20px;
 
-      h2 {
-        font-size: 1.2rem;
-      }
-
-      p {
-        margin: 0 0 8px;
-        font-size: 0.75rem;
-      }
+      h2 { font-size: 1.2rem; }
+      p { margin: 0 0 8px; font-size: 0.75rem; }
     }
 
     &__btn {
@@ -211,6 +247,13 @@ $mobile-header-small: 56px;
 
   .main-content {
     padding: 1rem 0.75rem;
+  }
+
+  .kbd-fab {
+    bottom: 16px;
+    right: 16px;
+    width: 46px;
+    height: 46px;
   }
 }
 
@@ -231,23 +274,13 @@ $mobile-header-small: 56px;
     margin: 8px 0.5rem 0;
     border-radius: 10px;
 
-    &__content {
-      height: 140px;
-    }
+    &__content { height: 140px; }
 
     &__overlay {
       padding: 12px 16px;
 
-      h2 {
-        margin-bottom: 3px;
-        font-size: 1rem;
-      }
-
-      p {
-        max-width: 100%;
-        margin: 0 0 6px;
-        font-size: 0.65rem;
-      }
+      h2 { margin-bottom: 3px; font-size: 1rem; }
+      p { max-width: 100%; margin: 0 0 6px; font-size: 0.65rem; }
     }
 
     &__btn {

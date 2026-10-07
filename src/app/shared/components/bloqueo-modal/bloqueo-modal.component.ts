@@ -25,7 +25,7 @@ export class BloqueoModalComponent {
   enviando = signal<boolean>(false);
   errorMsg = signal<string | null>(null);
 
-  // 🔥 AQUÍ ESTÁ LA CLAVE: nombre correcto
+  //  AQUÍ ESTÁ LA CLAVE: nombre correcto
   motivosRapidos: string[] = [
     'Acoso o ciberacoso',
     'Spam o publicidad',
@@ -46,7 +46,7 @@ export class BloqueoModalComponent {
   }
 
   /**
-   * 🔥 Método llamado por el HTML — `confirmar()`
+   *  Método llamado por el HTML — `confirmar()`
    */
   confirmar(): void {
     if (!this.usuarioId) {

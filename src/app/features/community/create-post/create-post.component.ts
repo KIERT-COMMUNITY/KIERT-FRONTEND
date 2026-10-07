@@ -101,7 +101,7 @@ export class CreatePostComponent implements OnInit {
   }
 
   publicar(): void {
-    console.log('📝 Intentando publicar...');
+    console.log('Intentando publicar...');
     
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -131,14 +131,14 @@ export class CreatePostComponent implements OnInit {
 
     const datos = this.form.getRawValue();
     
-    // ✅ OBTENER LA CATEGORÍA EXACTAMENTE COMO LA ESCRIBIÓ EL USUARIO
+    // OBTENER LA CATEGORÍA EXACTAMENTE COMO LA ESCRIBIÓ EL USUARIO
     const categoriaOriginal = datos.categoria?.trim() || '';
-    console.log(`📌 Categoría original del usuario: "${categoriaOriginal}"`);
+    console.log(`Categoría original del usuario: "${categoriaOriginal}"`);
     
-    // ✅ CREAR FormData Y ENVIAR LA CATEGORÍA TAL CUAL
+    // CREAR FormData Y ENVIAR LA CATEGORÍA TAL CUAL
     const formData = new FormData();
     formData.append('titulo', datos.titulo?.trim() || '');
-    formData.append('categoria', categoriaOriginal);  // ✅ Enviamos tal cual
+    formData.append('categoria', categoriaOriginal);  // Enviamos tal cual
     formData.append('descripcion', datos.descripcion?.trim() || '');
     
     if (datos.link && datos.link.trim()) {
@@ -150,18 +150,18 @@ export class CreatePostComponent implements OnInit {
       formData.append('archivos', archivo);
     });
 
-    console.log('📤 Enviando publicación...');
-    console.log('📌 Categoría enviada:', categoriaOriginal);
+    console.log('Enviando publicación...');
+    console.log('Categoría enviada:', categoriaOriginal);
     
-    // ✅ MOSTRAR TODOS LOS DATOS ENVIADOS
+    // MOSTRAR TODOS LOS DATOS ENVIADOS
     for (let pair of (formData as any).entries()) {
-      console.log(`📦 ${pair[0]}: ${pair[1] instanceof File ? pair[1].name : pair[1]}`);
+      console.log(`${pair[0]}: ${pair[1] instanceof File ? pair[1].name : pair[1]}`);
     }
 
     this.postService.crear(formData).subscribe({
       next: (nuevoPost) => {
-        console.log('✅ Publicación creada:', nuevoPost);
-        console.log('📌 Categoría guardada:', nuevoPost.categoria);
+        console.log('Publicación creada:', nuevoPost);
+        console.log('Categoría guardada:', nuevoPost.categoria);
         this.publicando.set(false);
         this.archivosSeleccionados.set([]);
         this.form.reset();
@@ -172,7 +172,7 @@ export class CreatePostComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('❌ Error al publicar:', error);
+        console.error('Error al publicar:', error);
         console.error('Detalles del error:', error.error);
         
         let mensaje = 'No se pudo publicar. Intenta nuevamente.';

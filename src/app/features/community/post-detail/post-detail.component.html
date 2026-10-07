@@ -6,7 +6,7 @@
       <div class="spinner"></div>
       <p>Cargando publicación...</p>
     </div>
-  } @else if (errorMsg()) {
+  } @else if (errorMsg() && !post()) {
     <div class="error-container">
       <div class="error-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -29,7 +29,7 @@
 
     <article class="post-detail" [style.background]="personalizacionStore.fondoGradiente()">
 
-      <!-- HEADER CON AVATAR Y NOMBRE CLICKEABLES -->
+      <!-- HEADER -->
       <div class="post-detail__header">
         <div class="post-detail__user">
           <kiert-avatar-frame
@@ -44,7 +44,6 @@
             <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
               @{{ postActual.autor.nombreUsuario }}
             </span>
-            <!-- CATEGORÍA CON COLOR DINÁMICO -->
             <span class="post-detail__badge" [style.background]="getColorCategoria(postActual.categoria)" [style.color]="'#0d1117'">
               {{ getCategoriaFormateada(postActual.categoria) }}
             </span>
@@ -53,7 +52,6 @@
 
         <div class="post-detail__header-right">
           <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
-          <!-- BOTÓN COMPARTIR -->
           <button class="btn-compartir-header" (click)="abrirModalCompartir()" title="Compartir publicación">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="18" cy="5" r="3"/>
@@ -63,7 +61,6 @@
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
             </svg>
           </button>
-          <!-- BOTÓN REPORTAR POST -->
           <button class="btn-reportar" (click)="reportarPost()" title="Reportar publicación">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
@@ -87,6 +84,98 @@
                   <circle cx="11" cy="11" r="8"/>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ========== VIDEOS CON SUBTÍTULOS ========== -->
+      @if (tieneVideos()) {
+        <div class="post-detail__videos">
+          @for (video of obtenerVideos(); track video.id) {
+            <div class="video-player">
+
+              <video
+                [src]="video.url"
+                [poster]="video.miniaturaUrl || ''"
+                controls
+                preload="metadata"
+                class="video-player__el"
+                crossorigin="anonymous"
+              >
+                @if (tieneSubtitulos(video)) {
+                  @for (sub of video.subtitulos; track sub.id) {
+                    <track
+                      kind="subtitles"
+                      [src]="sub.url"
+                      [srclang]="sub.idioma"
+                      [label]="sub.etiqueta"
+                      [default]="subtitulosActivos()[video.id] && obtenerSubtituloActivo(video)?.id === sub.id"
+                    >
+                  }
+                }
+                Tu navegador no soporta video HTML5.
+              </video>
+
+              <!-- CONTROLES DE SUBTÍTULOS -->
+              <div class="video-player__controles">
+                @if (tieneSubtitulos(video)) {
+                  <button
+                    class="btn-subtitulos"
+                    [class.active]="subtitulosActivos()[video.id]"
+                    (click)="toggleSubtitulos(video.id)"
+                    title="Activar/desactivar subtítulos"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="5" width="18" height="14" rx="2"/>
+                      <line x1="7" y1="12" x2="10" y2="12"/>
+                      <line x1="13" y1="12" x2="17" y2="12"/>
+                      <line x1="7" y1="16" x2="11" y2="16"/>
+                      <line x1="14" y1="16" x2="17" y2="16"/>
+                    </svg>
+                    <span>CC</span>
+                  </button>
+
+                  <select
+                    class="select-idioma"
+                    [value]="idiomaSeleccionado()[video.id] || ''"
+                    (change)="cambiarIdiomaSubtitulos(video.id, $any($event.target).value)"
+                    title="Idioma de subtítulos"
+                  >
+                    @for (sub of video.subtitulos; track sub.id) {
+                      <option [value]="sub.idioma">{{ sub.etiqueta }}</option>
+                    }
+                  </select>
+
+                  @if (obtenerSubtituloActivo(video)?.esAutoGenerado) {
+                    <span class="badge-auto" title="Generado automáticamente">Auto</span>
+                  }
+                }
+
+                <!-- SUBIR SUBTÍTULOS (solo autor del post) -->
+                @if (esAutor(postActual.autor)) {
+                  <label class="btn-subir-subtitulo" [class.loading]="subiendoSubtitulo() === video.id">
+                    @if (subiendoSubtitulo() === video.id) {
+                      <div class="spinner-small"></div>
+                      <span>Subiendo...</span>
+                    } @else {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      <span>{{ tieneSubtitulos(video) ? 'Añadir subtítulo' : 'Añadir subtítulos (.vtt)' }}</span>
+                    }
+                    <input
+                      type="file"
+                      accept=".vtt"
+                      hidden
+                      [disabled]="subiendoSubtitulo() === video.id"
+                      (change)="onSubtituloSeleccionado($event, video.id)"
+                    >
+                  </label>
+                }
               </div>
             </div>
           }
@@ -167,7 +256,6 @@
             <span class="reaction-count">{{ reacciones().angrys }}</span>
           </button>
 
-          <!-- BOTÓN COMPARTIR EN LA FILA DE REACCIONES -->
           <button class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicación">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="18" cy="5" r="3"/>
@@ -210,14 +298,13 @@
       </div>
     </article>
 
-    <!-- ========== SECCIÓN DE COMENTARIOS CON RESPUESTAS ========== -->
+    <!-- COMENTARIOS -->
     <section class="comentarios" [style.background]="personalizacionStore.fondoGradiente()">
       <div class="comentarios__header">
         <h3>Comentarios</h3>
         <span class="comentarios__count">{{ comentarios().length }}</span>
       </div>
 
-      <!-- FORMULARIO DE COMENTARIO -->
       <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
         <div class="comentarios__input-wrapper">
           <input
@@ -236,7 +323,6 @@
         </div>
       </form>
 
-      <!-- LISTA DE COMENTARIOS -->
       <div class="comentarios__lista">
         @for (c of comentarios(); track c.id) {
           <div class="comentario">

@@ -22,23 +22,23 @@ export class FeedComponent implements OnInit {
   errorMsg = signal<string | null>(null);
 
   ngOnInit(): void {
-    console.log('📋 FeedComponent: Inicializando');
+    console.log('FeedComponent: Inicializando');
     this.cargarPosts();
   }
 
   cargarPosts(): void {
-    console.log('📋 FeedComponent: Cargando posts...');
+    console.log('FeedComponent: Cargando posts...');
     this.cargando.set(true);
     this.errorMsg.set(null);
 
     this.postService.listar().subscribe({
       next: (data) => {
-        console.log('✅ FeedComponent: Posts recibidos:', data.length);
+        console.log('FeedComponent: Posts recibidos:', data.length);
         this.posts.set(data);
         this.cargando.set(false);
       },
       error: (error) => {
-        console.error('❌ FeedComponent: Error al cargar posts:', error);
+        console.error('FeedComponent: Error al cargar posts:', error);
         this.cargando.set(false);
         this.errorMsg.set('Error al cargar las publicaciones');
         this.posts.set([]);
@@ -51,11 +51,11 @@ export class FeedComponent implements OnInit {
   }
 
   irAlPost(postId: number): void {
-    console.log('🔍 FeedComponent: Navegando al post:', postId);
+    console.log('FeedComponent: Navegando al post:', postId);
     if (postId && !isNaN(postId) && postId > 0) {
       this.router.navigate(['/comunidad', postId]);
     } else {
-      console.error('❌ FeedComponent: ID inválido:', postId);
+      console.error('FeedComponent: ID inválido:', postId);
     }
   }
 }

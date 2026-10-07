@@ -1,4 +1,7 @@
-import { Component, signal, inject, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { 
+  Component, signal, inject, HostListener, 
+  OnInit, OnDestroy, ElementRef 
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NotificationService, Notificacion } from '../../../core/services/notification.service';
@@ -18,6 +21,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private grupoService = inject(GrupoService);
   private router = inject(Router);
+  private elementRef = inject(ElementRef); //Referencia al host del componente
 
   notificaciones = signal<Notificacion[]>([]);
   noLeidas = signal<number>(0);
@@ -27,7 +31,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   private subscription: Subscription | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
-  // ✅ Solo mostrar las últimas 5 en el dropdown
+  // Solo mostrar las últimas 5 en el dropdown
   get notificacionesRecientes(): Notificacion[] {
     return this.notificaciones().slice(0, 5);
   }
@@ -62,9 +66,23 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Cerrar con tecla Escape
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.mostrando()) {
+      this.cerrarMenu();
+    }
+  }
+
+  // NUEVO: Cerrar al hacer clic fuera del componente
+  @HostListener('document:click', ['$event'])
+  onClickFuera(event: MouseEvent): void {
+    if (!this.mostrando()) return;
+
+    const target = event.target as HTMLElement;
+    const clickedInside = this.elementRef.nativeElement.contains(target);
+
+    if (!clickedInside) {
       this.cerrarMenu();
     }
   }
@@ -165,7 +183,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     this.cerrarMenu();
   }
 
-  // ✅ Ver todas las notificaciones
+  // Ver todas las notificaciones
   verTodas(): void {
     this.cerrarMenu();
     this.router.navigate(['/notificaciones']);

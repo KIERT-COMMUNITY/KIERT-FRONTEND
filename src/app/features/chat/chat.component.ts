@@ -822,7 +822,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ✅ NUEVO: MARCO DEL USUARIO
+  // MARCO DEL USUARIO
   // ============================================================
   getMarcoUsuario(usuarioId: number): string {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
@@ -830,7 +830,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ✅ NUEVO: ESTADO ONLINE/OFFLINE
+  // ESTADO ONLINE/OFFLINE (SIN DUPLICADOS)
   // ============================================================
   estaEnLinea(usuarioId: number): boolean {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
@@ -840,21 +840,68 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   getTextoEstado(usuarioId: number): string {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     if (!conv) return 'Desconocido';
+<<<<<<< HEAD
     if (conv.online) return 'En línea';
     if (conv.ultimaConexion) {
       const fecha = new Date(conv.ultimaConexion);
       const ahora = new Date();
       const diffMin = Math.floor((ahora.getTime() - fecha.getTime()) / 60000);
+=======
+>>>>>>> origin/develop11
 
-      if (diffMin < 1) return 'Hace unos segundos';
-      if (diffMin < 60) return `Hace ${diffMin} min`;
-      if (diffMin < 1440) return `Hace ${Math.floor(diffMin / 60)} h`;
+    // Online
+    if (conv.online) return 'En línea';
+
+    // Última conexión real
+    if (conv.ultimaConexion) {
+      const fecha = new Date(conv.ultimaConexion);
+      const ahora = new Date();
+      const diffMs = ahora.getTime() - fecha.getTime();
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffH = Math.floor(diffMin / 60);
+      const diffD = Math.floor(diffH / 24);
+
+      if (diffMin < 1) return 'Últ. vez hace unos segundos';
+      if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
+      if (diffH < 24) return `Últ. vez hace ${diffH} h`;
+      if (diffD < 7) return `Últ. vez hace ${diffD} d`;
 
       return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
         day: '2-digit',
         month: 'short'
       })}`;
     }
+
+    return 'Desconectado';
+  }
+
+  // ============================================================
+  // ESTADO DE MIEMBRO DE GRUPO
+  // ============================================================
+  getEstadoMiembro(m: MiembroGrupo): string {
+    // Online
+    if (m.enLinea) return 'En línea';
+
+    // Última conexión
+    if (m.ultimaConexion) {
+      const fecha = new Date(m.ultimaConexion);
+      const ahora = new Date();
+      const diffMs = ahora.getTime() - fecha.getTime();
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffH = Math.floor(diffMin / 60);
+      const diffD = Math.floor(diffH / 24);
+
+      if (diffMin < 1) return 'Últ. vez hace unos segundos';
+      if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
+      if (diffH < 24) return `Últ. vez hace ${diffH} h`;
+      if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+
+      return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short'
+      })}`;
+    }
+
     return 'Desconectado';
   }
   private mostrarError(mensaje: string, duracion = 3000): void {

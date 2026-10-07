@@ -1,9 +1,11 @@
+// src/app/features/community/mis-publicaciones/mis-publicaciones.component.ts
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
+import { ConfirmService } from '../../../core/services/confirm.service';  // ✅ NUEVO
 import { Post } from '../../../core/models/post.model';
 
 @Component({
@@ -17,6 +19,7 @@ export class MisPublicacionesComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private confirm = inject(ConfirmService);  // ✅ NUEVO
   public personalizacionStore = inject(PersonalizacionStore);
 
   posts = signal<Post[]>([]);
@@ -53,14 +56,21 @@ export class MisPublicacionesComponent implements OnInit {
     });
   }
 
-  eliminarPublicacion(postId: number): void {
-    if (!confirm('¿Seguro que quieres eliminar esta publicación?')) {
-      return;
-    }
+  /**
+   * ✅ Elimina una publicación usando el modal personalizado.
+   * Reemplaza el `confirm()` nativo del navegador.
+   */
+  async eliminarPublicacion(post: Post): Promise<void> {
+    const ok = await this.confirm.eliminar(
+      `Se eliminará permanentemente "${post.titulo}".`,
+      '¿Eliminar publicación?'
+    );
 
-    this.postService.eliminar(postId).subscribe({
+    if (!ok) return;
+
+    this.postService.eliminar(post.id).subscribe({
       next: () => {
-        this.posts.update(posts => posts.filter(p => p.id !== postId));
+        this.posts.update(posts => posts.filter(p => p.id !== post.id));
         this.exitoMsg.set('Publicación eliminada correctamente');
         setTimeout(() => this.exitoMsg.set(null), 3000);
       },

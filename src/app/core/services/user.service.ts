@@ -33,11 +33,11 @@ export class UserService {
     }
 
     const url = `${this.API_URL}/usuarios/buscar?q=${encodeURIComponent(query.trim())}`;
-    console.log(`🔍 Buscando usuarios: ${url}`);
+    console.log(`Buscando usuarios: ${url}`);
 
-    // ✅ Tipamos correctamente la respuesta como any para poder acceder a sus propiedades
+    // Tipamos correctamente la respuesta como any para poder acceder a sus propiedades
     return this.http.get<any>(url).pipe(
-      tap(response => console.log('📥 Respuesta usuarios:', response)),
+      tap(response => console.log('Respuesta usuarios:', response)),
       map(response => {
         // Si la respuesta es un array directamente
         if (Array.isArray(response)) {
@@ -61,12 +61,12 @@ export class UserService {
         }
         
         // Si no hay resultados, retornar array vacío
-        console.warn('⚠️ Respuesta inesperada del servidor:', response);
+        console.warn('Respuesta inesperada del servidor:', response);
         return [];
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Error en búsqueda de usuarios:', error);
-        console.error('🔍 Detalles:', error.status, error.statusText);
+        console.error('Error en búsqueda de usuarios:', error);
+        console.error('Detalles:', error.status, error.statusText);
         return of([]);
       })
     );

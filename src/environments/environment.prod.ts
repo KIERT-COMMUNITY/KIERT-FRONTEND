@@ -3,6 +3,6 @@
 export const environment = {
   production: true,
   apiUrl: 'https://api.kiert.com/api',
-  supabaseUrl: 'LINK SUPABASE.ICO',
-  supabaseBucket: 'kiert-files',
+  //supabaseUrl: 'LINK SUPABASE.ICO',
+ // supabaseBucket: 'kiert-files',
 };

@@ -18,7 +18,7 @@ export class FooterComponent {
       id: 1,
       title: 'Kiert Pro',
       description: 'Funcionalidades exclusivas para profesionales',
-      image: 'assets/images/anuncio/foto-anuncio.jpg', // ✅ SIN src/ al inicio
+      image: 'assets/images/anuncio/foto-anuncio.jpg', //  SIN src/ al inicio
       link: 'https://www.instagram.com/kiert_2005?stkn=aG9wZmQyamUzemV5',
       alt: 'Kiert Pro'
     },

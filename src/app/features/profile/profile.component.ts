@@ -56,7 +56,7 @@ export class ProfileComponent implements OnInit {
   });
 
   constructor() {
-    // 🔥 Aplicar tema GLOBAL cuando cambie la personalización
+    //  Aplicar tema GLOBAL cuando cambie la personalización
     effect(() => {
       const tema = this.personalizacionStore.temaId();
       this.aplicarTemaGlobal(tema);

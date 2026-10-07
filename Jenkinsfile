@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node-22'
+    }
+
     parameters {
         choice(
             name: 'ENVIRONMENT',
@@ -17,6 +21,18 @@ pipeline {
             defaultValue: true,
             description: 'Ejecutar pruebas unitarias'
         )
+        booleanParam(
+            name: 'BUILD_DOCKER',
+            defaultValue: false,
+            description: 'Construir imagen Docker (solo staging/production)'
+        )
+    }
+
+    environment {
+        NODE_ENV    = "${params.ENVIRONMENT}"
+        CI          = 'true'
+        IMAGE_NAME  = 'kiert-frontend'
+        IMAGE_TAG   = "${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -40,7 +56,7 @@ pipeline {
         stage('Setup Node.js') {
             steps {
                 bat '''
-                    echo "Verificando Node.js..."
+                    echo "Verificando Node.js y npm..."
                     node --version
                     npm --version
                 '''
@@ -50,24 +66,28 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat '''
-                    echo "Instalando dependencias..."
-                    npm install
+                    echo "Instalando dependencias con npm ci..."
+                    npm ci
                 '''
             }
         }
 
-        // ❌ ELIMINADO: Lint (no existe el script)
-        // stage('Lint') { ... }
-
-        // ❌ ELIMINADO: Unit Tests (no existe el script)
-        // stage('Unit Tests') { ... }
+        stage('Test') {
+            when {
+                expression { params.RUN_TESTS == true }
+            }
+            steps {
+                bat '''
+                    echo "Ejecutando pruebas unitarias con Vitest..."
+                    npm test -- --no-watch
+                '''
+            }
+        }
 
         stage('Build') {
             steps {
-                bat """
-                    echo "Construyendo para entorno: ${params.ENVIRONMENT}"
-                    npm run build -- --configuration=${params.ENVIRONMENT} --output-path=dist
-                """
+                bat "echo \"Construyendo para entorno: ${params.ENVIRONMENT}\""
+                bat "npm run build -- --configuration=${params.ENVIRONMENT}"
             }
             post {
                 success {
@@ -76,9 +96,26 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            when {
+                expression {
+                    params.BUILD_DOCKER == true &&
+                    (params.ENVIRONMENT == 'production' || params.ENVIRONMENT == 'staging')
+                }
+            }
+            steps {
+                bat """
+                    echo "Construyendo imagen Docker..."
+                    docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} -t ${env.IMAGE_NAME}:latest .
+                """
+            }
+        }
+
         stage('Deploy') {
             when {
-                expression { params.ENVIRONMENT == 'production' || params.ENVIRONMENT == 'staging' }
+                expression {
+                    params.ENVIRONMENT == 'production' || params.ENVIRONMENT == 'staging'
+                }
             }
             steps {
                 bat """

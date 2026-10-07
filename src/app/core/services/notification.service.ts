@@ -17,7 +17,7 @@ export interface Notificacion {
   comentarioId?: number;
   respuestaId?: number;
   url?: string;
-  grupoId?: number;  // ✅ Ya lo tenías
+  grupoId?: number;  // Ya lo tenías
 }
 
 @Injectable({

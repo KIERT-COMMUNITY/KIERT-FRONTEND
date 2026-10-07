@@ -8,7 +8,7 @@ import { ReaccionService } from '../../../core/services/reaccion.service';
 import { ComentarioService } from '../../../core/services/comentario.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { CompartidoService } from '../../../core/services/compartido.service';
-import { Post, Comentario, Respuesta, Adjunto, Autor } from '../../../core/models/post.model';
+import { Post, Comentario, Respuesta, Adjunto, Autor, Subtitulo } from '../../../core/models/post.model';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 import { CompartirModalComponent } from '../../../shared/components/compartir-modal/compartir-modal.component';
@@ -39,7 +39,6 @@ export class PostDetailComponent implements OnInit {
 
   id = input.required<string>();
 
-  // ✅ GETTER PARA EL ID COMO NÚMERO (para usar en templates)
   get postId(): number {
     return Number(this.id());
   }
@@ -65,6 +64,11 @@ export class PostDetailComponent implements OnInit {
   // ========== COMPARTIR ==========
   mostrarModalCompartir = signal(false);
   totalCompartidos = signal(0);
+
+  // ========== SUBTÍTULOS DE VIDEO ==========
+  subtitulosActivos = signal<{ [adjuntoId: number]: boolean }>({});
+  idiomaSeleccionado = signal<{ [adjuntoId: number]: string }>({});
+  subiendoSubtitulo = signal<number | null>(null);
 
   reacciones = signal({
     likes: 0, loves: 0, hahas: 0, wows: 0, sads: 0, angrys: 0
@@ -96,7 +100,9 @@ export class PostDetailComponent implements OnInit {
     this.cargarCompartidos(postId);
   }
 
-  // ✅ MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
+  // ============================================================
+  // CATEGORÍA
+  // ============================================================
   getCategoriaFormateada(categoria: string): string {
     if (!categoria) return 'Sin categoría';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
@@ -106,7 +112,6 @@ export class PostDetailComponent implements OnInit {
       .join(' ');
   }
 
-  // ✅ MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
   getColorCategoria(categoria: string): string {
     if (!categoria) return '#8b98a5';
     const categoriaLower = categoria.toLowerCase();
@@ -131,27 +136,50 @@ export class PostDetailComponent implements OnInit {
     return '#2dd4bf';
   }
 
-  // ✅ OBTENER EL MARCO DEL AUTOR
   getMarcoDelAutor(): string {
     return this.post()?.autor?.marcoId || 'none';
   }
 
+  // ============================================================
+  // CARGAS
+  // ============================================================
   cargarPost(postId: number): void {
     this.cargando.set(true);
     this.postService.obtenerPorId(postId).subscribe({
       next: (data) => {
-        console.log('📌 Post cargado:', data);
-        console.log('📌 Categoría:', data.categoria);
-        console.log('📌 Marco del autor:', data.autor?.marcoId);
+        console.log('Post cargado:', data);
         this.post.set(data);
+        this.inicializarSubtitulos(data);
         this.cargando.set(false);
       },
       error: (error) => {
-        console.error('❌ Error al cargar post:', error);
+        console.error('Error al cargar post:', error);
         this.cargando.set(false);
         this.errorMsg.set('Error al cargar la publicación');
       }
     });
+  }
+
+  /**
+   * Inicializa el estado de subtítulos por video.
+   * Activa los subtítulos por defecto si el video los tiene.
+   */
+  private inicializarSubtitulos(post: Post): void {
+    const activos: { [id: number]: boolean } = {};
+    const idiomas: { [id: number]: string } = {};
+
+    (post.adjuntos || [])
+      .filter(a => this.esVideo(a))
+      .forEach(video => {
+        if (video.subtitulos && video.subtitulos.length > 0) {
+          const porDefecto = video.subtitulos.find(s => s.porDefecto) || video.subtitulos[0];
+          activos[video.id] = !!porDefecto.porDefecto;
+          idiomas[video.id] = porDefecto.idioma;
+        }
+      });
+
+    this.subtitulosActivos.set(activos);
+    this.idiomaSeleccionado.set(idiomas);
   }
 
   cargarComentarios(postId: number): void {
@@ -178,7 +206,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== CARGAR COMPARTIDOS ==========
   cargarCompartidos(postId: number): void {
     this.compartidoService.contarCompartidos(postId).subscribe({
       next: (res) => this.totalCompartidos.set(res.total || 0),
@@ -186,7 +213,9 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== REACCIONES AL POST ==========
+  // ============================================================
+  // REACCIONES AL POST
+  // ============================================================
   reaccionar(tipo: string): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
@@ -207,7 +236,9 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== REACCIONES A COMENTARIOS ==========
+  // ============================================================
+  // REACCIONES A COMENTARIOS
+  // ============================================================
   reaccionarComentario(comentarioId: number, tipo: string): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
@@ -224,7 +255,9 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== REACCIONES A RESPUESTAS ==========
+  // ============================================================
+  // REACCIONES A RESPUESTAS
+  // ============================================================
   reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
@@ -251,7 +284,9 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== ENVIAR COMENTARIO ==========
+  // ============================================================
+  // ENVIAR COMENTARIO
+  // ============================================================
   enviarComentario(): void {
     if (this.formComentario.invalid) {
       this.formComentario.markAllAsTouched();
@@ -287,7 +322,9 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== ENVIAR RESPUESTA ==========
+  // ============================================================
+  // ENVIAR RESPUESTA
+  // ============================================================
   enviarRespuesta(comentarioId: number): void {
     if (this.formRespuesta.invalid) {
       this.formRespuesta.markAllAsTouched();
@@ -329,7 +366,9 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== TOGGLE RESPONDER ==========
+  // ============================================================
+  // TOGGLE RESPONDER
+  // ============================================================
   toggleResponder(comentarioId: number): void {
     this.comentarios.update(lista =>
       lista.map(c => {
@@ -344,7 +383,9 @@ export class PostDetailComponent implements OnInit {
     );
   }
 
-  // ========== TOGGLE VER RESPUESTAS ==========
+  // ============================================================
+  // TOGGLE VER RESPUESTAS
+  // ============================================================
   toggleVerRespuestas(comentarioId: number): void {
     this.comentarios.update(lista =>
       lista.map(c => {
@@ -402,13 +443,15 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== ELIMINAR COMENTARIO ==========
+  // ============================================================
+  // ELIMINAR
+  // ============================================================
   eliminarComentario(comentarioId: number): void {
     if (!confirm('¿Seguro que quieres eliminar este comentario?')) return;
     this.comentarioService.eliminar(comentarioId).subscribe({
       next: () => {
         this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
-        console.log('✅ Comentario eliminado');
+        console.log('Comentario eliminado');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar comentario');
@@ -417,7 +460,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== ELIMINAR RESPUESTA ==========
   eliminarRespuesta(comentarioId: number, respuestaId: number): void {
     if (!confirm('¿Seguro que quieres eliminar esta respuesta?')) return;
     this.comentarioService.eliminarRespuesta(respuestaId).subscribe({
@@ -434,7 +476,7 @@ export class PostDetailComponent implements OnInit {
             return c;
           })
         );
-        console.log('✅ Respuesta eliminada');
+        console.log('Respuesta eliminada');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar respuesta');
@@ -443,13 +485,17 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ========== VERIFICAR SI ES AUTOR ==========
+  // ============================================================
+  // AUTOR
+  // ============================================================
   esAutor(autor: Autor): boolean {
     const usuario = this.authService.usuario();
     return usuario?.id === autor.id;
   }
 
-  // ========== REPORTES ==========
+  // ============================================================
+  // REPORTES
+  // ============================================================
   reportarPost(): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reportar');
@@ -498,7 +544,9 @@ export class PostDetailComponent implements OnInit {
     this.mostrarModalReporte.set(false);
   }
 
-  // ========== COMPARTIR ==========
+  // ============================================================
+  // COMPARTIR
+  // ============================================================
   abrirModalCompartir(): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para compartir');
@@ -510,11 +558,12 @@ export class PostDetailComponent implements OnInit {
 
   cerrarModalCompartir(): void {
     this.mostrarModalCompartir.set(false);
-    // Refrescar contador de compartidos
     this.cargarCompartidos(Number(this.id()));
   }
 
-  // ========== UTILIDADES ==========
+  // ============================================================
+  // UTILIDADES
+  // ============================================================
   getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
     switch(tipo) {
       case 'like': return 'like';
@@ -531,11 +580,14 @@ export class PostDetailComponent implements OnInit {
     this.router.navigate(['/comunidad']);
   }
 
+  // ============================================================
+  // DETECCIÓN DE TIPOS DE ADJUNTO
+  // ============================================================
   esImagen(adjunto: Adjunto): boolean {
     if (!adjunto) return false;
     const tipo = adjunto.tipo?.toLowerCase() || '';
     const nombre = adjunto.nombre?.toLowerCase() || '';
-    if (tipo === 'imagen' || tipo === 'image') return true;
+    if (tipo === 'imagen' || tipo === 'image' || tipo === 'gif') return true;
     if (tipo === 'archivo' || tipo === 'file') {
       const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.tiff', '.ico'];
       return extensiones.some(ext => nombre.endsWith(ext));
@@ -543,14 +595,35 @@ export class PostDetailComponent implements OnInit {
     return false;
   }
 
+  esVideo(adjunto: Adjunto): boolean {
+    if (!adjunto) return false;
+    const tipo = adjunto.tipo?.toLowerCase() || '';
+    const nombre = adjunto.nombre?.toLowerCase() || '';
+    const mime = adjunto.mimeType?.toLowerCase() || '';
+
+    if (tipo === 'video') return true;
+    if (mime.startsWith('video/')) return true;
+
+    const extensiones = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
+    return extensiones.some(ext => nombre.endsWith(ext));
+  }
+
+  // ============================================================
+  // COLECCIONES DE ADJUNTOS
+  // ============================================================
   obtenerImagenes(): Adjunto[] {
     const adjuntos = this.post()?.adjuntos || [];
     return adjuntos.filter(a => this.esImagen(a));
   }
 
+  obtenerVideos(): Adjunto[] {
+    const adjuntos = this.post()?.adjuntos || [];
+    return adjuntos.filter(a => this.esVideo(a));
+  }
+
   obtenerOtrosAdjuntos(): Adjunto[] {
     const adjuntos = this.post()?.adjuntos || [];
-    return adjuntos.filter(a => !this.esImagen(a));
+    return adjuntos.filter(a => !this.esImagen(a) && !this.esVideo(a));
   }
 
   cantidadImagenes(): number {
@@ -559,6 +632,10 @@ export class PostDetailComponent implements OnInit {
 
   tieneImagenes(): boolean {
     return this.cantidadImagenes() > 0;
+  }
+
+  tieneVideos(): boolean {
+    return this.obtenerVideos().length > 0;
   }
 
   tieneOtrosAdjuntos(): boolean {
@@ -570,6 +647,95 @@ export class PostDetailComponent implements OnInit {
     return adjuntos.length > 0;
   }
 
+  // ============================================================
+  // SUBTÍTULOS
+  // ============================================================
+  tieneSubtitulos(adjunto: Adjunto): boolean {
+    return !!(adjunto.subtitulos && adjunto.subtitulos.length > 0);
+  }
+
+  toggleSubtitulos(adjuntoId: number): void {
+    this.subtitulosActivos.update(prev => ({
+      ...prev,
+      [adjuntoId]: !prev[adjuntoId]
+    }));
+  }
+
+  cambiarIdiomaSubtitulos(adjuntoId: number, idioma: string): void {
+    this.idiomaSeleccionado.update(prev => ({
+      ...prev,
+      [adjuntoId]: idioma
+    }));
+    // Al cambiar idioma, activar subtítulos
+    this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
+  }
+
+  obtenerSubtituloActivo(adjunto: Adjunto): Subtitulo | undefined {
+    if (!adjunto.subtitulos?.length) return undefined;
+    const idioma = this.idiomaSeleccionado()[adjunto.id];
+    if (idioma) {
+      return adjunto.subtitulos.find(s => s.idioma === idioma);
+    }
+    return adjunto.subtitulos.find(s => s.porDefecto) || adjunto.subtitulos[0];
+  }
+
+  /**
+   * Sube un archivo .vtt al backend.
+   * Pide idioma y etiqueta mediante prompts.
+   */
+  onSubtituloSeleccionado(event: Event, adjuntoId: number): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.vtt')) {
+      this.errorMsg.set('Solo se permiten archivos .vtt para subtítulos');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    const idioma = prompt('Código de idioma (ej: es, en, pt):', 'es');
+    if (!idioma) { input.value = ''; return; }
+
+    const etiqueta = prompt('Nombre visible del idioma (ej: Español):', 'Español');
+    if (!etiqueta) { input.value = ''; return; }
+
+    this.subiendoSubtitulo.set(adjuntoId);
+
+    this.postService.subirSubtitulo(adjuntoId, file, idioma, etiqueta, true).subscribe({
+      next: (nuevoSub) => {
+        this.post.update(p => {
+          if (!p) return p;
+          return {
+            ...p,
+            adjuntos: p.adjuntos.map(a => {
+              if (a.id !== adjuntoId) return a;
+              const subtitulos = [...(a.subtitulos || []), nuevoSub];
+              return { ...a, subtitulos };
+            })
+          };
+        });
+
+        // Activar por defecto el nuevo subtítulo
+        this.idiomaSeleccionado.update(prev => ({ ...prev, [adjuntoId]: nuevoSub.idioma }));
+        this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
+
+        this.subiendoSubtitulo.set(null);
+        input.value = '';
+      },
+      error: () => {
+        this.errorMsg.set('Error al subir subtítulos');
+        this.subiendoSubtitulo.set(null);
+        input.value = '';
+        setTimeout(() => this.errorMsg.set(null), 3000);
+      }
+    });
+  }
+
+  // ============================================================
+  // ICONOS Y UTILIDADES DE ARCHIVO
+  // ============================================================
   getIconoAdjunto(adjunto: Adjunto): string {
     if (!adjunto) return '📎';
     if (adjunto.tipo === 'link') return '🔗';
@@ -578,6 +744,7 @@ export class PostDetailComponent implements OnInit {
     if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return '📝';
     if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return '📦';
     if (nombre.endsWith('.txt')) return '📃';
+    if (nombre.endsWith('.vtt') || nombre.endsWith('.srt')) return '💬';
     return '📎';
   }
 
@@ -586,9 +753,11 @@ export class PostDetailComponent implements OnInit {
   }
 
   onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%235a6a7a" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
-    img.alt = 'Imagen no disponible';
+    const target = event.target as HTMLImageElement | HTMLVideoElement;
+    if (target instanceof HTMLImageElement) {
+      target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%235a6a7a" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
+      target.alt = 'Imagen no disponible';
+    }
   }
 
   onAvatarError(event: Event): void {

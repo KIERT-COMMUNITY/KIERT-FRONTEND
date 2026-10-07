@@ -1,0 +1,348 @@
+// src/app/shared/components/confirm-dialog/confirm-dialog.component.scss
+
+@keyframes confirmFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes confirmScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+// ============================================================
+// OVERLAY
+// ============================================================
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: confirmFadeIn 0.2s ease;
+  overflow-y: auto;
+}
+
+// ============================================================
+// DIALOG
+// ============================================================
+.confirm-dialog {
+  width: 100%;
+  max-width: 440px;
+  background: var(--tema-card-bg, #131a22);
+  border: 1px solid var(--tema-border, #26313c);
+  border-radius: 18px;
+  padding: 1.75rem 1.75rem 1.5rem;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  animation: confirmScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--confirm-color, #2dd4bf), transparent);
+  }
+}
+
+// ============================================================
+// ICONO
+// ============================================================
+.confirm-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: iconPulse 2s ease-in-out infinite;
+  border: 2px solid;
+
+  svg {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid;
+    opacity: 0.15;
+    animation: iconPulse 2s ease-in-out infinite;
+    animation-delay: 0.3s;
+  }
+}
+
+// ============================================================
+// COLORES POR TIPO
+// ============================================================
+.confirm-overlay--danger {
+  --confirm-color: #f85149;
+
+  .confirm-icon {
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.12);
+    border-color: rgba(248, 81, 73, 0.35);
+    box-shadow: 0 0 40px rgba(248, 81, 73, 0.25);
+
+    &::after { border-color: #f85149; }
+  }
+
+  .confirm-btn--danger {
+    background: linear-gradient(135deg, #f85149, #d63031);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(248, 81, 73, 0.35);
+
+    &:hover {
+      box-shadow: 0 12px 32px rgba(248, 81, 73, 0.5);
+    }
+  }
+}
+
+.confirm-overlay--warning {
+  --confirm-color: #f9ca24;
+
+  .confirm-icon {
+    color: #f9ca24;
+    background: rgba(249, 202, 36, 0.12);
+    border-color: rgba(249, 202, 36, 0.35);
+    box-shadow: 0 0 40px rgba(249, 202, 36, 0.2);
+
+    &::after { border-color: #f9ca24; }
+  }
+
+  .confirm-btn--warning {
+    background: linear-gradient(135deg, #f9ca24, #fdcb6e);
+    color: #0d1117;
+    box-shadow: 0 8px 24px rgba(249, 202, 36, 0.35);
+
+    &:hover {
+      box-shadow: 0 12px 32px rgba(249, 202, 36, 0.5);
+    }
+  }
+}
+
+.confirm-overlay--info {
+  --confirm-color: #58a6ff;
+
+  .confirm-icon {
+    color: #58a6ff;
+    background: rgba(88, 166, 255, 0.12);
+    border-color: rgba(88, 166, 255, 0.35);
+    box-shadow: 0 0 40px rgba(88, 166, 255, 0.2);
+
+    &::after { border-color: #58a6ff; }
+  }
+
+  .confirm-btn--info {
+    background: linear-gradient(135deg, #58a6ff, #0984e3);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(88, 166, 255, 0.35);
+  }
+}
+
+.confirm-overlay--success {
+  --confirm-color: #2ea043;
+
+  .confirm-icon {
+    color: #2ea043;
+    background: rgba(46, 160, 67, 0.12);
+    border-color: rgba(46, 160, 67, 0.35);
+    box-shadow: 0 0 40px rgba(46, 160, 67, 0.2);
+
+    &::after { border-color: #2ea043; }
+  }
+
+  .confirm-btn--success {
+    background: linear-gradient(135deg, #2ea043, #238636);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(46, 160, 67, 0.35);
+  }
+}
+
+// ============================================================
+// TEXTO
+// ============================================================
+.confirm-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--tema-text, #e6edf3);
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.confirm-message {
+  font-size: 0.95rem;
+  color: var(--tema-text, #e6edf3);
+  opacity: 0.8;
+  margin: 0 0 0.5rem;
+  line-height: 1.5;
+}
+
+.confirm-detail {
+  font-size: 0.78rem;
+  color: var(--tema-text-muted, #8b98a5);
+  margin: 0.75rem 0 1.25rem;
+  padding: 0.5rem 0.85rem;
+  background: rgba(128, 128, 128, 0.08);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+// ============================================================
+// ACCIONES
+// ============================================================
+.confirm-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+
+  @media (max-width: 400px) {
+    flex-direction: column-reverse;
+  }
+}
+
+.confirm-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  font-family: inherit;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  svg {
+    stroke: currentColor;
+    flex-shrink: 0;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--tema-accent, #2dd4bf);
+    outline-offset: 3px;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &--cancel {
+    background: rgba(128, 128, 128, 0.08);
+    color: var(--tema-text, #e6edf3);
+    border-color: var(--tema-border, #26313c);
+
+    &:hover {
+      background: rgba(128, 128, 128, 0.15);
+      border-color: var(--tema-text-muted, #8b98a5);
+      transform: translateY(-1px);
+    }
+  }
+
+  &--accept {
+    &:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+  }
+}
+
+// ============================================================
+// HINT
+// ============================================================
+.confirm-hint {
+  margin-top: 1.1rem;
+  font-size: 0.7rem;
+  color: var(--tema-text-muted, #8b98a5);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+
+  kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    background: rgba(128, 128, 128, 0.15);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+@media (max-width: 480px) {
+  .confirm-dialog {
+    padding: 1.5rem 1.25rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .confirm-icon {
+    width: 60px;
+    height: 60px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .confirm-title { font-size: 1.1rem; }
+  .confirm-message { font-size: 0.88rem; }
+}
+
+// ============================================================
+// REDUCED MOTION
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  .confirm-overlay,
+  .confirm-dialog,
+  .confirm-icon {
+    animation: none !important;
+  }
+}

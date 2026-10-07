@@ -1,14 +1,7 @@
 // src/app/features/chat/grupo-chat.component.ts
 import {
-  Component,
-  OnInit,
-  OnDestroy,
-  signal,
-  inject,
-  ViewChild,
-  ElementRef,
-  AfterViewChecked,
-  computed
+  Component, OnInit, OnDestroy, signal, inject,
+  ViewChild, ElementRef, AfterViewChecked, computed
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,6 +13,8 @@ import { PersonalizacionStore } from '../../../core/services/personalizacion-sto
 import { Conversacion, SolicitudContacto } from '../../../core/models/chat.model';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { CrearGrupoModalComponent } from '../../../shared/components/crear-grupo-modal/crear-grupo-modal.component';
+import { InvitarLinkModalComponent } from '../../../shared/components/invitacion-modal/invitar-link-modal.component';
+import { GrupoInfoModalComponent } from '../../../shared/components/grupo-info-modal/grupo-info-modal.component';
 
 type TabTipo = 'chats' | 'grupos';
 
@@ -30,7 +25,9 @@ type TabTipo = 'chats' | 'grupos';
     CommonModule,
     ReactiveFormsModule,
     AvatarFrameComponent,
-    CrearGrupoModalComponent
+    CrearGrupoModalComponent,
+    InvitarLinkModalComponent,
+    GrupoInfoModalComponent
   ],
   templateUrl: './grupo-chat.component.html',
   styleUrl: './grupo-chat.component.scss'
@@ -71,8 +68,14 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   solicitudesExpandidas = signal(false);
   mostrarModalGrupo = signal(false);
   mostrarMiembros = signal(false);
+  mostrarInvitarLink = signal(false);
+  mostrarInfoGrupo = signal(false);
 
-  // 🔥 NUEVOS: Opciones del grupo
+  // ===== BÚSQUEDA =====
+  busqueda = signal<string>('');
+  buscadorActivo = signal(false);
+
+  // ===== OPCIONES DE GRUPO =====
   mostrarOpcionesGrupo = signal(false);
   mostrarConfirmEliminar = signal(false);
   mostrarConfirmSalir = signal(false);
@@ -93,6 +96,30 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   get solicitudesPendientes(): SolicitudContacto[] {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
   }
+
+  // ============================================================
+  // COMPUTED DE BÚSQUEDA
+  // ============================================================
+  conversacionesFiltradas = computed(() => {
+    const query = this.busqueda().toLowerCase().trim();
+    if (!query) return this.conversaciones();
+    return this.conversaciones().filter(c =>
+      c.nombreUsuario?.toLowerCase().includes(query)
+    );
+  });
+
+  gruposFiltrados = computed(() => {
+    const query = this.busqueda().toLowerCase().trim();
+    if (!query) return this.grupos();
+    return this.grupos().filter(g =>
+      g.nombre?.toLowerCase().includes(query)
+    );
+  });
+
+  hayResultados = computed(() => {
+    return this.conversacionesFiltradas().length > 0
+        || this.gruposFiltrados().length > 0;
+  });
 
   // ===== AGRUPACIÓN POR FECHA =====
   mensajesAgrupados = computed(() => {
@@ -188,6 +215,23 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
+  // BÚSQUEDA
+  // ============================================================
+  onBusquedaChange(valor: string): void {
+    this.busqueda.set(valor);
+    this.buscadorActivo.set(true);
+  }
+
+  limpiarBusqueda(): void {
+    this.busqueda.set('');
+    this.buscadorActivo.set(false);
+  }
+
+  cerrarBuscador(): void {
+    this.buscadorActivo.set(false);
+  }
+
+  // ============================================================
   // CARGA DE DATOS
   // ============================================================
   cargarDatos(): void {
@@ -280,6 +324,8 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.cargarGrupo(grupo.id);
       this.cargarMensajes(grupo.id);
       this.cargarMiembros(grupo.id);
+
+      setTimeout(() => this.mostrarInvitarLink.set(true), 400);
     }, 500);
   }
 
@@ -324,7 +370,35 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // 🔥 OPCIONES DEL GRUPO
+  // INFO DEL GRUPO
+  // ============================================================
+  abrirInfoGrupo(): void {
+    this.mostrarInfoGrupo.set(true);
+  }
+
+  cerrarInfoGrupo(): void {
+    this.mostrarInfoGrupo.set(false);
+  }
+
+  onGrupoActualizado(g: Grupo): void {
+    this.grupo.set(g);
+    this.grupos.update(lista => lista.map(x => x.id === g.id ? g : x));
+  }
+
+  // ============================================================
+  // INVITAR CON LINK
+  // ============================================================
+  abrirInvitarLink(): void {
+    this.mostrarInvitarLink.set(true);
+    this.mostrarOpcionesGrupo.set(false);
+  }
+
+  cerrarInvitarLink(): void {
+    this.mostrarInvitarLink.set(false);
+  }
+
+  // ============================================================
+  // OPCIONES DEL GRUPO
   // ============================================================
   toggleOpcionesGrupo(): void {
     this.mostrarOpcionesGrupo.update(v => !v);
@@ -350,7 +424,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // 🔥 ELIMINAR GRUPO
+  // ELIMINAR GRUPO
   // ============================================================
   abrirConfirmEliminar(): void {
     const g = this.grupo();
@@ -386,7 +460,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // 🔥 SALIR DEL GRUPO
+  // SALIR DEL GRUPO
   // ============================================================
   abrirConfirmSalir(): void {
     this.mostrarConfirmSalir.set(true);
@@ -418,7 +492,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // 🔥 EXPULSAR MIEMBRO
+  // EXPULSAR MIEMBRO
   // ============================================================
   abrirConfirmExpulsar(miembro: MiembroGrupo): void {
     this.miembroAExpulsar.set(miembro);
@@ -451,29 +525,85 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
+  // ARCHIVOS
+  // ============================================================
+  onArchivosSeleccionados(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const archivos = Array.from(input.files);
+    const totalSize = archivos.reduce((acc, f) => acc + f.size, 0);
+
+    if (totalSize > 15 * 1024 * 1024) {
+      this.errorMsg.set('El tamaño total no debe superar los 15MB');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    this.archivosSeleccionados.update(lista => [...lista, ...archivos]);
+    input.value = '';
+  }
+
+  quitarArchivo(index: number): void {
+    this.archivosSeleccionados.update(lista => lista.filter((_, i) => i !== index));
+  }
+
+  esImagen(nombre: string): boolean {
+    if (!nombre) return false;
+    const ext = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+    return ext.some(e => nombre.toLowerCase().endsWith(e));
+  }
+
+  abrirArchivo(url: string): void {
+    window.open(url, '_blank');
+  }
+
+  // ============================================================
   // ENVÍO DE MENSAJES
   // ============================================================
   enviarMensaje(): void {
-    const contenido = this.formMensaje.value.contenido?.trim();
+    const contenido = this.formMensaje.value.contenido?.trim() || '';
     const grupoId = this.grupoSeleccionado();
+    const archivos = this.archivosSeleccionados();
 
-    if (!contenido || !grupoId) return;
+    if (!grupoId) return;
+    if (!contenido && archivos.length === 0) return;
 
     this.enviando.set(true);
 
-    this.grupoService.enviarMensaje(grupoId, contenido).subscribe({
-      next: (msg) => {
-        this.mensajes.update(lista => [...lista, msg]);
-        this.formMensaje.reset();
-        this.enviando.set(false);
-        setTimeout(() => this.scrollToBottom(), 100);
-      },
-      error: () => {
-        this.errorMsg.set('Error al enviar mensaje');
-        this.enviando.set(false);
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+    if (archivos.length > 0) {
+      // Enviar primer archivo (simple)
+      const archivo = archivos[0];
+      this.grupoService.enviarMensajeConArchivo(grupoId, contenido, archivo).subscribe({
+        next: (msg) => {
+          this.mensajes.update(lista => [...lista, msg]);
+          this.formMensaje.reset();
+          this.archivosSeleccionados.set([]);
+          this.enviando.set(false);
+          setTimeout(() => this.scrollToBottom(), 100);
+        },
+        error: (err) => {
+          this.errorMsg.set(err?.error?.error || 'Error al enviar archivo');
+          this.enviando.set(false);
+          setTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
+    } else {
+      this.grupoService.enviarMensaje(grupoId, contenido).subscribe({
+        next: (msg) => {
+          this.mensajes.update(lista => [...lista, msg]);
+          this.formMensaje.reset();
+          this.enviando.set(false);
+          setTimeout(() => this.scrollToBottom(), 100);
+        },
+        error: () => {
+          this.errorMsg.set('Error al enviar mensaje');
+          this.enviando.set(false);
+          setTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
+    }
   }
 
   // ============================================================
@@ -543,4 +673,28 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.fotoPerfilUrl || null;
   }
+  getEstadoMiembro(m: MiembroGrupo): string {
+  if (m.enLinea) return 'En línea';
+
+  if (m.ultimaConexion) {
+    const fecha = new Date(m.ultimaConexion);
+    const ahora = new Date();
+    const diffMs = ahora.getTime() - fecha.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffH = Math.floor(diffMin / 60);
+    const diffD = Math.floor(diffH / 24);
+
+    if (diffMin < 1) return 'Últ. vez hace unos segundos';
+    if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
+    if (diffH < 24) return `Últ. vez hace ${diffH} h`;
+    if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+
+    return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short'
+    })}`;
+  }
+
+  return 'Desconectado';
+}
 }
