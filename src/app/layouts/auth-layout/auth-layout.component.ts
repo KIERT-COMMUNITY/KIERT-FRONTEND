@@ -11,5 +11,5 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 })
 export class AuthLayoutComponent {
   // NO usa PersonalizacionStore - es completamente independiente
-  // El fondo SIEMPRE es el mismo, no cambia con el tema del usuario
+
 }
