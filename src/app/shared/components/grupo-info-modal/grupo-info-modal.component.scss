@@ -1,1070 +1,726 @@
-// src/app/shared/components/grupo-info-modal/grupo-info-modal.component.scss
-// ============================================================
-// MODAL INFO DEL GRUPO — DISEÑO PROFESIONAL
-// ============================================================
-
-// ============================================================
-// ANIMACIONES
-// ============================================================
 @keyframes gimFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes gimScaleIn {
   from {
     opacity: 0;
-    transform: scale(0.92) translateY(20px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
 }
-
-@keyframes gimSpin {
-  to { transform: rotate(360deg); }
+@keyframes gimScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-
-// ============================================================
-// OVERLAY (fondo oscuro)
-// ============================================================
+@keyframes gimSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+:host {
+  display: contents;
+}
 .gim-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  animation: gimFadeIn 0.2s ease;
-  overflow-y: auto;
-
-  // Scroll interno cuando el modal es muy alto
-  &::-webkit-scrollbar { width: 8px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(45, 212, 191, 0.3);
-    border-radius: 4px;
-
-    &:hover { background: rgba(45, 212, 191, 0.5); }
-  }
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(3px);
+  animation: gimFadeIn 0.18s ease;
 }
-
-// ============================================================
-// MODAL (marco central)
-// ============================================================
 .gim-modal {
-  position: relative;
-  width: 100%;
-  max-width: 540px;
-  max-height: calc(100vh - 2rem);
-  margin: auto;
+  width: min(540px, 100%);
+  max-height: min(820px, calc(100dvh - 40px));
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: var(--bg-app, #0d1117);
   border: 1px solid var(--border, #26313c);
-  border-radius: 20px;
-  overflow: hidden;
-  animation: gimScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-
-  // Línea superior decorativa con gradiente
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--primary, #2dd4bf),
-      var(--primary-dark, #17b6a4),
-      var(--primary, #2dd4bf),
-      transparent
-    );
-    z-index: 10;
-  }
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58);
+  animation: gimScaleIn 0.22s ease;
 }
-
-// ============================================================
-// HEADER
-// ============================================================
 .gim-header {
+  min-height: 58px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  gap: 14px;
+  padding: 0 18px;
+  flex-shrink: 0;
   background: var(--bg-chat, #161b22);
   border-bottom: 1px solid var(--border, #26313c);
-  flex-shrink: 0;
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 0;
-  }
-
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
-    color: var(--bubble-mine-text, #0d1117);
-    border-radius: 11px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
-
-    svg { stroke: currentColor; }
-  }
-
-  &__info {
-    min-width: 0;
-
-    h2 {
-      margin: 0;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-primary, #e6edf3);
-      line-height: 1.2;
-      letter-spacing: -0.01em;
-    }
-
-    p {
-      margin: 2px 0 0;
-      font-size: 0.72rem;
-      color: var(--text-muted, #8b98a5);
-    }
-  }
-
-  &__close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    background: transparent;
-    border: 1px solid var(--border, #26313c);
-    border-radius: 10px;
-    color: var(--text-secondary, #8b98a5);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-
-    svg { stroke: currentColor; }
-
-    &:hover {
-      background: rgba(248, 81, 73, 0.12);
-      border-color: #f85149;
-      color: #f85149;
-      transform: rotate(90deg);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--primary, #2dd4bf);
-      outline-offset: 2px;
-    }
-  }
 }
-
-// ============================================================
-// LOADING
-// ============================================================
+.gim-header h2 {
+  margin: 0;
+  color: var(--text-primary, #e6edf3);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.gim-header__close {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--text-secondary, #8b98a5);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.gim-header__close:hover {
+  color: var(--text-primary, #e6edf3);
+  background: var(--bg-hover, rgba(255, 255, 255, 0.06));
+}
 .gim-loading {
+  min-height: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.85rem;
-  padding: 3.5rem 1rem;
+  gap: 12px;
   color: var(--text-muted, #8b98a5);
   font-size: 0.85rem;
 }
-
+.gim-loading--small {
+  min-height: 170px;
+}
 .gim-spinner,
 .gim-spinner-mini {
   border-radius: 50%;
   animation: gimSpin 0.8s linear infinite;
 }
-
 .gim-spinner {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border: 3px solid var(--border, #26313c);
   border-top-color: var(--primary, #2dd4bf);
 }
-
 .gim-spinner-mini {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   border: 2px solid rgba(13, 17, 23, 0.3);
-  border-top-color: var(--bubble-mine-text, #0d1117);
+  border-top-color: #0d1117;
 }
-
-// ============================================================
-// BODY (scroll)
-// ============================================================
 .gim-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 1.5rem 1.25rem;
-
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(128, 128, 128, 0.25);
-    border-radius: 3px;
-
-    &:hover { background: rgba(128, 128, 128, 0.4); }
-  }
+  overscroll-behavior: contain;
 }
-
-// ============================================================
-// HERO (avatar + nombre + desc)
-// ============================================================
-.gim-hero {
+.gim-body::-webkit-scrollbar,
+.gim-results::-webkit-scrollbar {
+  width: 6px;
+}
+.gim-body::-webkit-scrollbar-thumb,
+.gim-results::-webkit-scrollbar-thumb {
+  background: var(--border, #26313c);
+  border-radius: 999px;
+}
+.gim-profile {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 28px 28px 22px;
   text-align: center;
-  gap: 0.75rem;
-  padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border, #26313c);
-  margin-bottom: 1.5rem;
-
-  &__name {
-    margin: 0.25rem 0 0;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--text-primary, #e6edf3);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    word-break: break-word;
-    max-width: 100%;
-  }
-
-  &__desc {
-    margin: 0;
-    font-size: 0.88rem;
-    color: var(--text-secondary, #8b98a5);
-    line-height: 1.5;
-    max-width: 420px;
-    word-break: break-word;
-  }
-
-  &__chips {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.4rem;
-    margin-top: 0.35rem;
-  }
 }
-
-// ============================================================
-// AVATAR
-// ============================================================
+.gim-profile__name {
+  max-width: 100%;
+  margin: 18px 0 4px;
+  color: var(--text-primary, #e6edf3);
+  font-size: 1.45rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.gim-profile__members {
+  margin: 0;
+  color: var(--text-secondary, #8b98a5);
+  font-size: 0.86rem;
+}
+.gim-profile__description {
+  max-width: 400px;
+  margin: 12px 0 0;
+  color: var(--text-secondary, #8b98a5);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+.gim-profile__meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--text-muted, #8b98a5);
+  font-size: 0.75rem;
+}
+.gim-avatar-wrap,
+.gim-avatar {
+  width: 140px;
+  height: 140px;
+}
 .gim-avatar-wrap {
   position: relative;
-  width: 110px;
-  height: 110px;
 }
-
 .gim-avatar {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--primary, #2dd4bf);
-  box-shadow:
-    0 8px 32px rgba(45, 212, 191, 0.3),
-    0 0 0 4px var(--bg-app, #0d1117);
-
-  &--placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
-    font-size: 2.7rem;
-    font-weight: 800;
-    color: var(--bubble-mine-text, #0d1117);
-  }
-}
-
-.gim-avatar__edit {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: var(--primary, #2dd4bf);
-  color: var(--bubble-mine-text, #0d1117);
-  border: 3px solid var(--bg-app, #0d1117);
+  object-fit: cover;
   border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.4);
-
-  svg { stroke: currentColor; }
-
-  &:hover {
-    background: var(--primary-dark, #17b6a4);
-    transform: scale(1.1);
-  }
+  border: 2px solid rgba(45, 212, 191, 0.65);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
 }
-
+.gim-avatar--placeholder {
+  color: #0d1117;
+  background: linear-gradient(
+    135deg,
+    var(--primary, #2dd4bf),
+    var(--primary-dark, #17b6a4)
+  );
+  font-size: 3rem;
+  font-weight: 700;
+}
+.gim-avatar__edit,
 .gim-avatar__delete {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  background: #f85149;
-  color: #ffffff;
-  border: 2px solid var(--bg-app, #0d1117);
+  display: grid;
+  place-items: center;
+  padding: 0;
   border-radius: 50%;
   cursor: pointer;
-  transition: all 0.2s ease;
-
-  svg { stroke: currentColor; }
-
-  &:hover {
-    background: #d63031;
-    transform: scale(1.1);
-  }
 }
-
-// ============================================================
-// CHIPS
-// ============================================================
-.gim-chip {
+.gim-avatar__edit {
+  right: 2px;
+  bottom: 5px;
+  width: 38px;
+  height: 38px;
+  color: #0d1117;
+  background: var(--primary, #2dd4bf);
+  border: 3px solid var(--bg-app, #0d1117);
+}
+.gim-avatar__delete {
+  top: 7px;
+  right: 3px;
+  width: 27px;
+  height: 27px;
+  color: #fff;
+  background: var(--danger, #f85149);
+  border: 2px solid var(--bg-app, #0d1117);
+  font-size: 1rem;
+}
+.gim-admin-badge,
+.gim-member__badge {
   display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
-  background: rgba(128, 128, 128, 0.08);
-  border: 1px solid var(--border, #26313c);
+  padding: 3px 9px;
+  color: var(--primary, #2dd4bf);
+  background: rgba(45, 212, 191, 0.12);
   border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-secondary, #8b98a5);
-  transition: all 0.2s ease;
-
-  svg { stroke: currentColor; flex-shrink: 0; }
-
-  &:hover {
-    background: rgba(128, 128, 128, 0.12);
-  }
-
-  &--admin {
-    background: rgba(45, 212, 191, 0.12);
-    border-color: rgba(45, 212, 191, 0.3);
-    color: var(--primary, #2dd4bf);
-
-    svg { stroke: var(--primary, #2dd4bf); }
-  }
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
-
-// ============================================================
-// FORM EDIT
-// ============================================================
-.gim-edit-form {
+.gim-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 20px 18px 22px;
+  border-bottom: 1px solid var(--border, #26313c);
+}
+.gim-action {
+  width: 108px;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  width: 100%;
-  max-width: 420px;
-  margin-top: 0.5rem;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  color: var(--text-primary, #e6edf3);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
 }
-
+.gim-action__icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  color: var(--primary, #2dd4bf);
+  background: var(--bg-chat, #161b22);
+  border: 1px solid var(--border, #26313c);
+  border-radius: 50%;
+}
+.gim-action:hover .gim-action__icon {
+  background: rgba(45, 212, 191, 0.1);
+  border-color: rgba(45, 212, 191, 0.45);
+}
+.gim-edit-form {
+  width: 100%;
+  max-width: 410px;
+  margin-top: 20px;
+  text-align: left;
+}
+.gim-edit-form label {
+  display: block;
+  margin-bottom: 12px;
+}
+.gim-edit-form label > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-secondary, #8b98a5);
+  font-size: 0.75rem;
+}
 .gim-edit-input,
 .gim-edit-textarea {
   width: 100%;
-  padding: 0.7rem 0.9rem;
+  padding: 11px 13px;
+  color: var(--text-primary, #e6edf3);
   background: var(--bg-input, #0d1117);
   border: 1px solid var(--border, #26313c);
-  border-radius: 10px;
-  color: var(--text-primary, #e6edf3);
-  font-family: inherit;
-  font-size: 0.88rem;
-  outline: none;
-  transition: all 0.15s ease;
+  border-radius: 9px;
+  font: inherit;
+  outline: 0;
   resize: vertical;
-
-  &::placeholder {
-    color: var(--text-muted, #8b98a5);
-    opacity: 0.7;
-  }
-
-  &:focus {
-    border-color: var(--primary, #2dd4bf);
-    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
-  }
 }
-
-.gim-edit-textarea {
-  min-height: 60px;
-  font-family: inherit;
+.gim-edit-input:focus,
+.gim-edit-textarea:focus {
+  border-color: var(--primary, #2dd4bf);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
 }
-
 .gim-edit-actions {
   display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-top: 0.25rem;
+  justify-content: flex-end;
+  gap: 8px;
 }
-
-// ============================================================
-// BOTONES GENERALES
-// ============================================================
 .gim-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1.2rem;
-  border-radius: 10px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
-  font-family: inherit;
-  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-
-  svg { stroke: currentColor; }
-
-  &:active { transform: scale(0.97); }
-
-  &:focus-visible {
-    outline: 3px solid var(--primary, #2dd4bf);
-    outline-offset: 2px;
-  }
-
-  &--primary {
-    background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
-    color: var(--bubble-mine-text, #0d1117);
-    box-shadow: 0 4px 16px rgba(45, 212, 191, 0.25);
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(45, 212, 191, 0.4);
-    }
-  }
-
-  &--ghost {
-    background: transparent;
-    border-color: var(--border, #26313c);
-    color: var(--text-secondary, #8b98a5);
-
-    &:hover {
-      background: rgba(128, 128, 128, 0.08);
-      color: var(--text-primary, #e6edf3);
-      border-color: var(--text-secondary, #8b98a5);
-    }
-  }
 }
-
-// ============================================================
-// ACCIONES RÁPIDAS
-// ============================================================
-.gim-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
+.gim-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
-
-.gim-action {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.9rem 0.5rem;
-  background: var(--bg-chat, #161b22);
-  border: 1px solid var(--border, #26313c);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-
-  &:hover {
-    border-color: rgba(45, 212, 191, 0.4);
-    background: rgba(45, 212, 191, 0.06);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--primary, #2dd4bf);
-    outline-offset: 2px;
-  }
-
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(128, 128, 128, 0.1);
-    border-radius: 10px;
-    color: var(--text-secondary, #8b98a5);
-    transition: all 0.2s ease;
-
-    svg { stroke: currentColor; }
-
-    &--primary {
-      background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
-      color: var(--bubble-mine-text, #0d1117);
-      box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
-    }
-  }
-
-  &__label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-primary, #e6edf3);
-    letter-spacing: 0.02em;
-  }
+.gim-btn--ghost {
+  color: var(--text-secondary, #8b98a5);
+  background: transparent;
+  border-color: var(--border, #26313c);
 }
-
-// ============================================================
-// TABS
-// ============================================================
+.gim-btn--primary {
+  color: #0d1117;
+  background: var(--primary, #2dd4bf);
+}
 .gim-tabs {
-  display: flex;
-  gap: 0.25rem;
-  padding: 0.35rem;
-  background: var(--bg-chat, #161b22);
-  border: 1px solid var(--border, #26313c);
-  border-radius: 12px;
-  margin-bottom: 1.25rem;
   position: sticky;
   top: 0;
-  z-index: 5;
-  backdrop-filter: blur(8px);
+  z-index: 3;
+  display: flex;
+  padding: 0 22px;
+  background: var(--bg-app, #0d1117);
+  border-bottom: 1px solid var(--border, #26313c);
 }
-
 .gim-tab {
+  position: relative;
   flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.6rem 0.75rem;
-  background: transparent;
-  border: none;
-  border-radius: 9px;
+  padding: 15px 8px 13px;
   color: var(--text-muted, #8b98a5);
+  background: transparent;
+  border: 0;
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 600;
-  font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
-
-  svg { stroke: currentColor; }
-
-  &:hover {
-    color: var(--text-primary, #e6edf3);
-    background: rgba(128, 128, 128, 0.08);
-  }
-
-  &--active {
-    background: linear-gradient(135deg, rgba(45, 212, 191, 0.2), rgba(23, 182, 164, 0.15));
-    color: var(--primary, #2dd4bf);
-    box-shadow: 0 2px 8px rgba(45, 212, 191, 0.15);
-
-    svg { stroke: var(--primary, #2dd4bf); }
-  }
-
-  &__count {
-    padding: 1px 6px;
-    background: rgba(128, 128, 128, 0.15);
-    border-radius: 999px;
-    font-size: 0.68rem;
-    font-weight: 700;
-  }
 }
-
-// ============================================================
-// PANEL (contenedor de tabs)
-// ============================================================
+.gim-tab span {
+  margin-left: 4px;
+  font-size: 0.7rem;
+}
+.gim-tab::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 0;
+  height: 2px;
+}
+.gim-tab--active {
+  color: var(--primary, #2dd4bf);
+}
+.gim-tab--active::after {
+  background: var(--primary, #2dd4bf);
+}
 .gim-panel {
-  animation: gimFadeIn 0.25s ease;
+  padding: 18px 22px 24px;
+  animation: gimFadeIn 0.18s ease;
 }
-
-// ============================================================
-// EMPTY STATE
-// ============================================================
+.gim-section-title {
+  margin: 0 0 8px;
+  color: var(--text-secondary, #8b98a5);
+  font-size: 0.74rem;
+}
 .gim-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 3rem 1rem;
-  text-align: center;
+  padding: 36px 12px;
   color: var(--text-muted, #8b98a5);
-
-  svg {
-    stroke: currentColor;
-    opacity: 0.35;
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.88rem;
-    font-weight: 500;
-  }
+  text-align: center;
 }
-
-// ============================================================
-// LISTA DE MIEMBROS
-// ============================================================
-.gim-members {
-  list-style: none;
-  padding: 0;
+.gim-empty p {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
-
+.gim-members,
+.gim-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gim-members li + li,
+.gim-event {
+  border-top: 1px solid rgba(128, 128, 128, 0.12);
+}
 .gim-member {
+  width: 100%;
+  min-height: 64px;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 10px;
+  gap: 12px;
+  padding: 9px 4px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font: inherit;
   cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: rgba(45, 212, 191, 0.06);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--primary, #2dd4bf);
-    outline-offset: 2px;
-  }
-
-  &__avatar {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    overflow: visible;
-    flex-shrink: 0;
-    background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--bubble-mine-text, #0d1117);
-
-    img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-  }
-
-  &__status {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--text-muted, #8b98a5);
-    border: 2px solid var(--bg-app, #0d1117);
-
-    &--online {
-      background: #2ea043;
-      box-shadow: 0 0 8px rgba(46, 160, 67, 0.7);
-    }
-  }
-
-  &__info {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  &__name {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text-primary, #e6edf3);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  &__state {
-    font-size: 0.7rem;
-    color: var(--text-muted, #8b98a5);
-
-    &--online {
-      color: #2ea043;
-      font-weight: 600;
-    }
-  }
-
-  &__badge {
-    padding: 3px 8px;
-    background: linear-gradient(135deg, rgba(45, 212, 191, 0.2), rgba(23, 182, 164, 0.15));
-    color: var(--primary, #2dd4bf);
-    border-radius: 999px;
-    font-size: 0.62rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-  }
 }
-
-// ============================================================
-// TIMELINE (historial)
-// ============================================================
-.gim-timeline {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  position: relative;
-
-  // Línea vertical conectora
-  &::before {
-    content: '';
-    position: absolute;
-    left: 19px;
-    top: 12px;
-    bottom: 12px;
-    width: 2px;
-    background: linear-gradient(
-      180deg,
-      transparent,
-      rgba(45, 212, 191, 0.3) 10%,
-      rgba(45, 212, 191, 0.3) 90%,
-      transparent
-    );
-  }
+.gim-member:hover {
+  background: rgba(45, 212, 191, 0.04);
 }
-
-.gim-event {
+.gim-member__avatar {
   position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  color: #0d1117;
+  background: var(--primary, #2dd4bf);
+  border-radius: 50%;
+  font-weight: 700;
+}
+.gim-member__avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.gim-member__status {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--text-muted, #8b98a5);
+  border: 2px solid var(--bg-app, #0d1117);
+  border-radius: 50%;
+}
+.gim-member__status--online {
+  background: var(--success, #2ea043);
+}
+.gim-member__info {
+  min-width: 0;
+  flex: 1;
   display: flex;
-  gap: 0.9rem;
-  padding: 0.5rem 0;
-  padding-left: 0;
-
-  &__dot {
-    position: relative;
-    z-index: 2;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--bg-chat, #161b22);
-    border: 2px solid var(--border, #26313c);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-
-    svg {
-      stroke: var(--primary, #2dd4bf);
-      color: var(--primary, #2dd4bf);
-    }
-
-    &[data-accion="CREAR"],
-    &[data-accion="CAMBIAR_FOTO"],
-    &[data-accion="MIEMBRO_UNIDO"] {
-      border-color: rgba(45, 212, 191, 0.5);
-      background: rgba(45, 212, 191, 0.1);
-    }
-
-    &[data-accion="ELIMINAR"],
-    &[data-accion="ELIMINAR_FOTO"],
-    &[data-accion="EXPULSAR"],
-    &[data-accion="SALIR"],
-    &[data-accion="LINK_DESACTIVADO"] {
-      border-color: rgba(248, 81, 73, 0.5);
-      background: rgba(248, 81, 73, 0.1);
-
-      svg { stroke: #f85149; color: #f85149; }
-    }
-
-    &[data-accion="EDITAR_NOMBRE"],
-    &[data-accion="EDITAR_DESC"] {
-      border-color: rgba(249, 202, 36, 0.5);
-      background: rgba(249, 202, 36, 0.1);
-
-      svg { stroke: #f9ca24; color: #f9ca24; }
-    }
-  }
-
-  &__card {
-    flex: 1;
-    min-width: 0;
-    padding: 0.7rem 0.9rem;
-    background: var(--bg-chat, #161b22);
-    border: 1px solid var(--border, #26313c);
-    border-radius: 12px;
-    transition: all 0.15s ease;
-
-    &:hover {
-      border-color: rgba(45, 212, 191, 0.25);
-      background: rgba(45, 212, 191, 0.03);
-    }
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
-    flex-wrap: wrap;
-  }
-
-  &__user {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    min-width: 0;
-    font-size: 0.78rem;
-
-    img,
-    .gim-event__user-initial {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .gim-event__user-initial {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
-      color: var(--bubble-mine-text, #0d1117);
-      font-size: 0.65rem;
-      font-weight: 700;
-    }
-
-    strong {
-      color: var(--primary, #2dd4bf);
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  &__time {
-    font-size: 0.7rem;
-    color: var(--text-muted, #8b98a5);
-    flex-shrink: 0;
-    cursor: help;
-    white-space: nowrap;
-  }
-
-  &__action {
-    margin: 0;
-    font-size: 0.83rem;
-    color: var(--text-primary, #e6edf3);
-    line-height: 1.4;
-  }
-
-  &__change {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-
-    svg {
-      stroke: var(--text-muted, #8b98a5);
-      flex-shrink: 0;
-    }
-  }
-
-  &__old {
-    padding: 3px 8px;
-    background: rgba(248, 81, 73, 0.12);
-    color: #f85149;
-    border-radius: 6px;
-    text-decoration: line-through;
-    opacity: 0.85;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 500;
-  }
-
-  &__new {
-    padding: 3px 8px;
-    background: rgba(45, 212, 191, 0.15);
-    color: var(--primary, #2dd4bf);
-    border-radius: 6px;
-    font-weight: 600;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__detail {
-    margin: 0.4rem 0 0;
-    font-size: 0.75rem;
-    color: var(--text-muted, #8b98a5);
-    font-style: italic;
-    line-height: 1.4;
-  }
+  flex-direction: column;
+  gap: 3px;
 }
-
-// ============================================================
-// RESPONSIVE
-// ============================================================
+.gim-member__name {
+  color: var(--text-primary, #e6edf3);
+  font-size: 0.88rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gim-member__state {
+  color: var(--text-muted, #8b98a5);
+  font-size: 0.7rem;
+}
+.gim-member__state--online {
+  color: var(--success, #2ea043);
+}
+.gim-event {
+  display: flex;
+  gap: 12px;
+  padding: 13px 2px;
+}
+.gim-event:first-child {
+  border-top: 0;
+}
+.gim-event__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  color: var(--primary, #2dd4bf);
+  background: rgba(45, 212, 191, 0.09);
+  border-radius: 50%;
+}
+.gim-event__content {
+  min-width: 0;
+  flex: 1;
+}
+.gim-event__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.gim-event__heading strong {
+  color: var(--primary, #2dd4bf);
+  font-size: 0.76rem;
+}
+.gim-event__heading time {
+  color: var(--text-muted, #8b98a5);
+  font-size: 0.68rem;
+}
+.gim-event__content > p {
+  margin: 4px 0 0;
+  color: var(--text-primary, #e6edf3);
+  font-size: 0.8rem;
+}
+.gim-event__change {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+  font-size: 0.7rem;
+}
+.gim-event__old,
+.gim-event__new {
+  max-width: 150px;
+  padding: 3px 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 5px;
+}
+.gim-event__old {
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+  text-decoration: line-through;
+}
+.gim-event__new {
+  color: var(--primary, #2dd4bf);
+  background: rgba(45, 212, 191, 0.1);
+}
+.gim-event__detail {
+  color: var(--text-muted, #8b98a5) !important;
+  font-style: italic;
+}
+.gim-add-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 22px;
+}
+.gim-add-hint {
+  margin: 0 0 14px;
+  padding: 11px 13px;
+  color: var(--text-secondary, #8b98a5);
+  background: rgba(45, 212, 191, 0.07);
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  border-radius: 9px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.gim-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  background: var(--bg-input, #0d1117);
+  border: 1px solid var(--border, #26313c);
+  border-radius: 999px;
+}
+.gim-search:focus-within {
+  border-color: var(--primary, #2dd4bf);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+}
+.gim-search svg {
+  color: var(--text-muted, #8b98a5);
+  flex-shrink: 0;
+}
+.gim-search input {
+  width: 100%;
+  padding: 11px 0;
+  color: var(--text-primary, #e6edf3);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font: inherit;
+}
+.gim-selected-count {
+  display: inline-flex;
+  margin: 12px 0 4px;
+  padding: 4px 10px;
+  color: var(--primary, #2dd4bf);
+  background: rgba(45, 212, 191, 0.1);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.gim-results {
+  max-height: 390px;
+  margin-top: 10px;
+  overflow-y: auto;
+}
+.gim-user {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.gim-user:hover {
+  background: var(--bg-hover, rgba(255, 255, 255, 0.05));
+}
+.gim-user--selected {
+  background: rgba(45, 212, 191, 0.08);
+  border-color: rgba(45, 212, 191, 0.35);
+}
+.gim-user__avatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  color: #0d1117;
+  background: var(--primary, #2dd4bf);
+  border-radius: 50%;
+  font-weight: 700;
+}
+.gim-user__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.gim-user__info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.gim-user__info strong {
+  color: var(--text-primary, #e6edf3);
+  font-size: 0.86rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gim-user__info small {
+  color: var(--text-muted, #8b98a5);
+  font-size: 0.7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gim-user__check {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 22px;
+  color: #0d1117;
+  background: var(--primary, #2dd4bf);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.gim-user:not(.gim-user--selected) .gim-user__check {
+  background: transparent;
+  border: 2px solid var(--border, #26313c);
+}
+.gim-message {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+.gim-message--error {
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+}
+.gim-message--success {
+  color: #2ea043;
+  background: rgba(46, 160, 67, 0.1);
+  border: 1px solid rgba(46, 160, 67, 0.25);
+}
+.gim-add-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  padding: 15px 20px;
+  background: var(--bg-chat, #161b22);
+  border-top: 1px solid var(--border, #26313c);
+}
 @media (max-width: 600px) {
   .gim-overlay {
-    padding: 0.5rem;
-    align-items: flex-start;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding: 8px;
   }
-
   .gim-modal {
-    max-width: 100%;
-    max-height: calc(100vh - 2rem);
-    border-radius: 16px;
+    max-height: calc(100dvh - 16px);
+    border-radius: 13px;
   }
-
-  .gim-header {
-    padding: 0.85rem 1rem;
-
-    &__icon {
-      width: 36px;
-      height: 36px;
-    }
-
-    &__info h2 {
-      font-size: 0.95rem;
-    }
-
-    &__info p {
-      font-size: 0.68rem;
-    }
-
-    &__close {
-      width: 34px;
-      height: 34px;
-    }
+  .gim-profile {
+    padding: 24px 18px 18px;
   }
-
-  .gim-body {
-    padding: 1.1rem 1rem;
-  }
-
-  .gim-hero__name {
-    font-size: 1.2rem;
-  }
-
   .gim-avatar-wrap,
   .gim-avatar {
-    width: 92px;
-    height: 92px;
+    width: 116px;
+    height: 116px;
   }
-
-  .gim-avatar--placeholder {
-    font-size: 2.2rem;
-  }
-
   .gim-actions {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 18px 8px 20px;
   }
-
-  .gim-tab {
-    font-size: 0.76rem;
-    padding: 0.5rem 0.5rem;
-
-    span:not(.gim-tab__count) {
-      display: none; // solo muestra icono + count en móvil
-    }
+  .gim-action {
+    width: 94px;
+    font-size: 0.69rem;
   }
-
-  .gim-event {
-    gap: 0.6rem;
-
-    &__dot {
-      width: 34px;
-      height: 34px;
-
-      svg {
-        width: 14px;
-        height: 14px;
-      }
-    }
-
-    &__card {
-      padding: 0.6rem 0.75rem;
-    }
-
-    &__old,
-    &__new {
-      max-width: 120px;
-    }
+  .gim-panel,
+  .gim-add-body {
+    padding-left: 14px;
+    padding-right: 14px;
   }
-
-  .gim-timeline::before {
-    left: 16px;
+  .gim-add-footer {
+    padding: 13px 14px;
   }
 }
-
-@media (max-width: 400px) {
-  .gim-event__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-}
-
-// ============================================================
-// REDUCED MOTION
-// ============================================================
 @media (prefers-reduced-motion: reduce) {
   .gim-overlay,
   .gim-modal,
   .gim-panel {
     animation: none !important;
-  }
-
-  .gim-spinner,
-  .gim-spinner-mini {
-    animation-duration: 0.8s;
   }
 }

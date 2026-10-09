@@ -1,3 +1,4 @@
+//src/app/shared/components/crear-grupo-modal/crear-grupo-modal.component.ts
 import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

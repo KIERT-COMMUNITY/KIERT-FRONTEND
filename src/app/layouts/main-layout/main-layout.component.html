@@ -1,17 +1,21 @@
 
-<div class="app-container">
+
+<div class="app-container" [class.chat-route]="esRutaChat()">
 
   <!-- ===== SKIP LINK (accesibilidad teclado) ===== -->
   <a href="#main-content" class="skip-link">
     Saltar al contenido principal
   </a>
 
-  <div class="app-shell" [class.sidebar-collapsed]="menuContraido()">
+  <div class="app-shell"
+       [class.sidebar-collapsed]="menuContraido()"
+       [class.chat-route]="esRutaChat()">
     <kiert-navbar
       (estadoContraidoChange)="actualizarEstadoMenu($event)"
     ></kiert-navbar>
 
-    <div class="app-main">
+    <div class="app-main" [class.app-main--chat]="esRutaChat()">
+      @if (!esRutaChat()) {
       <div class="main-banner">
         <div class="main-banner__content">
           <div class="main-banner__image">
@@ -32,20 +36,27 @@
           </div>
         </div>
       </div>
+      }
 
-      <main class="main-content" id="main-content" role="main" tabindex="-1">
+      <main class="main-content"
+            [class.main-content--chat]="esRutaChat()" id="main-content" role="main" tabindex="-1">
         <router-outlet></router-outlet>
       </main>
 
-      <kiert-footer></kiert-footer>
-      <kiert-floating-social></kiert-floating-social>
+      @if (!esRutaChat()) {
+        <kiert-footer></kiert-footer>
+        <kiert-floating-social></kiert-floating-social>
+      }
     </div>
   </div>
 
   <!-- ===== MODAL DE AYUDA DE ATAJOS ===== -->
-  <kiert-keyboard-help></kiert-keyboard-help>
+  @if (!esRutaChat()) {
+    <kiert-keyboard-help></kiert-keyboard-help>
+  }
 
   <!-- ===== FAB (botón flotante) para abrir ayuda ===== -->
+  @if (!esRutaChat()) {
   <button
     class="kbd-fab"
     type="button"
@@ -62,4 +73,5 @@
       <line x1="7" y1="14" x2="17" y2="14"/>
     </svg>
   </button>
+  }
 </div>

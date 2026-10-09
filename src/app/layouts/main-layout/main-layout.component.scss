@@ -1,3 +1,4 @@
+
 $sidebar-expanded: 260px;
 $sidebar-collapsed: 78px;
 $mobile-header: 60px;
@@ -303,5 +304,61 @@ $mobile-header-small: 56px;
   .main-content {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+// ============================================================
+// MODO CHAT A PANTALLA COMPLETA
+// ============================================================
+.app-container.chat-route {
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.app-shell.chat-route {
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-main--chat {
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main-content--chat {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  animation: none;
+}
+
+@media (max-width: 1024px) {
+  .app-container.chat-route {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .app-shell.chat-route {
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  .app-main--chat {
+    height: calc(100dvh - #{$mobile-header});
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-main--chat {
+    height: calc(100dvh - #{$mobile-header-small});
   }
 }

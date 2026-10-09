@@ -1,3 +1,4 @@
+
 // src/app/layouts/main-layout/main-layout.component.ts
 import {
   Component,
@@ -6,7 +7,8 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 // ⚠️ RUTAS CORREGIDAS:
 // Estás en src/app/layouts/main-layout/
@@ -42,8 +44,16 @@ export class MainLayoutComponent implements OnInit {
 
   readonly selectedTheme = this.personalizacionStore.temaId;
   readonly menuContraido = signal(false);
+  readonly esRutaChat = signal(false);
+
+  private readonly router = inject(Router);
 
   constructor() {
+    this.actualizarModoRuta(this.router.url);
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(event => this.actualizarModoRuta(event.urlAfterRedirects));
+
     // Aplicar tema global cada vez que cambie
     effect(() => {
       const themeId = this.personalizacionStore.temaId();
@@ -83,13 +93,20 @@ export class MainLayoutComponent implements OnInit {
         <rect width="1200" height="200" fill="url(#g)"/>
         <rect width="1200" height="200" fill="url(#a)" opacity="0.3"/>
         <text x="50%" y="50%" font-family="JetBrains Mono, monospace" font-size="28" fill="#e6edf3" text-anchor="middle" dy=".3em">
-          &gt;_ kiert
+          >_ kiert
         </text>
         <text x="50%" y="60%" font-family="Inter, sans-serif" font-size="14" fill="#8b98a5" text-anchor="middle" dy=".3em">
           Comunidad de desarrolladores
         </text>
       </svg>
     `)}`;
+  }
+
+  private actualizarModoRuta(url: string): void {
+    const rutaSinQuery = url.split('?')[0].split('#')[0];
+    this.esRutaChat.set(
+      rutaSinQuery === '/chat' || rutaSinQuery.startsWith('/chat/')
+    );
   }
 
   private restaurarEstadoMenu(): void {
