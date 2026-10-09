@@ -1,29 +1,37 @@
+// src/app/shared/components/grupo-info-modal/grupo-info-modal.component.scss
+
+// ============================================================
+// ANIMACIONES
+// ============================================================
 @keyframes gimFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
+
 @keyframes gimScaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to { opacity: 1; transform: none; }
 }
+
 @keyframes gimSpin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
+
+@keyframes gimPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.75; }
+}
+
+// ============================================================
+// HOST
+// ============================================================
 :host {
   display: contents;
 }
+
+// ============================================================
+// OVERLAY
+// ============================================================
 .gim-overlay {
   position: fixed;
   inset: 0;
@@ -36,20 +44,28 @@
   backdrop-filter: blur(3px);
   animation: gimFadeIn 0.18s ease;
 }
+
+// ============================================================
+// MODAL
+// ============================================================
 .gim-modal {
-  width: min(540px, 100%);
+  width: min(560px, 100%);
   max-height: min(820px, calc(100dvh - 40px));
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: var(--bg-app, #0d1117);
   border: 1px solid var(--border, #26313c);
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58);
   animation: gimScaleIn 0.22s ease;
 }
+
+// ============================================================
+// HEADER
+// ============================================================
 .gim-header {
-  min-height: 58px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -57,29 +73,37 @@
   flex-shrink: 0;
   background: var(--bg-chat, #161b22);
   border-bottom: 1px solid var(--border, #26313c);
+
+  h2 {
+    margin: 0;
+    color: var(--text-primary, #e6edf3);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  &__close {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: var(--text-secondary, #8b98a5);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      color: var(--text-primary, #e6edf3);
+      background: var(--bg-hover, rgba(255, 255, 255, 0.06));
+    }
+  }
 }
-.gim-header h2 {
-  margin: 0;
-  color: var(--text-primary, #e6edf3);
-  font-size: 1rem;
-  font-weight: 700;
-}
-.gim-header__close {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  color: var(--text-secondary, #8b98a5);
-  background: transparent;
-  border: 0;
-  border-radius: 50%;
-  cursor: pointer;
-}
-.gim-header__close:hover {
-  color: var(--text-primary, #e6edf3);
-  background: var(--bg-hover, rgba(255, 255, 255, 0.06));
-}
+
+// ============================================================
+// LOADING
+// ============================================================
 .gim-loading {
   min-height: 360px;
   display: flex;
@@ -89,159 +113,197 @@
   gap: 12px;
   color: var(--text-muted, #8b98a5);
   font-size: 0.85rem;
+
+  &--small { min-height: 170px; }
 }
-.gim-loading--small {
-  min-height: 170px;
-}
+
 .gim-spinner,
 .gim-spinner-mini {
   border-radius: 50%;
   animation: gimSpin 0.8s linear infinite;
 }
+
 .gim-spinner {
   width: 36px;
   height: 36px;
   border: 3px solid var(--border, #26313c);
   border-top-color: var(--primary, #2dd4bf);
 }
+
 .gim-spinner-mini {
   width: 15px;
   height: 15px;
   border: 2px solid rgba(13, 17, 23, 0.3);
   border-top-color: #0d1117;
 }
+
+// ============================================================
+// BODY
+// ============================================================
 .gim-body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border, #26313c);
+    border-radius: 999px;
+  }
 }
-.gim-body::-webkit-scrollbar,
-.gim-results::-webkit-scrollbar {
-  width: 6px;
-}
-.gim-body::-webkit-scrollbar-thumb,
-.gim-results::-webkit-scrollbar-thumb {
-  background: var(--border, #26313c);
-  border-radius: 999px;
-}
+
+// ============================================================
+// PROFILE
+// ============================================================
 .gim-profile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 28px 28px 22px;
+  padding: 32px 28px 26px;
   text-align: center;
   border-bottom: 1px solid var(--border, #26313c);
+
+  &__name {
+    max-width: 100%;
+    margin: 20px 0 6px;
+    color: var(--text-primary, #e6edf3);
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    overflow-wrap: anywhere;
+  }
+
+  &__members {
+    margin: 0;
+    color: var(--text-secondary, #8b98a5);
+    font-size: 0.86rem;
+  }
+
+  &__description {
+    max-width: 420px;
+    margin: 14px 0 0;
+    color: var(--text-secondary, #8b98a5);
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    color: var(--text-muted, #8b98a5);
+    font-size: 0.75rem;
+
+    strong { color: var(--text-primary, #e6edf3); }
+  }
 }
-.gim-profile__name {
-  max-width: 100%;
-  margin: 18px 0 4px;
-  color: var(--text-primary, #e6edf3);
-  font-size: 1.45rem;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-.gim-profile__members {
-  margin: 0;
-  color: var(--text-secondary, #8b98a5);
-  font-size: 0.86rem;
-}
-.gim-profile__description {
-  max-width: 400px;
-  margin: 12px 0 0;
-  color: var(--text-secondary, #8b98a5);
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-.gim-profile__meta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-  color: var(--text-muted, #8b98a5);
-  font-size: 0.75rem;
-}
+
+// ============================================================
+// AVATAR DEL GRUPO
+// ============================================================
 .gim-avatar-wrap,
 .gim-avatar {
-  width: 140px;
-  height: 140px;
+  width: 144px;
+  height: 144px;
 }
+
 .gim-avatar-wrap {
   position: relative;
 }
+
 .gim-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
   object-fit: cover;
   border-radius: 50%;
-  border: 2px solid rgba(45, 212, 191, 0.65);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(45, 212, 191, 0.75);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 6px rgba(45, 212, 191, 0.08);
+
+  &--placeholder {
+    color: #0d1117;
+    background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
+    font-size: 3.2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+
+  &__edit,
+  &__delete {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+
+    &:hover { transform: scale(1.1); }
+  }
+
+  &__edit {
+    right: 2px;
+    bottom: 5px;
+    width: 40px;
+    height: 40px;
+    color: #0d1117;
+    background: var(--primary, #2dd4bf);
+    border: 3px solid var(--bg-app, #0d1117);
+  }
+
+  &__delete {
+    top: 7px;
+    right: 3px;
+    width: 28px;
+    height: 28px;
+    color: #fff;
+    background: var(--danger, #f85149);
+    border: 2px solid var(--bg-app, #0d1117);
+    font-size: 1rem;
+    line-height: 1;
+  }
 }
-.gim-avatar--placeholder {
-  color: #0d1117;
-  background: linear-gradient(
-    135deg,
-    var(--primary, #2dd4bf),
-    var(--primary-dark, #17b6a4)
-  );
-  font-size: 3rem;
-  font-weight: 700;
-}
-.gim-avatar__edit,
-.gim-avatar__delete {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border-radius: 50%;
-  cursor: pointer;
-}
-.gim-avatar__edit {
-  right: 2px;
-  bottom: 5px;
-  width: 38px;
-  height: 38px;
-  color: #0d1117;
-  background: var(--primary, #2dd4bf);
-  border: 3px solid var(--bg-app, #0d1117);
-}
-.gim-avatar__delete {
-  top: 7px;
-  right: 3px;
-  width: 27px;
-  height: 27px;
-  color: #fff;
-  background: var(--danger, #f85149);
-  border: 2px solid var(--bg-app, #0d1117);
-  font-size: 1rem;
-}
+
+// ============================================================
+// BADGES
+// ============================================================
 .gim-admin-badge,
 .gim-member__badge {
   display: inline-flex;
   padding: 3px 9px;
   color: var(--primary, #2dd4bf);
   background: rgba(45, 212, 191, 0.12);
+  border: 1px solid rgba(45, 212, 191, 0.25);
   border-radius: 999px;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
+
+// ============================================================
+// ACCIONES RÁPIDAS
+// ============================================================
 .gim-actions {
   display: flex;
   justify-content: center;
-  gap: 24px;
-  padding: 20px 18px 22px;
+  gap: 28px;
+  padding: 22px 18px 24px;
   border-bottom: 1px solid var(--border, #26313c);
 }
+
 .gim-action {
-  width: 108px;
+  width: 110px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 0;
   color: var(--text-primary, #e6edf3);
   background: transparent;
@@ -250,81 +312,118 @@
   font-size: 0.74rem;
   font-weight: 600;
   cursor: pointer;
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    color: var(--primary, #2dd4bf);
+    background: var(--bg-chat, #161b22);
+    border: 1.5px solid var(--border, #26313c);
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+
+  &:hover &__icon {
+    background: rgba(45, 212, 191, 0.12);
+    border-color: rgba(45, 212, 191, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(45, 212, 191, 0.2);
+  }
 }
-.gim-action__icon {
-  width: 52px;
-  height: 52px;
-  display: grid;
-  place-items: center;
-  color: var(--primary, #2dd4bf);
-  background: var(--bg-chat, #161b22);
-  border: 1px solid var(--border, #26313c);
-  border-radius: 50%;
-}
-.gim-action:hover .gim-action__icon {
-  background: rgba(45, 212, 191, 0.1);
-  border-color: rgba(45, 212, 191, 0.45);
-}
+
+// ============================================================
+// FORM DE EDICIÓN
+// ============================================================
 .gim-edit-form {
   width: 100%;
-  max-width: 410px;
+  max-width: 420px;
   margin-top: 20px;
   text-align: left;
+
+  label {
+    display: block;
+    margin-bottom: 14px;
+
+    > span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-secondary, #8b98a5);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
 }
-.gim-edit-form label {
-  display: block;
-  margin-bottom: 12px;
-}
-.gim-edit-form label > span {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--text-secondary, #8b98a5);
-  font-size: 0.75rem;
-}
+
 .gim-edit-input,
 .gim-edit-textarea {
   width: 100%;
-  padding: 11px 13px;
+  padding: 11px 14px;
   color: var(--text-primary, #e6edf3);
   background: var(--bg-input, #0d1117);
-  border: 1px solid var(--border, #26313c);
-  border-radius: 9px;
+  border: 1.5px solid var(--border, #26313c);
+  border-radius: 10px;
   font: inherit;
   outline: 0;
   resize: vertical;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    border-color: var(--primary, #2dd4bf);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+  }
 }
-.gim-edit-input:focus,
-.gim-edit-textarea:focus {
-  border-color: var(--primary, #2dd4bf);
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
-}
+
 .gim-edit-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
+
+// ============================================================
+// BOTONES
+// ============================================================
 .gim-btn {
-  padding: 9px 16px;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  padding: 10px 18px;
+  border-radius: 9px;
+  border: 1.5px solid transparent;
   font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &--ghost {
+    color: var(--text-secondary, #8b98a5);
+    background: transparent;
+    border-color: var(--border, #26313c);
+
+    &:hover:not(:disabled) {
+      color: var(--text-primary, #e6edf3);
+      background: var(--bg-hover, rgba(255, 255, 255, 0.06));
+    }
+  }
+
+  &--primary {
+    color: #0d1117;
+    background: var(--primary, #2dd4bf);
+
+    &:hover:not(:disabled) {
+      background: var(--primary-dark, #17b6a4);
+      box-shadow: 0 6px 18px rgba(45, 212, 191, 0.35);
+    }
+  }
 }
-.gim-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.gim-btn--ghost {
-  color: var(--text-secondary, #8b98a5);
-  background: transparent;
-  border-color: var(--border, #26313c);
-}
-.gim-btn--primary {
-  color: #0d1117;
-  background: var(--primary, #2dd4bf);
-}
+
+// ============================================================
+// TABS
+// ============================================================
 .gim-tabs {
   position: sticky;
   top: 0;
@@ -334,393 +433,639 @@
   background: var(--bg-app, #0d1117);
   border-bottom: 1px solid var(--border, #26313c);
 }
+
 .gim-tab {
   position: relative;
   flex: 1;
-  padding: 15px 8px 13px;
+  padding: 16px 8px 14px;
   color: var(--text-muted, #8b98a5);
   background: transparent;
   border: 0;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
+  transition: color 0.15s ease;
+
+  span {
+    margin-left: 6px;
+    padding: 2px 7px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 0;
+    height: 2px;
+    background: transparent;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+  }
+
+  &--active {
+    color: var(--primary, #2dd4bf);
+
+    span {
+      color: var(--primary, #2dd4bf);
+      background: rgba(45, 212, 191, 0.12);
+    }
+
+    &::after {
+      background: var(--primary, #2dd4bf);
+    }
+  }
 }
-.gim-tab span {
-  margin-left: 4px;
-  font-size: 0.7rem;
-}
-.gim-tab::after {
-  content: "";
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  bottom: 0;
-  height: 2px;
-}
-.gim-tab--active {
-  color: var(--primary, #2dd4bf);
-}
-.gim-tab--active::after {
-  background: var(--primary, #2dd4bf);
-}
+
+// ============================================================
+// PANEL
+// ============================================================
 .gim-panel {
-  padding: 18px 22px 24px;
+  padding: 18px 22px 26px;
   animation: gimFadeIn 0.18s ease;
 }
+
 .gim-section-title {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   color: var(--text-secondary, #8b98a5);
   font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
 .gim-empty {
-  padding: 36px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 44px 12px;
   color: var(--text-muted, #8b98a5);
   text-align: center;
+
+  p { margin: 0; font-size: 0.85rem; }
 }
-.gim-empty p {
+
+// ============================================================
+// LISTA DE MIEMBROS — ✅ AVATAR CIRCULAR CORRECTO
+// ============================================================
+.gim-members {
   margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    border-top: 1px solid rgba(128, 128, 128, 0.1);
+  }
 }
-.gim-members,
+
+.gim-member {
+  position: relative;
+  width: 100%;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 8px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.06);
+
+    .gim-member__arrow {
+      color: var(--primary, #2dd4bf);
+      transform: translateX(2px);
+    }
+  }
+
+  // ============================================================
+  // ✅ AVATAR: capa externa SIN overflow (para que el status se vea)
+  // ============================================================
+  &__avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    // NO poner overflow: hidden aquí
+  }
+
+  // ============================================================
+  // ✅ CAPA INTERNA: recorta la imagen en círculo
+  // ============================================================
+  &__avatar-img {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;             /* ✅ recorta */
+    border-radius: 50%;           /* ✅ forma circular */
+    color: #0d1117;
+    background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: -0.5px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;          /* ✅ sin deformar */
+      object-position: center;
+      display: block;
+      border-radius: 50%;
+    }
+  }
+
+  &__initial {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  // ============================================================
+  // ✅ BOLITA DE ESTADO — por fuera del círculo
+  // ============================================================
+  &__status {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 14px;
+    height: 14px;
+    background: var(--text-muted, #8b98a5);
+    border: 2.5px solid var(--bg-app, #0d1117);
+    border-radius: 50%;
+    z-index: 2;
+    transition: all 0.2s ease;
+
+    &--online {
+      background: var(--success, #2ea043);
+      box-shadow: 0 0 0 3px rgba(46, 160, 67, 0.18);
+      animation: gimPulse 2s infinite;
+    }
+  }
+
+  // ============================================================
+  // INFO
+  // ============================================================
+  &__info {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__name {
+    color: var(--text-primary, #e6edf3);
+    font-size: 0.92rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__badge {
+    display: inline-flex;
+    padding: 2px 7px;
+    color: var(--primary, #2dd4bf);
+    background: rgba(45, 212, 191, 0.14);
+    border: 1px solid rgba(45, 212, 191, 0.28);
+    border-radius: 999px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__state {
+    color: var(--text-muted, #8b98a5);
+    font-size: 0.72rem;
+    font-weight: 500;
+
+    &--online {
+      color: var(--success, #2ea043);
+      font-weight: 700;
+    }
+  }
+
+  // ============================================================
+  // FLECHA
+  // ============================================================
+  &__arrow {
+    color: var(--text-muted, #8b98a5);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  // ============================================================
+  // ADMIN destacado
+  // ============================================================
+  &--admin {
+    .gim-member__avatar-img {
+      box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.35);
+    }
+  }
+}
+
+// ============================================================
+// TIMELINE DEL HISTORIAL
+// ============================================================
 .gim-timeline {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.gim-members li + li,
-.gim-event {
-  border-top: 1px solid rgba(128, 128, 128, 0.12);
-}
-.gim-member {
-  width: 100%;
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 4px;
-  color: inherit;
-  background: transparent;
-  border: 0;
-  text-align: left;
-  font: inherit;
-  cursor: pointer;
-}
-.gim-member:hover {
-  background: rgba(45, 212, 191, 0.04);
-}
-.gim-member__avatar {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 44px;
-  color: #0d1117;
-  background: var(--primary, #2dd4bf);
-  border-radius: 50%;
-  font-weight: 700;
-}
-.gim-member__avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.gim-member__status {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 12px;
-  height: 12px;
-  background: var(--text-muted, #8b98a5);
-  border: 2px solid var(--bg-app, #0d1117);
-  border-radius: 50%;
-}
-.gim-member__status--online {
-  background: var(--success, #2ea043);
-}
-.gim-member__info {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.gim-member__name {
-  color: var(--text-primary, #e6edf3);
-  font-size: 0.88rem;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.gim-member__state {
-  color: var(--text-muted, #8b98a5);
-  font-size: 0.7rem;
-}
-.gim-member__state--online {
-  color: var(--success, #2ea043);
-}
+
 .gim-event {
   display: flex;
-  gap: 12px;
-  padding: 13px 2px;
+  gap: 14px;
+  padding: 14px 4px;
+  border-top: 1px solid rgba(128, 128, 128, 0.1);
+
+  &:first-child { border-top: 0; }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 36px;
+    color: var(--primary, #2dd4bf);
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: 50%;
+  }
+
+  &__content {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+
+    strong {
+      color: var(--primary, #2dd4bf);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    time {
+      color: var(--text-muted, #8b98a5);
+      font-size: 0.68rem;
+      flex-shrink: 0;
+    }
+  }
+
+  &__content > p {
+    margin: 5px 0 0;
+    color: var(--text-primary, #e6edf3);
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  &__change {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.7rem;
+
+    > span:not([class]) {
+      color: var(--text-muted, #8b98a5);
+    }
+  }
+
+  &__old,
+  &__new {
+    max-width: 160px;
+    padding: 4px 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  &__old {
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.12);
+    text-decoration: line-through;
+  }
+
+  &__new {
+    color: var(--primary, #2dd4bf);
+    background: rgba(45, 212, 191, 0.12);
+  }
+
+  &__detail {
+    color: var(--text-muted, #8b98a5) !important;
+    font-style: italic;
+  }
 }
-.gim-event:first-child {
-  border-top: 0;
-}
-.gim-event__icon {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 34px;
-  color: var(--primary, #2dd4bf);
-  background: rgba(45, 212, 191, 0.09);
-  border-radius: 50%;
-}
-.gim-event__content {
-  min-width: 0;
-  flex: 1;
-}
-.gim-event__heading {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-.gim-event__heading strong {
-  color: var(--primary, #2dd4bf);
-  font-size: 0.76rem;
-}
-.gim-event__heading time {
-  color: var(--text-muted, #8b98a5);
-  font-size: 0.68rem;
-}
-.gim-event__content > p {
-  margin: 4px 0 0;
-  color: var(--text-primary, #e6edf3);
-  font-size: 0.8rem;
-}
-.gim-event__change {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 7px;
-  font-size: 0.7rem;
-}
-.gim-event__old,
-.gim-event__new {
-  max-width: 150px;
-  padding: 3px 7px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border-radius: 5px;
-}
-.gim-event__old {
-  color: #f85149;
-  background: rgba(248, 81, 73, 0.1);
-  text-decoration: line-through;
-}
-.gim-event__new {
-  color: var(--primary, #2dd4bf);
-  background: rgba(45, 212, 191, 0.1);
-}
-.gim-event__detail {
-  color: var(--text-muted, #8b98a5) !important;
-  font-style: italic;
-}
+
+// ============================================================
+// AÑADIR MIEMBROS
+// ============================================================
 .gim-add-body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   padding: 20px 22px;
 }
+
 .gim-add-hint {
   margin: 0 0 14px;
-  padding: 11px 13px;
+  padding: 12px 14px;
   color: var(--text-secondary, #8b98a5);
   background: rgba(45, 212, 191, 0.07);
   border: 1px solid rgba(45, 212, 191, 0.2);
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 0.78rem;
-  line-height: 1.45;
+  line-height: 1.5;
 }
+
 .gim-search {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 0 13px;
+  gap: 10px;
+  padding: 0 14px;
   background: var(--bg-input, #0d1117);
-  border: 1px solid var(--border, #26313c);
+  border: 1.5px solid var(--border, #26313c);
   border-radius: 999px;
+  transition: all 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--primary, #2dd4bf);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+  }
+
+  svg {
+    color: var(--text-muted, #8b98a5);
+    flex-shrink: 0;
+  }
+
+  input {
+    width: 100%;
+    padding: 11px 0;
+    color: var(--text-primary, #e6edf3);
+    background: transparent;
+    border: 0;
+    outline: 0;
+    font: inherit;
+  }
 }
-.gim-search:focus-within {
-  border-color: var(--primary, #2dd4bf);
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
-}
-.gim-search svg {
-  color: var(--text-muted, #8b98a5);
-  flex-shrink: 0;
-}
-.gim-search input {
-  width: 100%;
-  padding: 11px 0;
-  color: var(--text-primary, #e6edf3);
-  background: transparent;
-  border: 0;
-  outline: 0;
-  font: inherit;
-}
+
 .gim-selected-count {
   display: inline-flex;
   margin: 12px 0 4px;
-  padding: 4px 10px;
+  padding: 5px 11px;
   color: var(--primary, #2dd4bf);
-  background: rgba(45, 212, 191, 0.1);
+  background: rgba(45, 212, 191, 0.12);
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 700;
 }
+
 .gim-results {
-  max-height: 390px;
+  max-height: 400px;
   margin-top: 10px;
   overflow-y: auto;
+
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border, #26313c);
+    border-radius: 999px;
+  }
 }
+
+// ============================================================
+// USUARIOS EN BÚSQUEDA — ✅ AVATAR CIRCULAR CORRECTO
+// ============================================================
 .gim-user {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px;
+  padding: 11px 12px;
   color: inherit;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 9px;
+  border: 1.5px solid transparent;
+  border-radius: 11px;
   text-align: left;
   font: inherit;
   cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.05));
+  }
+
+  &--selected {
+    background: rgba(45, 212, 191, 0.08);
+    border-color: rgba(45, 212, 191, 0.4);
+  }
+
+  // ✅ Capa externa
+  &__avatar {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+  }
+
+  // ✅ Capa interna que recorta la imagen
+  &__avatar-img {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+    color: #0d1117;
+    background: linear-gradient(135deg, var(--primary, #2dd4bf), var(--primary-dark, #17b6a4));
+    font-weight: 800;
+    font-size: 0.95rem;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      border-radius: 50%;
+    }
+  }
+
+  &__info {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    strong {
+      color: var(--text-primary, #e6edf3);
+      font-size: 0.86rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    small {
+      color: var(--text-muted, #8b98a5);
+      font-size: 0.7rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__check {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 24px;
+    color: #0d1117;
+    background: var(--primary, #2dd4bf);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 800;
+    transition: all 0.15s ease;
+  }
+
+  &:not(.gim-user--selected) .gim-user__check {
+    background: transparent;
+    border: 2px solid var(--border, #26313c);
+  }
 }
-.gim-user:hover {
-  background: var(--bg-hover, rgba(255, 255, 255, 0.05));
-}
-.gim-user--selected {
-  background: rgba(45, 212, 191, 0.08);
-  border-color: rgba(45, 212, 191, 0.35);
-}
-.gim-user__avatar {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 42px;
-  color: #0d1117;
-  background: var(--primary, #2dd4bf);
-  border-radius: 50%;
-  font-weight: 700;
-}
-.gim-user__avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-.gim-user__info {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.gim-user__info strong {
-  color: var(--text-primary, #e6edf3);
-  font-size: 0.86rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.gim-user__info small {
-  color: var(--text-muted, #8b98a5);
-  font-size: 0.7rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.gim-user__check {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 22px;
-  color: #0d1117;
-  background: var(--primary, #2dd4bf);
-  border-radius: 50%;
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-.gim-user:not(.gim-user--selected) .gim-user__check {
-  background: transparent;
-  border: 2px solid var(--border, #26313c);
-}
+
+// ============================================================
+// MENSAJES
+// ============================================================
 .gim-message {
   margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 11px 13px;
+  border-radius: 9px;
   font-size: 0.78rem;
+  font-weight: 500;
+
+  &--error {
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid rgba(248, 81, 73, 0.28);
+  }
+
+  &--success {
+    color: #2ea043;
+    background: rgba(46, 160, 67, 0.1);
+    border: 1px solid rgba(46, 160, 67, 0.28);
+  }
 }
-.gim-message--error {
-  color: #f85149;
-  background: rgba(248, 81, 73, 0.1);
-  border: 1px solid rgba(248, 81, 73, 0.25);
-}
-.gim-message--success {
-  color: #2ea043;
-  background: rgba(46, 160, 67, 0.1);
-  border: 1px solid rgba(46, 160, 67, 0.25);
-}
+
+// ============================================================
+// FOOTER AÑADIR
+// ============================================================
 .gim-add-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 9px;
+  gap: 10px;
   padding: 15px 20px;
   background: var(--bg-chat, #161b22);
   border-top: 1px solid var(--border, #26313c);
 }
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
 @media (max-width: 600px) {
   .gim-overlay {
     padding: 8px;
   }
+
   .gim-modal {
     max-height: calc(100dvh - 16px);
-    border-radius: 13px;
+    border-radius: 14px;
   }
+
   .gim-profile {
-    padding: 24px 18px 18px;
+    padding: 24px 18px 20px;
+
+    &__name { font-size: 1.3rem; }
   }
+
   .gim-avatar-wrap,
   .gim-avatar {
     width: 116px;
     height: 116px;
   }
+
   .gim-actions {
-    gap: 10px;
-    padding: 18px 8px 20px;
+    gap: 12px;
+    padding: 18px 10px 20px;
   }
+
   .gim-action {
-    width: 94px;
-    font-size: 0.69rem;
+    width: 96px;
+    font-size: 0.7rem;
+
+    &__icon {
+      width: 50px;
+      height: 50px;
+    }
   }
+
   .gim-panel,
   .gim-add-body {
     padding-left: 14px;
     padding-right: 14px;
   }
+
+  .gim-member {
+    min-height: 62px;
+    gap: 12px;
+
+    &__avatar {
+      width: 44px;
+      height: 44px;
+      flex-basis: 44px;
+    }
+  }
+
   .gim-add-footer {
     padding: 13px 14px;
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .gim-overlay,
   .gim-modal,
-  .gim-panel {
+  .gim-panel,
+  .gim-member__status--online {
     animation: none !important;
   }
 }

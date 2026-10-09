@@ -1,8 +1,10 @@
+// src/app/shared/components/grupo-info-modal/grupo-info-modal.component.ts
 import {
   Component,
   EventEmitter,
   Input,
   OnInit,
+  OnDestroy,
   Output,
   inject,
   signal,
@@ -27,7 +29,7 @@ import { AuthService } from "../../../core/services/auth.service";
   templateUrl: "./grupo-info-modal.component.html",
   styleUrl: "./grupo-info-modal.component.scss",
 })
-export class GrupoInfoModalComponent implements OnInit {
+export class GrupoInfoModalComponent implements OnInit, OnDestroy {
   private grupoService = inject(GrupoService);
   private userService = inject(UserService);
   private router = inject(Router);
@@ -59,17 +61,40 @@ export class GrupoInfoModalComponent implements OnInit {
 
   private clickIniciadoEnOverlay = false;
   private busquedaTimer: ReturnType<typeof setTimeout> | null = null;
+  private refreshInterval: any = null;   // ✅ NUEVO: refresca miembros
 
+  // ============================================================
+  // CICLO DE VIDA
+  // ============================================================
   ngOnInit(): void {
     this.cargarGrupo();
     this.cargarMiembros();
     this.cargarHistorial();
+
+    // ✅ Refrescar miembros cada 8 s para ver cambios online/offline
+    this.refreshInterval = setInterval(() => {
+      this.cargarMiembros();
+    }, 8000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+    if (this.busquedaTimer) {
+      clearTimeout(this.busquedaTimer);
+      this.busquedaTimer = null;
+    }
   }
 
   cambiarTab(tab: "miembros" | "historial"): void {
     this.tabActivo = tab;
   }
 
+  // ============================================================
+  // CARGA DE DATOS
+  // ============================================================
   cargarGrupo(): void {
     this.grupoService.obtenerGrupo(this.grupoId).subscribe({
       next: (g) => {
@@ -99,6 +124,9 @@ export class GrupoInfoModalComponent implements OnInit {
     return this.grupo()?.rolDelUsuario === "ADMIN";
   }
 
+  // ============================================================
+  // AGREGAR MIEMBROS
+  // ============================================================
   abrirAgregarMiembros(): void {
     if (!this.esAdmin()) return;
     this.agregandoMiembros.set(true);
@@ -201,6 +229,9 @@ export class GrupoInfoModalComponent implements OnInit {
     this.abrirInvitarLink.emit();
   }
 
+  // ============================================================
+  // FOTO DEL GRUPO
+  // ============================================================
   onFotoSeleccionada(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -237,6 +268,9 @@ export class GrupoInfoModalComponent implements OnInit {
     });
   }
 
+  // ============================================================
+  // EDITAR INFO
+  // ============================================================
   toggleEditar(): void {
     this.editando.update((valor) => !valor);
     if (this.editando() && this.grupo()) {
@@ -264,11 +298,17 @@ export class GrupoInfoModalComponent implements OnInit {
       });
   }
 
+  // ============================================================
+  // NAVEGACIÓN
+  // ============================================================
   abrirPerfil(usuarioId: number): void {
     this.cerrar.emit();
     this.router.navigate(["/usuario", usuarioId]);
   }
 
+  // ============================================================
+  // ICONOS Y TEXTOS DEL HISTORIAL
+  // ============================================================
   getAccionIcono(accion: string): string {
     const iconos: Record<string, string> = {
       CREAR: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
@@ -316,6 +356,9 @@ export class GrupoInfoModalComponent implements OnInit {
     return acciones[accion] || accion;
   }
 
+  // ============================================================
+  // FORMATO DE FECHAS
+  // ============================================================
   formatearFechaHora(fecha: string): string {
     return new Date(fecha).toLocaleString("es-ES", {
       day: "2-digit",
@@ -325,6 +368,7 @@ export class GrupoInfoModalComponent implements OnInit {
       minute: "2-digit",
     });
   }
+
   formatearRelativo(fecha: string): string {
     const min = Math.floor((Date.now() - new Date(fecha).getTime()) / 60000);
     if (min < 1) return "Ahora";
@@ -335,30 +379,63 @@ export class GrupoInfoModalComponent implements OnInit {
     return d < 7 ? `Hace ${d} d` : this.formatearFechaHora(fecha);
   }
 
-  getEstadoMiembro(m: MiembroGrupo): string {
-    if (m.enLinea) return "En línea";
-    if (!m.ultimaConexion) return "Desconectado";
-    const fecha = new Date(m.ultimaConexion);
-    const min = Math.floor((Date.now() - fecha.getTime()) / 60000);
-    if (min < 1) return "Últ. vez hace unos segundos";
-    if (min < 60) return `Últ. vez hace ${min} min`;
-    const h = Math.floor(min / 60);
-    if (h < 24) return `Últ. vez hace ${h} h`;
-    const d = Math.floor(h / 24);
-    return d < 7
-      ? `Últ. vez hace ${d} d`
-      : `Últ. vez ${fecha.toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}`;
+  // ============================================================
+  // ✅ PARSEO UTC — arregla "hace 5 h" cuando fue hace 3 s
+  // ============================================================
+  private parsearFechaUtc(fecha: string | Date | null | undefined): Date | null {
+    if (!fecha) return null;
+    if (fecha instanceof Date) return fecha;
+
+    const s = String(fecha);
+    const tieneZona = /Z$|[+-]\d{2}:?\d{2}$/.test(s);
+    return new Date(tieneZona ? s : s + 'Z');
   }
 
+  // ============================================================
+  // ✅ ESTADO DEL MIEMBRO (online / offline)
+  // ============================================================
+  getEstadoMiembro(m: MiembroGrupo): string {
+    // 1) Si está online, mostrarlo siempre primero
+    if (m.enLinea) return "En línea";
+
+    // 2) Sin última conexión → desconectado
+    const fecha = this.parsearFechaUtc(m.ultimaConexion);
+    if (!fecha) return "Desconectado";
+
+    // 3) Calcular diferencia
+    const diffMs = Date.now() - fecha.getTime();
+    if (diffMs < 0) return "Últ. vez hace unos segundos";
+
+    const min = Math.floor(diffMs / 60000);
+    if (min < 1) return "Últ. vez hace unos segundos";
+    if (min < 60) return `Últ. vez hace ${min} min`;
+
+    const h = Math.floor(min / 60);
+    if (h < 24) return `Últ. vez hace ${h} h`;
+
+    const d = Math.floor(h / 24);
+    if (d < 7) return `Últ. vez hace ${d} d`;
+
+    return `Últ. vez ${fecha.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "short",
+    })}`;
+  }
+
+  // ============================================================
+  // OVERLAY
+  // ============================================================
   onOverlayMouseDown(event: MouseEvent): void {
     this.clickIniciadoEnOverlay = event.target === event.currentTarget;
   }
+
   onOverlayClick(event: MouseEvent): void {
     const cerrarDesdeOverlay =
       event.target === event.currentTarget && this.clickIniciadoEnOverlay;
     this.clickIniciadoEnOverlay = false;
     if (cerrarDesdeOverlay && !this.enviandoInvitaciones()) this.cerrar.emit();
   }
+
   onCerrar(): void {
     if (!this.enviandoInvitaciones()) this.cerrar.emit();
   }

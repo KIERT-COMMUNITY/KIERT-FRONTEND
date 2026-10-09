@@ -1,6 +1,7 @@
-import { 
-  Component, signal, inject, HostListener, 
-  OnInit, OnDestroy, ElementRef 
+// src/app/shared/components/notificaciones/notificaciones.component.ts
+import {
+  Component, signal, inject, HostListener,
+  OnInit, OnDestroy, ElementRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -21,7 +22,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private grupoService = inject(GrupoService);
   private router = inject(Router);
-  private elementRef = inject(ElementRef); //Referencia al host del componente
+  private elementRef = inject(ElementRef);
 
   notificaciones = signal<Notificacion[]>([]);
   noLeidas = signal<number>(0);
@@ -31,7 +32,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   private subscription: Subscription | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
-  // Solo mostrar las últimas 5 en el dropdown
   get notificacionesRecientes(): Notificacion[] {
     return this.notificaciones().slice(0, 5);
   }
@@ -43,10 +43,26 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
 
       this.subscription = this.notificationService.notificaciones$.subscribe({
         next: (notificacion: Notificacion) => {
-          if (notificacion) {
-            this.notificaciones.update(lista => [notificacion, ...lista]);
-            this.noLeidas.update(val => val + 1);
+          if (!notificacion) return;
+
+          if (notificacion.tipo === 'INVITACION_GRUPO' && notificacion.grupoId) {
+            const existente = this.notificaciones().find(
+              n => n.tipo === 'INVITACION_GRUPO'
+                && n.grupoId === notificacion.grupoId
+                && !n.leida
+            );
+
+            if (existente) {
+              this.notificaciones.update(lista =>
+                lista.map(n => n.id === existente.id ? notificacion : n)
+              );
+              this.actualizarContadorNoLeidas();
+              return;
+            }
           }
+
+          this.notificaciones.update(lista => [notificacion, ...lista]);
+          this.noLeidas.update(val => val + 1);
         },
         error: (err) => console.error('Error al recibir notificación:', err)
       });
@@ -66,25 +82,17 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Cerrar con tecla Escape
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.mostrando()) {
-      this.cerrarMenu();
-    }
+    if (this.mostrando()) this.cerrarMenu();
   }
 
-  // NUEVO: Cerrar al hacer clic fuera del componente
   @HostListener('document:click', ['$event'])
   onClickFuera(event: MouseEvent): void {
     if (!this.mostrando()) return;
-
     const target = event.target as HTMLElement;
     const clickedInside = this.elementRef.nativeElement.contains(target);
-
-    if (!clickedInside) {
-      this.cerrarMenu();
-    }
+    if (!clickedInside) this.cerrarMenu();
   }
 
   actualizarContadorNoLeidas(): void {
@@ -103,8 +111,8 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
 
     this.notificationService.obtenerNotificaciones().subscribe({
       next: (data: Notificacion[]) => {
-        this.notificaciones.set(data);
-        this.noLeidas.set(data.filter(n => !n.leida).length);
+        this.notificaciones.set(data || []);
+        this.noLeidas.set((data || []).filter(n => !n.leida).length);
         this.cargando.set(false);
       },
       error: (err) => {
@@ -132,7 +140,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         this.notificaciones.update(lista =>
           lista.map(n => n.id === id ? { ...n, leida: true } : n)
         );
-        this.noLeidas.update(val => Math.max(0, val - 1));
         this.actualizarContadorNoLeidas();
       },
       error: (err) => console.error('Error al marcar como leída:', err)
@@ -157,22 +164,15 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.notificationService.eliminarNotificacion(id).subscribe({
       next: () => {
-        const noti = this.notificaciones().find(n => n.id === id);
         this.notificaciones.update(lista => lista.filter(n => n.id !== id));
-        if (noti && !noti.leida) {
-          this.noLeidas.update(val => Math.max(0, val - 1));
-          this.actualizarContadorNoLeidas();
-        }
+        this.actualizarContadorNoLeidas();
       },
       error: (err) => console.error('Error al eliminar notificación:', err)
     });
   }
 
   onClickNotificacion(notificacion: Notificacion): void {
-    // Si es invitación a grupo, no cerrar el menú al hacer clic (porque hay botones)
-    if (this.esInvitacionGrupo(notificacion.tipo)) {
-      return;
-    }
+    if (this.esInvitacionGrupo(notificacion.tipo)) return;
 
     if (!notificacion.leida) {
       this.marcarComoLeida(notificacion.id);
@@ -183,64 +183,82 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     this.cerrarMenu();
   }
 
-  // Ver todas las notificaciones
   verTodas(): void {
     this.cerrarMenu();
     this.router.navigate(['/notificaciones']);
   }
 
-  // ===== INVITACIONES A GRUPOS =====
+  // ============================================================
+  // INVITACIONES A GRUPOS
+  // ============================================================
   esInvitacionGrupo(tipo: string): boolean {
     return tipo === 'INVITACION_GRUPO';
   }
 
+  /**
+   * ✅ Aceptar invitación — con setTimeout para evitar race condition
+   *    (el backend necesita un momento para commitear el estado ACTIVO).
+   */
   aceptarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
     event.stopPropagation();
-    
+
     if (!notificacion.grupoId) return;
-    
+
+    console.log('📥 Aceptando invitación al grupo:', notificacion.grupoId);
+
     this.grupoService.aceptarInvitacion(notificacion.grupoId).subscribe({
-      next: () => {
-        // Marcar como leída
-        this.marcarComoLeida(notificacion.id);
-        
-        // Eliminar de la lista
-        this.notificaciones.update(lista => 
+      next: (respuesta) => {
+        console.log('✅ Invitación aceptada:', respuesta);
+
+        // 1) Eliminar la notificación localmente
+        this.notificaciones.update(lista =>
           lista.filter(n => n.id !== notificacion.id)
         );
-        
-        // Actualizar contador
-        this.actualizarContadorNoLeidas();
-        
-        // Redirigir al grupo
-        this.cerrarMenu();
-        this.router.navigate(['/chat/grupo', notificacion.grupoId]);
+
+        // 2) Marcar como leída en backend
+        this.notificationService.marcarComoLeida(notificacion.id).subscribe({
+          next: () => this.actualizarContadorNoLeidas(),
+          error: () => this.actualizarContadorNoLeidas()
+        });
+
+        // 3) ✅ ESPERAR 800 ms antes de navegar
+        setTimeout(() => {
+          this.cerrarMenu();
+          console.log('🚀 Navegando al grupo:', notificacion.grupoId);
+          this.router.navigate(['/chat/grupo', notificacion.grupoId]);
+        }, 800);
       },
       error: (err) => {
-        console.error('Error al aceptar invitación:', err);
+        console.error('❌ Error al aceptar invitación:', err);
+        alert(err?.error?.error || 'No se pudo aceptar la invitación');
+        this.cargarNotificaciones();
+        this.actualizarContadorNoLeidas();
       }
     });
   }
 
   rechazarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
     event.stopPropagation();
-    
+
     if (!notificacion.grupoId) return;
-    
+
     if (!confirm('¿Rechazar la invitación al grupo?')) return;
-    
+
     this.grupoService.rechazarInvitacion(notificacion.grupoId).subscribe({
       next: () => {
-        this.marcarComoLeida(notificacion.id);
-        
-        this.notificaciones.update(lista => 
+        this.notificaciones.update(lista =>
           lista.filter(n => n.id !== notificacion.id)
         );
-        
-        this.actualizarContadorNoLeidas();
+
+        this.notificationService.marcarComoLeida(notificacion.id).subscribe({
+          next: () => this.actualizarContadorNoLeidas(),
+          error: () => this.actualizarContadorNoLeidas()
+        });
       },
       error: (err) => {
         console.error('Error al rechazar invitación:', err);
+        this.cargarNotificaciones();
+        this.actualizarContadorNoLeidas();
       }
     });
   }

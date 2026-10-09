@@ -1,4 +1,4 @@
-<!--src/app/shared/components/crear-grupo-modal/crear-grupo-modal.component.html-->
+<!-- src/app/shared/components/crear-grupo-modal/crear-grupo-modal.component.html -->
 <div class="modal-overlay" (click)="cerrar.emit()">
   <div class="modal-content" (click)="$event.stopPropagation()">
 
@@ -63,36 +63,17 @@
           <small class="char-count">{{ descripcion().length }}/500</small>
         </div>
 
-        <div class="form-group">
-          <label>Tipo de grupo</label>
-          <div class="tipo-opciones">
-            <button
-              type="button"
-              class="tipo-btn"
-              [class.tipo-btn--active]="tipo() === 'PRIVADO'"
-              (click)="tipo.set('PRIVADO')"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-              <strong>Privado</strong>
-              <span>Solo por invitación</span>
-            </button>
-            <button
-              type="button"
-              class="tipo-btn"
-              [class.tipo-btn--active]="tipo() === 'PUBLICO'"
-              (click)="tipo.set('PUBLICO')"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-              </svg>
-              <strong>Público</strong>
-              <span>Cualquiera puede unirse</span>
-            </button>
+        <!-- ✅ INFO: grupo siempre privado -->
+        <div class="tipo-info">
+          <div class="tipo-info__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div class="tipo-info__text">
+            <strong>Grupo privado</strong>
+            <span>Solo los usuarios que invites podrán unirse. Podrás compartir un link de invitación.</span>
           </div>
         </div>
       } @else {

@@ -1,3 +1,4 @@
+<!-- src/app/shared/components/grupo-info-modal/grupo-info-modal.component.html -->
 <div
   class="gim-overlay"
   (mousedown)="onOverlayMouseDown($event)"
@@ -11,6 +12,10 @@
     (mousedown)="$event.stopPropagation()"
     (click)="$event.stopPropagation()"
   >
+
+    <!-- ============================================================ -->
+    <!-- HEADER                                                        -->
+    <!-- ============================================================ -->
     <header class="gim-header">
       @if (agregandoMiembros()) {
         <button
@@ -19,16 +24,7 @@
           (click)="cerrarAgregarMiembros()"
           aria-label="Volver"
         >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -40,15 +36,7 @@
           (click)="onCerrar()"
           aria-label="Cerrar"
         >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
@@ -57,6 +45,9 @@
       }
     </header>
 
+    <!-- ============================================================ -->
+    <!-- LOADING                                                        -->
+    <!-- ============================================================ -->
     @if (cargando()) {
       <div class="gim-loading">
         <div class="gim-spinner"></div>
@@ -64,8 +55,13 @@
       </div>
     }
 
+    <!-- ============================================================ -->
+    <!-- BODY: INFO DEL GRUPO                                          -->
+    <!-- ============================================================ -->
     @if (!cargando() && grupo() && !agregandoMiembros()) {
       <div class="gim-body">
+
+        <!-- PROFILE -->
         <section class="gim-profile">
           <div class="gim-avatar-wrap">
             @if (grupo()!.fotoUrl) {
@@ -79,22 +75,14 @@
                 <span>{{ grupo()!.nombre.charAt(0).toUpperCase() }}</span>
               </div>
             }
+
             @if (esAdmin()) {
               <label class="gim-avatar__edit" title="Cambiar foto">
                 @if (subiendoFoto()) {
                   <div class="gim-spinner-mini"></div>
                 } @else {
-                  <svg
-                    width="17"
-                    height="17"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.3"
-                  >
-                    <path
-                      d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                    />
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                     <circle cx="12" cy="13" r="4" />
                   </svg>
                 }
@@ -112,9 +100,7 @@
                   (click)="eliminarFoto()"
                   title="Eliminar foto"
                   aria-label="Eliminar foto"
-                >
-                  ×
-                </button>
+                >×</button>
               }
             }
           </div>
@@ -129,118 +115,69 @@
               <p class="gim-profile__description">{{ grupo()!.descripcion }}</p>
             }
             <div class="gim-profile__meta">
-              <span>Creado por {{ grupo()!.creadorNombre }}</span>
+              <span>Creado por <strong>{{ grupo()!.creadorNombre }}</strong></span>
               @if (grupo()!.rolDelUsuario === "ADMIN") {
                 <span class="gim-admin-badge">Admin</span>
               }
             </div>
           } @else {
             <div class="gim-edit-form">
-              <label
-                ><span>Nombre del grupo</span
-                ><input
-                  type="text"
-                  [(ngModel)]="editNombre"
-                  maxlength="100"
-                  class="gim-edit-input"
-              /></label>
-              <label
-                ><span>Descripción</span
-                ><textarea
-                  [(ngModel)]="editDescripcion"
-                  rows="3"
-                  maxlength="500"
-                  class="gim-edit-textarea"
-                ></textarea>
+              <label>
+                <span>Nombre del grupo</span>
+                <input type="text" [(ngModel)]="editNombre" maxlength="100" class="gim-edit-input" />
+              </label>
+              <label>
+                <span>Descripción</span>
+                <textarea [(ngModel)]="editDescripcion" rows="3" maxlength="500" class="gim-edit-textarea"></textarea>
               </label>
               <div class="gim-edit-actions">
-                <button
-                  class="gim-btn gim-btn--ghost"
-                  type="button"
-                  (click)="toggleEditar()"
-                >
-                  Cancelar
-                </button>
-                <button
-                  class="gim-btn gim-btn--primary"
-                  type="button"
-                  (click)="guardarInfo()"
-                >
-                  Guardar
-                </button>
+                <button class="gim-btn gim-btn--ghost" type="button" (click)="toggleEditar()">Cancelar</button>
+                <button class="gim-btn gim-btn--primary" type="button" (click)="guardarInfo()">Guardar</button>
               </div>
             </div>
           }
         </section>
 
+        <!-- ACTIONS -->
         @if (!editando()) {
           <section class="gim-actions" aria-label="Acciones del grupo">
             @if (esAdmin()) {
-              <button
-                class="gim-action"
-                type="button"
-                (click)="abrirAgregarMiembros()"
-              >
-                <span class="gim-action__icon"
-                  ><svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
+              <button class="gim-action" type="button" (click)="abrirAgregarMiembros()">
+                <span class="gim-action__icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="8.5" cy="7" r="4" />
                     <line x1="20" y1="8" x2="20" y2="14" />
-                    <line x1="23" y1="11" x2="17" y2="11" /></svg
-                ></span>
+                    <line x1="23" y1="11" x2="17" y2="11" />
+                  </svg>
+                </span>
                 <span>Añadir miembros</span>
               </button>
             }
             <button class="gim-action" type="button" (click)="invitarConLink()">
-              <span class="gim-action__icon"
-                ><svg
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-                  />
-                  <path
-                    d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-                  /></svg
-              ></span>
+              <span class="gim-action__icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+              </span>
               <span>Invitar con link</span>
             </button>
             @if (esAdmin()) {
               <button class="gim-action" type="button" (click)="toggleEditar()">
-                <span class="gim-action__icon"
-                  ><svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                    />
-                    <path
-                      d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                    /></svg
-                ></span>
+                <span class="gim-action__icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                </span>
                 <span>Editar</span>
               </button>
             }
           </section>
         }
 
+        <!-- TABS -->
         <nav class="gim-tabs" role="tablist">
           <button
             class="gim-tab"
@@ -262,14 +199,22 @@
           </button>
         </nav>
 
+        <!-- TAB: MIEMBROS -->
         @if (tabActivo === "miembros") {
           <section class="gim-panel">
             <h3 class="gim-section-title">
               {{ miembros().length }}
               {{ miembros().length === 1 ? "participante" : "participantes" }}
             </h3>
+
             @if (miembros().length === 0) {
-              <div class="gim-empty"><p>Sin miembros</p></div>
+              <div class="gim-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                </svg>
+                <p>Sin miembros</p>
+              </div>
             } @else {
               <ul class="gim-members">
                 @for (m of miembros(); track m.usuarioId) {
@@ -278,35 +223,47 @@
                       class="gim-member"
                       type="button"
                       (click)="abrirPerfil(m.usuarioId)"
+                      [class.gim-member--admin]="m.rol === 'ADMIN'"
                     >
+                      <!-- ✅ AVATAR con capa interna para recortar la imagen -->
                       <span class="gim-member__avatar">
-                        @if (m.fotoPerfilUrl) {
-                          <img
-                            [src]="m.fotoPerfilUrl"
-                            [alt]="m.nombreUsuario"
-                          />
-                        } @else {
-                          <span>{{
-                            m.nombreUsuario.charAt(0).toUpperCase()
-                          }}</span>
-                        }
+                        <span class="gim-member__avatar-img">
+                          @if (m.fotoPerfilUrl) {
+                            <img [src]="m.fotoPerfilUrl" [alt]="m.nombreUsuario" />
+                          } @else {
+                            <span class="gim-member__initial">
+                              {{ m.nombreUsuario.charAt(0).toUpperCase() }}
+                            </span>
+                          }
+                        </span>
                         <span
                           class="gim-member__status"
                           [class.gim-member__status--online]="m.enLinea"
-                        ></span></span
-                      ><span class="gim-member__info"
-                        ><span class="gim-member__name">{{
-                          m.nombreUsuario
-                        }}</span
-                        ><span
+                        ></span>
+                      </span>
+
+                      <!-- Info -->
+                      <span class="gim-member__info">
+                        <span class="gim-member__name-row">
+                          <span class="gim-member__name">{{ m.nombreUsuario }}</span>
+                          @if (m.rol === "ADMIN") {
+                            <span class="gim-member__badge">Admin</span>
+                          }
+                        </span>
+                        <span
                           class="gim-member__state"
                           [class.gim-member__state--online]="m.enLinea"
-                          >{{ getEstadoMiembro(m) }}</span
-                        ></span
-                      >
-                      @if (m.rol === "ADMIN") {
-                        <span class="gim-member__badge">Admin</span>
-                      }
+                        >
+                          {{ getEstadoMiembro(m) }}
+                        </span>
+                      </span>
+
+                      <!-- Flecha -->
+                      <span class="gim-member__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </span>
                     </button>
                   </li>
                 }
@@ -314,36 +271,33 @@
             }
           </section>
         }
+
+        <!-- TAB: HISTORIAL -->
         @if (tabActivo === "historial") {
           <section class="gim-panel">
             <h3 class="gim-section-title">Actividad del grupo</h3>
             @if (historial().length === 0) {
-              <div class="gim-empty"><p>Sin actividad todavía</p></div>
+              <div class="gim-empty">
+                <p>Sin actividad todavía</p>
+              </div>
             } @else {
               <ol class="gim-timeline">
                 @for (h of historial(); track h.id) {
                   <li class="gim-event">
-                    <span
-                      class="gim-event__icon"
-                      [innerHTML]="getAccionIcono(h.accion)"
-                    ></span>
+                    <span class="gim-event__icon" [innerHTML]="getAccionIcono(h.accion)"></span>
                     <div class="gim-event__content">
                       <div class="gim-event__heading">
-                        <strong>&#64;{{ h.usuarioNombre }}</strong
-                        ><time [title]="formatearFechaHora(h.fecha)">{{
-                          formatearRelativo(h.fecha)
-                        }}</time>
+                        <strong>&#64;{{ h.usuarioNombre }}</strong>
+                        <time [title]="formatearFechaHora(h.fecha)">
+                          {{ formatearRelativo(h.fecha) }}
+                        </time>
                       </div>
                       <p>{{ getAccionTexto(h.accion) }}</p>
                       @if (h.valorAnterior && h.valorNuevo) {
                         <div class="gim-event__change">
-                          <span class="gim-event__old">{{
-                            h.valorAnterior
-                          }}</span
-                          ><span>→</span
-                          ><span class="gim-event__new">{{
-                            h.valorNuevo
-                          }}</span>
+                          <span class="gim-event__old">{{ h.valorAnterior }}</span>
+                          <span>→</span>
+                          <span class="gim-event__new">{{ h.valorNuevo }}</span>
                         </div>
                       } @else if (h.valorNuevo) {
                         <div class="gim-event__change">
@@ -362,24 +316,21 @@
       </div>
     }
 
+    <!-- ============================================================ -->
+    <!-- BODY: AÑADIR MIEMBROS                                          -->
+    <!-- ============================================================ -->
     @if (!cargando() && grupo() && agregandoMiembros()) {
       <div class="gim-add-body">
         <p class="gim-add-hint">
-          Busca usuarios existentes. Los usuarios seleccionados recibirán una
-          invitación que deberán aceptar.
+          Busca usuarios existentes. Los usuarios seleccionados recibirán una invitación que deberán aceptar.
         </p>
+
         <div class="gim-search">
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
-          ><input
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
             type="text"
             [ngModel]="busquedaUsuario()"
             (ngModelChange)="onBusquedaUsuarioChange($event)"
@@ -387,16 +338,14 @@
             autocomplete="off"
           />
         </div>
+
         @if (usuariosSeleccionados().size > 0) {
           <div class="gim-selected-count">
             {{ usuariosSeleccionados().size }}
-            {{
-              usuariosSeleccionados().size === 1
-                ? "seleccionado"
-                : "seleccionados"
-            }}
+            {{ usuariosSeleccionados().size === 1 ? "seleccionado" : "seleccionados" }}
           </div>
         }
+
         <div class="gim-results">
           @if (buscandoUsuarios()) {
             <div class="gim-loading gim-loading--small">
@@ -411,25 +360,27 @@
                 [class.gim-user--selected]="estaSeleccionado(user.id)"
                 (click)="toggleUsuario(user.id)"
               >
+                <!-- ✅ AVATAR con capa interna -->
                 <span class="gim-user__avatar">
-                  @if (user.fotoPerfilUrl) {
-                    <img
-                      [src]="user.fotoPerfilUrl"
-                      [alt]="user.nombreUsuario"
-                    />
-                  } @else {
-                    <span>{{
-                      user.nombreUsuario.charAt(0).toUpperCase()
-                    }}</span>
-                  }
+                  <span class="gim-user__avatar-img">
+                    @if (user.fotoPerfilUrl) {
+                      <img [src]="user.fotoPerfilUrl" [alt]="user.nombreUsuario" />
+                    } @else {
+                      <span>{{ user.nombreUsuario.charAt(0).toUpperCase() }}</span>
+                    }
+                  </span>
                 </span>
-                <span class="gim-user__info"
-                  ><strong>{{ user.nombreUsuario }}</strong
-                  ><small>{{ user.email }}</small></span
-                >
+
+                <span class="gim-user__info">
+                  <strong>{{ user.nombreUsuario }}</strong>
+                  <small>{{ user.email }}</small>
+                </span>
+
                 <span class="gim-user__check">
                   @if (estaSeleccionado(user.id)) {
-                    ✓
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
                   }
                 </span>
               </button>
@@ -444,37 +395,24 @@
             </div>
           }
         </div>
+
         @if (errorInvitacion()) {
-          <div class="gim-message gim-message--error">
-            {{ errorInvitacion() }}
-          </div>
+          <div class="gim-message gim-message--error">{{ errorInvitacion() }}</div>
         }
         @if (exitoInvitacion()) {
-          <div class="gim-message gim-message--success">
-            {{ exitoInvitacion() }}
-          </div>
+          <div class="gim-message gim-message--success">{{ exitoInvitacion() }}</div>
         }
       </div>
+
       <footer class="gim-add-footer">
-        <button
-          class="gim-btn gim-btn--ghost"
-          type="button"
-          (click)="cerrarAgregarMiembros()"
-          [disabled]="enviandoInvitaciones()"
-        >
+        <button class="gim-btn gim-btn--ghost" type="button" (click)="cerrarAgregarMiembros()" [disabled]="enviandoInvitaciones()">
           Cancelar
         </button>
-        <button
-          class="gim-btn gim-btn--primary"
-          type="button"
-          (click)="enviarInvitaciones()"
-          [disabled]="
-            usuariosSeleccionados().size === 0 || enviandoInvitaciones()
-          "
-        >
+        <button class="gim-btn gim-btn--primary" type="button" (click)="enviarInvitaciones()" [disabled]="usuariosSeleccionados().size === 0 || enviandoInvitaciones()">
           {{ enviandoInvitaciones() ? "Enviando..." : "Enviar invitaciones" }}
         </button>
       </footer>
     }
+
   </div>
 </div>

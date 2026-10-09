@@ -515,6 +515,8 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.cerrarConfirmExpulsar();
         this.exitoMsg.set(`@${miembro.nombreUsuario} expulsado del grupo`);
         setTimeout(() => this.exitoMsg.set(null), 3000);
+        // ✅ Recargar mensajes para ver el mensaje de sistema
+        this.cargarMensajes(grupoId);
       },
       error: (err) => {
         this.cerrarConfirmExpulsar();
@@ -555,6 +557,14 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return ext.some(e => nombre.toLowerCase().endsWith(e));
   }
 
+  /**
+   * ✅ NUEVO: Detecta si un mensaje es de tipo SISTEMA
+   * (unirse, salir, expulsar, cambio de foto, etc.)
+   */
+  esMensajeSistema(msg: MensajeGrupo): boolean {
+    return msg.tipoMensaje === 'SISTEMA';
+  }
+
   abrirArchivo(url: string): void {
     window.open(url, '_blank');
   }
@@ -573,7 +583,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.enviando.set(true);
 
     if (archivos.length > 0) {
-      // Enviar primer archivo (simple)
       const archivo = archivos[0];
       this.grupoService.enviarMensajeConArchivo(grupoId, contenido, archivo).subscribe({
         next: (msg) => {
@@ -673,28 +682,29 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.fotoPerfilUrl || null;
   }
+
   getEstadoMiembro(m: MiembroGrupo): string {
-  if (m.enLinea) return 'En línea';
+    if (m.enLinea) return 'En línea';
 
-  if (m.ultimaConexion) {
-    const fecha = new Date(m.ultimaConexion);
-    const ahora = new Date();
-    const diffMs = ahora.getTime() - fecha.getTime();
-    const diffMin = Math.floor(diffMs / 60000);
-    const diffH = Math.floor(diffMin / 60);
-    const diffD = Math.floor(diffH / 24);
+    if (m.ultimaConexion) {
+      const fecha = new Date(m.ultimaConexion);
+      const ahora = new Date();
+      const diffMs = ahora.getTime() - fecha.getTime();
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffH = Math.floor(diffMin / 60);
+      const diffD = Math.floor(diffH / 24);
 
-    if (diffMin < 1) return 'Últ. vez hace unos segundos';
-    if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
-    if (diffH < 24) return `Últ. vez hace ${diffH} h`;
-    if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+      if (diffMin < 1) return 'Últ. vez hace unos segundos';
+      if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
+      if (diffH < 24) return `Últ. vez hace ${diffH} h`;
+      if (diffD < 7) return `Últ. vez hace ${diffD} d`;
 
-    return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short'
-    })}`;
+      return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short'
+      })}`;
+    }
+
+    return 'Desconectado';
   }
-
-  return 'Desconectado';
-}
 }

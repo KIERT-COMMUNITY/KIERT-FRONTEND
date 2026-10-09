@@ -1,18 +1,28 @@
-// auth.guard.ts -> "portero" de las rutas privadas.
-// Angular ejecuta esta función ANTES de entrar a cualquier ruta que tenga
-// canActivate: [authGuard] (ver app.routes.ts). Si no hay sesión, redirige a /login.
+// src/app/core/guards/auth.guard.ts
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = () => {
-  const auth = inject(AuthService); // inject() permite pedir dependencias fuera de un constructor
+  const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.estaLogueado()) {
-    return true; // deja pasar
+  // ✅ Fallback: verificar localStorage directamente
+  const token = localStorage.getItem('token');
+  const usuarioStr = localStorage.getItem('usuario_actual');
+
+  if (token && usuarioStr) {
+    if (!auth.estaLogueado()) {
+      try {
+        const usuario = JSON.parse(usuarioStr);
+        auth.token.set(token);
+        auth.usuario.set(usuario);
+      } catch {}
+    }
+    return true;
   }
 
+  console.warn('🚫 Guard: sin sesión, redirigiendo a login');
   router.navigate(['/login']);
-  return false; // bloquea el acceso a la ruta
+  return false;
 };

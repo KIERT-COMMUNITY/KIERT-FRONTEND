@@ -17,7 +17,13 @@ import { ChatService } from '../../core/services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
 import { GrupoService, Grupo, MensajeGrupo, MiembroGrupo } from '../../core/services/grupo.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
-import { Conversacion, Mensaje, SolicitudContacto, MensajeArchivo, UsuarioDisponible } from '../../core/models/chat.model';
+import {
+  Conversacion,
+  Mensaje,
+  SolicitudContacto,
+  MensajeArchivo,
+  UsuarioDisponible
+} from '../../core/models/chat.model';
 import { AvatarFrameComponent } from '../../shared/components/avatar-frame/avatar-frame.component';
 import { CrearGrupoModalComponent } from '../../shared/components/crear-grupo-modal/crear-grupo-modal.component';
 
@@ -148,7 +154,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     ayer.setDate(ayer.getDate() - 1);
 
     this.mensajes().forEach(msg => {
-      const fecha = new Date(msg.fechaEnvio);
+      const fecha = this.parsearFechaUtc(msg.fechaEnvio) ?? new Date();
       let key: string;
 
       if (fecha.toDateString() === hoy.toDateString()) {
@@ -181,7 +187,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     ayer.setDate(ayer.getDate() - 1);
 
     this.mensajesGrupo().forEach(msg => {
-      const fecha = new Date(msg.fechaEnvio);
+      const fecha = this.parsearFechaUtc(msg.fechaEnvio) ?? new Date();
       let key: string;
 
       if (fecha.toDateString() === hoy.toDateString()) {
@@ -207,6 +213,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   });
 
   private pollingInterval: any;
+  private readonly onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      this.actualizarConversacionesYContadores();
+    }
+  };
 
   constructor() {
     this.chatService.conversaciones$.subscribe(conversaciones => {
@@ -246,9 +257,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
+    // ✅ Polling cada 8 s para ver cambios online/offline más rápido
     this.pollingInterval = setInterval(() => {
       this.actualizarConversacionesYContadores();
-    }, 10000);
+    }, 8000);
+
+    // ✅ Refrescar al volver a la pestaña
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   ngAfterViewChecked(): void {
@@ -260,6 +275,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
     }
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+
     const usuarioId = this.usuarioSeleccionado();
     if (usuarioId) {
       this.chatService.marcarComoLeidos(usuarioId).subscribe({
@@ -824,7 +841,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ESTADO ONLINE/OFFLINE (SIN DUPLICADOS)
+  // ✅ PARSEO UTC (arregla el bug de "en línea pero desconectado")
+  // ============================================================
+  private parsearFechaUtc(fecha: string | Date | null | undefined): Date | null {
+    if (!fecha) return null;
+    if (fecha instanceof Date) return fecha;
+
+    const s = String(fecha);
+    // Si ya trae zona horaria (Z o +hh:mm), respetarla
+    const tieneZona = /Z$|[+-]\d{2}:?\d{2}$/.test(s);
+    return new Date(tieneZona ? s : s + 'Z');
+  }
+
+  // ============================================================
+  // ESTADO ONLINE/OFFLINE
   // ============================================================
   estaEnLinea(usuarioId: number): boolean {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
@@ -835,59 +865,58 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     if (!conv) return 'Desconocido';
 
-    // Online
+    // ✅ Primero comprobar ONLINE
     if (conv.online) return 'En línea';
 
-    // Última conexión real
-    if (conv.ultimaConexion) {
-      const fecha = new Date(conv.ultimaConexion);
-      const ahora = new Date();
-      const diffMs = ahora.getTime() - fecha.getTime();
-      const diffMin = Math.floor(diffMs / 60000);
-      const diffH = Math.floor(diffMin / 60);
-      const diffD = Math.floor(diffH / 24);
+    // Si no hay última conexión, está desconectado sin datos
+    const fecha = this.parsearFechaUtc(conv.ultimaConexion);
+    if (!fecha) return 'Desconectado';
 
-      if (diffMin < 1) return 'Últ. vez hace unos segundos';
-      if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
-      if (diffH < 24) return `Últ. vez hace ${diffH} h`;
-      if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+    const diffMs = Date.now() - fecha.getTime();
 
-      return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'short'
-      })}`;
-    }
+    // Si la fecha está en el futuro (reloj desincronizado), tratarla como ahora
+    if (diffMs < 0) return 'Últ. vez hace unos segundos';
 
-    return 'Desconectado';
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffH = Math.floor(diffMin / 60);
+    const diffD = Math.floor(diffH / 24);
+
+    if (diffMin < 1) return 'Últ. vez hace unos segundos';
+    if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
+    if (diffH < 24) return `Últ. vez hace ${diffH} h`;
+    if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+
+    return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short'
+    })}`;
   }
 
   // ============================================================
   // ESTADO DE MIEMBRO DE GRUPO
   // ============================================================
   getEstadoMiembro(m: MiembroGrupo): string {
-    // Online
+    // ✅ Primero comprobar ONLINE
     if (m.enLinea) return 'En línea';
 
-    // Última conexión
-    if (m.ultimaConexion) {
-      const fecha = new Date(m.ultimaConexion);
-      const ahora = new Date();
-      const diffMs = ahora.getTime() - fecha.getTime();
-      const diffMin = Math.floor(diffMs / 60000);
-      const diffH = Math.floor(diffMin / 60);
-      const diffD = Math.floor(diffH / 24);
+    const fecha = this.parsearFechaUtc(m.ultimaConexion);
+    if (!fecha) return 'Desconectado';
 
-      if (diffMin < 1) return 'Últ. vez hace unos segundos';
-      if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
-      if (diffH < 24) return `Últ. vez hace ${diffH} h`;
-      if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+    const diffMs = Date.now() - fecha.getTime();
+    if (diffMs < 0) return 'Últ. vez hace unos segundos';
 
-      return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'short'
-      })}`;
-    }
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffH = Math.floor(diffMin / 60);
+    const diffD = Math.floor(diffH / 24);
 
-    return 'Desconectado';
+    if (diffMin < 1) return 'Últ. vez hace unos segundos';
+    if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
+    if (diffH < 24) return `Últ. vez hace ${diffH} h`;
+    if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+
+    return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short'
+    })}`;
   }
 }

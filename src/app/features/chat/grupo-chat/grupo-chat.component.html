@@ -1,4 +1,4 @@
-<!-- src/app/features/chat/grupo-chat.component.html -->
+<!-- src/app/features/chat/grupo-chat/grupo-chat.component.html -->
 <div class="chat-messenger">
 
   <!-- SIDEBAR -->
@@ -321,7 +321,6 @@
       </div>
     }
 
-    <!-- CHAT DE GRUPO -->
     @if (grupoSeleccionado() && grupo()) {
       <header class="chat-top">
         <button class="chat-top__back" (click)="cerrarGrupo()">
@@ -330,7 +329,6 @@
           </svg>
         </button>
 
-        <!-- 🔥 CLICK ABRE INFO DEL GRUPO -->
         <div class="chat-top__user" (click)="abrirInfoGrupo()">
           <div class="chat-top__avatar chat-top__avatar--grupo">
             @if (grupo()!.fotoUrl) {
@@ -356,7 +354,6 @@
 
           @if (mostrarOpcionesGrupo()) {
             <div class="dropdown-menu">
-              <!-- Info del grupo -->
               <button class="dropdown-item" (click)="abrirInfoGrupo(); mostrarOpcionesGrupo.set(false)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"/>
@@ -366,7 +363,6 @@
                 <span>Info del grupo</span>
               </button>
 
-              <!-- Invitar con link -->
               <button class="dropdown-item" (click)="abrirInvitarLink()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
@@ -431,54 +427,59 @@
             </div>
 
             @for (msg of grupoFecha.mensajes; track msg.id) {
-              <div class="msg" [class.msg--mine]="msg.propio">
-                @if (!msg.propio) {
-                  <div class="msg__avatar" (click)="irAlPerfil(msg.emisorId)">
-                    @if (msg.emisorFoto) {
-                      <img [src]="msg.emisorFoto" [alt]="msg.emisorNombre">
-                    } @else {
-                      <span>{{ msg.emisorNombre.charAt(0).toUpperCase() }}</span>
-                    }
-                  </div>
-                }
 
-                <div class="msg__body">
+              <!-- ✅ MENSAJE DE SISTEMA — CENTRADO -->
+              @if (esMensajeSistema(msg)) {
+                <div class="chat-system-msg">
+                  <span>{{ msg.contenido }}</span>
+                </div>
+              } @else {
+                <div class="msg" [class.msg--mine]="msg.propio">
                   @if (!msg.propio) {
-                    <span class="msg__author">{{ msg.emisorNombre }}</span>
-                  }
-
-                  <!-- ARCHIVO IMAGEN -->
-                  @if (msg.urlArchivo && esImagen(msg.nombreArchivo)) {
-                    <div class="msg__img" (click)="abrirArchivo(msg.urlArchivo)">
-                      <img [src]="msg.urlArchivo" [alt]="msg.nombreArchivo" loading="lazy">
+                    <div class="msg__avatar" (click)="irAlPerfil(msg.emisorId)">
+                      @if (msg.emisorFoto) {
+                        <img [src]="msg.emisorFoto" [alt]="msg.emisorNombre">
+                      } @else {
+                        <span>{{ msg.emisorNombre.charAt(0).toUpperCase() }}</span>
+                      }
                     </div>
                   }
 
-                  <!-- ARCHIVO DOCUMENTO -->
-                  @if (msg.urlArchivo && !esImagen(msg.nombreArchivo)) {
-                    <button class="msg__file" (click)="abrirArchivo(msg.urlArchivo)">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                      </svg>
-                      <span>{{ msg.nombreArchivo }}</span>
-                    </button>
-                  }
+                  <div class="msg__body">
+                    @if (!msg.propio) {
+                      <span class="msg__author">{{ msg.emisorNombre }}</span>
+                    }
 
-                  <!-- TEXTO -->
-                  @if (msg.contenido) {
-                    <div class="msg__bubble">{{ msg.contenido }}</div>
-                  }
+                    @if (msg.urlArchivo && esImagen(msg.nombreArchivo)) {
+                      <div class="msg__img" (click)="abrirArchivo(msg.urlArchivo)">
+                        <img [src]="msg.urlArchivo" [alt]="msg.nombreArchivo" loading="lazy">
+                      </div>
+                    }
 
-                  <span class="msg__time">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
+                    @if (msg.urlArchivo && !esImagen(msg.nombreArchivo)) {
+                      <button class="msg__file" (click)="abrirArchivo(msg.urlArchivo)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                          <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <span>{{ msg.nombreArchivo }}</span>
+                      </button>
+                    }
+
+                    @if (msg.contenido) {
+                      <div class="msg__bubble">{{ msg.contenido }}</div>
+                    }
+
+                    <span class="msg__time">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
+                  </div>
                 </div>
-              </div>
+              }
+
             }
           }
         }
       </div>
 
-      <!-- PREVIEW ARCHIVOS SELECCIONADOS -->
       @if (archivosSeleccionados().length > 0) {
         <div class="files-preview">
           @for (archivo of archivosSeleccionados(); track $index) {
@@ -528,7 +529,8 @@
   </main>
 </div>
 
-<!-- Modal crear grupo -->
+<!-- MODALES (FUERA DEL .chat-messenger) -->
+
 @if (mostrarModalGrupo()) {
   <kiert-crear-grupo-modal
     (cerrar)="cerrarModalGrupo()"
@@ -536,7 +538,6 @@
   </kiert-crear-grupo-modal>
 }
 
-<!-- Modal invitar con link -->
 @if (mostrarInvitarLink() && grupo()) {
   <kiert-invitar-link-modal
     [grupoId]="grupo()!.id"
@@ -545,7 +546,6 @@
   </kiert-invitar-link-modal>
 }
 
-<!-- 🔥 Modal INFO DEL GRUPO -->
 @if (mostrarInfoGrupo() && grupo()) {
   <kiert-grupo-info-modal
     [grupoId]="grupo()!.id"
@@ -554,7 +554,7 @@
     (abrirInvitarLink)="abrirInvitarLink()">
   </kiert-grupo-info-modal>
 }
-<!-- MODAL: MIEMBROS -->
+
 @if (mostrarMiembros()) {
   <div class="modal-overlay" (click)="toggleMiembros()">
     <div class="modal-card" (click)="$event.stopPropagation()">
@@ -607,7 +607,6 @@
   </div>
 }
 
-<!-- CONFIRM: ELIMINAR GRUPO -->
 @if (mostrarConfirmEliminar() && grupoAEliminar()) {
   <div class="modal-overlay" (click)="cerrarConfirmEliminar()">
     <div class="modal-card modal-card--small" (click)="$event.stopPropagation()">
@@ -626,7 +625,6 @@
   </div>
 }
 
-<!-- CONFIRM: SALIR DEL GRUPO -->
 @if (mostrarConfirmSalir()) {
   <div class="modal-overlay" (click)="cerrarConfirmSalir()">
     <div class="modal-card modal-card--small" (click)="$event.stopPropagation()">
@@ -645,7 +643,6 @@
   </div>
 }
 
-<!-- CONFIRM: EXPULSAR MIEMBRO -->
 @if (mostrarConfirmExpulsar() && miembroAExpulsar()) {
   <div class="modal-overlay" (click)="cerrarConfirmExpulsar()">
     <div class="modal-card modal-card--small" (click)="$event.stopPropagation()">

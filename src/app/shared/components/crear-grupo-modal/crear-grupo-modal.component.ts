@@ -1,4 +1,4 @@
-//src/app/shared/components/crear-grupo-modal/crear-grupo-modal.component.ts
+// src/app/shared/components/crear-grupo-modal/crear-grupo-modal.component.ts
 import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +23,10 @@ export class CrearGrupoModalComponent {
   // ===== FORMULARIO =====
   nombre = signal('');
   descripcion = signal('');
-  tipo = signal<'PRIVADO' | 'PUBLICO'>('PRIVADO');
+
+  // ✅ FIJADO A PRIVADO (ya no hay selector)
+  readonly tipo: 'PRIVADO' = 'PRIVADO';
+
   usuariosSeleccionados = signal<Set<number>>(new Set());
 
   // ===== BÚSQUEDA =====
@@ -91,7 +94,7 @@ export class CrearGrupoModalComponent {
     this.grupoService.crearGrupo({
       nombre: this.nombre().trim(),
       descripcion: this.descripcion().trim(),
-      tipo: this.tipo(),
+      tipo: this.tipo,                       // ✅ SIEMPRE 'PRIVADO'
       usuariosInvitados: Array.from(this.usuariosSeleccionados())
     }).subscribe({
       next: (grupo) => {

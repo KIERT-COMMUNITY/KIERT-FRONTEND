@@ -1,8 +1,8 @@
-// auth.service.ts
-import { Injectable, signal, WritableSignal } from '@angular/core';
+// src/app/core/services/auth.service.ts
+import { Injectable, signal, WritableSignal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User, AuthResponse, LoginRequest, RegisterRequest } from '../models/user.model';
 
@@ -15,17 +15,17 @@ export class AuthService {
   usuario: WritableSignal<User | null> = signal<User | null>(null);
   token: WritableSignal<string | null> = signal<string | null>(null);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {
+  // ✅ NUEVO: notifica cuando el usuario cambia (login/logout)
+  private readonly sesionCambiadaSubject = new Subject<boolean>();
+  readonly sesionCambiada$ = this.sesionCambiadaSubject.asObservable();
+
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
+  constructor() {
     this.cargarSesion();
-    this.setupBeforeUnloadListener();
   }
 
-  // ============================================================
-  // SESION
-  // ============================================================
   private cargarSesion(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
     const usuarioStr = localStorage.getItem(this.USER_KEY);
@@ -35,6 +35,9 @@ export class AuthService {
         const usuario = JSON.parse(usuarioStr);
         this.token.set(token);
         this.usuario.set(usuario);
+
+        // ✅ Avisar que hay sesión activa
+        queueMicrotask(() => this.sesionCambiadaSubject.next(true));
       } catch {
         this.limpiarSesion();
       }
@@ -46,6 +49,9 @@ export class AuthService {
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
     this.token.set(token);
     this.usuario.set(usuario);
+
+    // ✅ Avisar login
+    this.sesionCambiadaSubject.next(true);
   }
 
   private limpiarSesion(): void {
@@ -53,11 +59,11 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY);
     this.token.set(null);
     this.usuario.set(null);
+
+    // ✅ Avisar logout
+    this.sesionCambiadaSubject.next(false);
   }
 
-  // ============================================================
-  // LOGIN
-  // ============================================================
   login(credenciales: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, credenciales).pipe(
       tap((respuesta) => {
@@ -68,48 +74,28 @@ export class AuthService {
     );
   }
 
-  // ============================================================
-  // REGISTRO (NO guarda sesion porque requiere verificar email)
-  // ============================================================
   registro(datos: RegisterRequest): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/registro`, datos);
   }
 
-  // ============================================================
-  // VERIFICAR CUENTA CON CODIGO
-  // ============================================================
   verificarCuenta(email: string, codigo: string): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/verificar-cuenta`, { email, codigo });
   }
 
-  // ============================================================
-  // REENVIAR CODIGO DE VERIFICACION
-  // ============================================================
   reenviarCodigoVerificacion(email: string): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/reenviar-codigo`, { email });
   }
 
-  // ============================================================
-  // SOLICITAR RECUPERACION (envia codigo)
-  // ============================================================
   solicitarRecuperacion(email: string): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/recuperar`, { email });
   }
 
-  // ============================================================
-  // RESET PASSWORD CON CODIGO
-  // ============================================================
   resetPasswordConCodigo(email: string, codigo: string, nuevaPassword: string): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/reset-password`, {
-      email,
-      codigo,
-      nuevaPassword
+      email, codigo, nuevaPassword
     });
   }
 
-  // ============================================================
-  // PERFIL
-  // ============================================================
   obtenerPerfil(): Observable<User> {
     return this.http.get<User>(`${this.API_URL}/perfil`).pipe(
       tap((usuario) => {
@@ -122,7 +108,6 @@ export class AuthService {
   subirFotoMultipart(archivo: File): Observable<User> {
     const formData = new FormData();
     formData.append('archivo', archivo);
-
     return this.http.post<User>(`${this.API_URL}/perfil/foto`, formData).pipe(
       tap((usuario) => {
         this.usuario.set(usuario);
@@ -149,11 +134,9 @@ export class AuthService {
     );
   }
 
-  // ============================================================
-  // LOGOUT
-  // ============================================================
   logout(): void {
     const token = this.token();
+    this.limpiarSesion();   // ✅ dispara sesionCambiada$(false)
 
     if (token) {
       this.http.post(`${this.API_URL}/auth/logout`, {}).subscribe({
@@ -166,43 +149,15 @@ export class AuthService {
   }
 
   private finalizarLogout(): void {
-    this.limpiarSesion();
     this.router.navigate(['/login']);
   }
 
-  // ============================================================
-  // BEFORE UNLOAD
-  // ============================================================
-  private setupBeforeUnloadListener(): void {
-    window.addEventListener('beforeunload', () => {
-      const usuario = this.usuario();
-      if (usuario?.id) {
-        const url = `${this.API_URL}/auth/logout-beacon?usuarioId=${usuario.id}`;
-        navigator.sendBeacon(url);
-      }
-    });
-  }
-
-  // ============================================================
-  // HELPERS
-  // ============================================================
   isAuthenticated(): boolean {
     return !!this.token() && !!this.usuario();
   }
 
-  estaLogueado(): boolean {
-    return this.isAuthenticated();
-  }
-
-  obtenerToken(): string | null {
-    return this.token();
-  }
-
-  getToken(): string | null {
-    return this.token();
-  }
-
-  getUser(): User | null {
-    return this.usuario();
-  }
+  estaLogueado(): boolean { return this.isAuthenticated(); }
+  obtenerToken(): string | null { return this.token(); }
+  getToken(): string | null { return this.token(); }
+  getUser(): User | null { return this.usuario(); }
 }
