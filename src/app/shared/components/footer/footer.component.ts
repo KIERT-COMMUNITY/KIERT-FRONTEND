@@ -16,8 +16,8 @@ export class FooterComponent {
   footerAds = signal([
     {
       id: 1,
-      title: 'Kiert Pro',
-      description: 'Funcionalidades exclusivas para profesionales',
+      title: 'Kiert',
+      description: 'Funcionalidades basicas y seguir mejorando',
       image: 'assets/images/anuncio/foto-anuncio.jpg', //  SIN src/ al inicio
       link: 'https://www.instagram.com/kiert_2005?stkn=aG9wZmQyamUzemV5',
       alt: 'Kiert Pro'
@@ -25,7 +25,7 @@ export class FooterComponent {
     {
       id: 2,
       title: 'Comunidad',
-      description: 'Comparte y aprende con otros desarrolladores',
+      description: 'Comparte y aprende de otras personas',
       image: 'assets/images/anuncio/foto-anuncio.jpeg',
       link: 'https://www.tiktok.com/@kiert2005?_r=1&_t=ZS-99XPBPKJM7r',
       alt: 'Comunidad Kiert'

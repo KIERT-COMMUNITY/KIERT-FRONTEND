@@ -1,39 +1,27 @@
 // src/app/shared/components/keyboard-help/keyboard-help.component.scss
+// ============================================================
+// PANEL DE ATAJOS — Estático, sin animaciones
+// ============================================================
 
+// ============================================================
+// OVERLAY (fondo oscuro con blur, sin transición)
+// ============================================================
 .kbd-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
   z-index: 100000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  animation: kbd-fadeIn 0.2s ease;
   overflow-y: auto;
 }
 
-@keyframes kbd-fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes kbd-scaleIn {
-  from { opacity: 0; transform: scale(0.94); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes kbd-slideUp {
-  from { opacity: 0; transform: translate(-50%, 20px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-@keyframes kbd-slideDown {
-  from { opacity: 1; transform: translate(-50%, 0); }
-  to { opacity: 0; transform: translate(-50%, 20px); }
-}
-
+// ============================================================
+// MODAL
+// ============================================================
 .kbd-modal {
   width: 100%;
   max-width: 720px;
@@ -44,30 +32,38 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: kbd-scaleIn 0.25s ease;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
 }
 
+// ============================================================
+// HEADER
+// ============================================================
 .kbd-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 1.5rem;
+  padding: 1.1rem 1.4rem;
   border-bottom: 1px solid var(--tema-border, #26313c);
+  background: rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
 
   &__title {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.7rem;
     color: var(--tema-accent, #2dd4bf);
 
-    svg { stroke: currentColor; flex-shrink: 0; }
+    svg {
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
 
     h2 {
       margin: 0;
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--tema-text, #e6edf3);
+      letter-spacing: -0.2px;
     }
   }
 
@@ -82,8 +78,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
     flex-shrink: 0;
+    padding: 0;
 
     svg { stroke: currentColor; }
 
@@ -100,27 +96,34 @@
   }
 }
 
+// ============================================================
+// BODY
+// ============================================================
 .kbd-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 1.4rem;
+  min-height: 0;
 
   &::-webkit-scrollbar { width: 8px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb {
-    background: rgba(45, 212, 191, 0.3);
+    background: rgba(45, 212, 191, 0.25);
     border-radius: 4px;
 
-    &:hover { background: rgba(45, 212, 191, 0.5); }
+    &:hover { background: rgba(45, 212, 191, 0.45); }
   }
 }
 
+// ============================================================
+// INFO
+// ============================================================
 .kbd-info {
-  background: rgba(45, 212, 191, 0.08);
-  border: 1px solid rgba(45, 212, 191, 0.2);
+  background: rgba(45, 212, 191, 0.07);
+  border: 1px solid rgba(45, 212, 191, 0.22);
   border-radius: 10px;
   padding: 0.85rem 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.4rem;
 
   p {
     margin: 0;
@@ -132,15 +135,20 @@
   }
 }
 
+// ============================================================
+// SECCIONES
+// ============================================================
 .kbd-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.4rem;
+
+  &:last-child { margin-bottom: 0; }
 
   h3 {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.9px;
     color: var(--tema-accent, #2dd4bf);
-    margin: 0 0 0.8rem;
+    margin: 0 0 0.7rem;
     font-weight: 700;
   }
 }
@@ -148,9 +156,12 @@
 .kbd-list {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
+// ============================================================
+// ITEM
+// ============================================================
 .kbd-item {
   display: flex;
   align-items: center;
@@ -159,13 +170,12 @@
   padding: 0.6rem 0.9rem;
   background: rgba(128, 128, 128, 0.05);
   border-radius: 8px;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: rgba(45, 212, 191, 0.06);
-  }
+  border: 1px solid rgba(128, 128, 128, 0.06);
 }
 
+// ============================================================
+// TECLAS
+// ============================================================
 .kbd-keys {
   display: flex;
   align-items: center;
@@ -179,17 +189,17 @@
     min-width: 28px;
     height: 28px;
     padding: 0 8px;
-    background: linear-gradient(180deg, #2a3a4a, #1b232c);
+    background: #1b232c;
     color: #e6edf3;
     border: 1px solid #3a4a5a;
-    border-bottom-width: 3px;
+    border-bottom-width: 2px;
     border-radius: 6px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 0.72rem;
     font-weight: 700;
     line-height: 1;
     text-transform: uppercase;
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
     white-space: nowrap;
   }
 
@@ -197,24 +207,33 @@
     color: var(--tema-text-muted, #8b98a5);
     font-size: 0.75rem;
     font-weight: 600;
+    line-height: 1;
   }
 }
 
+// ============================================================
+// DESCRIPCIÓN
+// ============================================================
 .kbd-desc {
   font-size: 0.85rem;
   color: var(--tema-text, #e6edf3);
   text-align: right;
   flex: 1;
+  line-height: 1.3;
 }
 
+// ============================================================
+// FOOTER
+// ============================================================
 .kbd-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 1.5rem;
+  padding: 0.9rem 1.4rem;
   border-top: 1px solid var(--tema-border, #26313c);
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
 }
 
 .kbd-toggle {
@@ -243,13 +262,10 @@
   font-weight: 700;
   font-size: 0.82rem;
   cursor: pointer;
-  transition: all 0.2s ease;
   font-family: inherit;
+  letter-spacing: 0.2px;
 
-  &:hover {
-    background: #17b6a4;
-    transform: translateY(-1px);
-  }
+  &:hover { background: #17b6a4; }
 
   &:focus-visible {
     outline: 2px solid #ffffff;
@@ -257,26 +273,60 @@
   }
 }
 
-@media (max-width: 600px) {
-  .kbd-modal { max-height: 95vh; }
+// ============================================================
+// RESPONSIVE — Tablet (<= 640px)
+// ============================================================
+@media (max-width: 640px) {
+  .kbd-overlay {
+    padding: 0.5rem;
+    align-items: flex-start;
+    padding-top: 1rem;
+  }
 
+  .kbd-modal {
+    max-height: calc(100dvh - 2rem);
+    border-radius: 14px;
+  }
+
+  .kbd-header {
+    padding: 0.9rem 1rem;
+
+    &__title h2 { font-size: 1rem; }
+    &__close { width: 34px; height: 34px; }
+  }
+
+  .kbd-body { padding: 1rem; }
+
+  .kbd-footer {
+    padding: 0.8rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+
+  .kbd-toggle { justify-content: center; }
+  .kbd-btn { width: 100%; }
+}
+
+// ============================================================
+// RESPONSIVE — Móvil (<= 480px)
+// ============================================================
+@media (max-width: 480px) {
   .kbd-item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.4rem;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
   }
 
-  .kbd-desc { text-align: left; }
+  .kbd-keys { flex-wrap: wrap; }
 
-  .kbd-footer {
-    flex-direction: column;
-    align-items: stretch;
+  .kbd-desc {
+    text-align: left;
+    font-size: 0.8rem;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .kbd-overlay,
-  .kbd-modal {
-    animation: none !important;
-  }
+  .kbd-info p { font-size: 0.8rem; }
+
+  .kbd-section h3 { font-size: 0.68rem; }
 }
