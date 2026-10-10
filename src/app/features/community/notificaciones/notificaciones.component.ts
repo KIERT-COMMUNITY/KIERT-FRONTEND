@@ -1,4 +1,4 @@
-// src/app/shared/components/notificaciones/notificaciones.component.ts
+// src/app/features/community/notificaciones/notificaciones.component.ts
 import {
   Component, signal, inject, HostListener,
   OnInit, OnDestroy, ElementRef
@@ -28,9 +28,20 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   noLeidas = signal<number>(0);
   mostrando = signal<boolean>(false);
   cargando = signal<boolean>(false);
+  invitacionProcesandoId = signal<number | null>(null);
+  invitacionPendienteRechazo = signal<Notificacion | null>(null);
+  mensajeFlotante = signal<{
+    tipo: 'exito' | 'error' | 'rechazo';
+    titulo: string;
+    descripcion: string;
+  } | null>(null);
 
   private subscription: Subscription | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
+  private mensajeTimerId: ReturnType<typeof setTimeout> | null = null;
+  private navegacionTimerId: ReturnType<typeof setTimeout> | null = null;
+  private frameConfirmacionId: number | null = null;
+  private frameMensajeId: number | null = null;
 
   get notificacionesRecientes(): Notificacion[] {
     return this.notificaciones().slice(0, 5);
@@ -80,10 +91,32 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+    if (this.mensajeTimerId !== null) {
+      clearTimeout(this.mensajeTimerId);
+      this.mensajeTimerId = null;
+    }
+    if (this.navegacionTimerId !== null) {
+      clearTimeout(this.navegacionTimerId);
+      this.navegacionTimerId = null;
+    }
+    if (this.frameConfirmacionId !== null) {
+      cancelAnimationFrame(this.frameConfirmacionId);
+      this.frameConfirmacionId = null;
+    }
+    if (this.frameMensajeId !== null) {
+      cancelAnimationFrame(this.frameMensajeId);
+      this.frameMensajeId = null;
+    }
+    document.body.querySelector('.confirmacion-overlay')?.remove();
+    document.body.querySelector('.mensaje-flotante')?.remove();
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    if (this.invitacionPendienteRechazo()) {
+      this.cancelarRechazo();
+      return;
+    }
     if (this.mostrando()) this.cerrarMenu();
   }
 
@@ -202,35 +235,42 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   aceptarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
     event.stopPropagation();
 
-    if (!notificacion.grupoId) return;
+    if (!notificacion.grupoId || this.invitacionProcesandoId() !== null) return;
 
-    console.log('📥 Aceptando invitación al grupo:', notificacion.grupoId);
+    this.invitacionProcesandoId.set(notificacion.id);
 
     this.grupoService.aceptarInvitacion(notificacion.grupoId).subscribe({
-      next: (respuesta) => {
-        console.log('✅ Invitación aceptada:', respuesta);
-
-        // 1) Eliminar la notificación localmente
+      next: () => {
         this.notificaciones.update(lista =>
           lista.filter(n => n.id !== notificacion.id)
         );
 
-        // 2) Marcar como leída en backend
         this.notificationService.marcarComoLeida(notificacion.id).subscribe({
           next: () => this.actualizarContadorNoLeidas(),
           error: () => this.actualizarContadorNoLeidas()
         });
 
-        // 3) ✅ ESPERAR 800 ms antes de navegar
-        setTimeout(() => {
+        this.invitacionProcesandoId.set(null);
+        this.mostrarMensajeFlotante(
+          'exito',
+          'Invitación aceptada',
+          'Te uniste correctamente al grupo.'
+        );
+
+        this.navegacionTimerId = setTimeout(() => {
           this.cerrarMenu();
-          console.log('🚀 Navegando al grupo:', notificacion.grupoId);
           this.router.navigate(['/chat/grupo', notificacion.grupoId]);
-        }, 800);
+          this.navegacionTimerId = null;
+        }, 1500);
       },
       error: (err) => {
-        console.error('❌ Error al aceptar invitación:', err);
-        alert(err?.error?.error || 'No se pudo aceptar la invitación');
+        console.error('Error al aceptar invitación:', err);
+        this.invitacionProcesandoId.set(null);
+        this.mostrarMensajeFlotante(
+          'error',
+          'No se pudo aceptar la invitación',
+          'Inténtalo nuevamente.'
+        );
         this.cargarNotificaciones();
         this.actualizarContadorNoLeidas();
       }
@@ -240,9 +280,23 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   rechazarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
     event.stopPropagation();
 
-    if (!notificacion.grupoId) return;
+    if (!notificacion.grupoId || this.invitacionProcesandoId() !== null) return;
 
-    if (!confirm('¿Rechazar la invitación al grupo?')) return;
+    this.invitacionPendienteRechazo.set(notificacion);
+    this.moverCapaAlBody('.confirmacion-overlay', 'confirmacion');
+  }
+
+  cancelarRechazo(): void {
+    if (this.invitacionProcesandoId() !== null) return;
+    this.invitacionPendienteRechazo.set(null);
+  }
+
+  confirmarRechazo(): void {
+    const notificacion = this.invitacionPendienteRechazo();
+
+    if (!notificacion?.grupoId || this.invitacionProcesandoId() !== null) return;
+
+    this.invitacionProcesandoId.set(notificacion.id);
 
     this.grupoService.rechazarInvitacion(notificacion.grupoId).subscribe({
       next: () => {
@@ -254,13 +308,86 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
           next: () => this.actualizarContadorNoLeidas(),
           error: () => this.actualizarContadorNoLeidas()
         });
+
+        this.invitacionProcesandoId.set(null);
+        this.invitacionPendienteRechazo.set(null);
+        this.mostrarMensajeFlotante(
+          'rechazo',
+          'Invitación rechazada',
+          'La invitación al grupo fue rechazada.'
+        );
       },
       error: (err) => {
         console.error('Error al rechazar invitación:', err);
+        this.invitacionProcesandoId.set(null);
+        this.invitacionPendienteRechazo.set(null);
+        this.mostrarMensajeFlotante(
+          'error',
+          'No se pudo rechazar la invitación',
+          'Inténtalo nuevamente.'
+        );
         this.cargarNotificaciones();
         this.actualizarContadorNoLeidas();
       }
     });
+  }
+
+  cerrarMensajeFlotante(): void {
+    if (this.mensajeTimerId !== null) {
+      clearTimeout(this.mensajeTimerId);
+      this.mensajeTimerId = null;
+    }
+    this.mensajeFlotante.set(null);
+  }
+
+  private mostrarMensajeFlotante(
+    tipo: 'exito' | 'error' | 'rechazo',
+    titulo: string,
+    descripcion: string
+  ): void {
+    if (this.mensajeTimerId !== null) {
+      clearTimeout(this.mensajeTimerId);
+    }
+
+    this.mensajeFlotante.set({ tipo, titulo, descripcion });
+    this.moverCapaAlBody('.mensaje-flotante', 'mensaje');
+    this.mensajeTimerId = setTimeout(() => {
+      this.mensajeFlotante.set(null);
+      this.mensajeTimerId = null;
+    }, 4000);
+  }
+
+  private moverCapaAlBody(
+    selector: '.confirmacion-overlay' | '.mensaje-flotante',
+    tipo: 'confirmacion' | 'mensaje'
+  ): void {
+    const frameAnterior = tipo === 'confirmacion'
+      ? this.frameConfirmacionId
+      : this.frameMensajeId;
+
+    if (frameAnterior !== null) {
+      cancelAnimationFrame(frameAnterior);
+    }
+
+    const frameId = requestAnimationFrame(() => {
+      const elemento = this.elementRef.nativeElement.querySelector(selector) as HTMLElement | null;
+
+      if (elemento && elemento.parentElement !== document.body) {
+        document.body.appendChild(elemento);
+      }
+
+      if (tipo === 'confirmacion') {
+        this.frameConfirmacionId = null;
+      } else {
+        this.frameMensajeId = null;
+      }
+    });
+
+    if (tipo === 'confirmacion') {
+      this.frameConfirmacionId = frameId;
+    } else {
+      this.frameMensajeId = frameId;
+    }
   }
 
   getColorTipo(tipo: string): string {
