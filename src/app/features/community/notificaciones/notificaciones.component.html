@@ -125,23 +125,24 @@
                 @if (esInvitacionGrupo(notificacion.tipo)) {
                   <div class="acciones-invitacion">
                     <button
+                      type="button"
                       class="btn-aceptar-invitacion"
                       (click)="aceptarInvitacionGrupo(notificacion, $event)"
-                      title="Aceptar"
+                      title="Aceptar invitación"
+                      aria-label="Aceptar invitación al grupo"
+                      [disabled]="invitacionProcesandoId() !== null"
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
+                      {{ invitacionProcesandoId() === notificacion.id ? 'Aceptando...' : 'Aceptar' }}
                     </button>
                     <button
+                      type="button"
                       class="btn-rechazar-invitacion"
                       (click)="rechazarInvitacionGrupo(notificacion, $event)"
-                      title="Rechazar"
+                      title="Rechazar invitación"
+                      aria-label="Rechazar invitación al grupo"
+                      [disabled]="invitacionProcesandoId() !== null"
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                      </svg>
+                      Rechazar
                     </button>
                   </div>
                 } @else {
@@ -192,3 +193,92 @@
     </div>
   }
 </div>
+
+@if (invitacionPendienteRechazo(); as invitacion) {
+  <div class="confirmacion-overlay" (click)="cancelarRechazo()">
+    <section
+      class="confirmacion-modal"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="titulo-confirmacion-rechazo"
+      aria-describedby="descripcion-confirmacion-rechazo"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="confirmacion-icono" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 9v4"/>
+          <path d="M12 17h.01"/>
+          <path d="M10.3 2.9 1.8 17a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 2.9a2 2 0 0 0-3.4 0Z"/>
+        </svg>
+      </div>
+
+      <div class="confirmacion-contenido">
+        <h3 id="titulo-confirmacion-rechazo">¿Rechazar invitación?</h3>
+        <p id="descripcion-confirmacion-rechazo">
+          Esta acción retirará la invitación al grupo.
+        </p>
+      </div>
+
+      <div class="confirmacion-acciones">
+        <button
+          type="button"
+          class="btn-confirmacion-cancelar"
+          (click)="cancelarRechazo()"
+          [disabled]="invitacionProcesandoId() !== null"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn-confirmacion-rechazar"
+          (click)="confirmarRechazo()"
+          [disabled]="invitacionProcesandoId() !== null"
+        >
+          {{ invitacionProcesandoId() === invitacion.id ? 'Rechazando...' : 'Sí, rechazar' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (mensajeFlotante(); as mensaje) {
+  <aside
+    class="mensaje-flotante"
+    [class.mensaje-flotante--exito]="mensaje.tipo === 'exito'"
+    [class.mensaje-flotante--rechazo]="mensaje.tipo === 'rechazo'"
+    [class.mensaje-flotante--error]="mensaje.tipo === 'error'"
+    [attr.role]="mensaje.tipo === 'error' ? 'alert' : 'status'"
+    aria-live="polite"
+  >
+    <div class="mensaje-flotante-icono" aria-hidden="true">
+      @if (mensaje.tipo === 'exito') {
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      } @else {
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      }
+    </div>
+
+    <div class="mensaje-flotante-contenido">
+      <strong>{{ mensaje.titulo }}</strong>
+      <span>{{ mensaje.descripcion }}</span>
+    </div>
+
+    <button
+      type="button"
+      class="mensaje-flotante-cerrar"
+      (click)="cerrarMensajeFlotante()"
+      aria-label="Cerrar mensaje"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </aside>
+}
+
