@@ -10,10 +10,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionService } from '../../../core/services/personalizacion.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { UserService } from '../../../core/services/user.service';
+import { ChatService } from '../../../core/services/chat.service';
 import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service';
+import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { User } from '../../../core/models/user.model';
 
 type SeccionActiva = 'perfil' | 'bloqueados' | 'accesibilidad';
+type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICITUD_RECIBIDA' | 'YO_MISMO';
 
 @Component({
   selector: 'kiert-settings',
@@ -26,14 +29,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private personalizacionService = inject(PersonalizacionService);
   private userService = inject(UserService);
+  private chatService = inject(ChatService);
   private bloqueoService = inject(BloqueoService);
+  private imageSanitizer = inject(ImageSanitizerService);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
   private destroy$ = new Subject<void>();
 
-  // ===== SIGNALS =====
   usuario = this.authService.usuario;
   cargando = signal(false);
   buscando = signal(false);
@@ -48,10 +52,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   mostrandoResultados = signal(false);
   solicitudEnviada = signal<number | null>(null);
 
-  // ===== SECCIÓN ACTIVA =====
+  estadosRelacion = signal<Map<number, EstadoRelacion>>(new Map());
+
   seccionActiva = signal<SeccionActiva>('perfil');
 
-  // ===== BLOQUEADOS =====
   bloqueados = signal<Bloqueo[]>([]);
   cargandoBloqueados = signal(false);
   busquedaBloqueado = signal('');
@@ -65,7 +69,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
   });
 
-  // Selectores toggle
   showThemeSelector = signal(false);
   showFrameSelector = signal(false);
   showBackgroundSelector = signal(false);
@@ -81,7 +84,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   marcosData = this.personalizacionStore.marcosData;
   fondosData = this.personalizacionStore.fondosData;
 
-  // ===== ESCALA DE FUENTE (expuestas del store) =====
   escalaFuente = this.personalizacionStore.escalaFuente;
   etiquetaEscala = this.personalizacionStore.etiquetaEscala;
   porcentajeEscala = this.personalizacionStore.porcentajeEscala;
@@ -94,7 +96,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
-    // Efecto: sincroniza personalización
     effect(() => {
       const personalizacion = this.personalizacionStore.personalizacion();
       if (personalizacion) {
@@ -145,10 +146,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       next: (usuarios: User[]) => {
         this.buscando.set(false);
         if (usuarios && usuarios.length > 0) {
-          this.usuariosEncontrados.set(usuarios);
-          this.usuarioBuscado.set(null);
-          this.busquedaError.set(null);
-          if (usuarios.length === 1) this.usuarioBuscado.set(usuarios[0]);
+          this.onUsuariosEncontrados(usuarios);
         } else {
           this.usuariosEncontrados.set([]);
           this.usuarioBuscado.set(null);
@@ -166,6 +164,71 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // ============================================================
+  // ESTADO DE RELACIÓN
+  // ============================================================
+  getEstadoRelacion(usuarioId: number): EstadoRelacion {
+    if (this.esMiPropioPerfil(usuarioId)) return 'YO_MISMO';
+    return this.estadosRelacion().get(usuarioId) || 'DESCONOCIDO';
+  }
+
+  sonContactos(usuarioId: number): boolean {
+    return this.getEstadoRelacion(usuarioId) === 'CONTACTO';
+  }
+
+  yaEnvieSolicitud(usuarioId: number): boolean {
+    const estado = this.getEstadoRelacion(usuarioId);
+    return estado === 'SOLICITUD_ENVIADA' || this.solicitudEnviada() === usuarioId;
+  }
+
+  esMiPropioPerfil(usuarioId: number): boolean {
+    return this.usuario()?.id === usuarioId;
+  }
+
+  private consultarEstadoRelacion(usuarioId: number): void {
+    if (this.estadosRelacion().has(usuarioId)) return;
+
+    this.estadosRelacion.update(map => {
+      const nuevo = new Map(map);
+      nuevo.set(usuarioId, 'DESCONOCIDO');
+      return nuevo;
+    });
+
+    this.chatService.sonContactos(usuarioId).subscribe({
+      next: (respuesta: any) => {
+        let esContacto = false;
+
+        if (typeof respuesta === 'boolean') {
+          esContacto = respuesta;
+        } else if (respuesta && typeof respuesta === 'object' && 'sonContactos' in respuesta) {
+          esContacto = respuesta.sonContactos;
+        }
+
+        this.estadosRelacion.update(map => {
+          const nuevo = new Map(map);
+          nuevo.set(usuarioId, esContacto ? 'CONTACTO' : 'DESCONOCIDO');
+          return nuevo;
+        });
+      },
+      error: () => {
+        console.warn('No se pudo verificar si son contactos con usuario', usuarioId);
+      }
+    });
+  }
+
+  private onUsuariosEncontrados(usuarios: User[]): void {
+    this.usuariosEncontrados.set(usuarios);
+    this.usuarioBuscado.set(null);
+    this.busquedaError.set(null);
+    if (usuarios.length === 1) this.usuarioBuscado.set(usuarios[0]);
+
+    usuarios.forEach(u => {
+      if (u.id && !this.esMiPropioPerfil(u.id)) {
+        this.consultarEstadoRelacion(u.id);
+      }
+    });
   }
 
   // ============================================================
@@ -251,12 +314,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     html.classList.add(`tema-${tema}`);
     body.setAttribute('data-theme', tema);
     body.classList.add(`tema-${tema}`);
-
-    console.log('Tema aplicado globalmente:', tema);
   }
 
   // ============================================================
-  // TOGGLES DE SELECTORES
+  // TOGGLES
   // ============================================================
   toggleThemeSelector(): void {
     this.showThemeSelector.update(v => !v);
@@ -324,7 +385,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // BÚSQUEDA DE USUARIOS
+  // BÚSQUEDA
   // ============================================================
   onBusquedaChange(): void {
     const query = this.busquedaUsuario().trim();
@@ -353,10 +414,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       next: (usuarios: User[]) => {
         this.buscando.set(false);
         if (usuarios && usuarios.length > 0) {
-          this.usuariosEncontrados.set(usuarios);
-          this.usuarioBuscado.set(null);
-          this.busquedaError.set(null);
-          if (usuarios.length === 1) this.usuarioBuscado.set(usuarios[0]);
+          this.onUsuariosEncontrados(usuarios);
         } else {
           this.usuariosEncontrados.set([]);
           this.usuarioBuscado.set(null);
@@ -395,6 +453,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
       next: () => {
         this.enviandoSolicitud.set(false);
         this.solicitudEnviada.set(usuarioId);
+
+        this.estadosRelacion.update(map => {
+          const nuevo = new Map(map);
+          nuevo.set(usuarioId, 'SOLICITUD_ENVIADA');
+          return nuevo;
+        });
+
         this.exitoMsg.set('Solicitud de contacto enviada correctamente');
         setTimeout(() => {
           this.exitoMsg.set(null);
@@ -476,29 +541,60 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  subirFotoPerfil(event: Event): void {
+  /**
+   * ✅ Sube la foto de perfil DESPUÉS de limpiar metadatos EXIF.
+   */
+  async subirFotoPerfil(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
+    const archivoOriginal = input.files?.[0];
+    if (!archivoOriginal) return;
 
-    this.cargando.set(true);
-    this.personalizacionService.subirFotoPerfil(file).subscribe({
-      next: (data) => {
-        const user = this.usuario();
-        if (user) {
-          this.authService.usuario.set({ ...user, fotoPerfilUrl: data.fotoPerfilUrl });
+    // Validar tipo
+    if (!archivoOriginal.type.startsWith('image/')) {
+      this.errorMsg.set('Solo se permiten imágenes');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    // Validar tamaño (10 MB máx)
+    if (archivoOriginal.size > 10 * 1024 * 1024) {
+      this.errorMsg.set('La imagen no debe superar los 10MB');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    try {
+      // ✅ Limpiar metadatos EXIF y recortar a cuadrado
+      const archivoLimpio = await this.imageSanitizer.limpiarFotoPerfil(archivoOriginal);
+
+      this.cargando.set(true);
+
+      this.personalizacionService.subirFotoPerfil(archivoLimpio).subscribe({
+        next: (data) => {
+          const user = this.usuario();
+          if (user) {
+            this.authService.usuario.set({ ...user, fotoPerfilUrl: data.fotoPerfilUrl });
+          }
+          this.exitoMsg.set('Foto de perfil actualizada');
+          this.cargando.set(false);
+          this.personalizacionStore.recargar();
+          setTimeout(() => this.exitoMsg.set(null), 3000);
+        },
+        error: () => {
+          this.errorMsg.set('Error al subir la foto');
+          this.cargando.set(false);
+          setTimeout(() => this.errorMsg.set(null), 3000);
         }
-        this.exitoMsg.set('Foto de perfil actualizada');
-        this.cargando.set(false);
-        this.personalizacionStore.recargar();
-        setTimeout(() => this.exitoMsg.set(null), 3000);
-      },
-      error: () => {
-        this.errorMsg.set('Error al subir la foto');
-        this.cargando.set(false);
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+      });
+    } catch (error) {
+      console.error('Error al procesar imagen:', error);
+      this.errorMsg.set('Error al procesar la imagen');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+    } finally {
+      input.value = '';
+    }
   }
 
   getInitials(nombre: string): string {

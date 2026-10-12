@@ -30,6 +30,8 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   cargando = signal<boolean>(false);
   invitacionProcesandoId = signal<number | null>(null);
   invitacionPendienteRechazo = signal<Notificacion | null>(null);
+
+  // ✅ MENSAJE FLOTANTE
   mensajeFlotante = signal<{
     tipo: 'exito' | 'error' | 'rechazo';
     titulo: string;
@@ -40,8 +42,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private mensajeTimerId: ReturnType<typeof setTimeout> | null = null;
   private navegacionTimerId: ReturnType<typeof setTimeout> | null = null;
-  private frameConfirmacionId: number | null = null;
-  private frameMensajeId: number | null = null;
 
   get notificacionesRecientes(): Notificacion[] {
     return this.notificaciones().slice(0, 5);
@@ -99,16 +99,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       clearTimeout(this.navegacionTimerId);
       this.navegacionTimerId = null;
     }
-    if (this.frameConfirmacionId !== null) {
-      cancelAnimationFrame(this.frameConfirmacionId);
-      this.frameConfirmacionId = null;
-    }
-    if (this.frameMensajeId !== null) {
-      cancelAnimationFrame(this.frameMensajeId);
-      this.frameMensajeId = null;
-    }
-    document.body.querySelector('.confirmacion-overlay')?.remove();
-    document.body.querySelector('.mensaje-flotante')?.remove();
   }
 
   @HostListener('document:keydown.escape')
@@ -204,16 +194,68 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ============================================================
+  // ✅ NAVEGACIÓN AL HACER CLICK EN NOTIFICACIÓN
+  // ============================================================
   onClickNotificacion(notificacion: Notificacion): void {
     if (this.esInvitacionGrupo(notificacion.tipo)) return;
 
     if (!notificacion.leida) {
       this.marcarComoLeida(notificacion.id);
     }
-    if (notificacion.url) {
-      this.router.navigate([notificacion.url]);
+
+    const navegacion = this.construirNavegacion(notificacion);
+    if (navegacion) {
+      this.router.navigate(navegacion.ruta, {
+        queryParams: navegacion.queryParams
+      });
     }
+
     this.cerrarMenu();
+  }
+
+  private construirNavegacion(notificacion: Notificacion): {
+    ruta: any[];
+    queryParams?: Record<string, any>;
+  } | null {
+    const n = notificacion;
+
+    switch (n.tipo) {
+      case 'comentario':
+        if (n.postId) {
+          return {
+            ruta: ['/comunidad', n.postId],
+            queryParams: n.comentarioId ? { comentarioId: n.comentarioId } : undefined
+          };
+        }
+        break;
+
+      case 'respuesta':
+        if (n.postId) {
+          const qp: Record<string, any> = {};
+          if (n.comentarioId) qp['comentarioId'] = n.comentarioId;
+          if (n.respuestaId) qp['respuestaId'] = n.respuestaId;
+          return {
+            ruta: ['/comunidad', n.postId],
+            queryParams: Object.keys(qp).length > 0 ? qp : undefined
+          };
+        }
+        break;
+
+      case 'like':
+        if (n.postId) return { ruta: ['/comunidad', n.postId] };
+        break;
+
+      case 'solicitud':
+        return { ruta: ['/chat'] };
+
+      case 'sistema':
+        if (n.url) return { ruta: [n.url] };
+        break;
+    }
+
+    if (n.url) return { ruta: [n.url] };
+    return null;
   }
 
   verTodas(): void {
@@ -228,10 +270,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     return tipo === 'INVITACION_GRUPO';
   }
 
-  /**
-   * ✅ Aceptar invitación — con setTimeout para evitar race condition
-   *    (el backend necesita un momento para commitear el estado ACTIVO).
-   */
   aceptarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
     event.stopPropagation();
 
@@ -283,7 +321,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     if (!notificacion.grupoId || this.invitacionProcesandoId() !== null) return;
 
     this.invitacionPendienteRechazo.set(notificacion);
-    this.moverCapaAlBody('.confirmacion-overlay', 'confirmacion');
   }
 
   cancelarRechazo(): void {
@@ -332,6 +369,9 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ============================================================
+  // MENSAJE FLOTANTE
+  // ============================================================
   cerrarMensajeFlotante(): void {
     if (this.mensajeTimerId !== null) {
       clearTimeout(this.mensajeTimerId);
@@ -350,46 +390,16 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     }
 
     this.mensajeFlotante.set({ tipo, titulo, descripcion });
-    this.moverCapaAlBody('.mensaje-flotante', 'mensaje');
+
     this.mensajeTimerId = setTimeout(() => {
       this.mensajeFlotante.set(null);
       this.mensajeTimerId = null;
     }, 4000);
   }
 
-  private moverCapaAlBody(
-    selector: '.confirmacion-overlay' | '.mensaje-flotante',
-    tipo: 'confirmacion' | 'mensaje'
-  ): void {
-    const frameAnterior = tipo === 'confirmacion'
-      ? this.frameConfirmacionId
-      : this.frameMensajeId;
-
-    if (frameAnterior !== null) {
-      cancelAnimationFrame(frameAnterior);
-    }
-
-    const frameId = requestAnimationFrame(() => {
-      const elemento = this.elementRef.nativeElement.querySelector(selector) as HTMLElement | null;
-
-      if (elemento && elemento.parentElement !== document.body) {
-        document.body.appendChild(elemento);
-      }
-
-      if (tipo === 'confirmacion') {
-        this.frameConfirmacionId = null;
-      } else {
-        this.frameMensajeId = null;
-      }
-    });
-
-    if (tipo === 'confirmacion') {
-      this.frameConfirmacionId = frameId;
-    } else {
-      this.frameMensajeId = frameId;
-    }
-  }
-
+  // ============================================================
+  // UTILIDADES
+  // ============================================================
   getColorTipo(tipo: string): string {
     const colores: Record<string, string> = {
       'like': '#f85149',

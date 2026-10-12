@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 
 export interface Notificacion {
   id: number;
-  tipo: 'like' | 'comentario' | 'respuesta' | 'solicitud' | 'sistema' | 'INVITACION_GRUPO';  // ✅ AGREGAR AQUÍ
+  tipo: 'like' | 'comentario' | 'respuesta' | 'solicitud' | 'sistema' | 'INVITACION_GRUPO';
   mensaje: string;
   leida: boolean;
   fecha: Date;
@@ -16,8 +16,8 @@ export interface Notificacion {
   postId?: number;
   comentarioId?: number;
   respuestaId?: number;
+  grupoId?: number;
   url?: string;
-  grupoId?: number;  // Ya lo tenías
 }
 
 @Injectable({
@@ -32,7 +32,6 @@ export class NotificationService {
 
   mensajesNoLeidos = signal<number>(0);
 
-  //  CONEXIÓN REAL CON EL BACKEND
   obtenerNotificaciones(): Observable<Notificacion[]> {
     return this.http.get<Notificacion[]>(`${this.apiUrl}/notificaciones`);
   }

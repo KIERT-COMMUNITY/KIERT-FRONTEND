@@ -1752,3 +1752,69 @@ $text-muted: var(--tema-text-muted);
     }
   }
 }
+// ============================================================
+// BADGES DE ESTADO EN RESULTADOS DE BÚSQUEDA
+// ============================================================
+.result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  svg { flex-shrink: 0; }
+
+  &--contacto {
+    background: rgba(46, 160, 67, 0.15);
+    color: #2ea043;
+    border: 1px solid rgba(46, 160, 67, 0.3);
+  }
+
+  &--pendiente {
+    background: rgba(249, 202, 36, 0.15);
+    color: #f9ca24;
+    border: 1px solid rgba(249, 202, 36, 0.3);
+  }
+
+  &--yo {
+    background: rgba(45, 212, 191, 0.15);
+    color: #2dd4bf;
+    border: 1px solid rgba(45, 212, 191, 0.3);
+  }
+}
+
+// ============================================================
+// BOTÓN ENVIAR MENSAJE
+// ============================================================
+.result-btn.send-message {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(45, 212, 191, 0.15);
+  color: #2dd4bf;
+  border: 1px solid rgba(45, 212, 191, 0.3);
+
+  svg { stroke: currentColor; flex-shrink: 0; }
+
+  &:hover:not(:disabled) {
+    background: rgba(45, 212, 191, 0.25);
+    border-color: #2dd4bf;
+  }
+}
+
+// ============================================================
+// BOTÓN AGREGAR CON ICONO
+// ============================================================
+.result-btn.add-friend {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  svg { stroke: currentColor; flex-shrink: 0; }
+}

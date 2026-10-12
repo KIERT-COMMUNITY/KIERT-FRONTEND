@@ -7,6 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
 import { BloqueoService } from '../../core/services/bloqueo.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
+import { ImageSanitizerService } from '../../core/services/image-sanitizer.service';
 import { User } from '../../core/models/user.model';
 
 @Component({
@@ -20,6 +21,7 @@ export class ProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private bloqueoService = inject(BloqueoService);
+  private imageSanitizer = inject(ImageSanitizerService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -56,7 +58,6 @@ export class ProfileComponent implements OnInit {
   });
 
   constructor() {
-    //  Aplicar tema GLOBAL cuando cambie la personalización
     effect(() => {
       const tema = this.personalizacionStore.temaId();
       this.aplicarTemaGlobal(tema);
@@ -67,13 +68,12 @@ export class ProfileComponent implements OnInit {
     this.cargarEstadisticas();
     this.cargarDatosUsuario();
 
-    // Asegurar que el tema se aplique al entrar
     const tema = this.personalizacionStore.temaId();
     this.aplicarTemaGlobal(tema);
   }
 
   // ============================================================
-  // APLICAR TEMA GLOBAL (fondo de página + color de letras)
+  // APLICAR TEMA GLOBAL
   // ============================================================
   private aplicarTemaGlobal(themeId: string): void {
     const html = document.documentElement;
@@ -124,46 +124,63 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  onFotoSeleccionada(evento: Event): void {
+  /**
+   * ✅ Sube la foto de perfil DESPUÉS de limpiar metadatos EXIF.
+   */
+  async onFotoSeleccionada(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
-    const archivo = input.files?.[0];
-    if (!archivo) return;
+    const archivoOriginal = input.files?.[0];
+    if (!archivoOriginal) return;
 
-    if (!archivo.type.startsWith('image/')) {
+    if (!archivoOriginal.type.startsWith('image/')) {
       this.errorMsg.set('Solo se permiten imágenes');
       setTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
       return;
     }
 
-    if (archivo.size > 5 * 1024 * 1024) {
-      this.errorMsg.set('La imagen no debe superar los 5MB');
+    if (archivoOriginal.size > 10 * 1024 * 1024) {
+      this.errorMsg.set('La imagen no debe superar los 10MB');
       setTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
       return;
     }
 
-    const lector = new FileReader();
-    lector.onload = () => this.previsualizacion.set(lector.result as string);
-    lector.readAsDataURL(archivo);
+    try {
+      // ✅ Limpiar metadatos EXIF y recortar a cuadrado
+      const archivoLimpio = await this.imageSanitizer.limpiarFotoPerfil(archivoOriginal);
 
-    this.subiendoFoto.set(true);
-    this.errorMsg.set(null);
+      // Previsualización con el archivo limpio
+      const lector = new FileReader();
+      lector.onload = () => this.previsualizacion.set(lector.result as string);
+      lector.readAsDataURL(archivoLimpio);
 
-    this.authService.subirFotoMultipart(archivo).subscribe({
-      next: (usuarioActualizado: User) => {
-        this.subiendoFoto.set(false);
-        this.previsualizacion.set(null);
-        this.exitoMsg.set('Foto actualizada correctamente');
-        setTimeout(() => this.exitoMsg.set(null), 3000);
-        this.authService.usuario.set(usuarioActualizado);
-        this.personalizacionStore.recargar();
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.subiendoFoto.set(false);
-        this.errorMsg.set('Error al actualizar la foto');
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+      this.subiendoFoto.set(true);
+      this.errorMsg.set(null);
+
+      this.authService.subirFotoMultipart(archivoLimpio).subscribe({
+        next: (usuarioActualizado: User) => {
+          this.subiendoFoto.set(false);
+          this.previsualizacion.set(null);
+          this.exitoMsg.set('Foto actualizada correctamente');
+          setTimeout(() => this.exitoMsg.set(null), 3000);
+          this.authService.usuario.set(usuarioActualizado);
+          this.personalizacionStore.recargar();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.subiendoFoto.set(false);
+          this.errorMsg.set('Error al actualizar la foto');
+          setTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
+    } catch (error) {
+      console.error('Error al procesar imagen:', error);
+      this.errorMsg.set('Error al procesar la imagen');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+    } finally {
+      input.value = '';
+    }
   }
 
   toggleEditar(): void {

@@ -127,21 +127,70 @@
                     <div class="result-bio">{{ user.bio }}</div>
                   }
                 </div>
-                <div class="result-actions">
-                  @if (solicitudEnviada() === user.id) {
-                    <button class="result-btn solicitud-enviada" disabled>Solicitud enviada</button>
-                  } @else {
-                    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">Ver perfil</button>
-                    <button class="result-btn send-message" (click)="enviarMensaje(user.id)">Mensaje</button>
-                    <button class="result-btn add-friend" (click)="enviarSolicitud(user.id)" [disabled]="enviandoSolicitud()">
-                      @if (enviandoSolicitud()) {
-                        <span class="spinner-mini-btn"></span>
-                      } @else {
-                        Agregar
-                      }
-                    </button>
-                  }
-                </div>
+          <div class="result-actions">
+
+  <!-- ✅ ES MI PROPIO PERFIL -->
+  @if (esMiPropioPerfil(user.id)) {
+    <span class="result-badge result-badge--yo">Tú</span>
+    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+      Ver mi perfil
+    </button>
+  }
+
+  <!-- ✅ YA ES CONTACTO -->
+  @else if (sonContactos(user.id)) {
+    <span class="result-badge result-badge--contacto">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Contacto
+    </span>
+    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+      Ver perfil
+    </button>
+    <button class="result-btn send-message" (click)="enviarMensaje(user.id)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Mensaje
+    </button>
+  }
+
+  <!-- ✅ YA ENVIÉ SOLICITUD -->
+  @else if (yaEnvieSolicitud(user.id)) {
+    <span class="result-badge result-badge--pendiente">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Solicitud enviada
+    </span>
+    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+      Ver perfil
+    </button>
+  }
+
+  <!-- ✅ DESCONOCIDO: mostrar botón agregar -->
+  @else {
+    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+      Ver perfil
+    </button>
+    <button class="result-btn add-friend"
+            (click)="enviarSolicitud(user.id)"
+            [disabled]="enviandoSolicitud()">
+      @if (enviandoSolicitud()) {
+        <span class="spinner-mini-btn"></span>
+      } @else {
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Agregar
+      }
+    </button>
+  }
+
+</div>
               </div>
             }
           </div>
