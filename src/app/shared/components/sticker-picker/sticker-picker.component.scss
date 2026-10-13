@@ -1,0 +1,51 @@
+.sticker-item {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 4px;
+  background: var(--bg-input, #161b22);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  &:hover {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.06));
+    border-color: var(--primary, #2dd4bf);
+    transform: translateY(-1px);
+  }
+
+  &:active { transform: scale(0.96); }
+}
+
+.sticker-btn-crear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: 1px dashed var(--border, #26313c);
+  border-radius: 10px;
+  color: var(--text-secondary, #8b98a5);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--primary, #2dd4bf);
+    color: var(--primary, #2dd4bf);
+    background: rgba(45, 212, 191, 0.06);
+  }
+}

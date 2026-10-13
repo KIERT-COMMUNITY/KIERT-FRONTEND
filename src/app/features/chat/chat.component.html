@@ -439,6 +439,13 @@
                 }
 
                 <div class="msg__body">
+                  <!-- ✅ STICKER -->
+                  @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
+                    <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
+                      <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
+                    </div>
+                  }
+
                   <!-- ARCHIVOS DEL MENSAJE -->
                   @if (msg.archivos && msg.archivos.length > 0) {
                     <div class="msg__files">
@@ -460,8 +467,8 @@
                     </div>
                   }
 
-                  <!-- TEXTO -->
-                  @if (msg.contenido) {
+                  <!-- ✅ TEXTO -->
+                  @if (msg.contenido && msg.tipoMensaje !== 'STICKER') {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }
 
@@ -499,6 +506,20 @@
           <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden>
         </label>
 
+        <!-- BOTÓN STICKERS -->
+        <button type="button"
+                class="chat-input__sticker"
+                (click)="toggleStickerPicker()"
+                title="Stickers">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
+            <path d="M15 3v6h6"/>
+            <circle cx="9" cy="13" r="1.2"/>
+            <circle cx="14" cy="13" r="1.2"/>
+            <path d="M9 17c1.5 1 4.5 1 6 0"/>
+          </svg>
+        </button>
+
         <input
           formControlName="contenido"
           type="text"
@@ -519,6 +540,15 @@
           }
         </button>
       </form>
+
+      <!-- PANEL DE STICKERS -->
+      @if (mostrarStickerPicker()) {
+        <kiert-sticker-picker
+          (stickerSeleccionado)="onStickerSeleccionado($event)"
+          (cerrar)="mostrarStickerPicker.set(false)"
+          (abrirCrearSticker)="abrirCrearSticker()">
+        </kiert-sticker-picker>
+      }
     }
 
     <!-- ===== CHAT DE GRUPO ===== -->
@@ -625,9 +655,19 @@
                   @if (!msg.propio) {
                     <span class="msg__author">{{ msg.emisorNombre }}</span>
                   }
-                  @if (msg.contenido) {
+
+                  <!-- ✅ STICKER -->
+                  @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
+                    <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
+                      <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
+                    </div>
+                  }
+
+                  <!-- ✅ TEXTO -->
+                  @if (msg.contenido && msg.tipoMensaje !== 'STICKER') {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }
+
                   <span class="msg__time">{{ msg.fechaEnvio | date:'HH:mm' }}</span>
                 </div>
               </div>
@@ -643,6 +683,20 @@
           </svg>
           <input type="file" multiple hidden>
         </label>
+
+        <!-- BOTÓN STICKERS GRUPO -->
+        <button type="button"
+                class="chat-input__sticker"
+                (click)="toggleStickerPickerGrupo()"
+                title="Stickers">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
+            <path d="M15 3v6h6"/>
+            <circle cx="9" cy="13" r="1.2"/>
+            <circle cx="14" cy="13" r="1.2"/>
+            <path d="M9 17c1.5 1 4.5 1 6 0"/>
+          </svg>
+        </button>
 
         <input
           formControlName="contenido"
@@ -664,6 +718,15 @@
           }
         </button>
       </form>
+
+      <!-- PANEL DE STICKERS GRUPO -->
+      @if (mostrarStickerPickerGrupo()) {
+        <kiert-sticker-picker
+          (stickerSeleccionado)="onStickerSeleccionadoGrupo($event)"
+          (cerrar)="mostrarStickerPickerGrupo.set(false)"
+          (abrirCrearSticker)="abrirCrearSticker()">
+        </kiert-sticker-picker>
+      }
     }
 
   </main>

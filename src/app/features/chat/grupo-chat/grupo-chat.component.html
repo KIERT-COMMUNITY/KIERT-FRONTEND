@@ -450,23 +450,33 @@
                       <span class="msg__author">{{ msg.emisorNombre }}</span>
                     }
 
-                    @if (msg.urlArchivo && esImagen(msg.nombreArchivo)) {
-                      <div class="msg__img" (click)="abrirArchivo(msg.urlArchivo)">
-                        <img [src]="msg.urlArchivo" [alt]="msg.nombreArchivo" loading="lazy">
+                    <!-- ✅ STICKER -->
+                    @if (msg.tipoMensaje === 'STICKER' && (msg.stickerUrl || msg.urlArchivo)) {
+                      <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl || msg.urlArchivo!)">
+                        <img [src]="msg.stickerUrl || msg.urlArchivo" [alt]="'sticker'" loading="lazy">
                       </div>
                     }
 
-                    @if (msg.urlArchivo && !esImagen(msg.nombreArchivo)) {
+                    <!-- Imagen -->
+                    @if (msg.urlArchivo && msg.tipoMensaje !== 'STICKER' && esImagen(msg.nombreArchivo || '')) {
+                      <div class="msg__img" (click)="abrirArchivo(msg.urlArchivo)">
+                        <img [src]="msg.urlArchivo" [alt]="msg.nombreArchivo || 'imagen'" loading="lazy">
+                      </div>
+                    }
+
+                    <!-- Archivo -->
+                    @if (msg.urlArchivo && msg.tipoMensaje !== 'STICKER' && !esImagen(msg.nombreArchivo || '')) {
                       <button class="msg__file" (click)="abrirArchivo(msg.urlArchivo)">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                           <polyline points="14 2 14 8 20 8"/>
                         </svg>
-                        <span>{{ msg.nombreArchivo }}</span>
+                        <span>{{ msg.nombreArchivo || 'Archivo' }}</span>
                       </button>
                     }
 
-                    @if (msg.contenido) {
+                    <!-- Texto -->
+                    @if (msg.contenido && msg.tipoMensaje !== 'STICKER') {
                       <div class="msg__bubble">{{ msg.contenido }}</div>
                     }
 
@@ -504,6 +514,20 @@
           <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden>
         </label>
 
+        <!-- ✅ BOTÓN STICKERS -->
+        <button type="button"
+                class="chat-input__sticker"
+                (click)="toggleStickerPicker()"
+                title="Stickers">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
+            <path d="M15 3v6h6"/>
+            <circle cx="9" cy="13" r="1.2"/>
+            <circle cx="14" cy="13" r="1.2"/>
+            <path d="M9 17c1.5 1 4.5 1 6 0"/>
+          </svg>
+        </button>
+
         <input
           formControlName="contenido"
           type="text"
@@ -524,6 +548,15 @@
           }
         </button>
       </form>
+
+      <!-- ✅ PANEL DE STICKERS -->
+      @if (mostrarStickerPicker()) {
+        <kiert-sticker-picker
+          (stickerSeleccionado)="onStickerSeleccionado($event)"
+          (cerrar)="mostrarStickerPicker.set(false)"
+          (abrirCrearSticker)="abrirCrearSticker()">
+        </kiert-sticker-picker>
+      }
     }
 
   </main>

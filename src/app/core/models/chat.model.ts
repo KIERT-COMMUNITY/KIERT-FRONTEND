@@ -9,7 +9,7 @@ export interface Conversacion {
   ultimoMensajeFecha?: string | null;
   noLeidos: number;
   online?: boolean;
-  ultimaConexion?: string | null;   //fecha real de desconexión
+  ultimaConexion?: string | null;
 }
 
 export interface MensajeArchivo {
@@ -29,6 +29,12 @@ export interface Mensaje {
   propio: boolean;
   leido?: boolean;
   archivos?: MensajeArchivo[];
+
+  // ✅ Stickers
+  tipoMensaje?: string | null;    // "TEXTO" | "STICKER" | "imagen" | ...
+  stickerId?: number | null;
+  stickerUrl?: string | null;
+  stickerNombre?: string | null;
 }
 
 export interface SolicitudContacto {

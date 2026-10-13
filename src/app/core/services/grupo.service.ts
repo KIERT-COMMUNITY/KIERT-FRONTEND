@@ -14,8 +14,8 @@ export interface MiembroGrupo {
   estado: string;
   fechaUnion: string;
   invitadoPor: string;
-  enLinea: boolean;               // ✅ NUEVO
-  ultimaConexion: string | null;  // ✅ NUEVO
+  enLinea: boolean;
+  ultimaConexion: string | null;
 }
 
 export interface GrupoHistorial {
@@ -59,11 +59,16 @@ export interface MensajeGrupo {
   emisorNombre: string;
   emisorFoto: string;
   contenido: string;
-  tipoMensaje: string;
-  urlArchivo: string;
-  nombreArchivo: string;
+  tipoMensaje: string;              // "TEXTO" | "SISTEMA" | "STICKER" | ...
+  urlArchivo: string | null;
+  nombreArchivo: string | null;
   fechaEnvio: string;
   propio: boolean;
+
+  // ✅ NUEVOS CAMPOS PARA STICKERS
+  stickerId?: number | null;
+  stickerUrl?: string | null;
+  stickerNombre?: string | null;
 }
 
 export interface InvitacionGrupo {
@@ -178,14 +183,32 @@ export class GrupoService {
   }
 
   enviarMensaje(grupoId: number, contenido: string): Observable<MensajeGrupo> {
-    return this.http.post<MensajeGrupo>(`${this.baseUrl}/${grupoId}/mensajes`, { contenido });
+    return this.http.post<MensajeGrupo>(
+      `${this.baseUrl}/${grupoId}/mensajes`,
+      { contenido }
+    );
   }
 
-  enviarMensajeConArchivo(grupoId: number, contenido: string, archivo: File): Observable<MensajeGrupo> {
+  enviarMensajeConArchivo(
+    grupoId: number,
+    contenido: string,
+    archivo: File
+  ): Observable<MensajeGrupo> {
     const formData = new FormData();
     if (contenido) formData.append('contenido', contenido);
     formData.append('archivo', archivo);
-    return this.http.post<MensajeGrupo>(`${this.baseUrl}/${grupoId}/mensajes/con-archivo`, formData);
+    return this.http.post<MensajeGrupo>(
+      `${this.baseUrl}/${grupoId}/mensajes/con-archivo`,
+      formData
+    );
+  }
+
+  // ===== ✅ STICKERS =====
+  enviarSticker(grupoId: number, stickerId: number): Observable<MensajeGrupo> {
+    return this.http.post<MensajeGrupo>(
+      `${this.baseUrl}/${grupoId}/mensajes/sticker`,
+      { stickerId }
+    );
   }
 
   // ===== FOTO DEL GRUPO =====
@@ -199,17 +222,32 @@ export class GrupoService {
     return this.http.delete<Grupo>(`${this.baseUrl}/${grupoId}/foto`);
   }
 
-  actualizarInfoGrupo(grupoId: number, nombre?: string, descripcion?: string): Observable<Grupo> {
-    return this.http.patch<Grupo>(`${this.baseUrl}/${grupoId}/info`, { nombre, descripcion });
+  actualizarInfoGrupo(
+    grupoId: number,
+    nombre?: string,
+    descripcion?: string
+  ): Observable<Grupo> {
+    return this.http.patch<Grupo>(
+      `${this.baseUrl}/${grupoId}/info`,
+      { nombre, descripcion }
+    );
   }
 
   // ===== INVITACIONES POR LINK =====
-  generarLinkInvitacion(grupoId: number, dto: CrearInvitacionLink): Observable<InvitacionLink> {
-    return this.http.post<InvitacionLink>(`${this.baseUrl}/${grupoId}/invitacion-link`, dto);
+  generarLinkInvitacion(
+    grupoId: number,
+    dto: CrearInvitacionLink
+  ): Observable<InvitacionLink> {
+    return this.http.post<InvitacionLink>(
+      `${this.baseUrl}/${grupoId}/invitacion-link`,
+      dto
+    );
   }
 
   listarLinksInvitacion(grupoId: number): Observable<InvitacionLink[]> {
-    return this.http.get<InvitacionLink[]>(`${this.baseUrl}/${grupoId}/invitacion-link`);
+    return this.http.get<InvitacionLink[]>(
+      `${this.baseUrl}/${grupoId}/invitacion-link`
+    );
   }
 
   desactivarLink(linkId: number): Observable<any> {
@@ -221,6 +259,9 @@ export class GrupoService {
   }
 
   unirseConLink(token: string): Observable<Grupo> {
-    return this.http.post<Grupo>(`${this.baseUrl}/invitacion/${token}/unirse`, {});
+    return this.http.post<Grupo>(
+      `${this.baseUrl}/invitacion/${token}/unirse`,
+      {}
+    );
   }
 }

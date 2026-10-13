@@ -219,4 +219,10 @@ export class ChatService {
 
     return formData;
   }
+  enviarSticker(receptorId: number, stickerId: number): Observable<Mensaje> {
+  return this.http.post<Mensaje>(
+    `${environment.apiUrl}/chat/${receptorId}/sticker`,
+    { stickerId }
+  );
+}
 }

@@ -11,10 +11,12 @@ import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { Conversacion, SolicitudContacto } from '../../../core/models/chat.model';
+import { Sticker } from '../../../core/models/sticker.model';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { CrearGrupoModalComponent } from '../../../shared/components/crear-grupo-modal/crear-grupo-modal.component';
 import { InvitarLinkModalComponent } from '../../../shared/components/invitacion-modal/invitar-link-modal.component';
 import { GrupoInfoModalComponent } from '../../../shared/components/grupo-info-modal/grupo-info-modal.component';
+import { StickerPickerComponent } from '../../../shared/components/sticker-picker/sticker-picker.component';
 
 type TabTipo = 'chats' | 'grupos';
 
@@ -27,7 +29,8 @@ type TabTipo = 'chats' | 'grupos';
     AvatarFrameComponent,
     CrearGrupoModalComponent,
     InvitarLinkModalComponent,
-    GrupoInfoModalComponent
+    GrupoInfoModalComponent,
+    StickerPickerComponent   // ✅ NUEVO
   ],
   templateUrl: './grupo-chat.component.html',
   styleUrl: './grupo-chat.component.scss'
@@ -70,6 +73,9 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   mostrarMiembros = signal(false);
   mostrarInvitarLink = signal(false);
   mostrarInfoGrupo = signal(false);
+
+  // ===== ✅ STICKERS =====
+  mostrarStickerPicker = signal(false);
 
   // ===== BÚSQUEDA =====
   busqueda = signal<string>('');
@@ -515,7 +521,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.cerrarConfirmExpulsar();
         this.exitoMsg.set(`@${miembro.nombreUsuario} expulsado del grupo`);
         setTimeout(() => this.exitoMsg.set(null), 3000);
-        // ✅ Recargar mensajes para ver el mensaje de sistema
         this.cargarMensajes(grupoId);
       },
       error: (err) => {
@@ -557,16 +562,46 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return ext.some(e => nombre.toLowerCase().endsWith(e));
   }
 
-  /**
-   * ✅ NUEVO: Detecta si un mensaje es de tipo SISTEMA
-   * (unirse, salir, expulsar, cambio de foto, etc.)
-   */
   esMensajeSistema(msg: MensajeGrupo): boolean {
     return msg.tipoMensaje === 'SISTEMA';
   }
 
   abrirArchivo(url: string): void {
     window.open(url, '_blank');
+  }
+
+  // ============================================================
+  // ✅ STICKERS
+  // ============================================================
+  toggleStickerPicker(): void {
+    this.mostrarStickerPicker.update(v => !v);
+  }
+
+  onStickerSeleccionado(sticker: Sticker): void {
+    const grupoId = this.grupoSeleccionado();
+    if (!grupoId) return;
+
+    this.mostrarStickerPicker.set(false);
+    this.enviando.set(true);
+
+    this.grupoService.enviarSticker(grupoId, sticker.id).subscribe({
+      next: (msg: MensajeGrupo) => {
+        this.mensajes.update(lista => [...lista, msg]);
+        this.enviando.set(false);
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (err: any) => {
+        this.enviando.set(false);
+        const mensaje = err?.error?.error || err?.error?.mensaje || 'Error al enviar sticker';
+        this.errorMsg.set(mensaje);
+        setTimeout(() => this.errorMsg.set(null), 4000);
+      }
+    });
+  }
+
+  abrirCrearSticker(): void {
+    this.mostrarStickerPicker.set(false);
+    this.router.navigate(['/stickers/crear']);
   }
 
   // ============================================================

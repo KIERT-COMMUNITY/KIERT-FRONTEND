@@ -24,8 +24,10 @@ import {
   MensajeArchivo,
   UsuarioDisponible
 } from '../../core/models/chat.model';
+import { Sticker } from '../../core/models/sticker.model';
 import { AvatarFrameComponent } from '../../shared/components/avatar-frame/avatar-frame.component';
 import { CrearGrupoModalComponent } from '../../shared/components/crear-grupo-modal/crear-grupo-modal.component';
+import { StickerPickerComponent } from '../../shared/components/sticker-picker/sticker-picker.component';
 
 type TabTipo = 'chats' | 'grupos';
 
@@ -36,7 +38,8 @@ type TabTipo = 'chats' | 'grupos';
     CommonModule,
     ReactiveFormsModule,
     AvatarFrameComponent,
-    CrearGrupoModalComponent
+    CrearGrupoModalComponent,
+    StickerPickerComponent
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
@@ -80,6 +83,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   solicitudesExpandidas = signal(false);
   mostrarModalGrupo = signal(false);
   mostrarMiembros = signal(false);
+
+  // ===== STICKERS =====
+  mostrarStickerPicker = signal(false);
+  mostrarStickerPickerGrupo = signal(false);
 
   // ===== BÚSQUEDA =====
   busqueda = signal<string>('');
@@ -257,12 +264,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    // ✅ Polling cada 8 s para ver cambios online/offline más rápido
+    // Polling cada 8 s para ver cambios online/offline más rápido
     this.pollingInterval = setInterval(() => {
       this.actualizarConversacionesYContadores();
     }, 8000);
 
-    // ✅ Refrescar al volver a la pestaña
+    // Refrescar al volver a la pestaña
     document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
@@ -762,6 +769,68 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
+  // STICKERS
+  // ============================================================
+  toggleStickerPicker(): void {
+    this.mostrarStickerPicker.update(v => !v);
+  }
+
+  toggleStickerPickerGrupo(): void {
+    this.mostrarStickerPickerGrupo.update(v => !v);
+  }
+
+  onStickerSeleccionado(sticker: Sticker): void {
+    const receptorId = this.usuarioSeleccionado();
+    if (!receptorId) return;
+
+    this.mostrarStickerPicker.set(false);
+    this.enviando.set(true);
+
+    this.chatService.enviarSticker(receptorId, sticker.id).subscribe({
+      next: (nuevoMensaje) => {
+        this.mensajes.update(lista => [...lista, nuevoMensaje]);
+        this.enviando.set(false);
+        this.cargarConversaciones();
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (err) => {
+        this.enviando.set(false);
+        const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar sticker';
+        this.errorMsg.set(mensaje);
+        setTimeout(() => this.errorMsg.set(null), 4000);
+      }
+    });
+  }
+
+  onStickerSeleccionadoGrupo(sticker: Sticker): void {
+    const grupoId = this.grupoSeleccionado();
+    if (!grupoId) return;
+
+    this.mostrarStickerPickerGrupo.set(false);
+    this.enviandoGrupo.set(true);
+
+    this.grupoService.enviarSticker(grupoId, sticker.id).subscribe({
+      next: (msg) => {
+        this.mensajesGrupo.update(lista => [...lista, msg]);
+        this.enviandoGrupo.set(false);
+        setTimeout(() => this.scrollToBottomGrupo(), 100);
+      },
+      error: (err) => {
+        this.enviandoGrupo.set(false);
+        const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar sticker';
+        this.errorMsg.set(mensaje);
+        setTimeout(() => this.errorMsg.set(null), 4000);
+      }
+    });
+  }
+
+  abrirCrearSticker(): void {
+    this.mostrarStickerPicker.set(false);
+    this.mostrarStickerPickerGrupo.set(false);
+    this.router.navigate(['/stickers/crear']);
+  }
+
+  // ============================================================
   // ARCHIVOS
   // ============================================================
   onArchivosSeleccionados(event: Event): void {
@@ -832,23 +901,19 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return conv?.fotoPerfilUrl || null;
   }
 
-  // ============================================================
-  // MARCO DEL USUARIO
-  // ============================================================
   getMarcoUsuario(usuarioId: number): string {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.marcoId || 'none';
   }
 
   // ============================================================
-  // ✅ PARSEO UTC (arregla el bug de "en línea pero desconectado")
+  // PARSEO UTC
   // ============================================================
   private parsearFechaUtc(fecha: string | Date | null | undefined): Date | null {
     if (!fecha) return null;
     if (fecha instanceof Date) return fecha;
 
     const s = String(fecha);
-    // Si ya trae zona horaria (Z o +hh:mm), respetarla
     const tieneZona = /Z$|[+-]\d{2}:?\d{2}$/.test(s);
     return new Date(tieneZona ? s : s + 'Z');
   }
@@ -865,16 +930,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     if (!conv) return 'Desconocido';
 
-    // ✅ Primero comprobar ONLINE
     if (conv.online) return 'En línea';
 
-    // Si no hay última conexión, está desconectado sin datos
     const fecha = this.parsearFechaUtc(conv.ultimaConexion);
     if (!fecha) return 'Desconectado';
 
     const diffMs = Date.now() - fecha.getTime();
-
-    // Si la fecha está en el futuro (reloj desincronizado), tratarla como ahora
     if (diffMs < 0) return 'Últ. vez hace unos segundos';
 
     const diffMin = Math.floor(diffMs / 60000);
@@ -896,7 +957,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ESTADO DE MIEMBRO DE GRUPO
   // ============================================================
   getEstadoMiembro(m: MiembroGrupo): string {
-    // ✅ Primero comprobar ONLINE
     if (m.enLinea) return 'En línea';
 
     const fecha = this.parsearFechaUtc(m.ultimaConexion);
