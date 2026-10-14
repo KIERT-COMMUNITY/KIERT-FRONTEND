@@ -543,11 +543,10 @@
 
       <!-- PANEL DE STICKERS -->
       @if (mostrarStickerPicker()) {
-        <kiert-sticker-picker
-          (stickerSeleccionado)="onStickerSeleccionado($event)"
-          (cerrar)="mostrarStickerPicker.set(false)"
-          (abrirCrearSticker)="abrirCrearSticker()">
-        </kiert-sticker-picker>
+     <kiert-sticker-picker
+  (stickerSeleccionado)="onStickerSeleccionado($event)"
+  (cerrar)="mostrarStickerPicker.set(false)">
+</kiert-sticker-picker>
       }
     }
 

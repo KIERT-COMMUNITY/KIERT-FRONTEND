@@ -42,7 +42,6 @@ export class PerfilAutorComponent implements OnInit {
   enviandoSolicitud = signal(false);
   procesando = signal(false);
 
-  // ===== COMPATIBILIDAD CON HTML =====
   esContacto = computed(() => this.estadoContacto() === 'contacto');
   solicitudPendiente = computed(() =>
     this.estadoContacto() === 'pendiente-enviada' ||
@@ -63,7 +62,9 @@ export class PerfilAutorComponent implements OnInit {
   autorFotoPerfil = signal<string>('');
   autorFotoPortada = signal<string>('');
 
-  //  Fondo del perfil del autor (solo se aplica a la tarjeta)
+  // ============================================================
+  // FONDO DEL PERFIL DEL AUTOR
+  // ============================================================
   get fondoPerfilDelAutor(): string {
     const fondoId = this.autorFondoId();
     const fondos = this.personalizacionStore.fondos();
@@ -97,10 +98,34 @@ export class PerfilAutorComponent implements OnInit {
     };
   }
 
+  // ============================================================
+  // ✅ FOTO DEL AUTOR — Prioridad al USUARIO (fuente de verdad)
+  // ============================================================
   get fotoPerfilDelAutor(): string {
-    return this.autorFotoPerfil() || this.autor()?.fotoPerfilUrl || '';
+    const autor = this.autor();
+    if (!autor) return '';
+
+    // ✅ El usuario es la fuente de verdad
+    const fotoUsuario = autor.fotoPerfilUrl;
+
+    // Si el usuario tiene foto explícita, usarla
+    if (fotoUsuario && fotoUsuario.trim() !== '') {
+      return fotoUsuario;
+    }
+
+    // Si el usuario la eliminó (null), NO mostrar nada (inicial)
+    if (fotoUsuario === null) {
+      return '';
+    }
+
+    // Fallback: la foto de personalización (solo si usuario no tiene el campo)
+    const fotoPers = this.autorFotoPerfil();
+    return fotoPers || '';
   }
 
+  // ============================================================
+  // BORDES Y SOMBRAS DE MARCOS
+  // ============================================================
   getMarcoBorder(marcoId: string): string {
     const map: Record<string, string> = {
       'none': 'none',
@@ -151,6 +176,9 @@ export class PerfilAutorComponent implements OnInit {
     return map[marcoId] || 'none';
   }
 
+  // ============================================================
+  // CICLO DE VIDA
+  // ============================================================
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.params['id']);
     const usuarioActual = this.usuarioActual();
@@ -173,12 +201,23 @@ export class PerfilAutorComponent implements OnInit {
     this.verificarBloqueo(userId);
   }
 
+  // ============================================================
+  // ✅ CARGAR AUTOR (la foto del usuario es la fuente de verdad)
+  // ============================================================
   cargarAutor(userId: number): void {
     this.cargando.set(true);
     this.userService.obtenerUsuarioPorId(userId).subscribe({
       next: (user) => {
         this.autor.set(user);
-        if (user.fotoPerfilUrl) this.autorFotoPerfil.set(user.fotoPerfilUrl);
+
+        // ✅ Si el usuario tiene foto, usarla; si es null, dejar vacío
+        // (NO sobreescribir con la personalización)
+        if (user.fotoPerfilUrl) {
+          this.autorFotoPerfil.set(user.fotoPerfilUrl);
+        } else {
+          this.autorFotoPerfil.set('');
+        }
+
         this.cargando.set(false);
       },
       error: () => {
@@ -188,6 +227,9 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
+  // ============================================================
+  // ✅ CARGAR PERSONALIZACIÓN
+  // ============================================================
   cargarPersonalizacionAutor(userId: number): void {
     this.personalizacionService.obtenerPersonalizacionPorUsuario(userId).subscribe({
       next: (data: Personalizacion) => {
@@ -195,14 +237,20 @@ export class PerfilAutorComponent implements OnInit {
         this.autorTemaId.set(data?.temaId || 'default');
         this.autorMarcoId.set(data?.marcoId || 'none');
         this.autorFondoId.set(data?.fondoId || 'default');
-        if (data?.fotoPerfilUrl) this.autorFotoPerfil.set(data.fotoPerfilUrl);
+
+        // ⚠️ NO usar data.fotoPerfilUrl para autorFotoPerfil
+        // La foto del autor SIEMPRE viene del usuario (autor().fotoPerfilUrl)
+        // (Ya se asignó en cargarAutor)
+
         if (data?.fotoPortadaUrl) this.autorFotoPortada.set(data.fotoPortadaUrl);
       },
       error: () => this.autorPersonalizacion.set(null)
     });
   }
 
-  // ===== VERIFICAR CONTACTO =====
+  // ============================================================
+  // VERIFICAR CONTACTO
+  // ============================================================
   verificarEstadoContacto(userId: number): void {
     this.chatService.sonContactos(userId).subscribe({
       next: (res: any) => {
@@ -249,7 +297,9 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  // ===== BLOQUEO =====
+  // ============================================================
+  // BLOQUEO
+  // ============================================================
   verificarBloqueo(userId: number): void {
     this.bloqueoService.verificarEstado(userId).subscribe({
       next: (estado) => {
@@ -294,7 +344,9 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  // ===== ACCIONES DE CONTACTO =====
+  // ============================================================
+  // ACCIONES DE CONTACTO
+  // ============================================================
   enviarSolicitud(): void {
     const autorId = this.autor()?.id;
     if (!autorId) return;

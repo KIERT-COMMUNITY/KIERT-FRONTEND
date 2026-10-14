@@ -35,6 +35,10 @@ export class ProfileComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
 
+  // ===== ✅ ELIMINAR FOTO =====
+  mostrarConfirmEliminarFoto = signal(false);
+  eliminandoFoto = signal(false);
+
   // ===== ESTADÍSTICAS =====
   totalPosts = signal(0);
   totalBloqueados = signal(0);
@@ -124,9 +128,9 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  /**
-   * ✅ Sube la foto de perfil DESPUÉS de limpiar metadatos EXIF.
-   */
+  // ============================================================
+  // SUBIR FOTO DE PERFIL
+  // ============================================================
   async onFotoSeleccionada(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     const archivoOriginal = input.files?.[0];
@@ -147,10 +151,8 @@ export class ProfileComponent implements OnInit {
     }
 
     try {
-      // ✅ Limpiar metadatos EXIF y recortar a cuadrado
       const archivoLimpio = await this.imageSanitizer.limpiarFotoPerfil(archivoOriginal);
 
-      // Previsualización con el archivo limpio
       const lector = new FileReader();
       lector.onload = () => this.previsualizacion.set(lector.result as string);
       lector.readAsDataURL(archivoLimpio);
@@ -183,6 +185,44 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  // ============================================================
+  // ✅ ELIMINAR FOTO DE PERFIL
+  // ============================================================
+  abrirConfirmEliminarFoto(): void {
+    this.mostrarConfirmEliminarFoto.set(true);
+  }
+
+  cerrarConfirmEliminarFoto(): void {
+    if (this.eliminandoFoto()) return;
+    this.mostrarConfirmEliminarFoto.set(false);
+  }
+
+  confirmarEliminarFoto(): void {
+    this.eliminandoFoto.set(true);
+    this.errorMsg.set(null);
+
+    this.authService.eliminarFotoPerfil().subscribe({
+      next: (usuarioActualizado: User) => {
+        this.eliminandoFoto.set(false);
+        this.mostrarConfirmEliminarFoto.set(false);
+        this.authService.usuario.set(usuarioActualizado);
+        this.exitoMsg.set('Foto de perfil eliminada');
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.eliminandoFoto.set(false);
+        this.mostrarConfirmEliminarFoto.set(false);
+        const mensaje = err?.error?.error || err?.error?.mensaje || 'Error al eliminar la foto';
+        this.errorMsg.set(mensaje);
+        setTimeout(() => this.errorMsg.set(null), 4000);
+      }
+    });
+  }
+
+  // ============================================================
+  // EDITAR PERFIL
+  // ============================================================
   toggleEditar(): void {
     this.editando.set(!this.editando());
     if (this.editando()) {

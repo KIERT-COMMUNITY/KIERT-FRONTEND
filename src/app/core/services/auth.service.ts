@@ -15,7 +15,6 @@ export class AuthService {
   usuario: WritableSignal<User | null> = signal<User | null>(null);
   token: WritableSignal<string | null> = signal<string | null>(null);
 
-  // ✅ NUEVO: notifica cuando el usuario cambia (login/logout)
   private readonly sesionCambiadaSubject = new Subject<boolean>();
   readonly sesionCambiada$ = this.sesionCambiadaSubject.asObservable();
 
@@ -35,8 +34,6 @@ export class AuthService {
         const usuario = JSON.parse(usuarioStr);
         this.token.set(token);
         this.usuario.set(usuario);
-
-        // ✅ Avisar que hay sesión activa
         queueMicrotask(() => this.sesionCambiadaSubject.next(true));
       } catch {
         this.limpiarSesion();
@@ -49,8 +46,6 @@ export class AuthService {
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
     this.token.set(token);
     this.usuario.set(usuario);
-
-    // ✅ Avisar login
     this.sesionCambiadaSubject.next(true);
   }
 
@@ -59,8 +54,6 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY);
     this.token.set(null);
     this.usuario.set(null);
-
-    // ✅ Avisar logout
     this.sesionCambiadaSubject.next(false);
   }
 
@@ -105,6 +98,9 @@ export class AuthService {
     );
   }
 
+  // ============================================================
+  // SUBIR FOTO
+  // ============================================================
   subirFotoMultipart(archivo: File): Observable<User> {
     const formData = new FormData();
     formData.append('archivo', archivo);
@@ -125,6 +121,18 @@ export class AuthService {
     );
   }
 
+  // ============================================================
+  // ✅ NUEVO: ELIMINAR FOTO DE PERFIL
+  // ============================================================
+  eliminarFotoPerfil(): Observable<User> {
+    return this.http.delete<User>(`${this.API_URL}/perfil/foto`).pipe(
+      tap((usuario) => {
+        this.usuario.set(usuario);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+      })
+    );
+  }
+
   actualizarPerfil(datos: { nombreUsuario?: string; email?: string }): Observable<User> {
     return this.http.patch<User>(`${this.API_URL}/perfil`, datos).pipe(
       tap((usuario) => {
@@ -136,7 +144,7 @@ export class AuthService {
 
   logout(): void {
     const token = this.token();
-    this.limpiarSesion();   // ✅ dispara sesionCambiada$(false)
+    this.limpiarSesion();
 
     if (token) {
       this.http.post(`${this.API_URL}/auth/logout`, {}).subscribe({

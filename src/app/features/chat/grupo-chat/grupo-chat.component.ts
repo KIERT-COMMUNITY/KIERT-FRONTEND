@@ -1,4 +1,4 @@
-// src/app/features/chat/grupo-chat.component.ts
+// src/app/features/chat/grupo-chat/grupo-chat.component.ts
 import {
   Component, OnInit, OnDestroy, signal, inject,
   ViewChild, ElementRef, AfterViewChecked, computed
@@ -30,7 +30,7 @@ type TabTipo = 'chats' | 'grupos';
     CrearGrupoModalComponent,
     InvitarLinkModalComponent,
     GrupoInfoModalComponent,
-    StickerPickerComponent   // ✅ NUEVO
+    StickerPickerComponent
   ],
   templateUrl: './grupo-chat.component.html',
   styleUrl: './grupo-chat.component.scss'
@@ -74,7 +74,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   mostrarInvitarLink = signal(false);
   mostrarInfoGrupo = signal(false);
 
-  // ===== ✅ STICKERS =====
+  // ===== STICKERS =====
   mostrarStickerPicker = signal(false);
 
   // ===== BÚSQUEDA =====
@@ -104,7 +104,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // COMPUTED DE BÚSQUEDA
+  // COMPUTED
   // ============================================================
   conversacionesFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
@@ -127,7 +127,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         || this.gruposFiltrados().length > 0;
   });
 
-  // ===== AGRUPACIÓN POR FECHA =====
   mensajesAgrupados = computed(() => {
     const grupos: { [key: string]: MensajeGrupo[] } = {};
     const hoy = new Date();
@@ -599,9 +598,12 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
+  /**
+   * ✅ El modal de crear sticker vive dentro de <kiert-sticker-picker>.
+   * NO navegamos: el propio picker abre el modal internamente.
+   */
   abrirCrearSticker(): void {
-    this.mostrarStickerPicker.set(false);
-    this.router.navigate(['/stickers/crear']);
+    // No hacer nada: el modal vive dentro del picker.
   }
 
   // ============================================================

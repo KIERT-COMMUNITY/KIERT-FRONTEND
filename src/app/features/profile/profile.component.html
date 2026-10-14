@@ -46,11 +46,10 @@
     </div>
   }
 
-  <!-- ===== TARJETA PRINCIPAL (solo aquí va el fondo de perfil) ===== -->
-  <div class="profile-card"
-       [class]="'fondo-' + personalizacionStore.fondoId()">
+  <!-- ===== TARJETA PRINCIPAL ===== -->
+  <div class="profile-card" [class]="'fondo-' + personalizacionStore.fondoId()">
 
-    <!-- ===== SECCIÓN AVATAR (solo aquí va el marco) ===== -->
+    <!-- ===== SECCIÓN AVATAR ===== -->
     <section class="profile-avatar-section">
       <div class="profile-avatar-wrapper">
         <div class="profile-avatar"
@@ -80,14 +79,32 @@
         }
       </div>
 
-      <label class="btn-upload" [class.disabled]="subiendoFoto()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-        <span>{{ subiendoFoto() ? 'Subiendo...' : 'Cambiar foto' }}</span>
-        <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden [disabled]="subiendoFoto()">
-      </label>
+      <!-- ✅ BOTONES DE FOTO -->
+      <div class="profile-avatar-buttons">
+
+        <label class="btn-upload" [class.disabled]="subiendoFoto()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          <span>{{ subiendoFoto() ? 'Subiendo...' : (fotoPerfil() ? 'Cambiar foto' : 'Subir foto') }}</span>
+          <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden [disabled]="subiendoFoto()">
+        </label>
+
+        <!-- ✅ Botón eliminar foto (solo si tiene foto) -->
+        @if (fotoPerfil() && !subiendoFoto()) {
+          <button type="button"
+                  class="btn-delete-photo"
+                  (click)="abrirConfirmEliminarFoto()"
+                  title="Eliminar foto de perfil">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            <span>Eliminar foto</span>
+          </button>
+        }
+      </div>
     </section>
 
     <!-- ===== SECCIÓN INFO ===== -->
@@ -203,3 +220,47 @@
 
   </div>
 </div>
+
+<!-- ✅ MODAL CONFIRMAR ELIMINAR FOTO -->
+@if (mostrarConfirmEliminarFoto()) {
+  <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminarFoto()">
+    <div class="confirm-delete-card" (click)="$event.stopPropagation()">
+
+      <div class="confirm-delete-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+      </div>
+
+      <h3>¿Eliminar foto de perfil?</h3>
+      <p>Tu foto se eliminará permanentemente de Cloudinary.</p>
+      <p class="confirm-delete-warn">
+        Esta acción no se puede deshacer.
+      </p>
+
+      <div class="confirm-delete-preview">
+        <img [src]="fotoPerfil()!" alt="Foto actual">
+      </div>
+
+      <div class="confirm-delete-actions">
+        <button class="btn-secondary"
+                (click)="cerrarConfirmEliminarFoto()"
+                [disabled]="eliminandoFoto()">
+          Cancelar
+        </button>
+        <button class="btn-danger"
+                (click)="confirmarEliminarFoto()"
+                [disabled]="eliminandoFoto()">
+          @if (eliminandoFoto()) {
+            <div class="spinner-mini"></div>
+            Eliminando...
+          } @else {
+            Eliminar
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

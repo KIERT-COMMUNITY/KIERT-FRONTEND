@@ -823,13 +823,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
   }
-
-  abrirCrearSticker(): void {
-    this.mostrarStickerPicker.set(false);
-    this.mostrarStickerPickerGrupo.set(false);
-    this.router.navigate(['/stickers/crear']);
-  }
-
+abrirCrearSticker(): void {
+  // ✅ El modal vive dentro de <kiert-sticker-picker>.
+  // No hacemos nada aquí: el propio picker abre el modal internamente.
+  // (Dejamos el método para compatibilidad con el Output.)
+}
   // ============================================================
   // ARCHIVOS
   // ============================================================

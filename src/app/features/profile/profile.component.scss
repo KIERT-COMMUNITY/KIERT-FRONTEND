@@ -856,3 +856,189 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 0.01ms !important;
   }
 }
+// ============================================================
+// BOTONES DE FOTO (cambiar + eliminar)
+// ============================================================
+.profile-avatar-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-delete-photo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.55rem 1.5rem;
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+  border-radius: 30px;
+  color: #f85149 !important;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  backdrop-filter: blur(4px);
+  font-family: inherit;
+
+  svg { flex-shrink: 0; }
+
+  &:hover {
+    background: rgba(248, 81, 73, 0.15);
+    border-color: rgba(248, 81, 73, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(248, 81, 73, 0.15);
+  }
+
+  &:active { transform: scale(0.96); }
+}
+
+// ============================================================
+// MODAL CONFIRMAR ELIMINAR
+// ============================================================
+.confirm-delete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10001;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.confirm-delete-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-app, #0d1117);
+  border: 1px solid var(--border, #26313c);
+  border-radius: 18px;
+  padding: 28px 24px 24px;
+  text-align: center;
+  animation: slideUp 0.25s ease;
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary, #e6edf3);
+  }
+
+  p {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary, #8b98a5);
+  }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.confirm-delete-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  background: rgba(248, 81, 73, 0.12);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+  border-radius: 50%;
+  color: var(--danger, #f85149);
+}
+
+.confirm-delete-warn {
+  font-size: 0.78rem !important;
+  color: var(--danger, #f85149) !important;
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.15);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 12px !important;
+}
+
+.confirm-delete-preview {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 20px;
+
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: var(--bg-input, #161b22);
+    border: 2px solid var(--border, #26313c);
+    padding: 4px;
+  }
+}
+
+.confirm-delete-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+
+  button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-secondary, #8b98a5);
+    border: 1px solid var(--border, #26313c);
+
+    &:hover:not(:disabled) {
+      background: var(--bg-hover, rgba(255, 255, 255, 0.06));
+      color: var(--text-primary, #e6edf3);
+    }
+  }
+
+  .btn-danger {
+    background: var(--danger, #f85149);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #d63031;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(248, 81, 73, 0.35);
+    }
+  }
+}
+
+.spinner-mini {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}

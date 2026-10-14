@@ -60,15 +60,7 @@ export const routes: Routes = [
         canActivate: [authGuard]
       },
 
-      // ===== DOCUMENTOS =====
-      { 
-        path: 'documentos', 
-        loadComponent: () => import('./features/documentos/documentos.component').then(m => m.DocumentosComponent)
-      },
-      { 
-        path: 'documentos/categoria/:categoria', 
-        loadComponent: () => import('./features/documentos/documentos.component').then(m => m.DocumentosComponent)
-      },
+    
 
       // ===== BIBLIOTECA =====
       { 

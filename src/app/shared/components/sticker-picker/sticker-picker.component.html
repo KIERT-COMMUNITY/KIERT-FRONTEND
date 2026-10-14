@@ -1,3 +1,6 @@
+<!-- src/app/shared/components/sticker-picker/sticker-picker.component.html -->
+
+<!-- PANEL PRINCIPAL -->
 <div class="sticker-picker" (click)="$event.stopPropagation()">
 
   <div class="sticker-picker__header">
@@ -32,7 +35,7 @@
   </div>
 
   <div class="sticker-picker__body">
-    @if (stickersMostrados.length === 0) {
+    @if (stickersMostrados().length === 0) {
       <div class="sticker-picker__empty">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="3" y="3" width="18" height="18" rx="4"/>
@@ -49,10 +52,25 @@
       </div>
     } @else {
       <div class="sticker-grid">
-        @for (s of stickersMostrados; track s.id) {
-          <button class="sticker-item" (click)="seleccionar(s)" [title]="s.nombre">
-            <img [src]="s.urlImagen" [alt]="s.nombre" loading="lazy">
-          </button>
+        @for (s of stickersMostrados(); track s.id) {
+          <div class="sticker-item-wrapper">
+
+            <button class="sticker-item" (click)="seleccionar(s)" [title]="s.nombre">
+              <img [src]="s.urlImagen" [alt]="s.nombre" loading="lazy">
+            </button>
+
+            <!-- ✅ Botón eliminar (solo en "Mis stickers") -->
+            @if (tabActivo() === 'mios') {
+              <button class="sticker-item__delete"
+                      (click)="abrirConfirmEliminar(s, $event)"
+                      title="Eliminar sticker">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            }
+          </div>
         }
       </div>
     }
@@ -68,3 +86,160 @@
     </button>
   </div>
 </div>
+
+<!-- MODAL CREAR STICKER -->
+@if (mostrarModalCrear()) {
+  <div class="crear-sticker-overlay" (click)="cerrarModalCrear()">
+    <div class="crear-sticker-card" (click)="$event.stopPropagation()">
+
+      <div class="crear-sticker-header">
+        <h2>Nuevo sticker</h2>
+        <button class="btn-close" (click)="cerrarModalCrear()" [disabled]="guardando()" title="Cerrar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="crear-sticker-body">
+        <div class="preview-container">
+          @if (previewUrl()) {
+            <div class="preview-img-wrapper">
+              <img [src]="previewUrl()" alt="Preview del sticker">
+              <button class="btn-quitar" (click)="quitarArchivo()" [disabled]="guardando()" title="Quitar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          } @else {
+            <label class="upload-placeholder">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Sube una imagen</span>
+              <small>WEBP, PNG, GIF o JPG · Máx 1 MB</small>
+              <input type="file"
+                     accept="image/webp,image/png,image/gif,image/jpeg"
+                     (change)="onArchivoSeleccionado($event)"
+                     hidden>
+            </label>
+          }
+        </div>
+
+        <div class="field">
+          <label for="sticker-nombre">Nombre del sticker</label>
+          <input id="sticker-nombre"
+                 type="text"
+                 placeholder="Ej: Gatito feliz"
+                 [value]="nombreSticker()"
+                 (input)="nombreSticker.set($any($event.target).value)"
+                 maxlength="40"
+                 autocomplete="off"
+                 [disabled]="guardando()">
+        </div>
+
+        <div class="field field--checkbox">
+          <label class="checkbox-wrapper">
+            <input type="checkbox"
+                   [checked]="esPublico()"
+                   (change)="esPublico.set($any($event.target).checked)"
+                   [disabled]="guardando()">
+            <span class="checkbox-box"></span>
+            <span class="checkbox-label">
+              Hacer público
+              <small>Otros usuarios podrán usar este sticker</small>
+            </span>
+          </label>
+        </div>
+
+        @if (errorMsg()) {
+          <div class="modal-msg modal-msg--error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            {{ errorMsg() }}
+          </div>
+        }
+        @if (exitoMsg()) {
+          <div class="modal-msg modal-msg--success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ exitoMsg() }}
+          </div>
+        }
+      </div>
+
+      <div class="crear-sticker-footer">
+        <button class="btn-secondary" (click)="cerrarModalCrear()" [disabled]="guardando()">
+          Cancelar
+        </button>
+        <button class="btn-primary"
+                (click)="crearSticker()"
+                [disabled]="!puedeCrear">
+          @if (guardando()) {
+            <div class="spinner-mini"></div>
+            Creando...
+          } @else {
+            Crear sticker
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ✅ MODAL CONFIRMAR ELIMINAR -->
+@if (mostrarConfirmEliminar() && stickerAEliminar()) {
+  <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminar()">
+    <div class="confirm-delete-card" (click)="$event.stopPropagation()">
+
+      <div class="confirm-delete-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+      </div>
+
+      <h3>¿Eliminar sticker?</h3>
+      <p>
+        ¿Seguro que querés eliminar
+        <strong>"{{ stickerAEliminar()!.nombre }}"</strong>?
+      </p>
+      <p class="confirm-delete-warn">
+        El sticker se eliminará permanentemente de Cloudinary y ya no podrás usarlo.
+      </p>
+
+      <div class="confirm-delete-preview">
+        <img [src]="stickerAEliminar()!.urlImagen" [alt]="stickerAEliminar()!.nombre">
+      </div>
+
+      <div class="confirm-delete-actions">
+        <button class="btn-secondary"
+                (click)="cerrarConfirmEliminar()"
+                [disabled]="eliminando()">
+          Cancelar
+        </button>
+        <button class="btn-danger"
+                (click)="confirmarEliminar()"
+                [disabled]="eliminando()">
+          @if (eliminando()) {
+            <div class="spinner-mini"></div>
+            Eliminando...
+          } @else {
+            Eliminar
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
