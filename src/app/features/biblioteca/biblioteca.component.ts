@@ -1,5 +1,5 @@
 // src/app/features/biblioteca/biblioteca.component.ts
-import { Component, signal, computed, inject, OnInit, HostListener } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -14,7 +14,7 @@ import { PersonalizacionStore } from '../../core/services/personalizacion-store.
   templateUrl: './biblioteca.component.html',
   styleUrl: './biblioteca.component.scss'
 })
-export class BibliotecaComponent implements OnInit {
+export class BibliotecaComponent implements OnInit, OnDestroy {
   private bibliotecaService = inject(BibliotecaService);
   private sanitizer = inject(DomSanitizer);
   public personalizacionStore = inject(PersonalizacionStore);
@@ -38,6 +38,52 @@ export class BibliotecaComponent implements OnInit {
   // ===== DESTACADOS EXPANDIBLES =====
   destacadosExpandidos = signal(false);
   destacadosPorPagina = 4;
+
+  // ===== ✅ MODAL DE AVISO DE ENLACE =====
+  mostrarAvisoEnlace = signal(false);
+  enlaceAAbrir = signal<{ url: string; titulo: string } | null>(null);
+
+  // ===== ✅ MODAL DE AVISO DE SEGURIDAD (5s auto-cierre) =====
+  mostrarAvisoSeguridad = signal(true);
+  private avisoSeguridadTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // ===== ✅ LISTA BLANCA DE DOMINIOS CONFIABLES =====
+  private readonly DOMINIOS_CONFIABLES = [
+    // Cursos / educación
+    'coursera.org', 'edx.org', 'udemy.com', 'udacity.com', 'platzi.com',
+    'domestika.org', 'crehana.com', 'khanacademy.org', 'classcentral.com',
+    'freecodecamp.org', 'codecademy.com', 'aprendesql.dev', 'midu.link',
+    'mygreatlearning.com', 'exceedlms.com', 'nobook.com',
+    // Documentación técnica
+    'developer.mozilla.org', 'docs.microsoft.com', 'docs.python.org',
+    'docs.oracle.com', 'docs.spring.io', 'angular.io', 'react.dev',
+    'vuejs.org', 'nodejs.org', 'kotlinlang.org', 'go.dev', 'rust-lang.org',
+    'minecraft.wiki', 'wikipedia.org',
+    // Repositorios y herramientas
+    'github.com', 'gitlab.com', 'bitbucket.org', 'stackoverflow.com',
+    'figma.com', 'notion.so', 'trello.com', 'miro.com',
+    'photopea.com', 'ninite.com', 'ventoy.net', 'rufus.ie',
+    'optijuegos.net', '4download.net', 'technical.city', 'ifixit.com',
+    // Idiomas
+    'duolingo.com', 'babbel.com', 'busuu.com', 'lingoda.com',
+    // Video
+    'youtube.com', 'vimeo.com', 'ted.com',
+    // Artículos
+    'medium.com', 'dev.to', 'vidaextra.com', 'scholar.google.com',
+    // Ciberseguridad
+    'hackthebox.com', 'tryhackme.com', 'netacad.com',
+    // IA
+    'openai.com', 'anthropic.com', 'claude.ai', 'chatgpt.com',
+    'gemini.google.com', 'perplexity.ai', 'deepseek.com', 'kimi.ai',
+    'grok.com', 'toolify.ai', 'opencode.ai', 'pippit.ai',
+    // Otros
+    'kaggle.com', 'hackerrank.com', 'leetcode.com', 'codewars.com',
+    'encoded.pe', 'rebajitas.com', 'itsfree.dev', 'minecraftsearch.com',
+    'frivlegend.com', 'kawaiianimes.app', 'moewalls.com',
+    'wallpapercave.com', 'wallpaper.mob.org', 'alphacoders.com',
+    'geode-sdk.org', 'viper.pages.dev', 'rojatvdirecta.online',
+    'futbollibrefullhd.org', 'capacitacionlaboral.trabajo.gob.pe'
+  ];
 
   destacadosMostrados = computed(() => {
     const todos = this.recursos().filter(r => r.destacado);
@@ -75,7 +121,7 @@ export class BibliotecaComponent implements OnInit {
     this.recursosExpandidos.update(v => !v);
   }
 
-  // ===== MODAL =====
+  // ===== MODAL CREAR/EDITAR =====
   mostrarModal = signal(false);
   modoEdicion = signal(false);
   recursoEditandoId = signal<number | null>(null);
@@ -98,6 +144,30 @@ export class BibliotecaComponent implements OnInit {
   ngOnInit(): void {
     this.cargarCategorias();
     this.cargarRecursos();
+    this.iniciarAvisoSeguridad(); // ✅ NUEVO
+  }
+
+  ngOnDestroy(): void {
+    if (this.avisoSeguridadTimer) clearTimeout(this.avisoSeguridadTimer);
+  }
+
+  // ============================================================
+  // ✅ AVISO DE SEGURIDAD (auto-cierre 5s)
+  // ============================================================
+  private iniciarAvisoSeguridad(): void {
+    this.mostrarAvisoSeguridad.set(true);
+    if (this.avisoSeguridadTimer) clearTimeout(this.avisoSeguridadTimer);
+    this.avisoSeguridadTimer = setTimeout(() => {
+      this.mostrarAvisoSeguridad.set(false);
+    }, 5000);
+  }
+
+  cerrarAvisoSeguridad(): void {
+    this.mostrarAvisoSeguridad.set(false);
+    if (this.avisoSeguridadTimer) {
+      clearTimeout(this.avisoSeguridadTimer);
+      this.avisoSeguridadTimer = null;
+    }
   }
 
   // ===== CARGA =====
@@ -105,35 +175,17 @@ export class BibliotecaComponent implements OnInit {
     this.bibliotecaService.obtenerCategorias().subscribe({
       next: (data) => {
         const base = [
-          'certificacion',
-          'curso',
-          'video',
-          'articulo',
-          'herramienta',
-          'libro',
-          'idiomas',
-          'otro',
-          'entretenimiento',
-          'juego',
-          'recurso'
+          'certificacion', 'curso', 'video', 'articulo', 'herramienta',
+          'libro', 'idiomas', 'otro', 'entretenimiento', 'juego', 'recurso'
         ];
         const unicas = Array.from(new Set([...base, ...(data || [])]));
         this.categorias.set(['todas', ...unicas]);
       },
       error: () => {
         this.categorias.set([
-          'todas',
-          'certificacion',
-          'curso',
-          'video',
-          'articulo',
-          'herramienta',
-          'libro',
-          'idiomas',
-          'otro',
-          'entretenimiento',
-          'juego',
-          'recurso'
+          'todas', 'certificacion', 'curso', 'video', 'articulo',
+          'herramienta', 'libro', 'idiomas', 'otro', 'entretenimiento',
+          'juego', 'recurso'
         ]);
       }
     });
@@ -145,12 +197,6 @@ export class BibliotecaComponent implements OnInit {
 
     this.bibliotecaService.obtenerTodos().subscribe({
       next: (data) => {
-        console.log('=== DEBUG BIBLIOTECA ===');
-        console.log('Total recursos:', data?.length);
-        console.log('Recursos oficiales (esUsuario=false):', data?.filter(r => !r.esUsuario).length);
-        console.log('Recursos de usuarios (esUsuario=true):', data?.filter(r => r.esUsuario).length);
-        console.log('Recursos completos:', data);
-
         this.recursos.set(data || []);
         this.cargando.set(false);
       },
@@ -229,6 +275,12 @@ export class BibliotecaComponent implements OnInit {
     if (this.dropdownCategoriaAbierto()) {
       this.dropdownCategoriaAbierto.set(false);
     }
+    if (this.mostrarAvisoEnlace()) {
+      this.cerrarAvisoEnlace();
+    }
+    if (this.mostrarAvisoSeguridad()) {
+      this.cerrarAvisoSeguridad();
+    }
   }
 
   // ===== ACCIONES =====
@@ -254,16 +306,79 @@ export class BibliotecaComponent implements OnInit {
     this.vista.set(vista);
   }
 
-  abrirEnlace(url: string): void {
+  // ============================================================
+  // ✅ VALIDACIÓN Y APERTURA DE ENLACES
+  // ============================================================
+
+  /**
+   * Verifica si una URL pertenece a un dominio confiable.
+   */
+  esDominioConfiable(url: string): boolean {
+    if (!url) return false;
+    try {
+      const host = new URL(url).hostname.toLowerCase();
+      return this.DOMINIOS_CONFIABLES.some(
+        d => host === d || host.endsWith('.' + d)
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Obtiene el dominio de una URL (sin www).
+   */
+  getDominio(url: string): string {
+    if (!url) return '';
+    try {
+      const host = new URL(url).hostname;
+      return host.replace(/^www\./, '');
+    } catch {
+      return url;
+    }
+  }
+
+  /**
+   * Abre un enlace con confirmación previa si no es confiable.
+   */
+  abrirEnlace(url: string, titulo?: string): void {
     if (!url) return;
-    window.open(url, '_blank', 'noopener,noreferrer');
+
+    // Si es dominio confiable → abrir directo
+    if (this.esDominioConfiable(url)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // Si no es confiable → mostrar modal
+    this.enlaceAAbrir.set({ url, titulo: titulo || 'Recurso' });
+    this.mostrarAvisoEnlace.set(true);
+  }
+
+  /**
+   * Confirma la apertura del enlace no confiable.
+   */
+  confirmarAbrirEnlace(): void {
+    const enlace = this.enlaceAAbrir();
+    if (!enlace) return;
+
+    window.open(enlace.url, '_blank', 'noopener,noreferrer');
+    this.cerrarAvisoEnlace();
+  }
+
+  /**
+   * Cierra el modal de aviso.
+   */
+  cerrarAvisoEnlace(): void {
+    this.mostrarAvisoEnlace.set(false);
+    this.enlaceAAbrir.set(null);
   }
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ===== MODAL =====
+  // ===== MODAL CREAR/EDITAR =====
   abrirModalAgregar(): void {
     this.modoEdicion.set(false);
     this.recursoEditandoId.set(null);
@@ -322,11 +437,31 @@ export class BibliotecaComponent implements OnInit {
       this.formError.set('La URL es obligatoria');
       return;
     }
-    try {
-      new URL(this.formUrl());
-    } catch {
-      this.formError.set('La URL no es válida (debe incluir https://)');
+
+    const urlLimpia = this.formUrl().trim();
+
+    // ✅ Validación frontend (rápida, antes de ir al backend)
+    if (!urlLimpia.startsWith('https://')) {
+      this.formError.set('La URL debe comenzar con https://');
       return;
+    }
+
+    try {
+      new URL(urlLimpia);
+    } catch {
+      this.formError.set('La URL no es válida');
+      return;
+    }
+
+    // ✅ Advertir si el dominio no está en la lista blanca
+    if (!this.esDominioConfiable(urlLimpia)) {
+      const dominio = this.getDominio(urlLimpia);
+      const confirmar = confirm(
+        `⚠️ ADVERTENCIA\n\n` +
+        `El dominio "${dominio}" no está en la lista de sitios verificados.\n\n` +
+        `El servidor podría rechazarlo. ¿Deseas continuar?`
+      );
+      if (!confirmar) return;
     }
 
     const tagsArray = this.formTags()
@@ -337,7 +472,7 @@ export class BibliotecaComponent implements OnInit {
     const datos = {
       titulo: this.formTitulo().trim(),
       descripcion: this.formDescripcion().trim(),
-      url: this.formUrl().trim(),
+      url: urlLimpia,
       categoria: this.formCategoria(),
       subcategoria: this.formSubcategoria().trim() || undefined,
       autor: this.formAutor().trim() || undefined,
@@ -353,18 +488,16 @@ export class BibliotecaComponent implements OnInit {
       : this.bibliotecaService.agregarRecursoUsuario(datos as any);
 
     op$.subscribe({
-      next: (guardado) => {
-        console.log('Guardado en BD:', guardado);
+      next: () => {
         this.cerrarModal();
         this.cargarRecursos();
       },
       error: (err) => {
         console.error('Error al guardar:', err);
-        console.error('Detalle:', err.error);
         this.formError.set(
           err?.error?.message ||
-          err?.error?.detalles?.url ||
-          'No se pudo guardar. Revisa la consola.'
+          err?.error?.error ||
+          'No se pudo guardar el recurso'
         );
       }
     });
@@ -387,7 +520,6 @@ export class BibliotecaComponent implements OnInit {
 
     this.bibliotecaService.eliminarRecursoUsuario(recurso.id).subscribe({
       next: () => {
-        console.log('Eliminado');
         this.recursoAEliminar.set(null);
         this.cargarRecursos();
       },
@@ -439,7 +571,6 @@ export class BibliotecaComponent implements OnInit {
     return categoria.charAt(0).toUpperCase() + categoria.slice(1);
   }
 
-  // ===== HELPERS PARA EL TEMPLATE =====
   esRecursoDeUsuario(recurso: RecursoBiblioteca): boolean {
     return !!recurso.esUsuario;
   }

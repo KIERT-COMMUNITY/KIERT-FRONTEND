@@ -1,3 +1,5 @@
+// src/app/core/models/post.model.ts
+
 // ============================================================
 // MODELOS PARA POSTS, COMENTARIOS Y RESPUESTAS
 // ============================================================
@@ -22,9 +24,9 @@ export interface Adjunto {
   ancho?: number;
   alto?: number;
   formato?: string;
-  mimeType?: string;            // ← NUEVO: ej. "video/mp4"
-  miniaturaUrl?: string;        // ← NUEVO: poster/thumbnail del video
-  subtitulos?: Subtitulo[];     // ← NUEVO: subtítulos disponibles
+  mimeType?: string;            // ej. "video/mp4"
+  miniaturaUrl?: string;        // poster/thumbnail del video
+  subtitulos?: Subtitulo[];     // subtítulos disponibles
 }
 
 export interface Autor {
@@ -44,6 +46,20 @@ export interface Reacciones {
   angrys?: number;
 }
 
+/**
+ * ✅ NUEVO: Estado local de las reacciones del usuario.
+ * Se usa en el frontend para saber si el usuario ya reaccionó
+ * (a un post, comentario o respuesta).
+ */
+export interface UserReactions {
+  like: boolean;
+  love: boolean;
+  haha?: boolean;
+  wow?: boolean;
+  sad?: boolean;
+  angry?: boolean;
+}
+
 export interface Post {
   id: number;
   autor: Autor;
@@ -53,6 +69,12 @@ export interface Post {
   adjuntos: Adjunto[];
   totalComentarios: number;
   fechaCreacion: string;
+
+  // ✅ NUEVO: reacciones del post
+  reacciones?: Reacciones;
+
+  // ✅ NUEVO: estado de reacciones del usuario actual
+  userReactions?: UserReactions;
 }
 
 export interface Comentario {
@@ -61,6 +83,10 @@ export interface Comentario {
   contenido: string;
   fechaCreacion: string;
   reacciones?: Reacciones;
+
+  // ✅ NUEVO: estado de reacciones del usuario actual
+  userReactions?: UserReactions;
+
   respuestas?: Respuesta[];
   totalRespuestas?: number;
   mostrandoRespuestas?: boolean;
@@ -74,5 +100,9 @@ export interface Respuesta {
   contenido: string;
   fechaCreacion: string;
   reacciones?: Reacciones;
+
+  // ✅ NUEVO: estado de reacciones del usuario actual
+  userReactions?: UserReactions;
+
   eliminado?: boolean;
 }

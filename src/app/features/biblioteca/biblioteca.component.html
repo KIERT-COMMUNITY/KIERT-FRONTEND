@@ -42,7 +42,7 @@
     </div>
   </div>
 
-  <!-- 🔥 DESTACADOS EXPANDIBLES -->
+  <!-- DESTACADOS EXPANDIBLES -->
   @if (destacadosMostrados().length > 0) {
     <div class="biblioteca-destacados">
       <div class="biblioteca-destacados__header">
@@ -57,14 +57,14 @@
 
       <div class="destacados-grid">
         @for (recurso of destacadosMostrados(); track recurso.id) {
-          <div class="destacado-card" (click)="abrirEnlace(recurso.url)">
+          <div class="destacado-card" (click)="abrirEnlace(recurso.url, recurso.titulo)">
             <div class="destacado-card__icono" [innerHTML]="getIconoCategoria(recurso.categoria)"></div>
             <div class="destacado-card__info">
               <h4>{{ recurso.titulo }}</h4>
               <p>{{ recurso.descripcion | slice:0:60 }}...</p>
               <span class="destacado-card__categoria">{{ formatearCategoria(recurso.categoria) }}</span>
             </div>
-            <button class="destacado-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url)">
+            <button class="destacado-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url, recurso.titulo)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"/>
                 <polyline points="12 5 19 12 12 19"/>
@@ -255,7 +255,7 @@
   } @else {
     <div class="recursos-container" [class.vista-lista]="vista() === 'lista'">
       @for (recurso of recursosMostrados(); track recurso.id) {
-        <div class="recurso-card" (click)="abrirEnlace(recurso.url)">
+        <div class="recurso-card" (click)="abrirEnlace(recurso.url, recurso.titulo)">
 
           @if (recurso.esUsuario) {
             <div class="recurso-card__acciones-usuario">
@@ -286,6 +286,26 @@
           <div class="recurso-card__info">
             <div class="recurso-card__header">
               <h3>{{ recurso.titulo }}</h3>
+
+              <!-- ✅ BADGE DE DOMINIO -->
+              <span class="recurso-card__dominio"
+                    [class.recurso-card__dominio--confiable]="esDominioConfiable(recurso.url)"
+                    [title]="recurso.url">
+                @if (esDominioConfiable(recurso.url)) {
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                  </svg>
+                } @else {
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                }
+                {{ getDominio(recurso.url) }}
+              </span>
+
               <span class="recurso-card__categoria"
                     [style.background]="getColorCategoria(recurso.categoria) + '20'"
                     [style.color]="getColorCategoria(recurso.categoria)">
@@ -342,7 +362,7 @@
             }
           </div>
 
-          <button class="recurso-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url)">
+          <button class="recurso-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url, recurso.titulo)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"/>
               <polyline points="12 5 19 12 12 19"/>
@@ -352,7 +372,6 @@
         </div>
       }
 
-      <!-- 🔥 BOTÓN VER MÁS / VER MENOS -->
       @if (recursosOcultos() > 0 || recursosExpandidos()) {
         <div class="recursos-ver-mas-wrapper">
           <button class="btn-ver-mas-recursos" (click)="toggleRecursos()">
@@ -409,6 +428,7 @@
           <div class="form-group">
             <label>URL *</label>
             <input type="url" [(ngModel)]="formUrl" placeholder="https://..." />
+            <small class="form-hint">Solo se permiten sitios verificados (https://)</small>
           </div>
 
           <div class="form-group">
@@ -506,6 +526,155 @@
         <div class="modal__footer">
           <button class="btn-cancelar" (click)="cancelarEliminar()">Cancelar</button>
           <button class="btn-eliminar-confirm" (click)="eliminarRecurso()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================ -->
+  <!-- ✅ MODAL DE AVISO ANTES DE ABRIR LINK EXTERNO -->
+  <!-- ============================================================ -->
+  @if (mostrarAvisoEnlace() && enlaceAAbrir()) {
+    <div class="modal-overlay" (click)="cerrarAvisoEnlace()">
+      <div class="modal modal--aviso" (click)="$event.stopPropagation()">
+
+        <div class="modal__header modal__header--warning">
+          <div class="aviso-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h2>Aviso: enlace externo</h2>
+        </div>
+
+        <div class="modal__body modal__body--aviso">
+          <p>
+            Estás a punto de abrir un enlace que no pertenece a la lista de
+            sitios verificados:
+          </p>
+
+          <div class="aviso-url">
+            <div class="aviso-url__dominio">
+              {{ getDominio(enlaceAAbrir()!.url) }}
+            </div>
+            <div class="aviso-url__completa">
+              {{ enlaceAAbrir()!.url }}
+            </div>
+          </div>
+
+          <p class="aviso-warning">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>
+              Asegúrate de confiar en este sitio antes de continuar.
+              Podría contener malware o intentar robar tu información.
+            </span>
+          </p>
+
+          <p class="aviso-info">
+            <strong>{{ enlaceAAbrir()!.titulo }}</strong>
+          </p>
+        </div>
+
+        <div class="modal__footer modal__footer--aviso">
+          <button class="btn-cancelar" (click)="cerrarAvisoEnlace()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            Cancelar
+          </button>
+          <button class="btn-continuar" (click)="confirmarAbrirEnlace()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Continuar de todos modos
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================ -->
+  <!-- ✅ MODAL DE AVISO DE SEGURIDAD (auto-cierre 5s)              -->
+  <!-- ============================================================ -->
+  @if (mostrarAvisoSeguridad()) {
+    <div class="modal-overlay modal-overlay--seguridad" (click)="cerrarAvisoSeguridad()">
+      <div class="modal modal--seguridad" (click)="$event.stopPropagation()">
+
+        <!-- Barra de progreso de 5 segundos -->
+        <div class="seguridad-progress">
+          <div class="seguridad-progress__bar"></div>
+        </div>
+
+        <button class="modal__close modal__close--seguridad"
+                (click)="cerrarAvisoSeguridad()"
+                aria-label="Cerrar aviso">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <div class="modal__body modal__body--seguridad">
+
+          <div class="seguridad-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+
+          <h2 class="seguridad-title">🛡️ Cuida tu seguridad</h2>
+
+          <p class="seguridad-desc">
+            En <strong>Kiert</strong> nos preocupamos por tu privacidad y tu seguridad.
+          </p>
+
+          <div class="seguridad-alerta">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span><strong>Cuidado con enlaces maliciosos.</strong> No abras links sospechosos ni compartas datos personales.</span>
+          </div>
+
+          <ul class="seguridad-lista">
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Verifica siempre el dominio antes de hacer clic
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Desconfía de URLs acortadas o extrañas
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Nunca ingreses contraseñas en sitios no verificados
+            </li>
+          </ul>
+
+          <p class="seguridad-footer">
+            <strong>La comunidad se cuida entre todos.</strong> 💚
+          </p>
+
+          <span class="seguridad-auto">Este mensaje se cerrará en 5 segundos...</span>
         </div>
       </div>
     </div>

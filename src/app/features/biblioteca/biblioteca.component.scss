@@ -1823,33 +1823,8 @@ $transition: all 0.25s ease;
 }
 
 // ============================================================
-// ACCESIBILIDAD
-// ============================================================
-@media (prefers-reduced-motion: reduce) {
-  .recurso-card,
-  .destacado-card,
-  .biblioteca-stats .stat-item,
-  .btn-vista,
-  .btn-limpiar,
-  .btn-agregar,
-  .dropdown-item,
-  .dropdown-trigger,
-  .btn-accion,
-  .btn-ver-mas,
-  .btn-ver-mas-recursos,
-  .btn-volver-arriba {
-    transition: none !important;
-
-    &:hover { transform: none !important; }
-  }
-
-  .spinner { animation: none !important; }
-  .modal-overlay, .modal, .dropdown-menu { animation: none !important; }
-}
-// ============================================================
 // AUTOR DEL RECURSO Y BADGE COMUNIDAD
 // ============================================================
-
 .meta-item--usuario {
   color: #2dd4bf;
 
@@ -1884,7 +1859,6 @@ $transition: all 0.25s ease;
   }
 }
 
-// Ajustar posición de acciones de usuario cuando hay badge
 .recurso-card {
   position: relative;
 
@@ -1893,5 +1867,503 @@ $transition: all 0.25s ease;
     top: 12px;
     right: 12px;
     z-index: 3;
+  }
+}
+
+// ============================================================
+// ✅ HINT DE FORMULARIO
+// ============================================================
+.form-hint {
+  display: block;
+  font-size: 0.7rem;
+  color: $text-muted;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+// ============================================================
+// ✅ BADGE DE DOMINIO EN LA TARJETA
+// ============================================================
+.recurso-card__dominio {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(248, 81, 73, 0.1);
+  color: #f85149;
+  border: 1px solid rgba(248, 81, 73, 0.2);
+
+  svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  &--confiable {
+    background: rgba(46, 160, 67, 0.1);
+    color: #3fb950;
+    border-color: rgba(46, 160, 67, 0.2);
+  }
+}
+
+// ============================================================
+// ✅ MODAL DE AVISO DE ENLACE
+// ============================================================
+.modal--aviso {
+  max-width: 520px;
+}
+
+.modal__header--warning {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(248, 81, 73, 0.2);
+  background: rgba(248, 81, 73, 0.05);
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f85149;
+    margin: 0;
+  }
+
+  .aviso-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(248, 81, 73, 0.15);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    border-radius: 50%;
+    color: #f85149;
+    flex-shrink: 0;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+
+.modal__body--aviso {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #8b98a5;
+    line-height: 1.5;
+  }
+
+  .aviso-url {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 14px;
+    overflow: hidden;
+
+    &__dominio {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #e6edf3;
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    &__completa {
+      font-size: 0.75rem;
+      color: #5a6a7a;
+      word-break: break-all;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.4;
+    }
+  }
+
+  .aviso-warning {
+    display: flex;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(248, 81, 73, 0.08);
+    border: 1px solid rgba(248, 81, 73, 0.2);
+    border-radius: 10px;
+    color: #f85149;
+    font-size: 0.8rem;
+    line-height: 1.4;
+
+    svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    span {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .aviso-info {
+    font-size: 0.85rem;
+    color: #e6edf3;
+    padding: 0 4px;
+
+    strong {
+      color: #2dd4bf;
+    }
+  }
+}
+
+.modal__footer--aviso {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.2);
+
+  button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .btn-cancelar {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #8b98a5;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e6edf3;
+    }
+  }
+
+  .btn-continuar {
+    background: rgba(248, 81, 73, 0.15);
+    border-color: rgba(248, 81, 73, 0.3);
+    color: #f85149;
+
+    &:hover {
+      background: rgba(248, 81, 73, 0.25);
+      border-color: rgba(248, 81, 73, 0.5);
+    }
+  }
+}
+
+// ============================================================
+// ✅ MODAL DE AVISO DE SEGURIDAD (auto-cierre 5s)
+// ============================================================
+.modal-overlay--seguridad {
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal--seguridad {
+  max-width: 480px;
+  width: 92%;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(45, 212, 191, 0.1);
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.seguridad-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  z-index: 10;
+
+  &__bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #2dd4bf, #17b6a4);
+    transform-origin: left;
+    animation: seguridadProgress 5s linear forwards;
+    box-shadow: 0 0 12px rgba(45, 212, 191, 0.6);
+  }
+}
+
+@keyframes seguridadProgress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+.modal__close--seguridad {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: #8b98a5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+
+  &:hover {
+    background: rgba(248, 81, 73, 0.15);
+    color: #f85149;
+  }
+}
+
+.modal__body--seguridad {
+  padding: 32px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+
+.seguridad-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(45, 212, 191, 0.2), rgba(45, 212, 191, 0.05));
+  border: 2px solid rgba(45, 212, 191, 0.3);
+  color: #2dd4bf;
+  margin-bottom: 4px;
+  animation: seguridadPulse 2s ease-in-out infinite;
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@keyframes seguridadPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(45, 212, 191, 0);
+  }
+}
+
+.seguridad-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.seguridad-desc {
+  font-size: 0.9rem;
+  color: #8b98a5;
+  margin: 0;
+  line-height: 1.5;
+
+  strong {
+    color: #2dd4bf;
+    font-weight: 600;
+  }
+}
+
+.seguridad-alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+  border-radius: 10px;
+  color: #f85149;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: left;
+  width: 100%;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  span {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+  }
+}
+
+.seguridad-lista {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: #8b98a5;
+    line-height: 1.4;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+
+    svg {
+      flex-shrink: 0;
+      color: #2dd4bf;
+    }
+  }
+}
+
+.seguridad-footer {
+  font-size: 0.82rem;
+  color: #8b98a5;
+  margin: 4px 0 0;
+
+  strong {
+    color: #2dd4bf;
+  }
+}
+
+.seguridad-auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: #5a6a7a;
+  font-style: italic;
+  margin-top: 4px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+
+  &::before {
+    content: '⏱';
+    font-style: normal;
+  }
+}
+
+// Móvil
+@media (max-width: 480px) {
+  .modal__header--warning {
+    h2 { font-size: 1rem; }
+    .aviso-icon {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .modal__footer--aviso {
+    flex-direction: column-reverse;
+  }
+
+  .modal__body--seguridad {
+    padding: 28px 20px 20px;
+  }
+
+  .seguridad-title {
+    font-size: 1.15rem;
+  }
+
+  .seguridad-desc {
+    font-size: 0.82rem;
+  }
+
+  .seguridad-icon {
+    width: 56px;
+    height: 56px;
+
+    svg { width: 28px; height: 28px; }
+  }
+
+  .seguridad-alerta {
+    font-size: 0.75rem;
+    padding: 10px 12px;
+  }
+
+  .seguridad-lista li {
+    font-size: 0.72rem;
+    padding: 5px 8px;
+  }
+}
+
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  .recurso-card,
+  .destacado-card,
+  .biblioteca-stats .stat-item,
+  .btn-vista,
+  .btn-limpiar,
+  .btn-agregar,
+  .dropdown-item,
+  .dropdown-trigger,
+  .btn-accion,
+  .btn-ver-mas,
+  .btn-ver-mas-recursos,
+  .btn-volver-arriba {
+    transition: none !important;
+
+    &:hover { transform: none !important; }
+  }
+
+  .spinner { animation: none !important; }
+  .modal-overlay, .modal, .dropdown-menu { animation: none !important; }
+
+  .seguridad-progress__bar,
+  .seguridad-icon {
+    animation: none !important;
+  }
+
+  .modal--seguridad {
+    animation: none !important;
   }
 }

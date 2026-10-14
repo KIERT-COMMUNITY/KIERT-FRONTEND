@@ -1,3 +1,4 @@
+// src/app/features/community/post-detail/post-detail.component.ts
 import { Component, OnInit, input, signal, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -69,6 +70,9 @@ export class PostDetailComponent implements OnInit {
   subtitulosActivos = signal<{ [adjuntoId: number]: boolean }>({});
   idiomaSeleccionado = signal<{ [adjuntoId: number]: string }>({});
   subiendoSubtitulo = signal<number | null>(null);
+
+  // ========== ✅ EMOJI FLOTANTE AL REACCIONAR ==========
+  emojiFlotante = signal<{ emoji: string; x: number; y: number } | null>(null);
 
   reacciones = signal({
     likes: 0, loves: 0, hahas: 0, wows: 0, sads: 0, angrys: 0
@@ -147,7 +151,6 @@ export class PostDetailComponent implements OnInit {
     this.cargando.set(true);
     this.postService.obtenerPorId(postId).subscribe({
       next: (data) => {
-        console.log('Post cargado:', data);
         this.post.set(data);
         this.inicializarSubtitulos(data);
         this.cargando.set(false);
@@ -160,10 +163,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  /**
-   * Inicializa el estado de subtítulos por video.
-   * Activa los subtítulos por defecto si el video los tiene.
-   */
   private inicializarSubtitulos(post: Post): void {
     const activos: { [id: number]: boolean } = {};
     const idiomas: { [id: number]: string } = {};
@@ -191,7 +190,9 @@ export class PostDetailComponent implements OnInit {
           totalRespuestas: 0,
           mostrandoRespuestas: false,
           mostrandoFormularioRespuesta: false,
-          cargandoRespuestas: false
+          cargandoRespuestas: false,
+          // ✅ Inicializar userReactions si no viene del backend
+          userReactions: c.userReactions || { like: false, love: false }
         }));
         this.comentarios.set(comentariosConUI);
       },
@@ -214,14 +215,48 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // REACCIONES AL POST
+  // ✅ EMOJIS FLOTANTES
   // ============================================================
-  reaccionar(tipo: string): void {
+  private getEmojiPorTipo(tipo: string): string {
+    const map: Record<string, string> = {
+      'like': '👍',
+      'love': '❤️',
+      'haha': '😂',
+      'wow': '😮',
+      'sad': '😢',
+      'angry': '😡'
+    };
+    return map[tipo] || '👍';
+  }
+
+  /**
+   * ✅ Lanza un emoji flotante desde la posición del elemento clickeado.
+   */
+  private lanzarEmojiFlotante(tipo: string, event: MouseEvent): void {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.emojiFlotante.set({
+      emoji: this.getEmojiPorTipo(tipo),
+      x: rect.left + rect.width / 2,
+      y: rect.top
+    });
+    setTimeout(() => this.emojiFlotante.set(null), 900);
+  }
+
+  // ============================================================
+  // ✅ REACCIONES AL POST
+  // ============================================================
+  reaccionar(tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
+
+    // ✅ Emoji flotante
+    if (event) {
+      this.lanzarEmojiFlotante(tipo, event);
+    }
+
     const postId = Number(this.id());
     this.reaccionService.reaccionarPost(postId, tipo).subscribe({
       next: (data) => {
@@ -237,18 +272,38 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // REACCIONES A COMENTARIOS
+  // ✅ REACCIONES A COMENTARIOS (con emoji flotante)
   // ============================================================
-  reaccionarComentario(comentarioId: number, tipo: string): void {
+  reaccionarComentario(comentarioId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
+
+    // ✅ Emoji flotante
+    if (event) {
+      this.lanzarEmojiFlotante(tipo, event);
+    }
+
     this.comentarioService.reaccionarComentario(comentarioId, tipo).subscribe({
       next: (data) => {
         this.comentarios.update(lista =>
-          lista.map(c => c.id === comentarioId ? { ...c, reacciones: data } : c)
+          lista.map(c => {
+            if (c.id === comentarioId) {
+              const userReactions = c.userReactions || { like: false, love: false };
+              const key = tipo as 'like' | 'love';
+              return {
+                ...c,
+                reacciones: data,
+                userReactions: {
+                  ...userReactions,
+                  [key]: !userReactions[key]
+                }
+              };
+            }
+            return c;
+          })
         );
       },
       error: () => {}
@@ -256,14 +311,20 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // REACCIONES A RESPUESTAS
+  // ✅ REACCIONES A RESPUESTAS (con emoji flotante)
   // ============================================================
-  reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string): void {
+  reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
+
+    // ✅ Emoji flotante
+    if (event) {
+      this.lanzarEmojiFlotante(tipo, event);
+    }
+
     this.comentarioService.reaccionarRespuesta(respuestaId, tipo).subscribe({
       next: (data) => {
         this.comentarios.update(lista =>
@@ -271,9 +332,19 @@ export class PostDetailComponent implements OnInit {
             if (c.id === comentarioId && c.respuestas) {
               return {
                 ...c,
-                respuestas: c.respuestas.map(r =>
-                  r.id === respuestaId ? { ...r, reacciones: data } : r
-                )
+                respuestas: c.respuestas.map(r => {
+                  if (r.id !== respuestaId) return r;
+                  const userReactions = r.userReactions || { like: false, love: false };
+                  const key = tipo as 'like' | 'love';
+                  return {
+                    ...r,
+                    reacciones: data,
+                    userReactions: {
+                      ...userReactions,
+                      [key]: !userReactions[key]
+                    }
+                  };
+                })
               };
             }
             return c;
@@ -309,7 +380,8 @@ export class PostDetailComponent implements OnInit {
           totalRespuestas: 0,
           mostrandoRespuestas: false,
           mostrandoFormularioRespuesta: false,
-          cargandoRespuestas: false
+          cargandoRespuestas: false,
+          userReactions: { like: false, love: false }
         }]);
         this.formComentario.reset();
         this.enviandoComentario.set(false);
@@ -340,13 +412,18 @@ export class PostDetailComponent implements OnInit {
 
     this.comentarioService.crearRespuesta(comentarioId, contenido).subscribe({
       next: (nueva) => {
+        const respuestaConUI = {
+          ...nueva,
+          reacciones: nueva.reacciones || { likes: 0, loves: 0 },
+          userReactions: nueva.userReactions || { like: false, love: false }
+        };
         this.comentarios.update(lista =>
           lista.map(c => {
             if (c.id === comentarioId) {
               const respuestas = c.respuestas || [];
               return {
                 ...c,
-                respuestas: [...respuestas, nueva],
+                respuestas: [...respuestas, respuestaConUI],
                 totalRespuestas: (c.totalRespuestas || 0) + 1,
                 mostrandoFormularioRespuesta: false,
                 mostrandoRespuestas: true
@@ -416,13 +493,19 @@ export class PostDetailComponent implements OnInit {
 
     this.comentarioService.listarRespuestas(comentarioId).subscribe({
       next: (respuestas) => {
+        // ✅ Asegurar que cada respuesta tenga userReactions
+        const respuestasConUI = respuestas.map(r => ({
+          ...r,
+          userReactions: r.userReactions || { like: false, love: false }
+        }));
+
         this.comentarios.update(lista =>
           lista.map(c => {
             if (c.id === comentarioId) {
               return {
                 ...c,
-                respuestas: respuestas,
-                totalRespuestas: respuestas.length,
+                respuestas: respuestasConUI,
+                totalRespuestas: respuestasConUI.length,
                 cargandoRespuestas: false
               };
             }
@@ -451,7 +534,6 @@ export class PostDetailComponent implements OnInit {
     this.comentarioService.eliminar(comentarioId).subscribe({
       next: () => {
         this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
-        console.log('Comentario eliminado');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar comentario');
@@ -476,7 +558,6 @@ export class PostDetailComponent implements OnInit {
             return c;
           })
         );
-        console.log('Respuesta eliminada');
       },
       error: () => {
         this.errorMsg.set('Error al eliminar respuesta');
@@ -666,7 +747,6 @@ export class PostDetailComponent implements OnInit {
       ...prev,
       [adjuntoId]: idioma
     }));
-    // Al cambiar idioma, activar subtítulos
     this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
   }
 
@@ -679,10 +759,6 @@ export class PostDetailComponent implements OnInit {
     return adjunto.subtitulos.find(s => s.porDefecto) || adjunto.subtitulos[0];
   }
 
-  /**
-   * Sube un archivo .vtt al backend.
-   * Pide idioma y etiqueta mediante prompts.
-   */
   onSubtituloSeleccionado(event: Event, adjuntoId: number): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -717,7 +793,6 @@ export class PostDetailComponent implements OnInit {
           };
         });
 
-        // Activar por defecto el nuevo subtítulo
         this.idiomaSeleccionado.update(prev => ({ ...prev, [adjuntoId]: nuevoSub.idioma }));
         this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
 

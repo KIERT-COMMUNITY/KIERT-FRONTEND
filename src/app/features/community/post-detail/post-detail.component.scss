@@ -379,66 +379,212 @@ $font-display: 'JetBrains Mono', monospace;
 }
 
 // ============================================================
-// REACCIONES
+// REACCIONES — EMOJIS PROFESIONALES CON ANIMACIÓN
 // ============================================================
 .reactions {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: wrap;
+  padding: 8px 0;
 }
 
 .reaction-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  background: $bg-card;
-  border: 1px solid $border-color;
+  padding: 5px 12px 5px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   color: $text-secondary;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  transition: $transition;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  user-select: none;
 
   svg {
-    stroke: currentColor;
-    transition: transform 0.2s ease;
-  }
-
-  &:hover {
-    border-color: $primary;
-    color: $primary;
-    background: $primary-light;
-    transform: translateY(-2px);
-  }
-
-  &:active { transform: scale(0.95); }
-
-  &.active {
-    border-color: $primary;
-    color: $primary;
-    background: $primary-light;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
   }
 
   .reaction-count {
     font-size: 0.75rem;
-    min-width: 16px;
+    font-weight: 600;
+    min-width: 14px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px) scale(1.03);
+
+    svg {
+      transform: scale(1.15) rotate(-8deg);
+    }
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.96);
+  }
+
+  &.active {
+    svg {
+      animation: reactionPulse 0.5s ease;
+    }
+
+    .reaction-count {
+      font-weight: 700;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      animation: reactionBurst 0.6s ease-out;
+      pointer-events: none;
+      border-radius: 20px;
+    }
+  }
+
+  &[data-tipo="like"].active {
+    background: rgba(29, 155, 240, 0.12);
+    border-color: rgba(29, 155, 240, 0.4);
+    color: #1d9bf0;
+
+    svg { filter: drop-shadow(0 0 8px rgba(29, 155, 240, 0.6)); }
+    .reaction-count { color: #1d9bf0; }
+    &::after { background: radial-gradient(circle, rgba(29, 155, 240, 0.3) 0%, transparent 70%); }
+  }
+
+  &[data-tipo="love"].active {
+    background: rgba(248, 81, 73, 0.12);
+    border-color: rgba(248, 81, 73, 0.4);
+    color: #f85149;
+
+    svg { filter: drop-shadow(0 0 8px rgba(248, 81, 73, 0.6)); }
+    .reaction-count { color: #f85149; }
+    &::after { background: radial-gradient(circle, rgba(248, 81, 73, 0.3) 0%, transparent 70%); }
+  }
+
+  &[data-tipo="haha"].active {
+    background: rgba(249, 202, 36, 0.12);
+    border-color: rgba(249, 202, 36, 0.4);
+    color: #f9ca24;
+
+    svg { filter: drop-shadow(0 0 8px rgba(249, 202, 36, 0.6)); }
+    .reaction-count { color: #f9ca24; }
+    &::after { background: radial-gradient(circle, rgba(249, 202, 36, 0.3) 0%, transparent 70%); }
+  }
+
+  &[data-tipo="wow"].active {
+    background: rgba(253, 203, 110, 0.12);
+    border-color: rgba(253, 203, 110, 0.4);
+    color: #fdcb6e;
+
+    svg { filter: drop-shadow(0 0 8px rgba(253, 203, 110, 0.6)); }
+    .reaction-count { color: #fdcb6e; }
+    &::after { background: radial-gradient(circle, rgba(253, 203, 110, 0.3) 0%, transparent 70%); }
+  }
+
+  &[data-tipo="sad"].active {
+    background: rgba(88, 166, 255, 0.12);
+    border-color: rgba(88, 166, 255, 0.4);
+    color: #58a6ff;
+
+    svg { filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.6)); }
+    .reaction-count { color: #58a6ff; }
+    &::after { background: radial-gradient(circle, rgba(88, 166, 255, 0.3) 0%, transparent 70%); }
+  }
+
+  &[data-tipo="angry"].active {
+    background: rgba(214, 48, 49, 0.12);
+    border-color: rgba(214, 48, 49, 0.4);
+    color: #d63031;
+
+    svg { filter: drop-shadow(0 0 8px rgba(214, 48, 49, 0.6)); }
+    .reaction-count { color: #d63031; }
+    &::after { background: radial-gradient(circle, rgba(214, 48, 49, 0.3) 0%, transparent 70%); }
+  }
+
+  &.btn-compartir {
+    margin-left: auto;
+    padding: 5px 14px 5px 10px;
+    color: #1d9bf0;
+    border-color: rgba(29, 155, 240, 0.3);
+
+    svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: #1d9bf0;
+      filter: none;
+    }
+
+    &:hover {
+      background: rgba(29, 155, 240, 0.1);
+      border-color: #1d9bf0;
+      color: #1d9bf0;
+
+      svg { transform: scale(1.1); }
+    }
   }
 }
 
-// Botón compartir en la fila de reacciones
-.reaction-btn.btn-compartir {
-  color: $primary-share;
-  border-color: rgba(29, 155, 240, 0.3);
+// ============================================================
+// ANIMACIONES
+// ============================================================
+@keyframes reactionPulse {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4); }
+  60%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
 
-  svg { stroke: $primary-share; }
-
-  &:hover {
-    background: rgba(29, 155, 240, 0.1);
-    border-color: $primary-share;
-    color: $primary-share;
+@keyframes reactionBurst {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
   }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+// ============================================================
+// EMOJI FLOTANTE AL REACCIONAR
+// ============================================================
+@keyframes emojiFloat {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -40px) scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -80px) scale(0.9);
+  }
+}
+
+.emoji-flotante {
+  position: fixed;
+  font-size: 2rem;
+  pointer-events: none;
+  animation: emojiFloat 0.9s ease-out forwards;
+  z-index: 9999;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+  user-select: none;
 }
 
 // ============================================================
@@ -680,46 +826,108 @@ $font-display: 'JetBrains Mono', monospace;
   &__actions {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.4rem;
+    margin-top: 0.5rem;
     align-items: center;
   }
 
+  // ============================================================
+  // ✅ EMOJI MINI PROFESIONAL EN COMENTARIOS
+  // ============================================================
   &__reaction {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    background: none;
-    border: none;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     color: $text-secondary;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 600;
     cursor: pointer;
-    padding: 2px 8px;
-    border-radius: 12px;
-    transition: $transition;
+    padding: 3px 9px 3px 4px;
+    border-radius: 14px;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
 
-    svg { stroke: currentColor; }
-
-    &:hover {
-      color: $primary;
-      background: $primary-light;
+    svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
     }
 
-    span { font-weight: 500; }
+    span {
+      font-weight: 600;
+      min-width: 10px;
+      text-align: center;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px) scale(1.05);
+
+      svg {
+        transform: scale(1.15) rotate(-8deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.96);
+    }
+
+    &.active {
+      svg {
+        animation: reactionPulse 0.5s ease;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        animation: reactionBurst 0.6s ease-out;
+        pointer-events: none;
+        border-radius: 14px;
+      }
+    }
+
+    &.active[data-tipo="like"] {
+      background: rgba(29, 155, 240, 0.12);
+      border-color: rgba(29, 155, 240, 0.4);
+      color: #1d9bf0;
+      svg { filter: drop-shadow(0 0 6px rgba(29, 155, 240, 0.6)); }
+      &::after { background: radial-gradient(circle, rgba(29, 155, 240, 0.3) 0%, transparent 70%); }
+    }
+
+    &.active[data-tipo="love"] {
+      background: rgba(248, 81, 73, 0.12);
+      border-color: rgba(248, 81, 73, 0.4);
+      color: #f85149;
+      svg { filter: drop-shadow(0 0 6px rgba(248, 81, 73, 0.6)); }
+      &::after { background: radial-gradient(circle, rgba(248, 81, 73, 0.3) 0%, transparent 70%); }
+    }
   }
 
   &__responder {
-    background: none;
-    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.06);
     color: $text-muted;
     font-size: 0.7rem;
+    font-weight: 600;
     cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 3px 10px;
+    border-radius: 14px;
     transition: $transition;
 
     &:hover {
       color: $primary;
-      background: rgba(45, 212, 191, 0.05);
+      background: rgba(45, 212, 191, 0.08);
+      border-color: rgba(45, 212, 191, 0.3);
+      transform: translateY(-1px);
     }
   }
 
@@ -963,30 +1171,86 @@ $font-display: 'JetBrains Mono', monospace;
   &__actions {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.2rem;
+    margin-top: 0.25rem;
   }
 
+  // ============================================================
+  // ✅ EMOJI MINI PROFESIONAL EN RESPUESTAS
+  // ============================================================
   &__reaction {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    background: none;
-    border: none;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     color: $text-muted;
     font-size: 0.65rem;
+    font-weight: 600;
     cursor: pointer;
-    padding: 1px 4px;
-    border-radius: 8px;
-    transition: $transition;
+    padding: 2px 7px 2px 3px;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
 
-    svg { stroke: currentColor; }
-
-    &:hover {
-      color: $primary;
-      background: rgba(45, 212, 191, 0.05);
+    svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
     }
 
-    span { font-weight: 500; }
+    span {
+      font-weight: 600;
+      min-width: 8px;
+      text-align: center;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px) scale(1.05);
+
+      svg {
+        transform: scale(1.15) rotate(-8deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.96);
+    }
+
+    &.active {
+      svg {
+        animation: reactionPulse 0.5s ease;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        animation: reactionBurst 0.6s ease-out;
+        pointer-events: none;
+        border-radius: 12px;
+      }
+    }
+
+    &.active[data-tipo="like"] {
+      background: rgba(29, 155, 240, 0.12);
+      border-color: rgba(29, 155, 240, 0.4);
+      color: #1d9bf0;
+      svg { filter: drop-shadow(0 0 5px rgba(29, 155, 240, 0.6)); }
+      &::after { background: radial-gradient(circle, rgba(29, 155, 240, 0.3) 0%, transparent 70%); }
+    }
+
+    &.active[data-tipo="love"] {
+      background: rgba(248, 81, 73, 0.12);
+      border-color: rgba(248, 81, 73, 0.4);
+      color: #f85149;
+      svg { filter: drop-shadow(0 0 5px rgba(248, 81, 73, 0.6)); }
+      &::after { background: radial-gradient(circle, rgba(248, 81, 73, 0.3) 0%, transparent 70%); }
+    }
   }
 }
 
@@ -1073,13 +1337,33 @@ $font-display: 'JetBrains Mono', monospace;
       height: 28px;
       font-size: 0.65rem;
     }
+
+    &__reaction {
+      padding: 3px 8px 3px 3px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
   }
 
-  .reactions { gap: 2px; }
+  .reactions { gap: 4px; }
 
   .reaction-btn {
-    padding: 4px 10px;
+    padding: 4px 10px 4px 4px;
     font-size: 0.7rem;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .reaction-count { font-size: 0.7rem; }
+  }
+
+  .reaction-btn.btn-compartir {
+    padding: 4px 10px;
 
     svg {
       width: 16px;
@@ -1122,15 +1406,29 @@ $font-display: 'JetBrains Mono', monospace;
     padding-left: 0.25rem;
   }
 
-  .respuesta { flex-wrap: wrap; }
+  .respuesta {
+    flex-wrap: wrap;
 
-  .respuesta__body { width: 100%; }
+    &__body { width: 100%; }
+
+    &__reaction {
+      padding: 2px 6px 2px 2px;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+
+  .emoji-flotante { font-size: 1.6rem; }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
   .post-detail { padding: 1.2rem; }
   .comentarios { padding: 1.2rem; }
 }
+
 // ============================================================
 // VIDEOS Y SUBTÍTULOS
 // ============================================================
