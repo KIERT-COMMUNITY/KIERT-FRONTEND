@@ -4,14 +4,26 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { AdminAuthService } from '../services/admin-auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
+  const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  const token = auth.obtenerToken();
+  // ============================================================
+  // 1. DETECTAR TIPO DE PETICIÓN
+  // ============================================================
+  const esAdmin = req.url.includes('/api/admin/');
 
-  // ✅ Endpoints que NO requieren token
+  // ============================================================
+  // 2. ELEGIR TOKEN CORRECTO
+  // ============================================================
+  const token = esAdmin ? adminAuth.getToken() : auth.obtenerToken();
+
+  // ============================================================
+  // 3. ENDPOINTS PÚBLICOS (no requieren token)
+  // ============================================================
   const esPublico =
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/registro') ||
@@ -19,9 +31,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/auth/reenviar-codigo') ||
     req.url.includes('/auth/recuperar') ||
     req.url.includes('/auth/reset-password') ||
+    req.url.includes('/admin/auth/login') ||
     req.url.includes('/presencia/') ||
     req.url.includes('/grupos/invitacion/');
 
+  // ============================================================
+  // 4. CLONAR REQUEST CON TOKEN
+  // ============================================================
   let cloned = req;
 
   if (token && !esPublico) {
@@ -30,14 +46,46 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
+  // ============================================================
+  // 5. MANEJAR ERRORES
+  // ============================================================
   return next(cloned).pipe(
     catchError((error) => {
-      // ✅ Solo desloguear si:
-      //   - es 401
-      //   - NO es endpoint público
-      //   - YA teníamos un token (la sesión existía antes)
-      if (error.status === 401 && !esPublico && token) {
-        console.warn('🚪 Sesión expirada, redirigiendo a login');
+
+      // --------------------------------------------------------
+      // CASO A: Token de ADMIN expirado
+      // --------------------------------------------------------
+      if (error.status === 401 && esAdmin && !esPublico && token) {
+        console.warn('[INTERCEPTOR] Sesión admin expirada');
+        adminAuth.logout();
+        // ⚠️ NO navegamos aquí — el guard se encarga
+        return throwError(() => error);
+      }
+
+      // --------------------------------------------------------
+      // CASO B: Token de USUARIO expirado
+      // --------------------------------------------------------
+      if (error.status === 401 && !esAdmin && !esPublico && token) {
+        console.warn('[INTERCEPTOR] Sesión de usuario expirada');
+
+        // ✅ NUEVO: Verificar si estamos navegando dentro de /admin/
+        //    Si sí, NO desloguear (el CEO sigue con su sesión admin)
+        const estaEnPanelAdmin = estaEnRutaAdmin();
+
+        if (estaEnPanelAdmin) {
+          console.warn('[INTERCEPTOR] En ruta admin, no se desloguea al usuario normal');
+          return throwError(() => error);
+        }
+
+        // ✅ También verificar si hay sesión admin activa
+        //    Si el CEO está logueado como admin, no desloguear el usuario
+        if (adminAuth.estaLogueado()) {
+          console.warn('[INTERCEPTOR] Hay sesión admin activa, no se desloguea al usuario');
+          return throwError(() => error);
+        }
+
+        // Si no está en admin y no hay sesión admin → sí desloguear
+        console.warn('[INTERCEPTOR] Deslogueando usuario normal');
         auth.logout();
         router.navigate(['/login']);
       }
@@ -46,3 +94,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
+
+// ============================================================
+// HELPER: ¿estamos en una ruta de admin?
+// ============================================================
+function estaEnRutaAdmin(): boolean {
+  try {
+    const hash = window.location.hash || '';
+    const path = window.location.pathname || '';
+    return hash.includes('/admin/') || path.includes('/admin/');
+  } catch {
+    return false;
+  }
+}

@@ -1,6 +1,30 @@
 // src/app/features/community/notificaciones/notificaciones.component.scss
 
 // ============================================================
+// VARIABLES DE COLOR (SÓLIDAS, SIN TRANSPARENCIA)
+// ============================================================
+$bg-dropdown: #131a22;        // Fondo sólido del dropdown
+$bg-header: #0f1620;          // Header más oscuro
+$bg-body: #131a22;            // Body sólido
+$bg-footer: #0f1620;          // Footer más oscuro
+$bg-item-hover: #1b232c;      // Hover sólido
+$bg-item-active: #1a222b;     // Item activo sólido
+
+$border: #26313c;
+$border-strong: #2e3a47;
+
+$text-primary: #e6edf3;
+$text-secondary: #a8b5c2;
+$text-muted: #7a8899;
+
+$primary: #2dd4bf;
+$primary-dark: #17b6a4;
+$danger: #f85149;
+$success: #2ea043;
+$warning: #f9ca24;
+$info: #6c5ce7;
+
+// ============================================================
 // CONTENEDOR
 // ============================================================
 .notificaciones-container {
@@ -18,7 +42,7 @@
   position: relative;
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-secondary, #8b98a5);
+  color: $text-secondary;
   padding: 8px 14px;
   border-radius: 10px;
   cursor: pointer;
@@ -33,18 +57,18 @@
   .btn-texto { display: inline; }
 
   &:hover {
-    color: var(--text-primary, #e6edf3);
+    color: $text-primary;
     background: rgba(128, 128, 128, 0.08);
-    border-color: var(--border, #26313c);
+    border-color: $border;
 
     svg { transform: scale(1.08); }
   }
 
   &.tiene-notificaciones {
-    color: #2dd4bf;
+    color: $primary;
 
     svg {
-      color: #2dd4bf;
+      color: $primary;
       animation: bell-ring 1s ease-in-out;
     }
   }
@@ -75,7 +99,7 @@
 }
 
 // ============================================================
-// DROPDOWN
+// DROPDOWN — FONDO 100% SÓLIDO
 // ============================================================
 .dropdown-notificaciones {
   position: fixed;
@@ -86,18 +110,20 @@
   max-height: calc(100vh - 32px);
   display: flex;
   flex-direction: column;
-  background: var(--tema-card-bg, rgba(19, 26, 34, 0.95));
-  border: 1px solid var(--tema-border, #26313c);
+  background: $bg-dropdown;             // ✅ SÓLIDO
+  border: 1px solid $border-strong;
   border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
   z-index: 999;
   overflow: hidden;
-  color: var(--text-primary, #e6edf3);
-  backdrop-filter: blur(12px);
+  color: $text-primary;
+  // ✅ SIN backdrop-filter (ya no es transparente)
 }
 
 // ============================================================
-// HEADER
+// HEADER — FONDO SÓLIDO
 // ============================================================
 .dropdown-header {
   display: flex;
@@ -105,9 +131,9 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--border, #26313c);
+  border-bottom: 1px solid $border;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.1);
+  background: $bg-header;                // ✅ SÓLIDO
 
   .dropdown-header-left {
     display: flex;
@@ -115,25 +141,25 @@
     gap: 10px;
     min-width: 0;
 
-    svg { flex-shrink: 0; color: #2dd4bf; }
+    svg { flex-shrink: 0; color: $primary; }
 
     h3 {
       margin: 0;
       font-size: 1rem;
       font-weight: 700;
-      color: var(--text-primary, #e6edf3);
+      color: $text-primary;
       white-space: nowrap;
     }
 
     .header-badge {
       font-size: 0.65rem;
       font-weight: 700;
-      color: #2dd4bf;
+      color: $primary;
       background: rgba(45, 212, 191, 0.12);
       padding: 3px 10px;
       border-radius: 999px;
       white-space: nowrap;
-      border: 1px solid rgba(45, 212, 191, 0.2);
+      border: 1px solid rgba(45, 212, 191, 0.25);
     }
   }
 
@@ -146,32 +172,39 @@
     background: transparent;
     border: none;
     border-radius: 10px;
-    color: var(--text-secondary, #8b98a5);
+    color: $text-secondary;
     cursor: pointer;
     flex-shrink: 0;
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(248, 81, 73, 0.1);
-      color: #f85149;
+      background: rgba(248, 81, 73, 0.12);
+      color: $danger;
     }
   }
 }
 
 // ============================================================
-// BODY
+// BODY — FONDO SÓLIDO
 // ============================================================
 .dropdown-body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px;
+  background: $bg-body;                  // ✅ SÓLIDO
 
   &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: $bg-header; }
   &::-webkit-scrollbar-thumb {
-    background: var(--border, #26313c);
+    background: $border-strong;
     border-radius: 3px;
+
+    &:hover { background: #3a4755; }
   }
+
+  scrollbar-width: thin;
+  scrollbar-color: $border-strong $bg-header;
 }
 
 // ============================================================
@@ -184,14 +217,14 @@
   justify-content: center;
   padding: 56px 20px;
   gap: 14px;
-  color: var(--text-secondary, #8b98a5);
+  color: $text-secondary;
   font-size: 0.85rem;
 
   .spinner {
     width: 36px;
     height: 36px;
-    border: 3px solid var(--border, #26313c);
-    border-top-color: #2dd4bf;
+    border: 3px solid $border;
+    border-top-color: $primary;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
   }
@@ -211,18 +244,18 @@
   text-align: center;
   gap: 10px;
 
-  svg { color: #2dd4bf; opacity: 0.35; margin-bottom: 8px; }
+  svg { color: $primary; opacity: 0.35; margin-bottom: 8px; }
 
   p {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-primary, #e6edf3);
+    color: $text-primary;
     margin: 0;
   }
 
   span {
     font-size: 0.8rem;
-    color: var(--text-muted, #5a6a7a);
+    color: $text-muted;
     max-width: 260px;
   }
 }
@@ -237,7 +270,7 @@
 }
 
 // ============================================================
-// ITEM
+// ITEM — FONDO SÓLIDO AL HOVER
 // ============================================================
 .notificacion-item {
   display: flex;
@@ -250,16 +283,17 @@
   min-width: 0;
   border-radius: 10px;
   border: 1px solid transparent;
-  color: var(--text-primary, #e6edf3);
+  color: $text-primary;
+  background: transparent;
 
   &:hover {
-    background: rgba(128, 128, 128, 0.08);
-    border-color: var(--border, #26313c);
+    background: $bg-item-hover;          // ✅ SÓLIDO
+    border-color: $border;
   }
 
   &.leida {
-    opacity: 0.55;
-    &:hover { opacity: 0.8; }
+    opacity: 0.6;
+    &:hover { opacity: 0.85; }
   }
 
   .icono-tipo {
@@ -284,7 +318,7 @@
     .tipo-label {
       font-size: 0.65rem;
       font-weight: 700;
-      color: var(--text-muted, #5a6a7a);
+      color: $text-muted;
       text-transform: uppercase;
       letter-spacing: 0.6px;
     }
@@ -292,15 +326,15 @@
     .mensaje {
       font-size: 0.875rem;
       line-height: 1.5;
-      color: var(--text-primary, #e6edf3);
+      color: $text-primary;
       word-break: break-word;
 
-      strong { color: #2dd4bf; font-weight: 600; }
+      strong { color: $primary; font-weight: 600; }
     }
 
     .fecha {
       font-size: 0.7rem;
-      color: var(--text-muted, #5a6a7a);
+      color: $text-muted;
       font-weight: 500;
     }
   }
@@ -314,7 +348,7 @@
     background: transparent;
     border: none;
     border-radius: 8px;
-    color: var(--text-muted, #5a6a7a);
+    color: $text-muted;
     cursor: pointer;
     flex-shrink: 0;
     transition: all 0.2s ease;
@@ -322,8 +356,8 @@
     padding: 0;
 
     &:hover {
-      color: #f85149;
-      background: rgba(248, 81, 73, 0.1);
+      color: $danger;
+      background: rgba(248, 81, 73, 0.12);
     }
   }
 
@@ -335,7 +369,7 @@
     left: 6px;
     width: 8px;
     height: 8px;
-    background: #2dd4bf;
+    background: $primary;
     border-radius: 50%;
     box-shadow: 0 0 10px rgba(45, 212, 191, 0.8);
     animation: pulse-dot 2s infinite;
@@ -348,29 +382,29 @@
 }
 
 // ============================================================
-// INVITACIÓN A GRUPO
+// INVITACIÓN A GRUPO — FONDO SÓLIDO
 // ============================================================
 .notificacion-item--invitacion {
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.08), rgba(108, 92, 231, 0.02));
-  border: 1px solid rgba(108, 92, 231, 0.25);
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.15), rgba(108, 92, 231, 0.06));
+  border: 1px solid rgba(108, 92, 231, 0.35);
   padding-right: 12px;
 
   &:hover {
-    background: linear-gradient(135deg, rgba(108, 92, 231, 0.14), rgba(108, 92, 231, 0.05));
-    border-color: rgba(108, 92, 231, 0.45);
-    box-shadow: 0 4px 20px rgba(108, 92, 231, 0.15);
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.22), rgba(108, 92, 231, 0.1));
+    border-color: rgba(108, 92, 231, 0.55);
+    box-shadow: 0 4px 20px rgba(108, 92, 231, 0.2);
   }
 
   .icono-tipo {
-    background: linear-gradient(135deg, rgba(108, 92, 231, 0.25), rgba(108, 92, 231, 0.1)) !important;
-    border: 1px solid rgba(108, 92, 231, 0.35);
-    box-shadow: 0 0 12px rgba(108, 92, 231, 0.2);
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.3), rgba(108, 92, 231, 0.15)) !important;
+    border: 1px solid rgba(108, 92, 231, 0.45);
+    box-shadow: 0 0 12px rgba(108, 92, 231, 0.25);
   }
 
   .tipo-label { color: #a29bfe !important; }
   .mensaje strong { color: #a29bfe; }
   .punto-no-leida {
-    background: #6c5ce7;
+    background: $info;
     box-shadow: 0 0 12px rgba(108, 92, 231, 0.9);
   }
 }
@@ -405,45 +439,45 @@
   }
 
   .btn-aceptar-invitacion {
-    background: linear-gradient(135deg, rgba(46, 160, 67, 0.2), rgba(46, 160, 67, 0.1));
-    color: #2ea043;
-    border: 1.5px solid rgba(46, 160, 67, 0.4);
+    background: linear-gradient(135deg, rgba(46, 160, 67, 0.25), rgba(46, 160, 67, 0.12));
+    color: $success;
+    border: 1.5px solid rgba(46, 160, 67, 0.5);
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, rgba(46, 160, 67, 0.35), rgba(46, 160, 67, 0.2));
-      border-color: #2ea043;
+      background: linear-gradient(135deg, rgba(46, 160, 67, 0.4), rgba(46, 160, 67, 0.25));
+      border-color: $success;
       color: #4ade80;
-      box-shadow: 0 0 0 3px rgba(46, 160, 67, 0.15), 0 6px 20px rgba(46, 160, 67, 0.4);
+      box-shadow: 0 0 0 3px rgba(46, 160, 67, 0.2), 0 6px 20px rgba(46, 160, 67, 0.4);
       transform: scale(1.05);
     }
   }
 
   .btn-rechazar-invitacion {
-    background: linear-gradient(135deg, rgba(248, 81, 73, 0.15), rgba(248, 81, 73, 0.05));
-    color: #f85149;
-    border: 1.5px solid rgba(248, 81, 73, 0.35);
+    background: linear-gradient(135deg, rgba(248, 81, 73, 0.2), rgba(248, 81, 73, 0.08));
+    color: $danger;
+    border: 1.5px solid rgba(248, 81, 73, 0.45);
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, rgba(248, 81, 73, 0.3), rgba(248, 81, 73, 0.15));
-      border-color: #f85149;
+      background: linear-gradient(135deg, rgba(248, 81, 73, 0.35), rgba(248, 81, 73, 0.2));
+      border-color: $danger;
       color: #ff6b6b;
-      box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.15), 0 6px 20px rgba(248, 81, 73, 0.4);
+      box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.2), 0 6px 20px rgba(248, 81, 73, 0.4);
       transform: scale(1.05);
     }
   }
 }
 
 // ============================================================
-// FOOTER
+// FOOTER — FONDO SÓLIDO
 // ============================================================
 .dropdown-footer {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 14px 16px;
-  border-top: 1px solid var(--border, #26313c);
+  border-top: 1px solid $border;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.15);
+  background: $bg-footer;                // ✅ SÓLIDO
 
   button {
     display: flex;
@@ -464,22 +498,22 @@
   }
 
   .btn-marcar-todas {
-    background: rgba(45, 212, 191, 0.08);
-    color: #2dd4bf;
-    border: 1px solid rgba(45, 212, 191, 0.2);
+    background: rgba(45, 212, 191, 0.1);
+    color: $primary;
+    border: 1px solid rgba(45, 212, 191, 0.25);
 
     &:hover {
-      background: rgba(45, 212, 191, 0.15);
-      border-color: rgba(45, 212, 191, 0.4);
+      background: rgba(45, 212, 191, 0.18);
+      border-color: rgba(45, 212, 191, 0.5);
     }
   }
 
   .btn-ver-todas {
-    background: linear-gradient(135deg, #2dd4bf, #17b6a4);
-    color: #0d1117;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    color: #0a0f14;
 
     &:hover {
-      box-shadow: 0 6px 20px rgba(45, 212, 191, 0.4);
+      box-shadow: 0 6px 20px rgba(45, 212, 191, 0.45);
     }
   }
 }
@@ -498,13 +532,12 @@
 }
 
 // ============================================================
-// ✅ MODAL DE CONFIRMACIÓN
+// MODAL DE CONFIRMACIÓN — FONDO SÓLIDO
 // ============================================================
 .confirmacion-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -513,8 +546,8 @@
 }
 
 .confirmacion-card {
-  background: var(--tema-card-bg, #131a22);
-  border: 1px solid var(--border, #26313c);
+  background: $bg-dropdown;              // ✅ SÓLIDO
+  border: 1px solid $border-strong;
   border-radius: 16px;
   padding: 1.75rem 1.5rem 1.5rem;
   max-width: 380px;
@@ -524,7 +557,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
 }
 
 .confirmacion-icon {
@@ -537,9 +570,9 @@
   margin-bottom: 0.25rem;
 
   &--rechazo {
-    background: rgba(248, 81, 73, 0.12);
-    color: #f85149;
-    border: 1.5px solid rgba(248, 81, 73, 0.3);
+    background: rgba(248, 81, 73, 0.15);
+    color: $danger;
+    border: 1.5px solid rgba(248, 81, 73, 0.4);
   }
 }
 
@@ -547,16 +580,16 @@
   margin: 0;
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--text-primary, #e6edf3);
+  color: $text-primary;
 }
 
 .confirmacion-mensaje {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.5;
-  color: var(--text-secondary, #8b98a5);
+  color: $text-secondary;
 
-  strong { color: #2dd4bf; }
+  strong { color: $primary; }
 }
 
 .confirmacion-acciones {
@@ -587,30 +620,30 @@
 
   .btn-cancelar {
     background: transparent;
-    color: var(--text-secondary, #8b98a5);
-    border: 1px solid var(--border, #26313c);
+    color: $text-secondary;
+    border: 1px solid $border-strong;
 
     &:hover:not(:disabled) {
-      background: rgba(128, 128, 128, 0.08);
-      color: var(--text-primary, #e6edf3);
+      background: rgba(128, 128, 128, 0.1);
+      color: $text-primary;
     }
   }
 
   .btn-confirmar-rechazo {
-    background: #f85149;
+    background: $danger;
     color: white;
-    border: 1px solid #f85149;
+    border: 1px solid $danger;
 
     &:hover:not(:disabled) {
       background: #d63031;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(248, 81, 73, 0.4);
+      box-shadow: 0 6px 20px rgba(248, 81, 73, 0.5);
     }
   }
 }
 
 // ============================================================
-// ✅ MENSAJE FLOTANTE (TOAST)
+// MENSAJE FLOTANTE — FONDO SÓLIDO
 // ============================================================
 .mensaje-flotante {
   position: fixed;
@@ -624,35 +657,38 @@
   min-width: 320px;
   max-width: 420px;
   z-index: 10001;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   animation: slideInRight 0.3s ease;
   pointer-events: auto;
 
   &--exito {
-    background: linear-gradient(135deg, rgba(46, 160, 67, 0.15), rgba(46, 160, 67, 0.08));
-    border: 1px solid rgba(46, 160, 67, 0.4);
+    background: #0d2818;                 // ✅ SÓLIDO VERDE OSCURO
+    border: 1px solid rgba(46, 160, 67, 0.6);
     color: #4ade80;
 
     .mensaje-flotante__icono { color: #4ade80; }
     .mensaje-flotante__titulo { color: #4ade80; }
+    .mensaje-flotante__descripcion { color: #a7f3d0; }
   }
 
   &--error {
-    background: linear-gradient(135deg, rgba(248, 81, 73, 0.15), rgba(248, 81, 73, 0.08));
-    border: 1px solid rgba(248, 81, 73, 0.4);
+    background: #2d0f0f;                 // ✅ SÓLIDO ROJO OSCURO
+    border: 1px solid rgba(248, 81, 73, 0.6);
     color: #ff6b6b;
 
     .mensaje-flotante__icono { color: #ff6b6b; }
     .mensaje-flotante__titulo { color: #ff6b6b; }
+    .mensaje-flotante__descripcion { color: #fecaca; }
   }
 
   &--rechazo {
-    background: linear-gradient(135deg, rgba(249, 202, 36, 0.15), rgba(249, 202, 36, 0.08));
-    border: 1px solid rgba(249, 202, 36, 0.4);
-    color: #f9ca24;
+    background: #2d2410;                 // ✅ SÓLIDO AMARILLO OSCURO
+    border: 1px solid rgba(249, 202, 36, 0.6);
+    color: $warning;
 
-    .mensaje-flotante__icono { color: #f9ca24; }
-    .mensaje-flotante__titulo { color: #f9ca24; }
+    .mensaje-flotante__icono { color: $warning; }
+    .mensaje-flotante__titulo { color: $warning; }
+    .mensaje-flotante__descripcion { color: #fde68a; }
   }
 
   &__icono {
@@ -674,13 +710,11 @@
   &__titulo {
     font-size: 0.9rem;
     font-weight: 700;
-    color: var(--text-primary, #e6edf3);
     line-height: 1.2;
   }
 
   &__descripcion {
     font-size: 0.8rem;
-    color: var(--text-secondary, #8b98a5);
     line-height: 1.4;
   }
 
@@ -697,13 +731,13 @@
     border: none;
     border-radius: 50%;
     color: currentColor;
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: pointer;
     transition: all 0.15s ease;
 
     &:hover {
       opacity: 1;
-      background: rgba(128, 128, 128, 0.15);
+      background: rgba(128, 128, 128, 0.2);
     }
   }
 }
@@ -732,6 +766,8 @@
     max-width: 100%;
     max-height: calc(100vh - 60px);
     border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 
   .mensaje-flotante {

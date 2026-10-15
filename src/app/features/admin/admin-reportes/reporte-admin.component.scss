@@ -1,0 +1,1309 @@
+// src/app/features/admin/reporte-admin.component.scss
+
+// ============================================================
+// VARIABLES — COLORES SÓLIDOS
+// ============================================================
+$primary: #2dd4bf;
+$primary-dark: #17b6a4;
+$primary-light: rgba(45, 212, 191, 0.12);
+
+// Fondos SÓLIDOS
+$bg-page: #0a0f14;
+$bg-card: #131a20;              // ✅ Sólido (antes era rgba 0.75)
+$bg-header: #0f1620;            // ✅ Sólido
+$bg-input: #0d1419;             // ✅ Sólido
+$bg-hover: #1a2229;             // ✅ Sólido
+$bg-actions: #0d1419;           // ✅ Fondo de la sección de acciones
+$bg-badge: #1a2229;             // ✅ Fondo de badges default
+$bg-state: #131a20;             // ✅ Fondo de estados (loading/error/empty)
+
+// Bordes
+$border: #26313c;
+$border-light: #1e2732;
+$border-strong: #2e3a47;
+
+// Texto (colores con más contraste)
+$text-primary: #e6edf3;
+$text-secondary: #a8b5c2;       // ✅ Más claro que antes
+$text-muted: #7a8899;           // ✅ Más claro que antes
+
+// Estados (sólidos)
+$warning: #f59e0b;
+$warning-bg: rgba(245, 158, 11, 0.12);
+$warning-border: rgba(245, 158, 11, 0.35);
+
+$info: #3b82f6;
+$info-bg: rgba(59, 130, 246, 0.12);
+$info-border: rgba(59, 130, 246, 0.35);
+
+$success: #10b981;
+$success-bg: rgba(16, 185, 129, 0.12);
+$success-border: rgba(16, 185, 129, 0.35);
+
+$danger: #ef4444;
+$danger-bg: rgba(239, 68, 68, 0.12);
+$danger-border: rgba(239, 68, 68, 0.35);
+
+$radius: 16px;
+$radius-sm: 10px;
+$radius-xs: 8px;
+$transition: all 0.2s ease;
+
+* {
+  box-sizing: border-box;
+}
+
+// ============================================================
+// CONTENEDOR PRINCIPAL
+// ============================================================
+.admin-reportes {
+  position: relative;
+  min-height: 100vh;
+  padding: 32px 24px 60px;
+  background: $bg-page;
+  color: $text-primary;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+// ============================================================
+// FONDO DECORATIVO (ESTÁTICO, SIN ANIMACIÓN)
+// ============================================================
+.admin-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+
+  &__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(45, 212, 191, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45, 212, 191, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);
+  }
+
+  &__glow {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.35;
+    // ✅ SIN animación
+
+    &--1 {
+      top: -150px;
+      left: -100px;
+      background: radial-gradient(circle, rgba(45, 212, 191, 0.35), transparent 70%);
+    }
+
+    &--2 {
+      top: 200px;
+      right: -150px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.25), transparent 70%);
+    }
+  }
+}
+
+// Asegura que el contenido quede por encima del fondo
+.admin-reportes > *:not(.admin-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+// ============================================================
+// HEADER — FONDO SÓLIDO, SIN ANIMACIÓN
+// ============================================================
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  background: $bg-header;                 // ✅ SÓLIDO
+  border: 1px solid $border-strong;
+  border-radius: $radius;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  // ✅ SIN backdrop-filter
+  // ✅ SIN animación slideDown
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.2), rgba(45, 212, 191, 0.05));
+    color: $primary;
+    border-radius: 14px;
+    flex-shrink: 0;
+    border: 1px solid rgba(45, 212, 191, 0.25);
+    box-shadow: 0 4px 20px rgba(45, 212, 191, 0.15);
+
+    svg {
+      width: 26px;
+      height: 26px;
+    }
+  }
+
+  &__text {
+    min-width: 0;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 4px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: $text-secondary;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    color: #0a0f14;
+    border-radius: 20px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    box-shadow: 0 2px 10px rgba(45, 212, 191, 0.4);
+    // ✅ SIN animación badgePulse
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+}
+
+// ============================================================
+// USER CHIP (ESTÁTICO)
+// ============================================================
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px 5px 5px;
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  border-radius: 30px;
+  transition: $transition;
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.14);
+    border-color: rgba(45, 212, 191, 0.4);
+    // ✅ SIN transform
+  }
+
+  &__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    color: #0a0f14;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(45, 212, 191, 0.4);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $text-primary;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
+  &__role {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: $primary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+}
+
+// ============================================================
+// BOTONES DE ICONO (ESTÁTICOS)
+// ============================================================
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: $bg-hover;
+  border: 1px solid $border;
+  border-radius: 12px;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: $transition;
+  flex-shrink: 0;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    // ✅ SIN transform
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+
+  &.btn-refresh:hover {
+    color: $primary;
+    background: rgba(45, 212, 191, 0.15);
+    border-color: rgba(45, 212, 191, 0.5);
+    // ✅ SIN rotación
+  }
+
+  &.btn-logout:hover {
+    color: $danger;
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+}
+
+// ============================================================
+// ESTADÍSTICAS (SIN ANIMACIÓN)
+// ============================================================
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: $bg-card;                 // ✅ SÓLIDO
+  border: 1px solid $border-strong;
+  border-radius: $radius;
+  overflow: hidden;
+  transition: $transition;
+  // ✅ SIN animación fadeInUp
+
+  &__glow {
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    // ✅ SIN transform
+
+    .stat-card__glow {
+      opacity: 0.12;
+    }
+
+    .stat-card__icon {
+      // ✅ SIN transform
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    // ✅ SIN transition
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__number {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: $text-primary;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.02em;
+  }
+
+  &__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  // Variantes
+  &--pendiente {
+    .stat-card__icon { background: $warning-bg; color: $warning; border: 1px solid $warning-border; }
+    .stat-card__number { color: $warning; }
+    .stat-card__glow { background: radial-gradient(circle, $warning 0%, transparent 70%); }
+  }
+
+  &--revisando {
+    .stat-card__icon { background: $info-bg; color: $info; border: 1px solid $info-border; }
+    .stat-card__number { color: $info; }
+    .stat-card__glow { background: radial-gradient(circle, $info 0%, transparent 70%); }
+  }
+
+  &--resuelto {
+    .stat-card__icon { background: $success-bg; color: $success; border: 1px solid $success-border; }
+    .stat-card__number { color: $success; }
+    .stat-card__glow { background: radial-gradient(circle, $success 0%, transparent 70%); }
+  }
+
+  &--rechazado {
+    .stat-card__icon { background: $danger-bg; color: $danger; border: 1px solid $danger-border; }
+    .stat-card__number { color: $danger; }
+    .stat-card__glow { background: radial-gradient(circle, $danger 0%, transparent 70%); }
+  }
+}
+
+// ============================================================
+// FILTROS — FONDO SÓLIDO
+// ============================================================
+.admin-filtros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  background: $bg-header;                // ✅ SÓLIDO
+  border: 1px solid $border-strong;
+  border-radius: $radius;
+  // ✅ SIN animación
+
+  .filtro-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+
+      svg {
+        color: $primary;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    select {
+      width: 100%;
+      padding: 11px 40px 11px 14px;
+      background: $bg-input;
+      border: 1px solid $border;
+      border-radius: $radius-sm;
+      color: $text-primary;
+      font-size: 0.875rem;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+      }
+
+      &:hover {
+        border-color: rgba(45, 212, 191, 0.4);
+      }
+
+      option {
+        background: $bg-card;
+        color: $text-primary;
+      }
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 14px;
+      color: $text-muted;
+      pointer-events: none;
+      // ✅ SIN rotación al focus
+    }
+  }
+}
+
+// ============================================================
+// ESTADOS (loading / error / empty) — FONDO SÓLIDO
+// ============================================================
+.admin-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  background: $bg-state;                // ✅ SÓLIDO
+  border: 1px solid $border-strong;
+  border-radius: $radius;
+  gap: 12px;
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    margin: 0;
+    max-width: 340px;
+    line-height: 1.5;
+  }
+}
+
+.state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-bottom: 6px;
+
+  &--danger {
+    background: $danger-bg;
+    color: $danger;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    // ✅ SIN animación pulseError
+  }
+
+  &--muted {
+    background: $bg-hover;
+    color: $text-muted;
+    border: 1px solid $border;
+  }
+}
+
+.admin-loading .spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid $border;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  // ✅ El spinner SÍ debe girar (es feedback)
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #0a0f14;
+  border: none;
+  border-radius: $radius-sm;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: $transition;
+  box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
+
+  &:hover {
+    // ✅ SIN transform
+    box-shadow: 0 6px 20px rgba(45, 212, 191, 0.45);
+  }
+
+  &:active {
+    // ✅ SIN transform
+  }
+}
+
+// ============================================================
+// LISTA DE REPORTES
+// ============================================================
+.reportes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ============================================================
+// TARJETA DE REPORTE — FONDO SÓLIDO
+// ============================================================
+.reporte-card {
+  position: relative;
+  background: $bg-card;                 // ✅ SÓLIDO
+  border: 1px solid $border-strong;
+  border-radius: $radius;
+  overflow: hidden;
+  transition: $transition;
+  // ✅ SIN animación
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, $primary, $primary-dark);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    border-color: rgba(45, 212, 191, 0.3);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+    // ✅ SIN transform
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid $border-light;
+    background: $bg-header;               // ✅ SÓLIDO
+    flex-wrap: wrap;
+  }
+
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__fecha {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: $text-secondary;
+    font-weight: 500;
+
+    svg {
+      color: $text-muted;
+      flex-shrink: 0;
+    }
+  }
+
+  &__body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: $bg-card;
+  }
+
+  &__actions {
+    padding: 18px 20px;
+    background: $bg-actions;              // ✅ SÓLIDO
+    border-top: 1px solid $border-light;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__resultado {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(16, 185, 129, 0.08);
+    border-top: 1px solid rgba(16, 185, 129, 0.25);
+  }
+}
+
+// ============================================================
+// BADGES — FONDO SÓLIDO
+// ============================================================
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: $transition;
+
+  &-tipo {
+    background: $info-bg;
+    color: $info;
+    border-color: $info-border;
+  }
+
+  &-motivo {
+    background: $warning-bg;
+    color: $warning;
+    border-color: $warning-border;
+  }
+
+  &-pendiente {
+    background: $warning-bg;
+    color: $warning;
+    border-color: $warning-border;
+    // ✅ SIN animación softPulse
+  }
+
+  &-revisando {
+    background: $info-bg;
+    color: $info;
+    border-color: $info-border;
+  }
+
+  &-resuelto {
+    background: $success-bg;
+    color: $success;
+    border-color: $success-border;
+  }
+
+  &-rechazado {
+    background: $danger-bg;
+    color: $danger;
+    border-color: $danger-border;
+  }
+
+  &-default {
+    background: $bg-badge;
+    color: $text-secondary;
+    border-color: $border;
+  }
+}
+
+// ============================================================
+// INFO DEL REPORTE
+// ============================================================
+.reporte-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.info-label {
+  font-weight: 700;
+  color: $text-secondary;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-top: 2px;
+}
+
+.info-value {
+  color: $text-primary;
+  word-break: break-word;
+  min-width: 0;
+
+  &--reportante {
+    color: $info;
+    font-weight: 600;
+  }
+
+  &--reportado {
+    color: $danger;
+    font-weight: 600;
+  }
+
+  &--truncate {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// ============================================================
+// DESCRIPCIÓN
+// ============================================================
+.reporte-descripcion {
+  padding: 14px 16px;
+  background: $bg-header;               // ✅ SÓLIDO
+  border-radius: $radius-sm;
+  border-left: 3px solid $primary;
+  border: 1px solid $border-light;
+  border-left: 3px solid $primary;
+
+  .info-label {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: $text-primary;
+    word-break: break-word;
+  }
+}
+
+// ============================================================
+// ACCIONES
+// ============================================================
+.action-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 12px;
+
+  .action-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+
+    label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .select-accion,
+    .input-nota {
+      width: 100%;
+      padding: 11px 14px;
+      background: $bg-input;
+      border: 1px solid $border;
+      border-radius: $radius-sm;
+      color: $text-primary;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+      }
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+
+    .select-accion {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 40px;
+
+      option {
+        background: $bg-card;
+        color: $text-primary;
+      }
+    }
+
+    .select-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .select-arrow {
+        position: absolute;
+        right: 12px;
+        color: $text-muted;
+        pointer-events: none;
+      }
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-resolver,
+.btn-rechazar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: $transition;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:active {
+    // ✅ SIN transform
+  }
+}
+
+.btn-resolver {
+  background: linear-gradient(135deg, $success, #059669);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+
+  &:hover {
+    // ✅ SIN transform
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  }
+}
+
+.btn-rechazar {
+  background: rgba(239, 68, 68, 0.1);
+  color: $danger;
+  border-color: rgba(239, 68, 68, 0.4);
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.65);
+    // ✅ SIN transform
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+  }
+}
+
+// ============================================================
+// RESULTADO DE MODERACIÓN
+// ============================================================
+.resultado-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, $success, #059669);
+  color: white;
+  border-radius: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.resultado-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .resultado-titulo {
+    font-size: 0.85rem;
+    color: $text-secondary;
+
+    strong {
+      color: $text-primary;
+      font-weight: 700;
+    }
+  }
+
+  .resultado-nota {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $text-primary;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .resultado-accion {
+    font-size: 0.7rem;
+    color: $text-muted;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE — TABLET (<= 900px)
+// ============================================================
+@media (max-width: 900px) {
+  .admin-reportes {
+    padding: 24px 18px 48px;
+  }
+
+  .admin-header {
+    padding: 18px 20px;
+
+    &__text h1 {
+      font-size: 1.3rem;
+    }
+
+    &__icon {
+      width: 46px;
+      height: 46px;
+
+      svg {
+        width: 22px;
+        height: 22px;
+      }
+    }
+  }
+
+  .admin-user__name {
+    max-width: 90px;
+  }
+
+  .action-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================
+// RESPONSIVE — MÓVIL (<= 640px)
+// ============================================================
+@media (max-width: 640px) {
+  .admin-reportes {
+    padding: 16px 12px 40px;
+  }
+
+  .admin-header {
+    padding: 14px 16px;
+    gap: 12px;
+
+    &__left {
+      gap: 12px;
+    }
+
+    &__icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    &__text {
+      h1 {
+        font-size: 1.1rem;
+        gap: 6px;
+      }
+
+      p {
+        font-size: 0.78rem;
+      }
+    }
+
+    &__badge {
+      font-size: 0.55rem;
+      padding: 2px 8px;
+    }
+
+    &__right {
+      width: 100%;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid $border-light;
+    }
+  }
+
+  .admin-user {
+    flex: 1;
+    min-width: 0;
+
+    &__name {
+      max-width: 140px;
+    }
+  }
+
+  .btn-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px;
+    gap: 10px;
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__number {
+      font-size: 1.35rem;
+    }
+
+    &__label {
+      font-size: 0.62rem;
+    }
+  }
+
+  .admin-filtros {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 12px;
+
+    .select-wrapper select {
+      font-size: 0.85rem;
+      padding: 10px 38px 10px 12px;
+    }
+  }
+
+  .reporte-card {
+    &__header {
+      padding: 12px 14px;
+      gap: 10px;
+
+      .reporte-card__fecha {
+        font-size: 0.7rem;
+        width: 100%;
+      }
+    }
+
+    &__body {
+      padding: 14px;
+      gap: 12px;
+    }
+
+    &__actions {
+      padding: 14px;
+    }
+  }
+
+  .badge {
+    font-size: 0.58rem;
+    padding: 4px 10px;
+  }
+
+  .info-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .info-label {
+    font-size: 0.65rem;
+  }
+
+  .info-value {
+    font-size: 0.85rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+
+    .btn-resolver,
+    .btn-rechazar {
+      width: 100%;
+    }
+  }
+
+  .reporte-card__resultado {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .resultado-icon {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE — MÓVIL PEQUEÑO (<= 380px)
+// ============================================================
+@media (max-width: 380px) {
+  .admin-reportes {
+    padding: 12px 8px 32px;
+  }
+
+  .admin-header {
+    padding: 12px;
+
+    &__icon {
+      width: 38px;
+      height: 38px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__text h1 {
+      font-size: 1rem;
+    }
+
+    &__text p {
+      font-size: 0.7rem;
+    }
+  }
+
+  .admin-user {
+    &__avatar {
+      width: 30px;
+      height: 30px;
+      font-size: 0.8rem;
+    }
+
+    &__name {
+      font-size: 0.72rem;
+      max-width: 100px;
+    }
+
+    &__role {
+      font-size: 0.55rem;
+    }
+  }
+
+  .admin-stats {
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px 10px;
+
+    &__number {
+      font-size: 1.2rem;
+    }
+
+    &__icon {
+      width: 36px;
+      height: 36px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .reporte-card__header,
+  .reporte-card__body,
+  .reporte-card__actions {
+    padding: 12px;
+  }
+
+  .btn-resolver,
+  .btn-rechazar {
+    font-size: 0.8rem;
+    padding: 9px 14px;
+  }
+}
+
+// ============================================================
+// ACCESIBILIDAD — SIN MOVIMIENTO
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -658,3 +658,92 @@ $transition: 0.25s ease;
     transition: none !important;
   }
 }
+// ============================================================
+// ✅ SECCIÓN ADMIN (solo CEO / ADMIN / MODERADOR)
+// ============================================================
+
+.menu-section--admin {
+  .menu-section-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: $primary;
+
+    svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      color: $primary;
+    }
+
+    span {
+      font-size: 0.66rem;
+      letter-spacing: 0.11em;
+    }
+  }
+}
+
+.menu-button--admin {
+  background: rgba(45, 212, 191, 0.06);
+  border: 1px solid rgba(45, 212, 191, 0.15);
+  color: $primary;
+
+  .menu-icon {
+    color: $primary;
+
+    svg {
+      stroke: $primary;
+    }
+  }
+
+  .menu-label {
+    color: $primary;
+    font-weight: 600;
+  }
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.12);
+    border-color: rgba(45, 212, 191, 0.35);
+    color: $primary;
+
+    .menu-icon {
+      color: $primary;
+    }
+  }
+
+  &.active {
+    background: rgba(45, 212, 191, 0.15);
+    border-color: $primary;
+  }
+}
+
+.menu-badge--admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  margin-left: auto;
+  background: rgba(45, 212, 191, 0.2) !important;
+  color: $primary !important;
+  border: 1px solid rgba(45, 212, 191, 0.4) !important;
+  border-radius: 9px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+// ✅ Ajustes para modo contraído
+.navbar.menu-contraido {
+  .menu-badge--admin {
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    font-size: 0.5rem;
+  }
+}

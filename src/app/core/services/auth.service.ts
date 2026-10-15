@@ -25,6 +25,9 @@ export class AuthService {
     this.cargarSesion();
   }
 
+  // ============================================================
+  // CARGAR SESIÓN DESDE LOCALSTORAGE
+  // ============================================================
   private cargarSesion(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
     const usuarioStr = localStorage.getItem(this.USER_KEY);
@@ -35,12 +38,16 @@ export class AuthService {
         this.token.set(token);
         this.usuario.set(usuario);
         queueMicrotask(() => this.sesionCambiadaSubject.next(true));
+        console.log('[AUTH] Sesión de usuario cargada desde storage');
       } catch {
         this.limpiarSesion();
       }
     }
   }
 
+  // ============================================================
+  // GUARDAR / LIMPIAR SESIÓN
+  // ============================================================
   private guardarSesion(token: string, usuario: User): void {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
@@ -57,6 +64,9 @@ export class AuthService {
     this.sesionCambiadaSubject.next(false);
   }
 
+  // ============================================================
+  // LOGIN
+  // ============================================================
   login(credenciales: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, credenciales).pipe(
       tap((respuesta) => {
@@ -67,6 +77,9 @@ export class AuthService {
     );
   }
 
+  // ============================================================
+  // REGISTRO Y VERIFICACIÓN
+  // ============================================================
   registro(datos: RegisterRequest): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/registro`, datos);
   }
@@ -89,6 +102,9 @@ export class AuthService {
     });
   }
 
+  // ============================================================
+  // PERFIL
+  // ============================================================
   obtenerPerfil(): Observable<User> {
     return this.http.get<User>(`${this.API_URL}/perfil`).pipe(
       tap((usuario) => {
@@ -98,9 +114,6 @@ export class AuthService {
     );
   }
 
-  // ============================================================
-  // SUBIR FOTO
-  // ============================================================
   subirFotoMultipart(archivo: File): Observable<User> {
     const formData = new FormData();
     formData.append('archivo', archivo);
@@ -121,9 +134,6 @@ export class AuthService {
     );
   }
 
-  // ============================================================
-  // ✅ NUEVO: ELIMINAR FOTO DE PERFIL
-  // ============================================================
   eliminarFotoPerfil(): Observable<User> {
     return this.http.delete<User>(`${this.API_URL}/perfil/foto`).pipe(
       tap((usuario) => {
@@ -142,6 +152,9 @@ export class AuthService {
     );
   }
 
+  // ============================================================
+  // LOGOUT
+  // ============================================================
   logout(): void {
     const token = this.token();
     this.limpiarSesion();
@@ -160,8 +173,26 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  // ============================================================
+  // HELPERS
+  // ============================================================
   isAuthenticated(): boolean {
-    return !!this.token() && !!this.usuario();
+    const token = this.token();
+    if (!token) return false;
+
+    // ✅ Verificar expiración del JWT
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp && Date.now() >= payload.exp * 1000) {
+        console.warn('[AUTH] Token de usuario expirado');
+        this.limpiarSesion();
+        return false;
+      }
+    } catch {
+      return false;
+    }
+
+    return !!this.usuario();
   }
 
   estaLogueado(): boolean { return this.isAuthenticated(); }

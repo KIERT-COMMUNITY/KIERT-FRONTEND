@@ -127,6 +127,39 @@
           </div>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- ✅ SECCIÓN ADMIN: SOLO si hay sesión admin VÁLIDA -->
+        <!-- ============================================================ -->
+        @if (adminAuth.estaLogueado()) {
+          <div class="menu-section menu-section--admin">
+            <span class="menu-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span>Administración</span>
+            </span>
+
+            <button
+              type="button"
+              class="menu-item menu-button menu-button--admin"
+              title="Panel de reportes"
+              (click)="irAlPanelReportes()"
+            >
+              <span class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                  <line x1="4" y1="22" x2="4" y2="15"/>
+                </svg>
+              </span>
+              <span class="menu-label">Reportes</span>
+              <span class="menu-badge menu-badge--admin" [attr.title]="'Rol: ' + adminAuth.admin()?.rol">
+                {{ adminAuth.admin()?.rol }}
+              </span>
+            </button>
+          </div>
+        }
+        <!-- ============================================================ -->
+
         <div class="menu-section">
           <span class="menu-section-title">Mi cuenta</span>
 

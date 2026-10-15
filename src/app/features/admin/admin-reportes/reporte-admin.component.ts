@@ -1,7 +1,10 @@
+// src/app/features/admin/reporte-admin.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReporteService, Reporte, ReporteResumen } from '../../core/services/reporte.service';
+import { Router } from '@angular/router';
+import { ReporteService, Reporte, ReporteResumen } from '../../../core/services/reporte.service';
+import { AdminAuthService } from '../../../core/services/admin-auth.service';
 
 @Component({
   selector: 'kiert-reportes-admin',
@@ -12,6 +15,8 @@ import { ReporteService, Reporte, ReporteResumen } from '../../core/services/rep
 })
 export class ReportesAdminComponent implements OnInit {
   private reporteService = inject(ReporteService);
+  private router = inject(Router);
+  public adminAuth = inject(AdminAuthService);
 
   reportes = signal<Reporte[]>([]);
   resumen = signal<ReporteResumen | null>(null);
@@ -24,8 +29,21 @@ export class ReportesAdminComponent implements OnInit {
   notas: Record<number, string> = {};
 
   ngOnInit(): void {
+    // ✅ Validar sesión al entrar
+    if (!this.adminAuth.estaLogueado()) {
+      this.router.navigate(['/admin/login']);
+      return;
+    }
+
     this.cargar();
     this.cargarResumen();
+  }
+
+  // ✅ LOGOUT — usa el nuevo método que limpia Y navega
+  logout(): void {
+    if (confirm('¿Cerrar sesión de administrador?')) {
+      this.adminAuth.logoutYNavegar();
+    }
   }
 
   cargar(): void {
@@ -39,6 +57,11 @@ export class ReportesAdminComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar reportes:', err);
+        // ✅ Si token expiró → logout automático
+        if (err.status === 401 || err.status === 403) {
+          this.adminAuth.logoutYNavegar();
+          return;
+        }
         this.errorMsg.set('Error al cargar reportes');
         this.cargando.set(false);
       }
@@ -73,6 +96,10 @@ export class ReportesAdminComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al actualizar reporte:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.adminAuth.logoutYNavegar();
+          return;
+        }
         alert('Error al actualizar el reporte');
       }
     });

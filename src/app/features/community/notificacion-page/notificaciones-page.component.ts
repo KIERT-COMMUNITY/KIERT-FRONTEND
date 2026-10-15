@@ -1,12 +1,26 @@
+// src/app/features/community/notificacion-page/notificaciones-page.component.ts
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { NotificationService, Notificacion } from '../../../core/services/notification.service';
+import { NotificationService, Notificacion, TipoNotificacion } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 
-type FiltroTipo = 'todas' | 'no-leidas' | 'like' | 'comentario' | 'respuesta' | 'solicitud' | 'sistema';
+type FiltroTipo =
+  | 'todas'
+  | 'no-leidas'
+  | 'like'
+  | 'comentario'
+  | 'respuesta'
+  | 'solicitud'
+  | 'sistema'
+  | 'REPORTE_NUEVO'
+  | 'REPORTE_RESUELTO'
+  | 'REPORTE_RECHAZADO'
+  | 'ADVERTENCIA'
+  | 'CONTENIDO_ELIMINADO'
+  | 'USUARIO_BANEADO';
 
 @Component({
   selector: 'kiert-notificaciones-page',
@@ -63,26 +77,26 @@ export class NotificacionesPageComponent implements OnInit {
     this.notificaciones().filter(n => n.leida).length
   );
 
-  // ✅ TIPO EXPLÍCITO - Sin Record<string, number>
-  totalPorTipo = computed((): {
-    like: number;
-    comentario: number;
-    respuesta: number;
-    solicitud: number;
-    sistema: number;
-  } => {
-    const tipos = {
+  // ✅ Total por tipo (con TODOS los tipos)
+  totalPorTipo = computed((): Record<string, number> => {
+    const tipos: Record<string, number> = {
       like: 0,
       comentario: 0,
       respuesta: 0,
       solicitud: 0,
-      sistema: 0
+      sistema: 0,
+      INVITACION_GRUPO: 0,
+      REPORTE_NUEVO: 0,
+      REPORTE_RESUELTO: 0,
+      REPORTE_RECHAZADO: 0,
+      ADVERTENCIA: 0,
+      CONTENIDO_ELIMINADO: 0,
+      USUARIO_BANEADO: 0
     };
 
     this.notificaciones().forEach(n => {
-      const tipo = n.tipo?.toLowerCase() as keyof typeof tipos;
-      if (tipo && tipos[tipo] !== undefined) {
-        tipos[tipo]++;
+      if (tipos[n.tipo] !== undefined) {
+        tipos[n.tipo]++;
       }
     });
 
@@ -90,6 +104,13 @@ export class NotificacionesPageComponent implements OnInit {
   });
 
   haySeleccionadas = computed(() => this.seleccionadas().size > 0);
+
+  // ✅ Notificaciones de reporte (agrupadas para UI)
+  notificacionesDeReporte = computed(() =>
+    this.notificaciones().filter(n =>
+      this.notificationService.esNotificacionDeReporte(n.tipo)
+    )
+  );
 
   ngOnInit(): void {
     this.cargarNotificaciones();
@@ -230,7 +251,9 @@ export class NotificacionesPageComponent implements OnInit {
     this.seleccionadas.set(new Set());
   }
 
-  // ===== NAVEGACIÓN =====
+  // ============================================================
+  // ✅ NAVEGACIÓN POR TIPO (igual que el dropdown)
+  // ============================================================
   onClickNotificacion(notificacion: Notificacion): void {
     if (this.modoSeleccion()) {
       this.toggleSeleccion(notificacion.id, new Event('click'));
@@ -241,36 +264,83 @@ export class NotificacionesPageComponent implements OnInit {
       this.marcarComoLeida(notificacion.id);
     }
 
-    if (notificacion.url) {
-      this.router.navigate([notificacion.url]);
+    const navegacion = this.construirNavegacion(notificacion);
+    if (navegacion) {
+      this.router.navigate(navegacion.ruta, {
+        queryParams: navegacion.queryParams
+      });
     }
+  }
+
+  private construirNavegacion(notificacion: Notificacion): {
+    ruta: any[];
+    queryParams?: Record<string, any>;
+  } | null {
+    const n = notificacion;
+
+    switch (n.tipo) {
+      case 'comentario':
+        if (n.postId) {
+          return {
+            ruta: ['/comunidad', n.postId],
+            queryParams: n.comentarioId ? { comentarioId: n.comentarioId } : undefined
+          };
+        }
+        break;
+
+      case 'respuesta':
+        if (n.postId) {
+          const qp: Record<string, any> = {};
+          if (n.comentarioId) qp['comentarioId'] = n.comentarioId;
+          if (n.respuestaId) qp['respuestaId'] = n.respuestaId;
+          return {
+            ruta: ['/comunidad', n.postId],
+            queryParams: Object.keys(qp).length > 0 ? qp : undefined
+          };
+        }
+        break;
+
+      case 'like':
+        if (n.postId) return { ruta: ['/comunidad', n.postId] };
+        break;
+
+      case 'solicitud':
+        return { ruta: ['/chat'] };
+
+      case 'sistema':
+        if (n.url) return { ruta: [n.url] };
+        break;
+
+      case 'REPORTE_NUEVO':
+        return { ruta: ['/admin/reportes'] };
+
+      case 'REPORTE_RESUELTO':
+      case 'REPORTE_RECHAZADO':
+        return { ruta: ['/mis-reportes'] };
+
+      case 'ADVERTENCIA':
+      case 'CONTENIDO_ELIMINADO':
+      case 'USUARIO_BANEADO':
+        return { ruta: ['/mis-publicaciones'] };
+    }
+
+    if (n.url) return { ruta: [n.url] };
+    return null;
   }
 
   volver(): void {
     this.router.navigate(['/comunidad']);
   }
 
-  // ===== UTILIDADES =====
+  // ============================================================
+  // UTILIDADES (delegan al servicio)
+  // ============================================================
   getColorTipo(tipo: string): string {
-    const colores: Record<string, string> = {
-      'like': '#f85149',
-      'comentario': '#2dd4bf',
-      'respuesta': '#58a6ff',
-      'solicitud': '#f9ca24',
-      'sistema': '#8b98a5'
-    };
-    return colores[tipo?.toLowerCase()] || '#8b98a5';
+    return this.notificationService.getColorTipo(tipo as TipoNotificacion);
   }
 
   getEtiquetaTipo(tipo: string): string {
-    const etiquetas: Record<string, string> = {
-      'like': 'Me gusta',
-      'comentario': 'Comentario',
-      'respuesta': 'Respuesta',
-      'solicitud': 'Solicitud',
-      'sistema': 'Sistema'
-    };
-    return etiquetas[tipo?.toLowerCase()] || 'Notificación';
+    return this.notificationService.getEtiquetaTipo(tipo as TipoNotificacion);
   }
 
   getLabelFiltro(filtro: FiltroTipo): string {
@@ -281,7 +351,13 @@ export class NotificacionesPageComponent implements OnInit {
       'comentario': 'Comentarios',
       'respuesta': 'Respuestas',
       'solicitud': 'Solicitudes',
-      'sistema': 'Sistema'
+      'sistema': 'Sistema',
+      'REPORTE_NUEVO': 'Nuevos reportes',
+      'REPORTE_RESUELTO': 'Reportes resueltos',
+      'REPORTE_RECHAZADO': 'Reportes rechazados',
+      'ADVERTENCIA': 'Advertencias',
+      'CONTENIDO_ELIMINADO': 'Contenido eliminado',
+      'USUARIO_BANEADO': 'Cuentas suspendidas'
     };
     return labels[filtro];
   }

@@ -3,7 +3,6 @@
 <!-- ===== CARRUSEL DE ANUNCIOS ESTÁTICOS ===== -->
 @if (showStaticAd()) {
   <div class="static-ad-carousel">
-    <!-- Botón de cierre -->
     <button class="static-ad-carousel__close" (click)="closeStaticAd()" aria-label="Cerrar anuncios">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="18" y1="6" x2="6" y2="18"/>
@@ -11,9 +10,7 @@
       </svg>
     </button>
 
-    <!-- Contenedor del carrusel -->
     <div class="static-ad-carousel__container">
-      <!-- Imagen actual -->
       <a [href]="staticAds()[indiceActual()].link" target="_blank" rel="noopener noreferrer" class="static-ad-carousel__link">
         <img
           [src]="staticAds()[indiceActual()].image"
@@ -24,7 +21,6 @@
         />
       </a>
 
-      <!-- Indicadores de página -->
       <div class="static-ad-carousel__dots">
         @for (ad of staticAds(); track ad.id; let i = $index) {
           <button
@@ -36,13 +32,11 @@
         }
       </div>
 
-      <!-- Contador de anuncios -->
       <div class="static-ad-carousel__counter">
         {{ indiceActual() + 1 }} / {{ staticAds().length }}
       </div>
     </div>
 
-    <!-- Botones de navegación -->
     <button
       class="static-ad-carousel__nav static-ad-carousel__nav--prev"
       (click)="anterior()"
@@ -64,46 +58,7 @@
   </div>
 }
 
-<!-- ===== COLABORADORES DEL PROYECTO ===== -->
-@if (showBottomAd()) {
-  <div class="floating-colaboradores">
-    <button class="floating-colaboradores__close" (click)="closeBottomAd()" aria-label="Cerrar colaboradores">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-
-    <div class="floating-colaboradores__title">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <span>Colaboradores</span>
-    </div>
-
-    <div class="floating-colaboradores__grid">
-      @for (colab of colaboradores(); track colab.usuario) {
-        <a [href]="colab.url"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="floating-colaboradores__link"
-           [attr.title]="colab.usuario">
-          <img [src]="getAvatarColaborador(colab.usuario)"
-               [alt]="colab.usuario"
-               loading="lazy"
-               (error)="onImageError($event)">
-        </a>
-      }
-    </div>
-
-    <div class="floating-colaboradores__footer">
-      <span>Hecho por el equipo</span>
-    </div>
-  </div>
-}
+<!-- ❌ COLABORADORES ELIMINADO -->
 
 <!-- ===== ANUNCIO SUPERIOR ===== -->
 @if (showTopAd()) {

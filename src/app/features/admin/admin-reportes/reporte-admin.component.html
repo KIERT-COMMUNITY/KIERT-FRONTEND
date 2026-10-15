@@ -1,0 +1,351 @@
+<!-- src/app/features/admin/reporte-admin.component.html -->
+<div class="admin-reportes">
+
+  <!-- ============================================================ -->
+  <!-- FONDO DECORATIVO ANIMADO                                      -->
+  <!-- ============================================================ -->
+  <div class="admin-bg" aria-hidden="true">
+    <div class="admin-bg__grid"></div>
+    <div class="admin-bg__glow admin-bg__glow--1"></div>
+    <div class="admin-bg__glow admin-bg__glow--2"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- HEADER                                                        -->
+  <!-- ============================================================ -->
+  <header class="admin-header">
+    <div class="admin-header__left">
+      <div class="admin-header__icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+          <line x1="4" y1="22" x2="4" y2="15"/>
+        </svg>
+      </div>
+      <div class="admin-header__text">
+        <h1>
+          Panel de Reportes
+          <span class="admin-header__badge">Admin</span>
+        </h1>
+        <p>Gestiona los reportes enviados por los usuarios</p>
+      </div>
+    </div>
+
+    <div class="admin-header__right">
+      <div class="admin-user">
+        <div class="admin-user__avatar">
+          {{ adminAuth.admin()?.nombre?.charAt(0)?.toUpperCase() || 'A' }}
+        </div>
+        <div class="admin-user__info">
+          <span class="admin-user__name">{{ adminAuth.admin()?.nombre || 'Admin' }}</span>
+          <span class="admin-user__role">{{ adminAuth.admin()?.rol || 'ADMIN' }}</span>
+        </div>
+      </div>
+
+      <button class="btn-icon btn-refresh" (click)="cargar(); cargarResumen()" title="Recargar" aria-label="Recargar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+      </button>
+
+      <button class="btn-icon btn-logout" (click)="logout()" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- ESTADÍSTICAS                                                  -->
+  <!-- ============================================================ -->
+  @if (resumen()) {
+    <div class="admin-stats">
+      <div class="stat-card stat-card--pendiente">
+        <div class="stat-card__glow"></div>
+        <div class="stat-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__number">{{ resumen()!.totalPendientes }}</span>
+          <span class="stat-card__label">Pendientes</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--revisando">
+        <div class="stat-card__glow"></div>
+        <div class="stat-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__number">{{ resumen()!.totalRevisando }}</span>
+          <span class="stat-card__label">Revisando</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--resuelto">
+        <div class="stat-card__glow"></div>
+        <div class="stat-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__number">{{ resumen()!.totalResueltos }}</span>
+          <span class="stat-card__label">Resueltos</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--rechazado">
+        <div class="stat-card__glow"></div>
+        <div class="stat-card__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__number">{{ resumen()!.totalRechazados }}</span>
+          <span class="stat-card__label">Rechazados</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================ -->
+  <!-- FILTROS                                                       -->
+  <!-- ============================================================ -->
+  <div class="admin-filtros">
+    <div class="filtro-group">
+      <label for="filtro-estado">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        </svg>
+        Estado
+      </label>
+      <div class="select-wrapper">
+        <select id="filtro-estado" [(ngModel)]="filtroEstado" (change)="cargar()">
+          <option value="">Todos los estados</option>
+          <option value="PENDIENTE">Pendientes</option>
+          <option value="REVISANDO">Revisando</option>
+          <option value="RESUELTO">Resueltos</option>
+          <option value="RECHAZADO">Rechazados</option>
+        </select>
+        <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="filtro-group">
+      <label for="filtro-tipo">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        Tipo
+      </label>
+      <div class="select-wrapper">
+        <select id="filtro-tipo" [(ngModel)]="filtroTipo" (change)="cargar()">
+          <option value="">Todos los tipos</option>
+          <option value="POST">Posts</option>
+          <option value="COMENTARIO">Comentarios</option>
+          <option value="RESPUESTA">Respuestas</option>
+          <option value="USUARIO">Usuarios</option>
+        </select>
+        <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- CONTENIDO                                                     -->
+  <!-- ============================================================ -->
+  @if (cargando()) {
+    <div class="admin-state admin-loading">
+      <div class="spinner"></div>
+      <p>Cargando reportes...</p>
+    </div>
+  } @else if (errorMsg()) {
+    <div class="admin-state admin-error">
+      <div class="state-icon state-icon--danger">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h3>Ocurrió un error</h3>
+      <p>{{ errorMsg() }}</p>
+      <button class="btn-primary" (click)="cargar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        Reintentar
+      </button>
+    </div>
+  } @else if (reportes().length === 0) {
+    <div class="admin-state admin-empty">
+      <div class="state-icon state-icon--muted">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+          <line x1="4" y1="22" x2="4" y2="15"/>
+        </svg>
+      </div>
+      <h3>Sin reportes</h3>
+      <p>No hay reportes que coincidan con los filtros seleccionados</p>
+    </div>
+  } @else {
+    <div class="reportes-lista">
+
+      @for (r of reportes(); track r.id; let i = $index) {
+        <article class="reporte-card" [style.animation-delay]="(i * 60) + 'ms'">
+
+          <!-- Header del reporte -->
+          <div class="reporte-card__header">
+            <div class="reporte-card__badges">
+              <span class="badge badge-tipo">{{ r.tipoReporte }}</span>
+              <span class="badge badge-motivo">{{ getMotivoLabel(r.motivo) }}</span>
+              <span class="badge" [ngClass]="getBadgeClass(r.estado)">{{ r.estado }}</span>
+            </div>
+            <span class="reporte-card__fecha">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ formatearFecha(r.fechaCreacion) }}
+            </span>
+          </div>
+
+          <!-- Body del reporte -->
+          <div class="reporte-card__body">
+            <div class="reporte-info">
+              <div class="info-row">
+                <span class="info-label">Reportante</span>
+                <span class="info-value info-value--reportante">{{ r.reportanteNombre }}</span>
+              </div>
+
+              @if (r.reportadoNombre) {
+                <div class="info-row">
+                  <span class="info-label">Reportado</span>
+                  <span class="info-value info-value--reportado">{{ r.reportadoNombre }}</span>
+                </div>
+              }
+
+              @if (r.postTitulo) {
+                <div class="info-row">
+                  <span class="info-label">Post</span>
+                  <span class="info-value">{{ r.postTitulo }}</span>
+                </div>
+              }
+
+              @if (r.comentarioContenido) {
+                <div class="info-row">
+                  <span class="info-label">Comentario</span>
+                  <span class="info-value info-value--truncate">{{ r.comentarioContenido }}</span>
+                </div>
+              }
+
+              @if (r.respuestaContenido) {
+                <div class="info-row">
+                  <span class="info-label">Respuesta</span>
+                  <span class="info-value info-value--truncate">{{ r.respuestaContenido }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="reporte-descripcion">
+              <span class="info-label">Descripción</span>
+              <p>{{ r.descripcion }}</p>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          @if (r.estado === 'PENDIENTE' || r.estado === 'REVISANDO') {
+            <div class="reporte-card__actions">
+              <div class="action-row">
+                <div class="action-group">
+                  <label>Acción</label>
+                  <div class="select-wrapper">
+                    <select [(ngModel)]="acciones[r.id]" class="select-accion">
+                      <option value="NINGUNA">Sin acción</option>
+                      <option value="ADVERTENCIA">Advertencia</option>
+                      <option value="ELIMINADO">Eliminar contenido</option>
+                      <option value="BANEADO">Banear usuario</option>
+                    </select>
+                    <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="action-group action-group--full">
+                  <label>Nota del moderador</label>
+                  <input
+                    [(ngModel)]="notas[r.id]"
+                    placeholder="Escribe una nota..."
+                    class="input-nota"
+                  >
+                </div>
+              </div>
+
+              <div class="action-buttons">
+                <button class="btn-resolver" (click)="resolver(r.id, 'RESUELTO')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Resolver
+                </button>
+                <button class="btn-rechazar" (click)="resolver(r.id, 'RECHAZADO')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  Rechazar
+                </button>
+              </div>
+            </div>
+          } @else {
+            @if (r.notaModerador || r.revisadoPorNombre) {
+              <div class="reporte-card__resultado">
+                <div class="resultado-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                <div class="resultado-content">
+                  <span class="resultado-titulo">
+                    Revisado por <strong>{{ r.revisadoPorNombre }}</strong>
+                  </span>
+                  @if (r.notaModerador) {
+                    <p class="resultado-nota">{{ r.notaModerador }}</p>
+                  }
+                  @if (r.accionTomada) {
+                    <span class="resultado-accion">Acción: {{ r.accionTomada }}</span>
+                  }
+                </div>
+              </div>
+            }
+          }
+
+        </article>
+      }
+
+    </div>
+  }
+
+</div>

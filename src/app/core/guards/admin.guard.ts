@@ -1,26 +1,29 @@
+// src/app/core/guards/admin.guard.ts
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AdminAuthService } from '../services/admin-auth.service';
 
 export const adminGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+  const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  const usuario = authService.usuario();
-
-  // Verificar si está logueado
-  if (!usuario) {
-    router.navigate(['/login']);
+  // ✅ Verifica si hay sesión de ADMIN (no de usuario normal)
+  if (!adminAuth.estaLogueado()) {
+    router.navigate(['/admin/login'], {
+      queryParams: { redirect: state.url }
+    });
     return false;
   }
 
-  //Si tienes un campo 'rol' en el usuario:
-  // if (usuario.rol !== 'ADMIN') {
-  //   router.navigate(['/comunidad']);
-  //   return false;
-  // }
+  // ✅ Verifica rol si la ruta lo requiere
+  const rolesRequeridos = route.data?.['roles'] as string[] | undefined;
+  if (rolesRequeridos && rolesRequeridos.length > 0) {
+    const rolActual = adminAuth.admin()?.rol;
+    if (!rolActual || !rolesRequeridos.includes(rolActual)) {
+      router.navigate(['/admin/login']);
+      return false;
+    }
+  }
 
-  // TEMPORAL: permitir cualquier usuario logueado
-  // (quitar esto cuando agregues roles reales)
   return true;
 };

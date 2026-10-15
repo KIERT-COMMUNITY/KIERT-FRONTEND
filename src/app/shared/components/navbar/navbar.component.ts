@@ -1,3 +1,4 @@
+// src/app/layouts/main-layout/navbar/navbar.component.ts
 import {
   Component,
   EventEmitter,
@@ -12,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ChatService } from '../../../core/services/chat.service';
+import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { NotificacionesComponent } from '../../../features/community/notificaciones/notificaciones.component';
 
 @Component({
@@ -31,6 +33,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private readonly authService = inject(AuthService);
   private readonly chatService = inject(ChatService);
+  public readonly adminAuth = inject(AdminAuthService);
   private readonly router = inject(Router);
 
   readonly menuAbierto = signal(false);
@@ -42,9 +45,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.restaurarEstadoMenu();
     this.cargarMensajesNoLeidos();
+    this.validarSesionAdmin();
 
     this.intervalId = setInterval(() => {
       this.cargarMensajesNoLeidos();
+      // ✅ Re-validar sesión admin cada 30s
+      this.validarSesionAdmin();
     }, 30000);
   }
 
@@ -93,6 +99,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * ✅ Valida que la sesión de admin siga siendo válida.
+   * Si el token expiró, `estaLogueado()` ya lo maneja.
+   */
+  private validarSesionAdmin(): void {
+    // Forzar re-evaluación del computed
+    void this.adminAuth.estaLogueado();
+  }
+
   cargarMensajesNoLeidos(): void {
     if (!this.authService.isAuthenticated()) {
       this.mensajesNoLeidos.set(0);
@@ -114,9 +129,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/chat']);
   }
 
+  irAlPanelReportes(): void {
+    this.cerrarMenu();
+    this.router.navigate(['/admin/reportes']);
+  }
+
+  /**
+   * ✅ Cierra sesión NORMAL + sesión ADMIN + limpia todo.
+   */
   cerrarSesion(): void {
     this.cerrarMenu();
+
+    // 1. Cerrar sesión admin (limpia localStorage, SIN navegar)
+    this.adminAuth.logout();
+
+    // 2. Cerrar sesión normal
     this.authService.logout();
+
+    // 3. Redirigir al login normal
     this.router.navigate(['/login']);
   }
 

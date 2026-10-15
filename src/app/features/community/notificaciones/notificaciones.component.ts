@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { NotificationService, Notificacion } from '../../../core/services/notification.service';
+import { NotificationService, Notificacion, TipoNotificacion } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { GrupoService } from '../../../core/services/grupo.service';
 import { Subscription } from 'rxjs';
@@ -56,6 +56,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         next: (notificacion: Notificacion) => {
           if (!notificacion) return;
 
+          // ✅ Evitar duplicados de invitaciones
           if (notificacion.tipo === 'INVITACION_GRUPO' && notificacion.grupoId) {
             const existente = this.notificaciones().find(
               n => n.tipo === 'INVITACION_GRUPO'
@@ -252,6 +253,22 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       case 'sistema':
         if (n.url) return { ruta: [n.url] };
         break;
+
+      // ✅ NUEVOS: reportes
+      case 'REPORTE_NUEVO':
+        // Moderadores van al panel de reportes
+        return { ruta: ['/admin/reportes'] };
+
+      case 'REPORTE_RESUELTO':
+      case 'REPORTE_RECHAZADO':
+        // Reportantes van a ver sus reportes
+        return { ruta: ['/mis-reportes'] };
+
+      case 'ADVERTENCIA':
+      case 'CONTENIDO_ELIMINADO':
+      case 'USUARIO_BANEADO':
+        // Usuarios reportados van a su perfil o a sus publicaciones
+        return { ruta: ['/mis-publicaciones'] };
     }
 
     if (n.url) return { ruta: [n.url] };
@@ -398,30 +415,18 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // UTILIDADES
+  // UTILIDADES (delegan al servicio)
   // ============================================================
   getColorTipo(tipo: string): string {
-    const colores: Record<string, string> = {
-      'like': '#f85149',
-      'comentario': '#2dd4bf',
-      'respuesta': '#58a6ff',
-      'solicitud': '#f9ca24',
-      'sistema': '#8b98a5',
-      'INVITACION_GRUPO': '#6c5ce7'
-    };
-    return colores[tipo] || '#8b98a5';
+    return this.notificationService.getColorTipo(tipo as TipoNotificacion);
   }
 
   getEtiquetaTipo(tipo: string): string {
-    const etiquetas: Record<string, string> = {
-      'like': 'Me gusta',
-      'comentario': 'Comentario',
-      'respuesta': 'Respuesta',
-      'solicitud': 'Solicitud',
-      'sistema': 'Sistema',
-      'INVITACION_GRUPO': 'Invitación a grupo'
-    };
-    return etiquetas[tipo] || 'Notificación';
+    return this.notificationService.getEtiquetaTipo(tipo as TipoNotificacion);
+  }
+
+  esNotificacionDeReporte(tipo: string): boolean {
+    return this.notificationService.esNotificacionDeReporte(tipo as TipoNotificacion);
   }
 
   formatearFecha(fecha: Date): string {
