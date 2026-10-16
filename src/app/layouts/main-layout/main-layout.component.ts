@@ -19,7 +19,7 @@ import { filter } from 'rxjs/operators';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { FloatingSocialComponent } from '../../shared/components/floating-social/floating-social.component';
-import { KeyboardHelpComponent } from '../../shared/components/keyboard-help/keyboard-help.component';
+
 
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts.service';
@@ -33,7 +33,7 @@ import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts
     NavbarComponent,
     FooterComponent,
     FloatingSocialComponent,
-    KeyboardHelpComponent
+   
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'

@@ -73,6 +73,19 @@
         </svg>
         <span>Historial</span>
       </button>
+
+      <!-- ✅ NUEVO: Botón de atajos de teclado -->
+      <button class="nav-btn" (click)="abrirAyudaAtajos()" title="Atajos de teclado (Shift + ?)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="6" width="20" height="12" rx="2"/>
+          <line x1="6" y1="10" x2="6" y2="10"/>
+          <line x1="10" y1="10" x2="10" y2="10"/>
+          <line x1="14" y1="10" x2="14" y2="10"/>
+          <line x1="18" y1="10" x2="18" y2="10"/>
+          <line x1="7" y1="14" x2="17" y2="14"/>
+        </svg>
+        <span>Atajos</span>
+      </button>
     </div>
   </header>
 
@@ -127,70 +140,70 @@
                     <div class="result-bio">{{ user.bio }}</div>
                   }
                 </div>
-          <div class="result-actions">
+                <div class="result-actions">
 
-  <!-- ✅ ES MI PROPIO PERFIL -->
-  @if (esMiPropioPerfil(user.id)) {
-    <span class="result-badge result-badge--yo">Tú</span>
-    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
-      Ver mi perfil
-    </button>
-  }
+                  <!-- ✅ ES MI PROPIO PERFIL -->
+                  @if (esMiPropioPerfil(user.id)) {
+                    <span class="result-badge result-badge--yo">Tú</span>
+                    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+                      Ver mi perfil
+                    </button>
+                  }
 
-  <!-- ✅ YA ES CONTACTO -->
-  @else if (sonContactos(user.id)) {
-    <span class="result-badge result-badge--contacto">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-      Contacto
-    </span>
-    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
-      Ver perfil
-    </button>
-    <button class="result-btn send-message" (click)="enviarMensaje(user.id)">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-      Mensaje
-    </button>
-  }
+                  <!-- ✅ YA ES CONTACTO -->
+                  @else if (sonContactos(user.id)) {
+                    <span class="result-badge result-badge--contacto">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      Contacto
+                    </span>
+                    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+                      Ver perfil
+                    </button>
+                    <button class="result-btn send-message" (click)="enviarMensaje(user.id)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                      </svg>
+                      Mensaje
+                    </button>
+                  }
 
-  <!-- ✅ YA ENVIÉ SOLICITUD -->
-  @else if (yaEnvieSolicitud(user.id)) {
-    <span class="result-badge result-badge--pendiente">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg>
-      Solicitud enviada
-    </span>
-    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
-      Ver perfil
-    </button>
-  }
+                  <!-- ✅ YA ENVIÉ SOLICITUD -->
+                  @else if (yaEnvieSolicitud(user.id)) {
+                    <span class="result-badge result-badge--pendiente">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      Solicitud enviada
+                    </span>
+                    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+                      Ver perfil
+                    </button>
+                  }
 
-  <!-- ✅ DESCONOCIDO: mostrar botón agregar -->
-  @else {
-    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
-      Ver perfil
-    </button>
-    <button class="result-btn add-friend"
-            (click)="enviarSolicitud(user.id)"
-            [disabled]="enviandoSolicitud()">
-      @if (enviandoSolicitud()) {
-        <span class="spinner-mini-btn"></span>
-      } @else {
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Agregar
-      }
-    </button>
-  }
+                  <!-- ✅ DESCONOCIDO: mostrar botón agregar -->
+                  @else {
+                    <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
+                      Ver perfil
+                    </button>
+                    <button class="result-btn add-friend"
+                            (click)="enviarSolicitud(user.id)"
+                            [disabled]="enviandoSolicitud()">
+                      @if (enviandoSolicitud()) {
+                        <span class="spinner-mini-btn"></span>
+                      } @else {
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <line x1="12" y1="5" x2="12" y2="19"/>
+                          <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Agregar
+                      }
+                    </button>
+                  }
 
-</div>
+                </div>
               </div>
             }
           </div>
@@ -248,19 +261,37 @@
             <span class="sidebar-badge">{{ bloqueados().length }}</span>
           }
         </button>
+
         <button
-  class="sidebar-item"
-  [class.sidebar-item--active]="seccionActiva() === 'accesibilidad'"
-  (click)="irASeccion('accesibilidad')"
-  type="button"
->
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="4 7 4 4 20 4 20 7"/>
-    <line x1="9" y1="20" x2="15" y2="20"/>
-    <line x1="12" y1="4" x2="12" y2="20"/>
-  </svg>
-  <span>Tamaño de texto</span>
-</button>
+          class="sidebar-item"
+          [class.sidebar-item--active]="seccionActiva() === 'accesibilidad'"
+          (click)="irASeccion('accesibilidad')"
+          type="button"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 7 4 4 20 4 20 7"/>
+            <line x1="9" y1="20" x2="15" y2="20"/>
+            <line x1="12" y1="4" x2="12" y2="20"/>
+          </svg>
+          <span>Tamaño de texto</span>
+        </button>
+
+        <!-- ✅ NUEVO: Botón de atajos de teclado -->
+        <button
+          class="sidebar-item"
+          (click)="abrirAyudaAtajos()"
+          type="button"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <line x1="6" y1="10" x2="6" y2="10"/>
+            <line x1="10" y1="10" x2="10" y2="10"/>
+            <line x1="14" y1="10" x2="14" y2="10"/>
+            <line x1="18" y1="10" x2="18" y2="10"/>
+            <line x1="7" y1="14" x2="17" y2="14"/>
+          </svg>
+          <span>Atajos de teclado</span>
+        </button>
 
       </nav>
 
@@ -282,7 +313,7 @@
     <!-- Contenido principal -->
     <main class="settings-content">
 
-      <!-- ===== PERFIL (con fondo de perfil aplicado) ===== -->
+      <!-- ===== PERFIL ===== -->
       <section class="settings-section" id="perfil"
                [class]="'fondo-' + personalizacionStore.fondoId()">
         <div class="section-header">
@@ -348,7 +379,7 @@
         <div class="inline-selector">
           <div class="inline-selector__header">
             <div class="section-title">
-              <h3>Tema de color de letras y marcosde pantalla</h3>
+              <h3>Tema de color de letras y marcos de pantalla</h3>
               <p class="section-desc">Se aplica al fondo de toda la página</p>
             </div>
             <button class="btn-select" (click)="toggleThemeSelector()">
@@ -539,141 +570,142 @@
           </div>
         }
       </section>
+
       <!-- ===== TAMAÑO DE TEXTO / ACCESIBILIDAD ===== -->
-<section class="settings-section" id="accesibilidad">
-  <div class="section-header">
-    <div class="section-title">
-      <h2>Tamaño de texto</h2>
-      <p class="section-desc">Ajusta el tamaño de toda la interfaz para que sea más cómoda de leer</p>
-    </div>
-    <div class="fuente-indicator">
-      <span class="fuente-indicator__label">{{ etiquetaEscala() }}</span>
-      <span class="fuente-indicator__value">{{ porcentajeEscala() }}%</span>
-    </div>
-  </div>
+      <section class="settings-section" id="accesibilidad">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Tamaño de texto</h2>
+            <p class="section-desc">Ajusta el tamaño de toda la interfaz para que sea más cómoda de leer</p>
+          </div>
+          <div class="fuente-indicator">
+            <span class="fuente-indicator__label">{{ etiquetaEscala() }}</span>
+            <span class="fuente-indicator__value">{{ porcentajeEscala() }}%</span>
+          </div>
+        </div>
 
-  <!-- PREVIEW EN VIVO -->
-  <div class="fuente-preview" [style.font-size.rem]="escalaFuente()">
-    <span class="fuente-preview__label">Vista previa:</span>
-    <p class="fuente-preview__texto">
-      <strong>&#64;kiert</strong> · Este es un ejemplo del texto que verás en la app.
-      Se adapta automáticamente a tus preferencias sin importar dónde estés.
-    </p>
-  </div>
+        <!-- PREVIEW EN VIVO -->
+        <div class="fuente-preview" [style.font-size.rem]="escalaFuente()">
+          <span class="fuente-preview__label">Vista previa:</span>
+          <p class="fuente-preview__texto">
+            <strong>&#64;kiert</strong> · Este es un ejemplo del texto que verás en la app.
+            Se adapta automáticamente a tus preferencias sin importar dónde estés.
+          </p>
+        </div>
 
-  <!-- TAMAÑOS PREDEFINIDOS -->
-  <div class="fuente-presets">
-    @for (tamano of tamanosPredefinidos; track tamano.id) {
-      <button
-        type="button"
-        class="fuente-preset-btn"
-        [class.fuente-preset-btn--active]="esTamanoActivo(tamano.valor)"
-        (click)="seleccionarTamanoFuente(tamano.valor)"
-        [attr.aria-label]="tamano.label"
-        [title]="tamano.label"
-      >
-        <span class="fuente-preset-btn__icono" [style.font-size.rem]="tamano.valor">
-          {{ tamano.icono }}
-        </span>
-        <span class="fuente-preset-btn__label">{{ tamano.label }}</span>
-      </button>
-    }
-  </div>
+        <!-- TAMAÑOS PREDEFINIDOS -->
+        <div class="fuente-presets">
+          @for (tamano of tamanosPredefinidos; track tamano.id) {
+            <button
+              type="button"
+              class="fuente-preset-btn"
+              [class.fuente-preset-btn--active]="esTamanoActivo(tamano.valor)"
+              (click)="seleccionarTamanoFuente(tamano.valor)"
+              [attr.aria-label]="tamano.label"
+              [title]="tamano.label"
+            >
+              <span class="fuente-preset-btn__icono" [style.font-size.rem]="tamano.valor">
+                {{ tamano.icono }}
+              </span>
+              <span class="fuente-preset-btn__label">{{ tamano.label }}</span>
+            </button>
+          }
+        </div>
 
-  <!-- SLIDER FINO -->
-  <div class="fuente-slider-row">
-    <button
-      type="button"
-      class="fuente-step-btn"
-      (click)="ajustarFuente(-0.05)"
-      title="Reducir tamaño"
-      aria-label="Reducir tamaño"
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-    </button>
+        <!-- SLIDER FINO -->
+        <div class="fuente-slider-row">
+          <button
+            type="button"
+            class="fuente-step-btn"
+            (click)="ajustarFuente(-0.05)"
+            title="Reducir tamaño"
+            aria-label="Reducir tamaño"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
 
-    <div class="fuente-slider-wrapper">
-      <input
-        type="range"
-        class="fuente-slider"
-        min="0.75"
-        max="1.5"
-        step="0.01"
-        [value]="escalaFuente()"
-        (input)="onSliderFuenteChange($event)"
-        aria-label="Ajustar tamaño de texto"
-      />
-      <div class="fuente-slider-info">
-        <span class="fuente-slider-info__label">{{ etiquetaEscala() }}</span>
-        <span class="fuente-slider-info__value">{{ porcentajeEscala() }}%</span>
-      </div>
-    </div>
+          <div class="fuente-slider-wrapper">
+            <input
+              type="range"
+              class="fuente-slider"
+              min="0.75"
+              max="1.5"
+              step="0.01"
+              [value]="escalaFuente()"
+              (input)="onSliderFuenteChange($event)"
+              aria-label="Ajustar tamaño de texto"
+            />
+            <div class="fuente-slider-info">
+              <span class="fuente-slider-info__label">{{ etiquetaEscala() }}</span>
+              <span class="fuente-slider-info__value">{{ porcentajeEscala() }}%</span>
+            </div>
+          </div>
 
-    <button
-      type="button"
-      class="fuente-step-btn"
-      (click)="ajustarFuente(0.05)"
-      title="Aumentar tamaño"
-      aria-label="Aumentar tamaño"
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-    </button>
-  </div>
+          <button
+            type="button"
+            class="fuente-step-btn"
+            (click)="ajustarFuente(0.05)"
+            title="Aumentar tamaño"
+            aria-label="Aumentar tamaño"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
 
-  <!-- ACCIONES -->
-  <div class="fuente-actions">
-    <button
-      type="button"
-      class="fuente-btn fuente-btn--secondary"
-      (click)="resetearFuente()"
-      [disabled]="porcentajeEscala() === 100"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="1 4 1 10 7 10"/>
-        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-      </svg>
-      Restablecer
-    </button>
+        <!-- ACCIONES -->
+        <div class="fuente-actions">
+          <button
+            type="button"
+            class="fuente-btn fuente-btn--secondary"
+            (click)="resetearFuente()"
+            [disabled]="porcentajeEscala() === 100"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="1 4 1 10 7 10"/>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+            </svg>
+            Restablecer
+          </button>
 
-    <button
-      type="button"
-      class="fuente-btn fuente-btn--primary"
-      (click)="toggleFontSizeSelector()"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-      Opciones avanzadas
-    </button>
-  </div>
+          <button
+            type="button"
+            class="fuente-btn fuente-btn--primary"
+            (click)="toggleFontSizeSelector()"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Opciones avanzadas
+          </button>
+        </div>
 
-  @if (showFontSizeSelector()) {
-    <div class="fuente-avanzado">
-      <div class="fuente-avanzado__row">
-        <label for="escala-directa">Escala exacta:</label>
-        <input
-          id="escala-directa"
-          type="number"
-          min="75"
-          max="150"
-          step="1"
-          [value]="porcentajeEscala()"
-          (input)="onInputPorcentajeChange($event)"
-        />
-        <span>%</span>
-      </div>
-      <p class="fuente-avanzado__hint">
-        Rango: 75% a 150%. El tamaño se guarda automáticamente y se aplica en toda la app.
-      </p>
-    </div>
-  }
-</section>
+        @if (showFontSizeSelector()) {
+          <div class="fuente-avanzado">
+            <div class="fuente-avanzado__row">
+              <label for="escala-directa">Escala exacta:</label>
+              <input
+                id="escala-directa"
+                type="number"
+                min="75"
+                max="150"
+                step="1"
+                [value]="porcentajeEscala()"
+                (input)="onInputPorcentajeChange($event)"
+              />
+              <span>%</span>
+            </div>
+            <p class="fuente-avanzado__hint">
+              Rango: 75% a 150%. El tamaño se guarda automáticamente y se aplica en toda la app.
+            </p>
+          </div>
+        }
+      </section>
 
       <!-- ===== APLICAR (versión móvil) ===== -->
       <section class="settings-section apply-section">
@@ -692,4 +724,8 @@
 
     </main>
   </div>
+
+  <!-- ✅ NUEVO: Modal de atajos de teclado (solo se renderiza dentro de Ajustes) -->
+  <kiert-keyboard-help />
+
 </div>

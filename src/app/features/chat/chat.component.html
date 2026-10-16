@@ -439,7 +439,7 @@
                 }
 
                 <div class="msg__body">
-                  <!-- ✅ STICKER -->
+                  <!-- STICKER -->
                   @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
                     <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
                       <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
@@ -467,7 +467,7 @@
                     </div>
                   }
 
-                  <!-- ✅ TEXTO -->
+                  <!-- TEXTO -->
                   @if (msg.contenido && msg.tipoMensaje !== 'STICKER') {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }
@@ -543,10 +543,10 @@
 
       <!-- PANEL DE STICKERS -->
       @if (mostrarStickerPicker()) {
-     <kiert-sticker-picker
-  (stickerSeleccionado)="onStickerSeleccionado($event)"
-  (cerrar)="mostrarStickerPicker.set(false)">
-</kiert-sticker-picker>
+        <kiert-sticker-picker
+          (stickerSeleccionado)="onStickerSeleccionado($event)"
+          (cerrar)="mostrarStickerPicker.set(false)">
+        </kiert-sticker-picker>
       }
     }
 
@@ -655,14 +655,14 @@
                     <span class="msg__author">{{ msg.emisorNombre }}</span>
                   }
 
-                  <!-- ✅ STICKER -->
+                  <!-- STICKER -->
                   @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
                     <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
                       <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
                     </div>
                   }
 
-                  <!-- ✅ TEXTO -->
+                  <!-- TEXTO -->
                   @if (msg.contenido && msg.tipoMensaje !== 'STICKER') {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }

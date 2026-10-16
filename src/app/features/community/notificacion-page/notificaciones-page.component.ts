@@ -22,6 +22,22 @@ type FiltroTipo =
   | 'CONTENIDO_ELIMINADO'
   | 'USUARIO_BANEADO';
 
+// ✅ Interfaz explícita para los totales por tipo
+export interface TotalesPorTipo {
+  like: number;
+  comentario: number;
+  respuesta: number;
+  solicitud: number;
+  sistema: number;
+  INVITACION_GRUPO: number;
+  REPORTE_NUEVO: number;
+  REPORTE_RESUELTO: number;
+  REPORTE_RECHAZADO: number;
+  ADVERTENCIA: number;
+  CONTENIDO_ELIMINADO: number;
+  USUARIO_BANEADO: number;
+}
+
 @Component({
   selector: 'kiert-notificaciones-page',
   standalone: true,
@@ -77,9 +93,9 @@ export class NotificacionesPageComponent implements OnInit {
     this.notificaciones().filter(n => n.leida).length
   );
 
-  // ✅ Total por tipo (con TODOS los tipos)
-  totalPorTipo = computed((): Record<string, number> => {
-    const tipos: Record<string, number> = {
+  // ✅ Total por tipo (con TODOS los tipos) - AHORA TIPADO EXPLÍCITAMENTE
+  totalPorTipo = computed((): TotalesPorTipo => {
+    const tipos: TotalesPorTipo = {
       like: 0,
       comentario: 0,
       respuesta: 0,
@@ -95,8 +111,9 @@ export class NotificacionesPageComponent implements OnInit {
     };
 
     this.notificaciones().forEach(n => {
-      if (tipos[n.tipo] !== undefined) {
-        tipos[n.tipo]++;
+      const key = n.tipo as keyof TotalesPorTipo;
+      if (tipos[key] !== undefined) {
+        tipos[key]++;
       }
     });
 

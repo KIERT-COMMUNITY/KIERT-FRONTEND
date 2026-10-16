@@ -13,15 +13,17 @@ import { KeyboardShortcutsService, AtajoTeclado } from '../../../core/services/k
 export class KeyboardHelpComponent {
   shortcuts = inject(KeyboardShortcutsService);
 
-  categorias = computed(() => {
+  // ✅ Categorías dinámicas agrupadas
+  categorias = computed<[string, AtajoTeclado[]][]>(() => {
     const grupos = new Map<string, AtajoTeclado[]>();
-    this.shortcuts.atajosDisponibles.forEach(a => {
+    this.shortcuts.atajosDisponibles.forEach((a: AtajoTeclado) => {
       if (!grupos.has(a.categoria)) grupos.set(a.categoria, []);
       grupos.get(a.categoria)!.push(a);
     });
     return Array.from(grupos.entries());
   });
 
+  // ✅ Cerrar con Escape
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.shortcuts.mostrarAyuda()) {
@@ -29,10 +31,12 @@ export class KeyboardHelpComponent {
     }
   }
 
+  // ✅ Cerrar el modal
   cerrar(): void {
     this.shortcuts.mostrarAyuda.set(false);
   }
 
+  // ✅ Formatear teclas especiales
   formatearTecla(tecla: string): string {
     const mapa: Record<string, string> = {
       'Escape': 'Esc',

@@ -15,13 +15,22 @@ import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service'
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { User } from '../../../core/models/user.model';
 
+// ✅ NUEVOS IMPORTS para atajos de teclado
+import { KeyboardHelpComponent } from '../../../shared/components/keyboard-help/keyboard-help.component';
+import { KeyboardShortcutsService } from '../../../core/services/keyboard-shortcuts.service';
+
 type SeccionActiva = 'perfil' | 'bloqueados' | 'accesibilidad';
 type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICITUD_RECIBIDA' | 'YO_MISMO';
 
 @Component({
   selector: 'kiert-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    KeyboardHelpComponent   // ✅ AÑADIDO
+  ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
@@ -35,6 +44,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+
+  // ✅ NUEVO: servicio de atajos de teclado
+  public shortcuts = inject(KeyboardShortcutsService);
 
   private destroy$ = new Subject<void>();
 
@@ -607,4 +619,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   irChat(): void { this.router.navigate(['/chat']); }
   irPerfil(): void { this.router.navigate(['/perfil']); }
   irHistorial(): void { this.router.navigate(['/mis-publicaciones']); }
+
+  // ============================================================
+  // ✅ NUEVO: ATAJOS DE TECLADO
+  // ============================================================
+  abrirAyudaAtajos(): void {
+    this.shortcuts.mostrarAyuda.set(true);
+  }
 }
