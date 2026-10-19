@@ -1,0 +1,74 @@
+.anuncios-page {
+  padding: 32px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.anuncios-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 24px;
+}
+
+.anuncios-empty {
+  color: #8b98a5;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 40px 0;
+}
+
+.anuncios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.anuncio-card {
+  background: rgba(22, 27, 34, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+
+  &:hover {
+    border-color: rgba(45, 212, 191, 0.4);
+    transform: translateY(-2px);
+  }
+}
+
+.anuncio-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+
+.anuncio-body {
+  padding: 16px;
+}
+
+.anuncio-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 8px;
+}
+
+.anuncio-texto {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #8b98a5;
+  margin: 0 0 12px;
+}
+
+.anuncio-link {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #2dd4bf;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

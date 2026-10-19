@@ -74,6 +74,15 @@ export const routes: Routes = [
         loadComponent: () => import('./features/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent)
       },
 
+      // ============================================================
+      // ✅ ANUNCIOS — VISTA PÚBLICA (usuarios logueados, solo lectura)
+      // ============================================================
+      {
+        path: 'anuncios',
+        loadComponent: () => import('./features/community/anuncios/anuncios.component').then(m => m.AnunciosComponent),
+        canActivate: [authGuard]
+      },
+
       // ===== NOTIFICACIONES =====
       {
         path: 'notificaciones',
@@ -91,6 +100,18 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         data: { roles: ['CEO', 'ADMIN', 'MODERADOR'] }
       },
+
+      // ============================================================
+      // ✅ ADMIN — GESTIÓN DE ANUNCIOS (con navbar, protegido)
+      // ============================================================
+      {
+        path: 'admin/anuncios',
+        loadComponent: () =>
+          import('./features/admin/admin-anuncios/admin-anuncios.component').then(m => m.AdminAnunciosComponent),
+        canActivate: [adminGuard],
+        data: { roles: ['CEO', 'ADMIN'] }
+      },
+
       // Redirección /admin → /admin/reportes
       {
         path: 'admin',

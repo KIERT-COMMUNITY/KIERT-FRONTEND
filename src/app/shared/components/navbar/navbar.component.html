@@ -103,6 +103,18 @@
             </span>
             <span class="menu-label">Biblioteca</span>
           </a>
+
+          <!-- ✅ NUEVO: Anuncios públicos (todos los usuarios logueados) -->
+          <a routerLink="/anuncios" routerLinkActive="active" class="menu-item" title="Anuncios" (click)="cerrarMenu()">
+            <span class="menu-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 11l18-8v18l-18-8z"></path>
+                <line x1="3" y1="11" x2="3" y2="21"></line>
+                <line x1="7" y1="13" x2="7" y2="17"></line>
+              </svg>
+            </span>
+            <span class="menu-label">Anuncios</span>
+          </a>
         </div>
 
         <div class="menu-section">
@@ -155,6 +167,22 @@
               <span class="menu-badge menu-badge--admin" [attr.title]="'Rol: ' + adminAuth.admin()?.rol">
                 {{ adminAuth.admin()?.rol }}
               </span>
+            </button>
+
+            <button
+              type="button"
+              class="menu-item menu-button menu-button--admin"
+              title="Gestionar anuncios"
+              (click)="irAlPanelAnuncios()"
+            >
+              <span class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 11l18-8v18l-18-8z"></path>
+                  <line x1="3" y1="11" x2="3" y2="21"></line>
+                  <line x1="7" y1="13" x2="7" y2="17"></line>
+                </svg>
+              </span>
+              <span class="menu-label">Gestionar anuncios</span>
             </button>
           </div>
         }

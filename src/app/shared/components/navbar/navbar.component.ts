@@ -162,4 +162,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.menuContraido.set(estadoGuardado);
     this.estadoContraidoChange.emit(estadoGuardado);
   }
+  
+  irAlPanelAnuncios(): void {
+  this.cerrarMenu();
+  this.router.navigate(['/admin/anuncios']);
+}
 }

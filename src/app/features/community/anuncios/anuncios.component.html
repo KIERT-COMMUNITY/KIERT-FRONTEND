@@ -1,0 +1,28 @@
+<div class="anuncios-page">
+  <h1 class="anuncios-title">Anuncios</h1>
+
+  @if (cargando()) {
+    <p class="anuncios-empty">Cargando...</p>
+  } @else if (anuncios().length === 0) {
+    <p class="anuncios-empty">No hay anuncios por ahora.</p>
+  } @else {
+    <div class="anuncios-grid">
+      @for (a of anuncios(); track a.id) {
+        <article class="anuncio-card">
+          @if (a.imagenUrl) {
+            <img class="anuncio-img" [src]="a.imagenUrl" [alt]="a.titulo" />
+          }
+          <div class="anuncio-body">
+            <h2 class="anuncio-titulo">{{ a.titulo }}</h2>
+            <p class="anuncio-texto">{{ a.texto }}</p>
+            @if (a.enlaceUrl) {
+              <a class="anuncio-link" [href]="a.enlaceUrl" target="_blank" rel="noopener">
+                Ver más →
+              </a>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

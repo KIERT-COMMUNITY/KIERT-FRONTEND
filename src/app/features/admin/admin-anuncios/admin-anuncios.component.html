@@ -1,0 +1,91 @@
+<div class="admin-anuncios">
+  <h1 class="admin-title">Gestión de anuncios</h1>
+
+  <div class="admin-layout">
+    <!-- Formulario -->
+    <form class="anuncio-form" [formGroup]="form" (ngSubmit)="guardar()">
+      <h2 class="form-title">
+        {{ editandoId() ? 'Editar anuncio' : 'Nuevo anuncio' }}
+      </h2>
+
+      @if (errorMsg()) {
+        <div class="form-alert">{{ errorMsg() }}</div>
+      }
+
+      <label class="field">
+        <span>Título</span>
+        <input type="text" formControlName="titulo" placeholder="Título del anuncio" />
+        @if (form.controls.titulo.touched && form.controls.titulo.invalid) {
+          <small class="error-msg">Título obligatorio (máx. 200)</small>
+        }
+      </label>
+
+      <label class="field">
+        <span>Texto</span>
+        <textarea formControlName="texto" rows="4" placeholder="Contenido del anuncio"></textarea>
+        @if (form.controls.texto.touched && form.controls.texto.invalid) {
+          <small class="error-msg">Texto obligatorio</small>
+        }
+      </label>
+
+      <label class="field">
+        <span>Enlace (opcional)</span>
+        <input type="url" formControlName="enlaceUrl" placeholder="https://..." />
+      </label>
+
+      <label class="field">
+        <span>Imagen (opcional)</span>
+        <input type="file" accept="image/*" (change)="onArchivoChange($event)" />
+      </label>
+
+      @if (previewUrl()) {
+        <div class="preview">
+          <img [src]="previewUrl()!" alt="Vista previa" />
+        </div>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : (editandoId() ? 'Actualizar' : 'Crear') }}
+        </button>
+        @if (editandoId()) {
+          <button type="button" class="btn-secondary" (click)="cancelarEdicion()">
+            Cancelar
+          </button>
+        }
+      </div>
+    </form>
+
+    <!-- Lista -->
+    <div class="anuncio-lista">
+      <h2 class="form-title">Anuncios existentes</h2>
+
+      @if (cargando()) {
+        <p class="empty">Cargando...</p>
+      } @else if (anuncios().length === 0) {
+        <p class="empty">No hay anuncios todavía.</p>
+      } @else {
+        @for (a of anuncios(); track a.id) {
+          <div class="anuncio-item">
+            @if (a.imagenUrl) {
+              <img class="anuncio-thumb" [src]="a.imagenUrl" [alt]="a.titulo" />
+            } @else {
+              <div class="anuncio-thumb anuncio-thumb--empty">Sin imagen</div>
+            }
+            <div class="anuncio-info">
+              <h3>{{ a.titulo }}</h3>
+              <p>{{ a.texto }}</p>
+              @if (a.enlaceUrl) {
+                <a [href]="a.enlaceUrl" target="_blank" rel="noopener">{{ a.enlaceUrl }}</a>
+              }
+            </div>
+            <div class="anuncio-acciones">
+              <button type="button" class="btn-edit" (click)="editar(a)">Editar</button>
+              <button type="button" class="btn-delete" (click)="eliminar(a)">Eliminar</button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>
