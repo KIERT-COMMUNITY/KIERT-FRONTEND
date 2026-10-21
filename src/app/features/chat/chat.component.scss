@@ -1,5 +1,6 @@
+// src/app/features/chat/chat.component.scss
 // ============================================================
-// CHAT — LAYOUT MESSENGER RESPONSIVE
+// CHAT — LAYOUT MESSENGER RESPONSIVE (CORREGIDO)
 // Cubre: iPhone, Android (Pixel), Surface Pro, iPad, desktop
 // ============================================================
 * {
@@ -15,17 +16,15 @@
   overflow: hidden;
 }
 
-/* Móvil / tablet / Surface en vertical → host pegado al viewport */
+/* Móvil / tablet: el host ocupa el 100% del padre (.app-main--chat),
+   NO usamos position:fixed para evitar conflictos con el layout padre */
 @media screen and (max-width: 1024px) {
   :host {
-    position: fixed;
-    inset: 0;
-    height: 100dvh;
-    max-height: 100dvh;
-    width: 100vw;
-  }
-  @supports not (height: 100dvh) {
-    :host { height: 100vh; max-height: 100vh; }
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
   }
 }
 
@@ -294,13 +293,6 @@
   overflow: hidden;
 }
 
-/* Tablet / Surface / móvil: hueco inferior dinámico para el input fixed */
-@media screen and (max-width: 1024px) {
-  .messenger-chat {
-    padding-bottom: 0;
-  }
-}
-
 .chat-blank {
   flex: 1;
   display: flex;
@@ -330,7 +322,7 @@
   position: absolute;
   top: 12px;
   left: 12px;
-  z-index: 100;
+  z-index: 60;
   width: 40px; height: 40px;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
@@ -546,24 +538,54 @@
   }
 }
 
-/* Móvil / tablet / Surface: input pegado al fondo real del viewport */
+/* ============================================================
+   MÓVIL / TABLET — INPUT SIEMPRE VISIBLE AL FONDO
+   Usa --kb-offset (teclado + barra navegador) y --vv-height
+   ============================================================ */
 @media screen and (max-width: 1024px) {
   .chat-input {
-    position: fixed;
-    left: 0;
-    right: 0;
-    /* --kb-offset lo actualiza el componente según VisualViewport */
-    bottom: var(--kb-offset, 0px);
+    /* Fijo al fondo REAL del viewport visible */
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--kb-offset, 0px) !important;
+    top: auto !important;
+
     padding: 8px 12px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     gap: 6px;
     background: var(--bg-chat);
     border-top: 1px solid var(--border);
-    z-index: 9998;
-    width: 100vw;
 
-    &__field { padding: 9px 14px; font-size: 16px !important; }
-    &__send, &__file, &__sticker { width: 38px; height: 38px; }
+    /* MUY importante: por encima de todo, incluyendo overlays */
+    z-index: 9999 !important;
+    width: 100vw;
+    max-width: 100vw;
+
+    /* Evita que el body haga scroll detrás */
+    transform: translateZ(0);
+    will-change: bottom;
+
+    &__field {
+      padding: 9px 14px;
+      font-size: 16px !important;
+    }
+    &__send, &__file, &__sticker {
+      width: 38px; height: 38px;
+    }
+  }
+
+  /* El stream debe dejar hueco para el input fixed */
+  .chat-stream {
+    padding-bottom: calc(
+      80px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px)
+    ) !important;
+  }
+
+  /* El área del chat debe respetar la altura visible real */
+  .messenger-chat {
+    height: var(--vv-height, 100dvh) !important;
+    max-height: var(--vv-height, 100dvh) !important;
   }
 }
 
@@ -572,11 +594,31 @@
     padding: 6px 10px;
     padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
     gap: 4px;
+
     &__field { padding: 8px 12px; font-size: 16px !important; }
     &__send, &__file, &__sticker {
       width: 36px; height: 36px;
       svg { width: 20px; height: 20px; }
     }
+  }
+
+  .chat-stream {
+    padding-bottom: calc(
+      76px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px)
+    ) !important;
+  }
+}
+
+/* Landscape móvil (iPhone acostado, etc.) */
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  .chat-input {
+    padding: 6px 10px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+  .chat-stream {
+    padding-bottom: calc(
+      70px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px)
+    ) !important;
   }
 }
 
@@ -602,8 +644,10 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(62px + env(safe-area-inset-bottom, 0px));
-    z-index: 9997;
+    bottom: calc(
+      var(--kb-offset, 0px) + 62px + env(safe-area-inset-bottom, 0px)
+    );
+    z-index: 9998;
   }
 }
 
@@ -655,7 +699,7 @@
   display: none;
   position: fixed; inset: 0;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 998;
+  z-index: 10000;
 }
 
 .dropdown-menu {
@@ -682,7 +726,7 @@
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
-  padding: 20px; z-index: 9999;
+  padding: 20px; z-index: 20000;
 }
 .modal-card {
   width: 100%; max-width: 480px; max-height: 85vh;
@@ -754,7 +798,7 @@
 .msg--mine .msg__sticker { margin-left: auto; }
 .msg:not(.msg--mine) .msg__sticker { margin-right: auto; }
 
-/* Sticker picker: fixed en tablet/móvil, absolute en escritorio */
+/* Sticker picker */
 @media screen and (max-width: 1024px) {
   kiert-sticker-picker {
     position: fixed !important;
@@ -763,7 +807,7 @@
     left: 8px !important;
     width: auto !important;
     max-width: calc(100vw - 16px) !important;
-    z-index: 9999;
+    z-index: 9997;
   }
 }
 
@@ -803,14 +847,14 @@
     height: 100%;
     max-height: 100%;
     width: 100%;
-    overflow: hidden;
+    overflow: clip;
   }
 
   .messenger-chat {
     height: 100% !important;
     max-height: 100% !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: clip !important;
     display: flex !important;
     flex-direction: column !important;
   }
@@ -820,11 +864,17 @@
     top: 0;
     left: 0;
     bottom: 0;
+    height: 100dvh;
+    max-height: 100dvh;
     width: 85%;
     max-width: 340px;
-    z-index: 9998;
+    z-index: 10001;
     transform: translateX(-100%);
+    transition: transform 0.25s ease;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
     &--open { transform: translateX(0); }
   }
 
@@ -833,12 +883,14 @@
     position: fixed;
     inset: 0;
     height: 100dvh;
+    z-index: 10000;
   }
 
   .btn-toggle-sidebar {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 60;
   }
 
   .chat-top__back { display: flex; }
@@ -846,10 +898,9 @@
   .chat-blank__title { font-size: 1.2rem; }
   .chat-blank__sub   { font-size: 0.8rem; }
 
-  /* Deja hueco dinámico debajo del stream = alto del input fixed */
   .chat-stream {
     padding: 14px 12px;
-    padding-bottom: calc(72px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(80px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px)) !important;
     min-height: 0;
     overflow-y: auto;
   }
@@ -897,7 +948,7 @@
   .msg { max-width: 90%; &--mine { max-width: 90%; } }
   .chat-stream {
     padding: 12px 10px;
-    padding-bottom: calc(68px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(76px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px)) !important;
   }
   .chat-top {
     padding: 10px 12px; min-height: 56px; gap: 8px;
@@ -911,7 +962,7 @@
   .chat-top { min-height: 50px; padding: 8px 12px; }
   .chat-stream {
     padding: 10px;
-    padding-bottom: calc(64px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(70px + var(--kb-offset, 0px) + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -920,39 +971,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-/* 🚑 Override de emergencia: input POR ENCIMA de todo */
-form.chat-input {
-  z-index: 100000 !important;
-  pointer-events: auto !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-form.chat-input input.chat-input__field {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  color: var(--text-primary) !important;
-  background: var(--bg-input) !important;
-  min-height: 40px !important;
-}
-
-form.chat-input .chat-input__send {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-/* Que el sidebar NO tape el input */
-@media (max-width: 1024px) {
-  .messenger-sidebar {
-    z-index: 9000 !important;  /* menos que el input */
-  }
-  .messenger-sidebar--open {
-    z-index: 99999 !important;  /* cuando abierto, sí por encima */
   }
 }

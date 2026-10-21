@@ -320,11 +320,6 @@
     </div>
   </aside>
 
-  <!-- Overlay móvil -->
-  @if (mobileMenuOpen()) {
-    <div class="messenger-overlay" (click)="toggleMobileMenu()"></div>
-  }
-
   <!-- ============================================================ -->
   <!-- VENTANA DE CONVERSACIÓN                                      -->
   <!-- ============================================================ -->
@@ -439,14 +434,12 @@
                 }
 
                 <div class="msg__body">
-                  <!-- STICKER -->
                   @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
                     <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
                       <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
                     </div>
                   }
 
-                  <!-- ARCHIVOS DEL MENSAJE -->
                   @if (msg.archivos && msg.archivos.length > 0) {
                     <div class="msg__files">
                       @for (archivo of msg.archivos; track $index) {
@@ -467,7 +460,6 @@
                     </div>
                   }
 
-                  <!-- TEXTO -->
                   @if (msg.contenido && msg.tipoMensaje !== 'STICKER') {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }
@@ -506,7 +498,6 @@
           <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden>
         </label>
 
-        <!-- BOTÓN STICKERS -->
         <button type="button"
                 class="chat-input__sticker"
                 (click)="toggleStickerPicker()"
@@ -541,7 +532,6 @@
         </button>
       </form>
 
-      <!-- PANEL DE STICKERS -->
       @if (mostrarStickerPicker()) {
         <kiert-sticker-picker
           (stickerSeleccionado)="onStickerSeleccionado($event)"
@@ -655,14 +645,12 @@
                     <span class="msg__author">{{ msg.emisorNombre }}</span>
                   }
 
-                  <!-- STICKER -->
                   @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
                     <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
                       <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
                     </div>
                   }
 
-                  <!-- TEXTO -->
                   @if (msg.contenido && msg.tipoMensaje !== 'STICKER') {
                     <div class="msg__bubble">{{ msg.contenido }}</div>
                   }
@@ -683,7 +671,6 @@
           <input type="file" multiple hidden>
         </label>
 
-        <!-- BOTÓN STICKERS GRUPO -->
         <button type="button"
                 class="chat-input__sticker"
                 (click)="toggleStickerPickerGrupo()"
@@ -718,7 +705,6 @@
         </button>
       </form>
 
-      <!-- PANEL DE STICKERS GRUPO -->
       @if (mostrarStickerPickerGrupo()) {
         <kiert-sticker-picker
           (stickerSeleccionado)="onStickerSeleccionadoGrupo($event)"
@@ -730,6 +716,11 @@
 
   </main>
 </div>
+
+<!-- ✅ OVERLAY MÓVIL — FUERA del .chat-messenger -->
+@if (mobileMenuOpen()) {
+  <div class="messenger-overlay" (click)="toggleMobileMenu()"></div>
+}
 
 <!-- MODAL CREAR GRUPO -->
 @if (mostrarModalGrupo()) {

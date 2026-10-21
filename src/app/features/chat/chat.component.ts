@@ -52,7 +52,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
-  private ngZone = inject(NgZone);                          // ✅ NUEVO
+  private ngZone = inject(NgZone);
   public personalizacionStore = inject(PersonalizacionStore);
 
   @ViewChild('mensajesContainer') private mensajesContainer?: ElementRef;
@@ -222,8 +222,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   });
 
   private pollingInterval: any;
-
-  // ✅ Listeners de teclado (VisualViewport)
   private kbListener?: () => void;
 
   private readonly onVisibilityChange = () => {
@@ -246,7 +244,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   ngOnInit(): void {
     this.cargarDatos();
     this.cargarGrupos();
-    this.setupKeyboardListener();                          // ✅ NUEVO
+    this.setupKeyboardListener();
 
     this.route.params.subscribe(params => {
       const usuarioId = params['usuarioId'];
@@ -258,7 +256,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.usuarioSeleccionado.set(id);
         this.marcarMensajesComoLeidos(id);
         this.cargarMensajes(id);
-        this.mobileMenuOpen.set(false);
+        this.cerrarSidebarMovil();
       }
 
       if (grupoId) {
@@ -267,16 +265,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.grupoSeleccionado.set(id);
         this.cargarMensajesGrupo(id);
         this.cargarMiembros(id);
-        this.mobileMenuOpen.set(false);
+        this.cerrarSidebarMovil();
       }
     });
 
-    // Polling cada 8 s para ver cambios online/offline más rápido
     this.pollingInterval = setInterval(() => {
       this.actualizarConversacionesYContadores();
     }, 8000);
 
-    // Refrescar al volver a la pestaña
     document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
@@ -286,12 +282,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy(): void {
-    this.teardownKeyboardListener();                       // ✅ NUEVO
+    this.teardownKeyboardListener();
 
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
     }
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
+
+    // ✅ Liberar scroll del body al destruir
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+    }
 
     const usuarioId = this.usuarioSeleccionado();
     if (usuarioId) {
@@ -302,40 +303,64 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ✅ LISTENER DE TECLADO MÓVIL
-  // Ajusta --kb-offset según la altura real del teclado,
-  // para que el input fixed quede justo encima del teclado.
+  // ✅ LISTENER DE TECLADO MÓVIL — CORREGIDO
+  // Calcula el espacio real ocupado por el teclado Y por las
+  // barras del navegador (Safari/Chrome móvil, tablets).
   // ============================================================
   private setupKeyboardListener(): void {
     if (typeof window === 'undefined' || !window.visualViewport) return;
 
     const vv = window.visualViewport;
 
-    this.kbListener = () => {
-      const kbHeight = Math.max(
-        0,
-        window.innerHeight - vv.height - vv.offsetTop
-      );
+    const update = () => {
+      // Altura del "layout viewport" real (incluye barras del navegador)
+      const layoutH = window.innerHeight;
+
+      // Altura real VISIBLE (sin barras del navegador ni teclado)
+      const visibleH = vv.height;
+
+      // Cuánto se ha desplazado el viewport visual desde el top
+      const offsetTop = vv.offsetTop;
+
+      // Espacio ocupado ABAJO = teclado + barra inferior del navegador
+      // Math.max(0, ...) evita negativos en iOS cuando rebota
+      const bottomInset = Math.max(0, layoutH - visibleH - offsetTop);
+
       document.documentElement.style.setProperty(
         '--kb-offset',
-        kbHeight + 'px'
+        `${bottomInset}px`
+      );
+
+      // Altura visible real para el layout (útil para el chat)
+      document.documentElement.style.setProperty(
+        '--vv-height',
+        `${visibleH}px`
       );
     };
 
+    this.kbListener = update;
+
     this.ngZone.runOutsideAngular(() => {
-      vv.addEventListener('resize', this.kbListener!);
-      vv.addEventListener('scroll', this.kbListener!);
+      vv.addEventListener('resize', update);
+      vv.addEventListener('scroll', update);
+      window.addEventListener('resize', update);
+      window.addEventListener('orientationchange', update);
     });
 
-    // Forzamos una medición inicial
-    this.kbListener();
+    // Ejecutar de inmediato
+    update();
   }
 
   private teardownKeyboardListener(): void {
-    if (typeof window === 'undefined' || !window.visualViewport || !this.kbListener) return;
-    window.visualViewport.removeEventListener('resize', this.kbListener);
-    window.visualViewport.removeEventListener('scroll', this.kbListener);
+    if (typeof window === 'undefined' || !this.kbListener) return;
+
+    window.visualViewport?.removeEventListener('resize', this.kbListener);
+    window.visualViewport?.removeEventListener('scroll', this.kbListener);
+    window.removeEventListener('resize', this.kbListener);
+    window.removeEventListener('orientationchange', this.kbListener);
+
     document.documentElement.style.setProperty('--kb-offset', '0px');
+    document.documentElement.style.setProperty('--vv-height', '100dvh');
     this.kbListener = undefined;
   }
 
@@ -496,7 +521,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mensajes.set([]);
     this.cargarMensajesGrupo(grupoId);
     this.cargarMiembros(grupoId);
-    this.mobileMenuOpen.set(false);
+    this.cerrarSidebarMovil();
     this.router.navigate(['/chat/grupo', grupoId]);
   }
 
@@ -736,7 +761,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mensajesGrupo.set([]);
     this.marcarMensajesComoLeidos(usuarioId);
     this.cargarMensajes(usuarioId);
-    this.mobileMenuOpen.set(false);
+    this.cerrarSidebarMovil();
     this.router.navigate(['/chat', usuarioId]);
   }
 
@@ -747,10 +772,22 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // MOBILE
+  // MOBILE — helper centralizado
   // ============================================================
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update(val => !val);
+    this.aplicarBloqueoScrollBody();
+  }
+
+  /** Cierra el sidebar en móvil y libera el scroll del body */
+  private cerrarSidebarMovil(): void {
+    this.mobileMenuOpen.set(false);
+    this.aplicarBloqueoScrollBody();
+  }
+
+  private aplicarBloqueoScrollBody(): void {
+    if (typeof document === 'undefined') return;
+    document.body.style.overflow = this.mobileMenuOpen() ? 'hidden' : '';
   }
 
   // ============================================================
@@ -872,9 +909,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   abrirCrearSticker(): void {
-    // ✅ El modal vive dentro de <kiert-sticker-picker>.
-    // No hacemos nada aquí: el propio picker abre el modal internamente.
-    // (Dejamos el método para compatibilidad con el Output.)
+    // El modal vive dentro de <kiert-sticker-picker>.
   }
 
   // ============================================================

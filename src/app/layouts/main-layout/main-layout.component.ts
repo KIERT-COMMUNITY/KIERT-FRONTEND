@@ -1,25 +1,19 @@
-
 // src/app/layouts/main-layout/main-layout.component.ts
 import {
   Component,
   OnInit,
+  OnDestroy,
   effect,
   inject,
-  signal
+  signal,
+  NgZone
 } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-// ⚠️ RUTAS CORREGIDAS:
-// Estás en src/app/layouts/main-layout/
-// → ../../              = src/app/
-// → ../../shared/       = src/app/shared/
-// → ../../core/         = src/app/core/
-
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { FloatingSocialComponent } from '../../shared/components/floating-social/floating-social.component';
-
 
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts.service';
@@ -33,12 +27,11 @@ import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts
     NavbarComponent,
     FooterComponent,
     FloatingSocialComponent,
-   
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
-export class MainLayoutComponent implements OnInit {
+export class MainLayoutComponent implements OnInit, OnDestroy {
   public readonly personalizacionStore = inject(PersonalizacionStore);
   public readonly shortcuts = inject(KeyboardShortcutsService);
 
@@ -47,6 +40,10 @@ export class MainLayoutComponent implements OnInit {
   readonly esRutaChat = signal(false);
 
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
+
+  // ✅ Listener para --app-height / --kb-offset
+  private appHeightListener?: () => void;
 
   constructor() {
     this.actualizarModoRuta(this.router.url);
@@ -65,6 +62,11 @@ export class MainLayoutComponent implements OnInit {
     const themeId = this.personalizacionStore.temaId();
     this.aplicarTemaGlobal(themeId);
     this.restaurarEstadoMenu();
+    this.setupAppHeight();
+  }
+
+  ngOnDestroy(): void {
+    this.teardownAppHeight();
   }
 
   actualizarEstadoMenu(estadoContraido: boolean): void {
@@ -117,6 +119,57 @@ export class MainLayoutComponent implements OnInit {
     } catch {
       this.menuContraido.set(false);
     }
+  }
+
+  // ============================================================
+  // ✅ ACTUALIZAR --app-height y --kb-offset EN TIEMPO REAL
+  // En iOS Safari / Chrome móvil, 100vh es MÁS ALTO que el
+  // viewport visible (barra de direcciones + teclado).
+  // Usamos visualViewport.height y visualViewport.offsetTop.
+  // ============================================================
+  private setupAppHeight(): void {
+    if (typeof window === 'undefined') return;
+
+    const setHeight = () => {
+      const vv = window.visualViewport;
+      const h = vv?.height ?? window.innerHeight;
+      const offsetTop = vv?.offsetTop ?? 0;
+
+      // Altura visible real
+      document.documentElement.style.setProperty('--app-height', `${h}px`);
+      document.documentElement.style.setProperty('--vv-height', `${h}px`);
+
+      // Espacio inferior real (teclado + barra navegador)
+      const bottomInset = Math.max(
+        0,
+        window.innerHeight - h - offsetTop
+      );
+      document.documentElement.style.setProperty(
+        '--kb-offset',
+        `${bottomInset}px`
+      );
+    };
+
+    this.ngZone.runOutsideAngular(() => {
+      setHeight();
+      window.visualViewport?.addEventListener('resize', setHeight);
+      window.visualViewport?.addEventListener('scroll', setHeight);
+      window.addEventListener('resize', setHeight);
+      window.addEventListener('orientationchange', setHeight);
+    });
+
+    this.appHeightListener = setHeight;
+  }
+
+  private teardownAppHeight(): void {
+    if (typeof window === 'undefined' || !this.appHeightListener) return;
+
+    window.visualViewport?.removeEventListener('resize', this.appHeightListener);
+    window.visualViewport?.removeEventListener('scroll', this.appHeightListener);
+    window.removeEventListener('resize', this.appHeightListener);
+    window.removeEventListener('orientationchange', this.appHeightListener);
+
+    this.appHeightListener = undefined;
   }
 
   private aplicarTemaGlobal(themeId: string): void {

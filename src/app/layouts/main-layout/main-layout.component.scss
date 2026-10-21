@@ -1,3 +1,4 @@
+// src/app/layouts/main-layout/main-layout.component.scss
 $sidebar-expanded: 260px;
 $sidebar-collapsed: 78px;
 $mobile-header: 60px;
@@ -6,7 +7,6 @@ $mobile-header-small: 56px;
 :host {
   display: block;
   min-width: 0;
-  // ✅ dvh para que el alto sea real en móvil
   height: var(--app-height, 100vh);
   overflow-x: clip;
 }
@@ -14,7 +14,7 @@ $mobile-header-small: 56px;
 .app-container {
   position: relative;
   min-width: 0;
-  height: var(--app-height, 100vh); // ✅
+  height: var(--app-height, 100vh);
   color: var(--tema-text, #e6edf3);
   background: transparent;
   transition: color 0.6s ease;
@@ -28,7 +28,7 @@ $mobile-header-small: 56px;
   display: flex;
   width: 100%;
   min-width: 0;
-  min-height: var(--app-height, 100vh); // ✅
+  min-height: var(--app-height, 100vh);
 }
 
 .app-main {
@@ -38,7 +38,7 @@ $mobile-header-small: 56px;
   flex-direction: column;
   width: calc(100% - #{$sidebar-expanded});
   min-width: 0;
-  min-height: var(--app-height, 100vh); // ✅
+  min-height: var(--app-height, 100vh);
   overflow-x: clip;
   transition: width 0.25s ease;
 }
@@ -148,7 +148,7 @@ $mobile-header-small: 56px;
   .app-shell,
   .app-shell.sidebar-collapsed {
     display: block;
-    padding-top: $mobile-header; // espacio para la navbar superior (solo en rutas NO-chat)
+    padding-top: $mobile-header;
   }
 
   .app-main,
@@ -205,28 +205,31 @@ $mobile-header-small: 56px;
 }
 
 // ============================================================
-// MODO CHAT A PANTALLA COMPLETA  ✅ CORREGIDO
+// MODO CHAT A PANTALLA COMPLETA
 // ============================================================
 .app-container.chat-route {
-  height: var(--app-height, 100vh);
-  min-height: 0;         // ✅ ya no fuerza overflow
+  height: var(--app-height, 100dvh);
+  min-height: 0;
   overflow: hidden;
 }
 
 .app-shell.chat-route {
-  height: var(--app-height, 100vh);
+  display: flex !important;
+  flex-direction: row !important;
+  height: var(--app-height, 100dvh);
   min-height: 0;
   overflow: hidden;
-  // ✅ MUY IMPORTANTE: en móvil NO debe tener padding-top cuando es chat,
-  // porque el chat gestiona su propio header dentro.
   padding-top: 0 !important;
 }
 
 .app-main--chat {
-  height: var(--app-height, 100vh);
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
-  padding-top: 0; // ✅
+  padding-top: 0;
 }
 
 .main-content--chat {
@@ -241,20 +244,42 @@ $mobile-header-small: 56px;
   animation: none;
 }
 
-// En chat móvil el chat ocupa TODO el viewport (sin restar navbar)
-// porque el header del chat ya tiene su propio botón hamburguesa + back.
+// ============================================================
+// MÓVIL / TABLET — chat a pantalla completa SIN padding-top
+// IMPORTANTE: NO recortar el input fixed del chat.
+// ============================================================
 @media (max-width: 1024px) {
   .app-container.chat-route {
-    height: var(--app-height, 100vh);
+    height: var(--app-height, 100dvh);
     min-height: 0;
+    overflow: visible;
   }
-  .app-shell.chat-route {
-    height: var(--app-height, 100vh);
-    min-height: 0;
+
+  .app-shell.chat-route,
+  .app-shell.sidebar-collapsed.chat-route {
+    display: flex !important;
+    flex-direction: column !important;
+    padding-top: 0 !important;
+    height: var(--app-height, 100dvh) !important;
+    min-height: 0 !important;
+    overflow: visible !important;
   }
+
   .app-main--chat {
-    height: var(--app-height, 100vh); // ✅ ya NO restamos $mobile-header
-    min-height: 0;
-    padding-top: 0;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-top: 0 !important;
+  }
+
+  .main-content--chat {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
   }
 }

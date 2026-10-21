@@ -1,9 +1,25 @@
-
-
+<!-- src/app/layouts/main-layout/main-layout.component.html -->
 <div class="app-container" [class.chat-route]="esRutaChat()">
 
   <!-- ===== SKIP LINK (accesibilidad teclado) ===== -->
-  <a href="#main-content" class="skip-link">
+  <a
+    href="#main-content"
+    class="skip-link"
+    style="
+      position: absolute;
+      left: -9999px;
+      top: 8px;
+      z-index: 99999;
+      padding: 8px 16px;
+      background: #2dd4bf;
+      color: #0d1117;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+    "
+    onfocus="this.style.left='8px'"
+    onblur="this.style.left='-9999px'"
+  >
     Saltar al contenido principal
   </a>
 
@@ -53,4 +69,5 @@
   </div>
 
   <!-- ===== MODAL DE AYUDA DE ATAJOS ===== -->
- 
+  <!-- (lo que tengas aquí) -->
+</div>
