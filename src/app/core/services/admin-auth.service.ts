@@ -35,7 +35,7 @@ export class AdminAuthService {
   admin = this._admin.asReadonly();
   token = this._token.asReadonly();
 
-  // ✅ Computed con validación de expiración
+  // ✅ Computed con validación de expiración y rol
   estaLogueado = computed(() => {
     const token = this._token();
     const admin = this._admin();
@@ -44,7 +44,12 @@ export class AdminAuthService {
 
     // Verificar si el JWT expiró
     if (this.tokenExpirado(token)) {
-      // Limpia automáticamente si expiró
+      this.limpiarStorage();
+      return false;
+    }
+
+    // Validar que el rol sea correcto
+    if (!['CEO', 'ADMIN', 'MODERADOR'].includes(admin.rol)) {
       this.limpiarStorage();
       return false;
     }
@@ -52,9 +57,10 @@ export class AdminAuthService {
     return true;
   });
 
-  esCEO = computed(() => this._admin()?.rol === 'CEO');
+  esCEO = computed(() => this.estaLogueado() && this._admin()?.rol === 'CEO');
 
   esAdminOMayor = computed(() => {
+    if (!this.estaLogueado()) return false;
     const rol = this._admin()?.rol;
     return rol === 'CEO' || rol === 'ADMIN';
   });
@@ -66,6 +72,9 @@ export class AdminAuthService {
     return this.http.post<AdminLoginResponse>(`${this.API}/login`, { email, password })
       .pipe(
         tap((res) => {
+          if (!res.token || !res.admin) {
+            throw new Error('Respuesta de login inválida');
+          }
           this._token.set(res.token);
           this._admin.set(res.admin);
           localStorage.setItem(this.TOKEN_KEY, res.token);
@@ -78,21 +87,17 @@ export class AdminAuthService {
   // ============================================================
   // LOGOUT
   // ============================================================
-
   /**
-   * ✅ Cierra sesión SIN navegar.
-   * Úsalo cuando tú controlas la redirección (ej. navbar).
+   * Cierra sesión SIN navegar. Limpia las señales y el localStorage.
    */
   logout(): void {
     this._token.set(null);
     this._admin.set(null);
     this.limpiarStorage();
-    // ⚠️ NO navega aquí
   }
 
   /**
-   * ✅ Cierra sesión Y navega a /admin/login.
-   * Úsalo desde el propio panel admin.
+   * Cierra sesión Y navega a /admin/login.
    */
   logoutYNavegar(): void {
     this.logout();
@@ -100,26 +105,29 @@ export class AdminAuthService {
   }
 
   // ============================================================
-  // HELPERS
+  // HELPERS DE SEGURIDAD
   // ============================================================
   getToken(): string | null {
     return this._token();
   }
 
   /**
-   * ✅ Limpia el localStorage.
+   * Limpia el localStorage y fuerza un estado nulo.
    */
   private limpiarStorage(): void {
     try {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.ADMIN_KEY);
     } catch {
-      // sin problema
+      // Ignorar errores de almacenamiento
     }
+    // Forzar nulo para evitar bugs en memoria
+    this._token.set(null);
+    this._admin.set(null);
   }
 
   /**
-   * ✅ Verifica si un JWT expiró (sin librerías externas).
+   * Verifica si un JWT expiró sin librerías externas.
    */
   private tokenExpirado(token: string): boolean {
     try {
@@ -128,14 +136,18 @@ export class AdminAuthService {
       const expiracion = payload.exp * 1000; // a milisegundos
       return Date.now() >= expiracion;
     } catch {
-      // si no se puede parsear → considerar expirado
-      return true;
+      return true; // Si no se puede parsear, se considera expirado
     }
   }
 
   private cargarTokenDesdeStorage(): string | null {
     try {
-      return localStorage.getItem(this.TOKEN_KEY);
+      const token = localStorage.getItem(this.TOKEN_KEY);
+      if (token && this.tokenExpirado(token)) {
+        localStorage.removeItem(this.TOKEN_KEY);
+        return null;
+      }
+      return token;
     } catch {
       return null;
     }
@@ -144,7 +156,10 @@ export class AdminAuthService {
   private cargarAdminDesdeStorage(): AdminUser | null {
     try {
       const raw = localStorage.getItem(this.ADMIN_KEY);
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      const admin: AdminUser = JSON.parse(raw);
+      if (!admin || !admin.id || !admin.rol) return null;
+      return admin;
     } catch {
       return null;
     }

@@ -7,7 +7,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
   const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  // ✅ Verifica si hay sesión de ADMIN (no de usuario normal)
+  // Verifica si hay sesión de ADMIN
   if (!adminAuth.estaLogueado()) {
     router.navigate(['/admin/login'], {
       queryParams: { redirect: state.url }
@@ -15,7 +15,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // ✅ Verifica rol si la ruta lo requiere
+  // Verifica rol si la ruta lo requiere
   const rolesRequeridos = route.data?.['roles'] as string[] | undefined;
   if (rolesRequeridos && rolesRequeridos.length > 0) {
     const rolActual = adminAuth.admin()?.rol;

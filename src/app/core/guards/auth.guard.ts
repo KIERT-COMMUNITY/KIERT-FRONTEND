@@ -9,14 +9,11 @@ export const authGuard: CanActivateFn = (route, state) => {
   const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  // ============================================================
   // 1. Verificar sesión de usuario normal
-  // ============================================================
   const tokenUsuario = localStorage.getItem('token');
   const usuarioStr = localStorage.getItem('usuario_actual');
   const tieneSesionUsuario = !!(tokenUsuario && usuarioStr);
 
-  // Si hay token pero el servicio no lo tiene cargado, cargarlo
   if (tieneSesionUsuario && !auth.estaLogueado()) {
     try {
       const usuario = JSON.parse(usuarioStr!);
@@ -27,18 +24,14 @@ export const authGuard: CanActivateFn = (route, state) => {
     }
   }
 
-  // ============================================================
-  // 2. Verificar sesión de admin (CEO, ADMIN, MODERADOR)
-  // ============================================================
+  // 2. Verificar sesión de admin
   const tokenAdmin = localStorage.getItem('kiert_admin_token');
   const adminData = localStorage.getItem('kiert_admin_data');
   const tieneSesionAdmin = !!(tokenAdmin && adminData);
 
-  // ============================================================
   // 3. Permitir si tiene CUALQUIER sesión
-  // ============================================================
   if (tieneSesionUsuario || tieneSesionAdmin) {
-    console.log('[AUTH GUARD] ✅ Acceso permitido', {
+    console.log('[AUTH GUARD] Acceso permitido', {
       usuario: tieneSesionUsuario,
       admin: tieneSesionAdmin,
       url: state.url
@@ -46,10 +39,8 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // ============================================================
   // 4. Sin sesiones → redirigir a login
-  // ============================================================
-  console.warn('[AUTH GUARD] 🚫 Sin sesión, redirigiendo a login', {
+  console.warn('[AUTH GUARD] Sin sesión, redirigiendo a login', {
     url: state.url
   });
 

@@ -142,19 +142,20 @@ $mobile-header-small: 56px;
 }
 
 // ============================================================
-// RESPONSIVE
+// RESPONSIVE CORREGIDO (SIN ESPACIO EXTRA ARRIBA)
 // ============================================================
 @media (max-width: 1024px) {
   .app-shell,
   .app-shell.sidebar-collapsed {
     display: block;
-    padding-top: $mobile-header;
+    padding-top: 0; // Eliminamos el padding que causaba el hueco
   }
 
   .app-main,
   .app-shell.sidebar-collapsed .app-main {
     width: 100%;
-    min-height: calc(var(--app-height, 100vh) - #{$mobile-header});
+    min-height: var(--app-height, 100vh);
+    padding-top: 12px; // Un margen pequeño y limpio para el contenido
   }
 
   .main-banner { margin: 14px 0.85rem 0; }
@@ -178,9 +179,9 @@ $mobile-header-small: 56px;
 
 @media (max-width: 640px) {
   .app-shell,
-  .app-shell.sidebar-collapsed { padding-top: $mobile-header-small; }
+  .app-shell.sidebar-collapsed { padding-top: 0; }
   .app-main,
-  .app-shell.sidebar-collapsed .app-main { min-height: calc(var(--app-height, 100vh) - #{$mobile-header-small}); }
+  .app-shell.sidebar-collapsed .app-main { min-height: var(--app-height, 100vh); }
 }
 
 @media (max-width: 480px) {
@@ -229,7 +230,7 @@ $mobile-header-small: 56px;
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  padding-top: 0;
+  padding-top: 0 !important;
 }
 
 .main-content--chat {
@@ -239,14 +240,13 @@ $mobile-header-small: 56px;
   height: 100%;
   min-height: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 !important;
   overflow: hidden;
   animation: none;
 }
 
 // ============================================================
 // MÓVIL / TABLET — chat a pantalla completa SIN padding-top
-// IMPORTANTE: NO recortar el input fixed del chat.
 // ============================================================
 @media (max-width: 1024px) {
   .app-container.chat-route {

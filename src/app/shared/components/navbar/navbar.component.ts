@@ -49,7 +49,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     this.intervalId = setInterval(() => {
       this.cargarMensajesNoLeidos();
-      // ✅ Re-validar sesión admin cada 30s
       this.validarSesionAdmin();
     }, 30000);
   }
@@ -84,9 +83,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   alternarMenuContraido(): void {
-    if (window.innerWidth <= 1024) {
-      return;
-    }
+    if (window.innerWidth <= 1024) return;
 
     const nuevoEstado = !this.menuContraido();
     this.menuContraido.set(nuevoEstado);
@@ -95,16 +92,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('kiert-menu-contraido', String(nuevoEstado));
     } catch {
-      // La aplicacion continua si el almacenamiento no esta disponible.
+      // Ignorar
     }
   }
 
-  /**
-   * ✅ Valida que la sesión de admin siga siendo válida.
-   * Si el token expiró, `estaLogueado()` ya lo maneja.
-   */
   private validarSesionAdmin(): void {
-    // Forzar re-evaluación del computed
+    // Fuerza la re-evaluación del computed
     void this.adminAuth.estaLogueado();
   }
 
@@ -115,12 +108,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     this.chatService.obtenerMensajesNoLeidos().subscribe({
-      next: (cantidad: number) => {
-        this.mensajesNoLeidos.set(cantidad || 0);
-      },
-      error: () => {
-        this.mensajesNoLeidos.set(0);
-      }
+      next: (cantidad: number) => this.mensajesNoLeidos.set(cantidad || 0),
+      error: () => this.mensajesNoLeidos.set(0)
     });
   }
 
@@ -131,40 +120,46 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   irAlPanelReportes(): void {
     this.cerrarMenu();
+    if (!this.adminAuth.esAdminOMayor()) {
+      this.router.navigate(['/comunidad']);
+      return;
+    }
     this.router.navigate(['/admin/reportes']);
   }
 
+  irAlPanelAnuncios(): void {
+    this.cerrarMenu();
+    if (!this.adminAuth.esAdminOMayor()) {
+      this.router.navigate(['/comunidad']);
+      return;
+    }
+    this.router.navigate(['/admin/anuncios']);
+  }
+
   /**
-   * ✅ Cierra sesión NORMAL + sesión ADMIN + limpia todo.
+   * Cierra sesión NORMAL + ADMIN y limpia todo rastro.
    */
   cerrarSesion(): void {
     this.cerrarMenu();
 
-    // 1. Cerrar sesión admin (limpia localStorage, SIN navegar)
+    // 1. Cerrar sesión admin (limpia señales y localStorage)
     this.adminAuth.logout();
 
-    // 2. Cerrar sesión normal
+    // 2. Cerrar sesión normal (limpia token y usuario)
     this.authService.logout();
 
-    // 3. Redirigir al login normal
+    // 3. Redirigir al login
     this.router.navigate(['/login']);
   }
 
   private restaurarEstadoMenu(): void {
     let estadoGuardado = false;
-
     try {
       estadoGuardado = localStorage.getItem('kiert-menu-contraido') === 'true';
     } catch {
       estadoGuardado = false;
     }
-
     this.menuContraido.set(estadoGuardado);
     this.estadoContraidoChange.emit(estadoGuardado);
   }
-  
-  irAlPanelAnuncios(): void {
-  this.cerrarMenu();
-  this.router.navigate(['/admin/anuncios']);
-}
 }

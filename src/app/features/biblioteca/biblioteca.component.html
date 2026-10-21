@@ -1,4 +1,4 @@
-<!-- src/app/features/biblioteca/biblioteca.component.html -->
+ <!-- src/app/features/biblioteca/biblioteca.component.html -->
 <div class="biblioteca-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
 
   <!-- HEADER -->
@@ -287,7 +287,6 @@
             <div class="recurso-card__header">
               <h3>{{ recurso.titulo }}</h3>
 
-              <!-- ✅ BADGE DE DOMINIO -->
               <span class="recurso-card__dominio"
                     [class.recurso-card__dominio--confiable]="esDominioConfiable(recurso.url)"
                     [title]="recurso.url">
@@ -532,7 +531,7 @@
   }
 
   <!-- ============================================================ -->
-  <!-- ✅ MODAL DE AVISO ANTES DE ABRIR LINK EXTERNO -->
+  <!-- MODAL DE AVISO ANTES DE ABRIR LINK EXTERNO                    -->
   <!-- ============================================================ -->
   @if (mostrarAvisoEnlace() && enlaceAAbrir()) {
     <div class="modal-overlay" (click)="cerrarAvisoEnlace()">
@@ -604,14 +603,15 @@
   }
 
   <!-- ============================================================ -->
-  <!-- ✅ MODAL DE AVISO DE SEGURIDAD (auto-cierre 5s)              -->
+  <!-- MODAL DE AVISO DE SEGURIDAD (auto-cierre 5s) — CENTRADO     -->
+  <!-- Sin animaciones, profesional, responsive                     -->
   <!-- ============================================================ -->
   @if (mostrarAvisoSeguridad()) {
     <div class="modal-overlay modal-overlay--seguridad" (click)="cerrarAvisoSeguridad()">
       <div class="modal modal--seguridad" (click)="$event.stopPropagation()">
 
-        <!-- Barra de progreso de 5 segundos -->
-        <div class="seguridad-progress">
+        <!-- Barra de progreso de 5 segundos (estática, sin animación) -->
+        <div class="seguridad-progress" aria-hidden="true">
           <div class="seguridad-progress__bar"></div>
         </div>
 
@@ -626,53 +626,54 @@
 
         <div class="modal__body modal__body--seguridad">
 
+          <!-- Icono principal -->
           <div class="seguridad-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
+              <polyline points="9 12 11 14 15 10"/>
             </svg>
           </div>
 
-          <div class="seguridad-icon-title">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    <polyline points="9 12 11 14 15 10"/>
-  </svg>
-  <h2 class="seguridad-title">Cuida tu seguridad</h2>
-</div>
+          <!-- Título -->
+          <h2 class="seguridad-title">Cuida tu seguridad</h2>
 
+          <!-- Descripción -->
           <p class="seguridad-desc">
             En <strong>Kiert</strong> nos preocupamos por tu privacidad y tu seguridad.
           </p>
 
+          <!-- Alerta principal -->
           <div class="seguridad-alerta">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            <span><strong>Cuidado con enlaces maliciosos.</strong> No abras links sospechosos ni compartas datos personales.</span>
+            <span>
+              <strong>Cuidado con enlaces maliciosos.</strong>
+              No abras links sospechosos ni compartas datos personales.
+            </span>
           </div>
 
+          <!-- Lista de recomendaciones -->
           <ul class="seguridad-lista">
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              Verifica siempre el dominio antes de hacer clic
+              <span>Verifica siempre el dominio antes de hacer clic</span>
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              Desconfía de URLs acortadas o extrañas
+              <span>Desconfía de URLs acortadas o extrañas</span>
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              Nunca ingreses contraseñas en sitios no verificados
+              <span>Nunca ingreses contraseñas en sitios no verificados</span>
             </li>
           </ul>
 

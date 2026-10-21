@@ -1,6 +1,8 @@
+// src/app/core/services/anuncio.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Anuncio {
   id?: number;
@@ -9,18 +11,23 @@ export interface Anuncio {
   imagenUrl?: string;
   enlaceUrl?: string;
   activo?: boolean;
+  destacado?: boolean;
+  fechaCreacion?: string;
+  fechaPublicacion?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AnuncioService {
   private http = inject(HttpClient);
-  private baseAdmin = '/api/admin/anuncios';
-  private basePublico = '/api/anuncios';
+  private baseAdmin = `${environment.apiUrl}/admin/anuncios`;
+  private basePublico = `${environment.apiUrl}/anuncios`;
 
+  // === PUBLICO (todos los usuarios logueados) ===
   listarPublicos(): Observable<Anuncio[]> {
     return this.http.get<Anuncio[]>(`${this.basePublico}/publicos`);
   }
 
+  // === ADMIN ===
   listarTodos(): Observable<Anuncio[]> {
     return this.http.get<Anuncio[]>(this.baseAdmin);
   }

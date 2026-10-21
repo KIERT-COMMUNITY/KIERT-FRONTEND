@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+// src/app/features/anuncios/anuncios.component.ts
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Anuncio, AnuncioService } from '../../../core/services/anuncio.service';
 
@@ -9,23 +10,14 @@ import { Anuncio, AnuncioService } from '../../../core/services/anuncio.service'
   templateUrl: './anuncios.component.html',
   styleUrl: './anuncios.component.scss'
 })
-export class AnunciosComponent implements OnInit, OnDestroy {
+export class AnunciosComponent implements OnInit {
   private anuncioService = inject(AnuncioService);
 
   anuncios = signal<Anuncio[]>([]);
   cargando = signal(true);
-  private intervalId: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.cargar();
-    this.intervalId = setInterval(() => this.cargar(), 30000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
   }
 
   cargar(): void {
@@ -35,6 +27,7 @@ export class AnunciosComponent implements OnInit, OnDestroy {
         this.cargando.set(false);
       },
       error: () => {
+        this.anuncios.set([]);
         this.cargando.set(false);
       }
     });

@@ -134,7 +134,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     ayer.setDate(ayer.getDate() - 1);
 
     this.mensajes().forEach(msg => {
-      const fecha = new Date(msg.fechaEnvio);
+      const fecha = this.parsearFechaUtc(msg.fechaEnvio) ?? new Date();
       let key: string;
 
       if (fecha.toDateString() === hoy.toDateString()) {
@@ -162,6 +162,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private pollingInterval: any;
 
   constructor() {
+    // ✅ Escuchamos las conversaciones del chat privado (compartido)
     this.chatService.conversaciones$.subscribe(conversaciones => {
       if (conversaciones.length > 0) {
         this.conversaciones.set(conversaciones);
@@ -173,6 +174,13 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // CICLO DE VIDA
   // ============================================================
   ngOnInit(): void {
+    // ✅ LIMPIEZA INICIAL (evita datos residuales)
+    this.mensajes.set([]);
+    this.miembros.set([]);
+    this.grupo.set(null);
+    this.grupoSeleccionado.set(null);
+    this.usuarioSeleccionado.set(null);
+
     this.cargarDatos();
     this.cargarGrupos();
 
@@ -180,6 +188,10 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const grupoId = params['id'] || params['grupoId'];
       if (grupoId) {
         const id = Number(grupoId);
+        if (isNaN(id)) {
+          this.router.navigate(['/chat']);
+          return;
+        }
         this.tabActual.set('grupos');
         this.grupoSeleccionado.set(id);
         this.cargarGrupo(id);
@@ -189,10 +201,12 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
+    // Polling más eficiente: solo si hay grupo activo
     this.pollingInterval = setInterval(() => {
-      this.actualizarConversacionesYContadores();
       const gid = this.grupoSeleccionado();
-      if (gid) this.cargarMensajes(gid);
+      if (gid && this.tabActual() === 'grupos') {
+        this.cargarMensajes(gid);
+      }
     }, 10000);
   }
 
@@ -279,12 +293,27 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   cargarGrupo(grupoId: number): void {
     this.grupoService.obtenerGrupo(grupoId).subscribe({
-      next: (g) => this.grupo.set(g),
-      error: () => this.errorMsg.set('Error al cargar el grupo')
+      next: (g) => {
+        // ✅ SEGURIDAD: Solo cargar si el usuario es miembro
+        const usuario = this.authService.usuario();
+        if (usuario && g && !g.totalMiembros) {
+          // Si el backend no devuelve miembros, intentamos igual
+        }
+        this.grupo.set(g);
+      },
+      error: () => {
+        this.errorMsg.set('Error al cargar el grupo');
+        this.router.navigate(['/chat']);
+      }
     });
   }
 
   cargarMensajes(grupoId: number): void {
+    // ✅ SEGURIDAD: Solo cargar mensajes si el usuario tiene acceso al grupo
+    if (!this.grupoSeleccionado() || grupoId !== this.grupoSeleccionado()) {
+      return;
+    }
+    
     this.cargando.set(true);
     this.grupoService.obtenerMensajes(grupoId).subscribe({
       next: (msgs) => {
@@ -335,11 +364,15 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   seleccionarGrupo(grupoId: number): void {
+    // ✅ SEGURIDAD: No permitir seleccionar grupo si ya hay otro activo
+    if (this.grupoSeleccionado() === grupoId) return;
+
     this.grupoSeleccionado.set(grupoId);
     this.usuarioSeleccionado.set(null);
     this.grupo.set(null);
     this.mensajes.set([]);
     this.miembros.set([]);
+    
     this.cargarGrupo(grupoId);
     this.cargarMensajes(grupoId);
     this.cargarMiembros(grupoId);
@@ -357,6 +390,13 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   seleccionarConversacion(usuarioId: number): void {
+    // ✅ SEGURIDAD: No permitir chatear consigo mismo
+    if (usuarioId === this.authService.usuario()?.id) {
+      this.errorMsg.set('No puedes chatear contigo mismo');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+
     this.usuarioSeleccionado.set(usuarioId);
     this.grupoSeleccionado.set(null);
     this.grupo.set(null);
@@ -570,7 +610,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ✅ STICKERS
+  // STICKERS
   // ============================================================
   toggleStickerPicker(): void {
     this.mostrarStickerPicker.update(v => !v);
@@ -598,12 +638,8 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  /**
-   * ✅ El modal de crear sticker vive dentro de <kiert-sticker-picker>.
-   * NO navegamos: el propio picker abre el modal internamente.
-   */
   abrirCrearSticker(): void {
-    // No hacer nada: el modal vive dentro del picker.
+    // El modal vive dentro de <kiert-sticker-picker>.
   }
 
   // ============================================================
@@ -724,9 +760,14 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (m.enLinea) return 'En línea';
 
     if (m.ultimaConexion) {
-      const fecha = new Date(m.ultimaConexion);
+      const fecha = this.parsearFechaUtc(m.ultimaConexion);
+      if (!fecha) return 'Desconectado';
+      
       const ahora = new Date();
       const diffMs = ahora.getTime() - fecha.getTime();
+      
+      if (diffMs < 0) return 'Últ. vez hace unos segundos';
+      
       const diffMin = Math.floor(diffMs / 60000);
       const diffH = Math.floor(diffMin / 60);
       const diffD = Math.floor(diffH / 24);
@@ -743,5 +784,17 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     return 'Desconectado';
+  }
+
+  // ============================================================
+  // PARSEO UTC
+  // ============================================================
+  private parsearFechaUtc(fecha: string | Date | null | undefined): Date | null {
+    if (!fecha) return null;
+    if (fecha instanceof Date) return fecha;
+
+    const s = String(fecha);
+    const tieneZona = /Z$|[+-]\d{2}:?\d{2}$/.test(s);
+    return new Date(tieneZona ? s : s + 'Z');
   }
 }

@@ -1,7 +1,10 @@
+// src/app/features/admin/admin-anuncios/admin-anuncios.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Anuncio, AnuncioService } from '../../../core/services/anuncio.service';
+import { AdminAuthService } from '../../../core/services/admin-auth.service';
 
 @Component({
   selector: 'kiert-admin-anuncios',
@@ -13,6 +16,8 @@ import { Anuncio, AnuncioService } from '../../../core/services/anuncio.service'
 export class AdminAnunciosComponent implements OnInit {
   private fb = inject(FormBuilder);
   private anuncioService = inject(AnuncioService);
+  private adminAuth = inject(AdminAuthService);
+  private router = inject(Router);
 
   anuncios = signal<Anuncio[]>([]);
   cargando = signal(true);
@@ -29,6 +34,11 @@ export class AdminAnunciosComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // Capa de seguridad en Frontend
+    if (!this.adminAuth.esAdminOMayor()) {
+      this.router.navigate(['/comunidad']);
+      return;
+    }
     this.cargar();
   }
 

@@ -28,8 +28,6 @@ $danger: #f85149;
   overflow: visible;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   background: transparent;
-  transition: none;
-  animation: none;
 
   &__container {
     position: relative;
@@ -58,15 +56,9 @@ $danger: #f85149;
     padding: 0;
     z-index: 20;
 
-    &:hover {
-      background: rgba(248, 81, 73, 0.9);
-    }
+    &:hover { background: rgba(248, 81, 73, 0.9); }
 
-    svg {
-      width: 12px;
-      height: 12px;
-      stroke: currentColor;
-    }
+    svg { width: 12px; height: 12px; stroke: currentColor; }
   }
 
   &__link {
@@ -82,8 +74,6 @@ $danger: #f85149;
     height: auto;
     aspect-ratio: 4 / 5;
     object-fit: cover;
-    transition: none;
-    animation: none;
     background: var(--tema-card-bg, #1b232c);
   }
 
@@ -107,14 +97,8 @@ $danger: #f85149;
     padding: 0;
     transition: background 0.2s ease;
 
-    &.active {
-      background: $primary;
-      border-color: $primary;
-    }
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.4);
-    }
+    &.active { background: $primary; border-color: $primary; }
+    &:hover { background: rgba(255, 255, 255, 0.4); }
   }
 
   &__counter {
@@ -150,15 +134,8 @@ $danger: #f85149;
     z-index: 15;
     backdrop-filter: blur(4px);
 
-    &:hover {
-      background: rgba(0, 0, 0, 0.8);
-    }
-
-    svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-    }
+    &:hover { background: rgba(0, 0, 0, 0.8); }
+    svg { width: 14px; height: 14px; stroke: currentColor; }
 
     &--prev { left: 4px; }
     &--next { right: 4px; }
@@ -170,9 +147,9 @@ $danger: #f85149;
 // ============================================================
 .floating-colaboradores {
   position: fixed;
-  z-index: 9999;
+  z-index: 9997;
   top: 250px;
-  left: 1500px;
+  right: 20px; // ✅ antes left:1500px → se salía de pantalla
   background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
   backdrop-filter: blur(12px);
   border: 1px solid $border;
@@ -201,11 +178,7 @@ $danger: #f85149;
 
     &:hover { background: rgba(248, 81, 73, 0.25); }
 
-    svg {
-      width: 12px;
-      height: 1px;
-      stroke: currentColor;
-    }
+    svg { width: 12px; height: 12px; stroke: currentColor; }
   }
 
   &__title {
@@ -222,10 +195,7 @@ $danger: #f85149;
     letter-spacing: 0.3px;
     opacity: 0.9;
 
-    svg {
-      color: $primary;
-      flex-shrink: 0;
-    }
+    svg { color: $primary; flex-shrink: 0; }
   }
 
   &__grid {
@@ -302,8 +272,6 @@ $danger: #f85149;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   min-width: 200px;
   max-width: 220px;
-  transition: none;
-  animation: none;
 
   &__close {
     position: absolute;
@@ -323,12 +291,7 @@ $danger: #f85149;
     padding: 0;
 
     &:hover { background: rgba(248, 81, 73, 0.25); }
-
-    svg {
-      width: 12px;
-      height: 12px;
-      stroke: currentColor;
-    }
+    svg { width: 12px; height: 12px; stroke: currentColor; }
   }
 
   &__title {
@@ -359,7 +322,6 @@ $danger: #f85149;
     width: 100%;
     aspect-ratio: 1/1;
     border-radius: 10px;
-    transition: none;
     text-decoration: none;
     border: 1px solid $border;
     background: transparent !important;
@@ -409,8 +371,6 @@ $danger: #f85149;
   border-radius: 12px;
   padding: 8px 14px 8px 18px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  transition: none;
-  animation: none;
 
   &--top {
     top: 80px;
@@ -436,12 +396,7 @@ $danger: #f85149;
     padding: 0;
 
     &:hover { background: rgba(248, 81, 73, 0.25); }
-
-    svg {
-      width: 12px;
-      height: 12px;
-      stroke: currentColor;
-    }
+    svg { width: 12px; height: 12px; stroke: currentColor; }
   }
 
   &__content {
@@ -475,8 +430,6 @@ $danger: #f85149;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  transition: none;
-  animation: none;
 
   &__close {
     position: absolute;
@@ -490,16 +443,8 @@ $danger: #f85149;
     transition: opacity 0.2s ease;
     padding: 4px;
 
-    &:hover {
-      opacity: 1;
-      color: $danger;
-    }
-
-    svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-    }
+    &:hover { opacity: 1; color: $danger; }
+    svg { width: 16px; height: 16px; stroke: currentColor; }
   }
 
   &__content {
@@ -522,7 +467,6 @@ $danger: #f85149;
       font-family: 'Inter', -apple-system, sans-serif;
       color: $text-primary;
     }
-
     span {
       font-size: 0.8rem;
       color: $text-secondary;
@@ -540,7 +484,6 @@ $danger: #f85149;
     font-size: 0.8rem;
     font-family: 'Inter', -apple-system, sans-serif;
     cursor: pointer;
-    transition: none;
     text-decoration: none;
     white-space: nowrap;
 
@@ -566,7 +509,7 @@ $danger: #f85149;
 
 @keyframes fadeIn {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
 }
 
 .popup {
@@ -583,14 +526,8 @@ $danger: #f85149;
   animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   &__close {
@@ -609,16 +546,8 @@ $danger: #f85149;
     justify-content: center;
     transition: background 0.2s ease;
 
-    &:hover {
-      background: rgba(248, 81, 73, 0.1);
-      color: $danger;
-    }
-
-    svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
-    }
+    &:hover { background: rgba(248, 81, 73, 0.1); color: $danger; }
+    svg { width: 20px; height: 20px; stroke: currentColor; }
   }
 
   &__content {
@@ -676,63 +605,60 @@ $danger: #f85149;
     font-weight: 700;
     font-family: 'Inter', -apple-system, sans-serif;
     cursor: pointer;
-    transition: none;
 
-    &:hover {
-      background: linear-gradient(135deg, $primary-hover, #14a094);
-    }
+    &:hover { background: linear-gradient(135deg, $primary-hover, #14a094); }
   }
 }
 
 // ============================================================
-// RESPONSIVE - TABLET (<= 768px)
+// RESPONSIVE — TABLET (<= 1024px)
+// Aquí empieza la corrección principal: los flotantes se
+// recolocan para no pisarse entre sí ni salirse del viewport.
+// ============================================================
+
+@media (max-width: 1024px) {
+  // En tablet, ocultamos el carrusel de anuncios lateral izquierdo
+  // (suele tapar contenido). Si lo quieres conservar, comenta esta regla.
+  .static-ad-carousel {
+    display: none !important;
+  }
+
+  // Redes sociales: abajo-derecha pero subimos un poco para no
+  // chocar con el FAB del teclado (que está a 24px del fondo).
+  .floating-social {
+    bottom: 90px;
+    right: 12px;
+    min-width: 170px;
+    max-width: 190px;
+  }
+
+  // Colaboradores: a la IZQUIERDA abajo para que no se pise con
+  // redes sociales, y por encima del FAB.
+  .floating-colaboradores {
+    top: auto;
+    right: auto;
+    bottom: 90px;
+    left: 12px;
+    min-width: 170px;
+    max-width: 190px;
+  }
+
+  // Anuncio superior: seguimos arriba-derecha pero más pequeño.
+  .floating-ad--top {
+    top: 70px;
+    right: 12px;
+    max-width: 180px;
+  }
+}
+
+// ============================================================
+// RESPONSIVE — MÓVIL GRANDE (<= 768px)
 // ============================================================
 
 @media (max-width: 768px) {
-  .static-ad-carousel {
-    width: 130px;
-    bottom: 15px;
-    left: 15px;
-    border-radius: 10px;
-
-    &__close {
-      width: 22px; height: 22px;
-      top: -8px; right: -8px;
-      svg { width: 10px; height: 10px; }
-    }
-    &__dot { width: 6px; height: 6px; }
-    &__counter { font-size: 0.5rem; padding: 1px 6px; }
-    &__nav {
-      width: 22px; height: 22px;
-      svg { width: 12px; height: 12px; }
-    }
-  }
-
-  .floating-colaboradores {
-    bottom: 80px;
-    left: 10px;
-    min-width: 170px;
-    max-width: 200px;
-    padding: 10px 10px 12px;
-    border-radius: 12px;
-
-    &__title {
-      font-size: 0.6rem;
-      margin-bottom: 8px;
-      svg { width: 12px; height: 12px; }
-    }
-    &__grid { gap: 5px; }
-    &__link { width: 32px; height: 32px; border-width: 1.5px; }
-    &__footer { font-size: 0.5rem; padding-top: 5px; }
-    &__close {
-      width: 18px; height: 18px;
-      top: -6px; right: -6px;
-      svg { width: 10px; height: 10px; }
-    }
-  }
-
+  // Redes sociales abajo-derecha, más compactas.
   .floating-social {
-    bottom: 80px;
+    bottom: 76px;
     right: 10px;
     min-width: 140px;
     max-width: 160px;
@@ -746,6 +672,32 @@ $danger: #f85149;
       .social-icon svg { width: 20px; height: 20px; }
     }
     &__footer { font-size: 0.5rem; padding-top: 4px; }
+    &__close {
+      width: 18px; height: 18px;
+      top: -6px; right: -6px;
+      svg { width: 10px; height: 10px; }
+    }
+  }
+
+  // Colaboradores abajo-izquierda.
+  .floating-colaboradores {
+    top: auto;
+    right: auto;
+    bottom: 76px;
+    left: 10px;
+    min-width: 150px;
+    max-width: 170px;
+    padding: 10px 10px 12px;
+    border-radius: 12px;
+
+    &__title {
+      font-size: 0.6rem;
+      margin-bottom: 8px;
+      svg { width: 12px; height: 12px; }
+    }
+    &__grid { gap: 5px; }
+    &__link { width: 32px; height: 32px; border-width: 1.5px; }
+    &__footer { font-size: 0.5rem; padding-top: 5px; }
     &__close {
       width: 18px; height: 18px;
       top: -6px; right: -6px;
@@ -791,62 +743,23 @@ $danger: #f85149;
 }
 
 // ============================================================
-// RESPONSIVE - MÓVIL (<= 480px)
+// RESPONSIVE — MÓVIL (<= 480px)
+// Aquí ocultamos "Colaboradores" porque en pantallas muy
+// pequeñas se pisa con el input del chat / FAB y queda feo.
 // ============================================================
 
 @media (max-width: 480px) {
-  .static-ad-carousel {
-    width: 100px;
-    bottom: 10px;
-    left: 10px;
-    border-radius: 8px;
-
-    &__close {
-      width: 18px; height: 18px;
-      top: -6px; right: -6px;
-      svg { width: 8px; height: 8px; }
-    }
-    &__dot { width: 5px; height: 5px; }
-    &__dots { gap: 4px; bottom: 5px; }
-    &__counter {
-      font-size: 0.45rem; padding: 1px 5px;
-      bottom: 5px; right: 6px;
-    }
-    &__nav {
-      width: 18px; height: 18px;
-      svg { width: 10px; height: 10px; }
-    }
-  }
-
+  // En móviles pequeños ocultamos colaboradores para no saturar.
+  // Si los quieres conservar, cambia display: none por bottom: 140px.
   .floating-colaboradores {
-    bottom: 70px;
-    left: 8px;
-    min-width: 140px;
-    max-width: 170px;
-    padding: 8px 8px 10px;
-    border-radius: 10px;
-
-    &__title {
-      font-size: 0.5rem;
-      margin-bottom: 6px;
-      gap: 4px;
-      svg { width: 10px; height: 10px; }
-    }
-    &__grid { gap: 4px; }
-    &__link { width: 28px; height: 28px; border-width: 1.5px; }
-    &__footer { font-size: 0.45rem; padding-top: 4px; }
-    &__close {
-      width: 16px; height: 16px;
-      top: -5px; right: -5px;
-      svg { width: 8px; height: 8px; }
-    }
+    display: none !important;
   }
 
   .floating-social {
-    bottom: 70px;
+    bottom: 72px;
     right: 8px;
-    min-width: 110px;
-    max-width: 130px;
+    min-width: 120px;
+    max-width: 140px;
     padding: 8px 8px 10px;
     border-radius: 10px;
 
@@ -898,16 +811,10 @@ $danger: #f85149;
 }
 
 // ============================================================
-// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
+// RESPONSIVE — MÓVIL PEQUEÑO (<= 380px)
 // ============================================================
 
 @media (max-width: 380px) {
-  .floating-colaboradores {
-    min-width: 120px;
-    max-width: 145px;
-    &__link { width: 26px; height: 26px; }
-  }
-
   .floating-social {
     min-width: 100px;
     max-width: 115px;

@@ -1,8 +1,9 @@
-// login.component.ts
+// src/app/features/auth/login/login.component.ts
 import { Component, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -15,6 +16,7 @@ import { CommonModule } from '@angular/common';
 export class LoginComponent {
   cargando = signal(false);
   errorMsg = signal<string | null>(null);
+  mostrarBotonAdmin = signal(false);
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -24,6 +26,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
+    private adminAuth: AdminAuthService,
     private router: Router
   ) {}
 
@@ -38,6 +41,7 @@ export class LoginComponent {
 
     this.cargando.set(true);
     this.errorMsg.set(null);
+    this.mostrarBotonAdmin.set(false);
 
     this.auth.login(this.form.getRawValue() as { email: string; password: string }).subscribe({
       next: () => {
@@ -45,11 +49,21 @@ export class LoginComponent {
         this.router.navigate(['/comunidad']);
       },
       error: (err) => {
-        // Mostrar el mensaje del backend si existe
-        const mensaje = err.error?.error
-          || err.error?.mensaje
-          || (err.status === 401 ? 'Correo o contrasena incorrectos' : 'No se pudo iniciar sesion');
-        this.errorMsg.set(mensaje);
+        const mensaje = err.error?.error || err.error?.mensaje || '';
+
+        // DETECTAR SI ES UN ADMIN
+        const esAdmin = mensaje.toLowerCase().includes('administrador') ||
+                        mensaje.toLowerCase().includes('admin') ||
+                        err.status === 403;
+
+        if (esAdmin) {
+          this.errorMsg.set('Esta cuenta es de administrador. Usa el panel de administración.');
+          this.mostrarBotonAdmin.set(true);
+        } else {
+          this.errorMsg.set(
+            mensaje || (err.status === 401 ? 'Correo o contraseña incorrectos' : 'No se pudo iniciar sesión')
+          );
+        }
         this.cargando.set(false);
       },
     });

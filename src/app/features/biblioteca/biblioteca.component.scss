@@ -1646,28 +1646,43 @@ $transition: all 0.25s ease;
     }
   }
 }
+// ============================================================
+// MODAL DE AVISO DE SEGURIDAD (auto-cierre 5s) — ESTÁTICO
+// Centrado, responsive, sin animaciones
+// ============================================================
 
-// ============================================================
-// MODAL DE AVISO DE SEGURIDAD (auto-cierre 5s)
-// ============================================================
 .modal-overlay--seguridad {
   z-index: 99999;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(6px);
-  animation: fadeIn 0.3s ease;
+  -webkit-backdrop-filter: blur(6px);
+
+  /* Centrado perfecto en cualquier pantalla */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
 }
 
 .modal--seguridad {
-  max-width: 480px;
-  width: 100%;
   position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
   overflow: hidden;
   border: 1px solid rgba(45, 212, 191, 0.25);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6),
-              0 0 0 1px rgba(45, 212, 191, 0.1);
-  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(45, 212, 191, 0.1);
+  background: $bg-card;
+  border-radius: 14px;
+
+  /* Sin animaciones */
+  animation: none !important;
 }
 
+/* Barra de progreso (estática, sin animación) */
 .seguridad-progress {
   position: absolute;
   top: 0;
@@ -1682,15 +1697,11 @@ $transition: all 0.25s ease;
     height: 100%;
     width: 100%;
     background: linear-gradient(90deg, #2dd4bf, #17b6a4);
-    transform-origin: left;
-    animation: seguridadProgress 5s linear forwards;
-    box-shadow: 0 0 12px rgba(45, 212, 191, 0.6);
+    box-shadow: 0 0 12px rgba(45, 212, 191, 0.5);
+    /* Sin animación: la barra queda llena y fija */
+    animation: none !important;
+    transform: none !important;
   }
-}
-
-@keyframes seguridadProgress {
-  from { transform: scaleX(1); }
-  to   { transform: scaleX(0); }
 }
 
 .modal__close--seguridad {
@@ -1707,8 +1718,8 @@ $transition: all 0.25s ease;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
   z-index: 5;
+  transition: none !important;
 
   &:hover {
     background: rgba(248, 81, 73, 0.15);
@@ -1717,14 +1728,17 @@ $transition: all 0.25s ease;
 }
 
 .modal__body--seguridad {
-  padding: 32px 28px 24px;
+  padding: 36px 28px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 14px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
 }
 
+/* Icono principal */
 .seguridad-icon {
   display: flex;
   align-items: center;
@@ -1733,19 +1747,21 @@ $transition: all 0.25s ease;
   height: 64px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(45, 212, 191, 0.2), rgba(45, 212, 191, 0.05));
-  border: 2px solid rgba(45, 212, 191, 0.3);
+  border: 2px solid rgba(45, 212, 191, 0.35);
   color: #2dd4bf;
   margin-bottom: 4px;
-  animation: seguridadPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+  /* Sin pulsación */
+  animation: none !important;
+  box-shadow: none !important;
 
-  svg { width: 32px; height: 32px; }
+  svg {
+    width: 30px;
+    height: 30px;
+  }
 }
 
-@keyframes seguridadPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4); }
-  50%      { box-shadow: 0 0 0 12px rgba(45, 212, 191, 0); }
-}
-
+/* Título */
 .seguridad-title {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.35rem;
@@ -1753,15 +1769,20 @@ $transition: all 0.25s ease;
   color: #e6edf3;
   margin: 0;
   letter-spacing: -0.02em;
+  line-height: 1.25;
   overflow-wrap: anywhere;
+  text-align: center;
 }
 
+/* Descripción */
 .seguridad-desc {
   font-size: 0.9rem;
   color: #8b98a5;
   margin: 0;
   line-height: 1.5;
   overflow-wrap: anywhere;
+  text-align: center;
+  max-width: 380px;
 
   strong {
     color: #2dd4bf;
@@ -1769,6 +1790,7 @@ $transition: all 0.25s ease;
   }
 }
 
+/* Alerta principal */
 .seguridad-alerta {
   display: flex;
   align-items: flex-start;
@@ -1782,6 +1804,7 @@ $transition: all 0.25s ease;
   line-height: 1.45;
   text-align: left;
   width: 100%;
+  box-sizing: border-box;
 
   svg {
     flex-shrink: 0;
@@ -1800,6 +1823,7 @@ $transition: all 0.25s ease;
   }
 }
 
+/* Lista de recomendaciones */
 .seguridad-lista {
   list-style: none;
   padding: 0;
@@ -1817,30 +1841,44 @@ $transition: all 0.25s ease;
     font-size: 0.8rem;
     color: #8b98a5;
     line-height: 1.4;
-    padding: 6px 10px;
+    padding: 8px 12px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.04);
+    box-sizing: border-box;
 
     svg {
       flex-shrink: 0;
       color: #2dd4bf;
-      margin-top: 1px;
+      margin-top: 2px;
+    }
+
+    span {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
   }
 }
 
+/* Footer */
 .seguridad-footer {
   font-size: 0.82rem;
   color: #8b98a5;
   margin: 4px 0 0;
+  text-align: center;
+  overflow-wrap: anywhere;
 
-  strong { color: #2dd4bf; }
+  strong {
+    color: #2dd4bf;
+  }
 }
 
+/* Texto auto-cierre */
 .seguridad-auto {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   font-size: 0.7rem;
   color: #5a6a7a;
@@ -1849,6 +1887,7 @@ $transition: all 0.25s ease;
   padding: 4px 12px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
+  text-align: center;
 }
 
 // ============================================================
@@ -2344,4 +2383,121 @@ $transition: all 0.25s ease;
   .modal--seguridad {
     animation: none !important;
   }
+}
+/* ============================================================
+   RESPONSIVE — MODAL SEGURIDAD
+   ============================================================ */
+@media (max-width: 768px) {
+  .modal--seguridad {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .modal__body--seguridad {
+    padding: 32px 20px 20px;
+    gap: 12px;
+  }
+
+  .seguridad-icon {
+    width: 56px;
+    height: 56px;
+
+    svg { width: 26px; height: 26px; }
+  }
+
+  .seguridad-title {
+    font-size: 1.2rem;
+  }
+
+  .seguridad-desc {
+    font-size: 0.85rem;
+  }
+
+  .seguridad-alerta {
+    font-size: 0.78rem;
+    padding: 10px 12px;
+  }
+
+  .seguridad-lista li {
+    font-size: 0.75rem;
+    padding: 7px 10px;
+  }
+
+  .seguridad-footer {
+    font-size: 0.78rem;
+  }
+
+  .seguridad-auto {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay--seguridad {
+    padding: 12px;
+  }
+
+  .modal__body--seguridad {
+    padding: 28px 16px 18px;
+    gap: 10px;
+  }
+
+  .seguridad-icon {
+    width: 52px;
+    height: 52px;
+
+    svg { width: 24px; height: 24px; }
+  }
+
+  .seguridad-title {
+    font-size: 1.1rem;
+  }
+
+  .seguridad-desc {
+    font-size: 0.8rem;
+    max-width: 100%;
+  }
+
+  .seguridad-alerta {
+    font-size: 0.74rem;
+    padding: 9px 10px;
+    gap: 8px;
+
+    svg { width: 16px; height: 16px; }
+  }
+
+  .seguridad-lista li {
+    font-size: 0.72rem;
+    padding: 6px 9px;
+    gap: 8px;
+
+    svg { width: 12px; height: 12px; }
+  }
+
+  .seguridad-footer {
+    font-size: 0.74rem;
+  }
+
+  .seguridad-auto {
+    font-size: 0.6rem;
+    padding: 3px 10px;
+  }
+
+  .modal__close--seguridad {
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 380px) {
+  .modal__body--seguridad {
+    padding: 24px 12px 16px;
+  }
+
+  .seguridad-title { font-size: 1rem; }
+  .seguridad-desc  { font-size: 0.75rem; }
+  .seguridad-alerta { font-size: 0.7rem; }
+  .seguridad-lista li { font-size: 0.68rem; }
 }

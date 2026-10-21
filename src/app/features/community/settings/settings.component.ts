@@ -15,7 +15,6 @@ import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service'
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { User } from '../../../core/models/user.model';
 
-// ✅ NUEVOS IMPORTS para atajos de teclado
 import { KeyboardHelpComponent } from '../../../shared/components/keyboard-help/keyboard-help.component';
 import { KeyboardShortcutsService } from '../../../core/services/keyboard-shortcuts.service';
 
@@ -29,7 +28,7 @@ type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICI
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    KeyboardHelpComponent   // ✅ AÑADIDO
+    KeyboardHelpComponent
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -45,7 +44,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
-  // ✅ NUEVO: servicio de atajos de teclado
   public shortcuts = inject(KeyboardShortcutsService);
 
   private destroy$ = new Subject<void>();
@@ -544,24 +542,42 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.formPerfil.markAllAsTouched();
       return;
     }
+
+    const usuarioId = this.usuario()?.id;
+    if (!usuarioId) {
+      this.errorMsg.set('Usuario no identificado');
+      return;
+    }
+
     this.cargando.set(true);
-    setTimeout(() => {
-      this.cargando.set(false);
-      this.exitoMsg.set('Perfil actualizado correctamente');
-      this.editandoPerfil.set(false);
-      setTimeout(() => this.exitoMsg.set(null), 3000);
-    }, 1000);
+    const data = this.formPerfil.getRawValue();
+
+    this.userService.actualizarPerfil(usuarioId, {
+      nombreUsuario: data.nombreUsuario!,
+      email: data.email!,
+      bio: data.bio || ''
+    }).subscribe({
+      next: (usuarioActualizado) => {
+        this.authService.usuario.set(usuarioActualizado);
+        this.cargando.set(false);
+        this.exitoMsg.set('Perfil actualizado correctamente');
+        this.editandoPerfil.set(false);
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+      },
+      error: (err) => {
+        console.error('Error al actualizar perfil:', err);
+        this.cargando.set(false);
+        this.errorMsg.set(err?.error?.error || 'Error al actualizar el perfil');
+        setTimeout(() => this.errorMsg.set(null), 4000);
+      }
+    });
   }
 
-  /**
-   * ✅ Sube la foto de perfil DESPUÉS de limpiar metadatos EXIF.
-   */
   async subirFotoPerfil(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const archivoOriginal = input.files?.[0];
     if (!archivoOriginal) return;
 
-    // Validar tipo
     if (!archivoOriginal.type.startsWith('image/')) {
       this.errorMsg.set('Solo se permiten imágenes');
       setTimeout(() => this.errorMsg.set(null), 3000);
@@ -569,7 +585,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validar tamaño (10 MB máx)
     if (archivoOriginal.size > 10 * 1024 * 1024) {
       this.errorMsg.set('La imagen no debe superar los 10MB');
       setTimeout(() => this.errorMsg.set(null), 3000);
@@ -578,9 +593,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     try {
-      // ✅ Limpiar metadatos EXIF y recortar a cuadrado
       const archivoLimpio = await this.imageSanitizer.limpiarFotoPerfil(archivoOriginal);
-
       this.cargando.set(true);
 
       this.personalizacionService.subirFotoPerfil(archivoLimpio).subscribe({
@@ -613,16 +626,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return nombre?.charAt(0)?.toUpperCase() || '?';
   }
 
-  // ============================================================
-  // NAVEGACIÓN
-  // ============================================================
   irChat(): void { this.router.navigate(['/chat']); }
   irPerfil(): void { this.router.navigate(['/perfil']); }
   irHistorial(): void { this.router.navigate(['/mis-publicaciones']); }
 
-  // ============================================================
-  // ✅ NUEVO: ATAJOS DE TECLADO
-  // ============================================================
   abrirAyudaAtajos(): void {
     this.shortcuts.mostrarAyuda.set(true);
   }

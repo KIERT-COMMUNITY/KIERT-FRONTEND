@@ -8,6 +8,7 @@ import { PostService } from '../../core/services/post.service';
 import { BloqueoService } from '../../core/services/bloqueo.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../core/services/image-sanitizer.service';
+import { UserService } from '../../core/services/user.service'; // ✅ Importado
 import { User } from '../../core/models/user.model';
 
 @Component({
@@ -22,6 +23,7 @@ export class ProfileComponent implements OnInit {
   private postService = inject(PostService);
   private bloqueoService = inject(BloqueoService);
   private imageSanitizer = inject(ImageSanitizerService);
+  private userService = inject(UserService); // ✅ Inyectado
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -54,11 +56,15 @@ export class ProfileComponent implements OnInit {
   nombreCompleto = computed(() => this.usuario()?.nombreUsuario || 'Usuario');
   email = computed(() => this.usuario()?.email || 'Sin correo');
   fotoPerfil = computed(() => this.usuario()?.fotoPerfilUrl || null);
+  
+  // ✅ Computed para la biografía
+  bio = computed(() => this.usuario()?.bio || null);
 
-  // ===== FORMULARIO =====
+  // ===== FORMULARIO (Añadido campo bio) =====
   formEditar = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
+    bio: ['', [Validators.maxLength(150)]], // ✅ NUEVO
   });
 
   constructor() {
@@ -76,9 +82,6 @@ export class ProfileComponent implements OnInit {
     this.aplicarTemaGlobal(tema);
   }
 
-  // ============================================================
-  // APLICAR TEMA GLOBAL
-  // ============================================================
   private aplicarTemaGlobal(themeId: string): void {
     const html = document.documentElement;
     const body = document.body;
@@ -107,6 +110,7 @@ export class ProfileComponent implements OnInit {
       this.formEditar.patchValue({
         nombreUsuario: user.nombreUsuario,
         email: user.email,
+        bio: user.bio || '', // ✅ Cargar bio en el formulario
       });
     }
   }
@@ -128,9 +132,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // SUBIR FOTO DE PERFIL
-  // ============================================================
   async onFotoSeleccionada(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     const archivoOriginal = input.files?.[0];
@@ -185,9 +186,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // ============================================================
-  // ✅ ELIMINAR FOTO DE PERFIL
-  // ============================================================
   abrirConfirmEliminarFoto(): void {
     this.mostrarConfirmEliminarFoto.set(true);
   }
@@ -220,9 +218,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // EDITAR PERFIL
-  // ============================================================
   toggleEditar(): void {
     this.editando.set(!this.editando());
     if (this.editando()) {
@@ -230,23 +225,40 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  // ✅ Guardar cambios reales (incluye la bio)
   guardarCambios(): void {
     if (this.formEditar.invalid) {
       this.formEditar.markAllAsTouched();
       return;
     }
+
+    const usuarioId = this.usuario()?.id;
+    if (!usuarioId) return;
+
     this.cargando.set(true);
-    setTimeout(() => {
-      this.cargando.set(false);
-      this.exitoMsg.set('Perfil actualizado correctamente');
-      this.editando.set(false);
-      setTimeout(() => this.exitoMsg.set(null), 3000);
-    }, 1000);
+    const data = this.formEditar.getRawValue();
+
+    this.userService.actualizarPerfil(usuarioId, {
+      nombreUsuario: data.nombreUsuario!,
+      email: data.email!,
+      bio: data.bio || '' // ✅ Enviar bio
+    }).subscribe({
+      next: (usuarioActualizado) => {
+        this.authService.usuario.set(usuarioActualizado);
+        this.cargando.set(false);
+        this.exitoMsg.set('Perfil actualizado correctamente');
+        this.editando.set(false);
+        setTimeout(() => this.exitoMsg.set(null), 3000);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.errorMsg.set(err?.error?.error || 'Error al actualizar el perfil');
+        setTimeout(() => this.errorMsg.set(null), 4000);
+      }
+    });
   }
 
-  // ============================================================
-  // NAVEGACIÓN
-  // ============================================================
   irHistorialPublicaciones(): void {
     this.router.navigate(['/mis-publicaciones']);
   }

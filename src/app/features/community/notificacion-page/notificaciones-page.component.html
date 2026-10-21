@@ -32,7 +32,7 @@
       }
 
       @if (notificaciones().length > 0) {
-        <button class="btn-accion btn-accion--danger" (click)="eliminarTodas()">
+        <button class="btn-accion btn-accion--danger" (click)="abrirConfirmacionEliminarTodas()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
@@ -45,75 +45,35 @@
 
   <!-- ===== ESTADÍSTICAS / FILTROS ===== -->
   <div class="notif-stats">
-
-    <button
-      class="stat-item"
-      [class.stat-item--active]="filtroActual() === 'todas'"
-      (click)="cambiarFiltro('todas')"
-      type="button"
-    >
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'todas'" (click)="cambiarFiltro('todas')" type="button">
       <span class="stat-number">{{ notificaciones().length }}</span>
       <span class="stat-label">Todas</span>
     </button>
 
-    <button
-      class="stat-item"
-      [class.stat-item--active]="filtroActual() === 'no-leidas'"
-      (click)="cambiarFiltro('no-leidas')"
-      type="button"
-    >
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'no-leidas'" (click)="cambiarFiltro('no-leidas')" type="button">
       <span class="stat-number stat-number--primary">{{ totalNoLeidas() }}</span>
       <span class="stat-label">Sin leer</span>
     </button>
 
-    <button
-      class="stat-item"
-      [class.stat-item--active]="filtroActual() === 'like'"
-      (click)="cambiarFiltro('like')"
-      type="button"
-    >
-      <span class="stat-number" [style.color]="getColorTipo('like')">
-        {{ totalPorTipo().like }}
-      </span>
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'like'" (click)="cambiarFiltro('like')" type="button">
+      <span class="stat-number" [style.color]="getColorTipo('like')">{{ totalPorTipo().like }}</span>
       <span class="stat-label">Me gusta</span>
     </button>
 
-    <button
-      class="stat-item"
-      [class.stat-item--active]="filtroActual() === 'comentario'"
-      (click)="cambiarFiltro('comentario')"
-      type="button"
-    >
-      <span class="stat-number" [style.color]="getColorTipo('comentario')">
-        {{ totalPorTipo().comentario }}
-      </span>
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'comentario'" (click)="cambiarFiltro('comentario')" type="button">
+      <span class="stat-number" [style.color]="getColorTipo('comentario')">{{ totalPorTipo().comentario }}</span>
       <span class="stat-label">Comentarios</span>
     </button>
 
-    <button
-      class="stat-item"
-      [class.stat-item--active]="filtroActual() === 'respuesta'"
-      (click)="cambiarFiltro('respuesta')"
-      type="button"
-    >
-      <span class="stat-number" [style.color]="getColorTipo('respuesta')">
-        {{ totalPorTipo().respuesta }}
-      </span>
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'respuesta'" (click)="cambiarFiltro('respuesta')" type="button">
+      <span class="stat-number" [style.color]="getColorTipo('respuesta')">{{ totalPorTipo().respuesta }}</span>
       <span class="stat-label">Respuestas</span>
     </button>
 
-    <button
-      class="stat-item"
-      [class.stat-item--active]="filtroActual() === 'solicitud'"
-      (click)="cambiarFiltro('solicitud')"
-      type="button"
-    >
-      <span class="stat-number" [style.color]="getColorTipo('solicitud')">
-        {{ totalPorTipo().solicitud }}
-      </span>
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'solicitud'" (click)="cambiarFiltro('solicitud')" type="button">
+      <span class="stat-number" [style.color]="getColorTipo('solicitud')">{{ totalPorTipo().solicitud }}</span>
       <span class="stat-label">Solicitudes</span>
     </button>
-
   </div>
 
   <!-- ===== BUSCADOR Y ACCIONES ===== -->
@@ -123,11 +83,7 @@
         <circle cx="11" cy="11" r="8"/>
         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input
-        type="text"
-        placeholder="Buscar notificaciones..."
-        [(ngModel)]="busqueda"
-      >
+      <input type="text" placeholder="Buscar notificaciones..." [(ngModel)]="busqueda">
       @if (busqueda()) {
         <button class="btn-clear" (click)="busqueda.set('')" aria-label="Limpiar" type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -139,13 +95,7 @@
     </div>
 
     <div class="notif-toolbar__actions">
-      <button
-        class="btn-toggle-select"
-        [class.btn-toggle-select--active]="modoSeleccion()"
-        (click)="toggleModoSeleccion()"
-        title="Seleccionar múltiples"
-        type="button"
-      >
+      <button class="btn-toggle-select" [class.btn-toggle-select--active]="modoSeleccion()" (click)="toggleModoSeleccion()" title="Seleccionar múltiples" type="button">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="9 11 12 14 22 4"/>
           <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
@@ -172,7 +122,7 @@
       <div class="selection-bar__actions">
         <button class="btn-selection" (click)="seleccionarTodas()" type="button">Seleccionar todas</button>
         <button class="btn-selection" (click)="deseleccionarTodas()" type="button">Deseleccionar</button>
-        <button class="btn-selection btn-selection--danger" (click)="eliminarSeleccionadas()" type="button">
+        <button class="btn-selection btn-selection--danger" (click)="abrirConfirmacionEliminarSeleccionadas()" type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
@@ -185,7 +135,6 @@
 
   <!-- ===== LISTA ===== -->
   <main class="notif-content">
-
     @if (cargando()) {
       <div class="notif-loading">
         <div class="spinner"></div>
@@ -210,24 +159,15 @@
           <line x1="12" y1="7" x2="12" y2="9"/>
         </svg>
         <h3>Sin notificaciones</h3>
-        <p>
-          {{ filtroActual() === 'todas' ? 'No tienes notificaciones aún' : 'No hay notificaciones con este filtro' }}
-        </p>
+        <p>{{ filtroActual() === 'todas' ? 'No tienes notificaciones aún' : 'No hay notificaciones con este filtro' }}</p>
         @if (filtroActual() !== 'todas' || busqueda()) {
           <button class="btn-limpiar-filtros" (click)="limpiarFiltros()" type="button">Ver todas</button>
         }
       </div>
     } @else {
       <div class="notif-list">
-
         @for (notificacion of notificacionesFiltradas(); track notificacion.id) {
-          <article
-            class="notif-card"
-            [class.notif-card--leida]="notificacion.leida"
-            [class.notif-card--seleccionada]="estaSeleccionada(notificacion.id)"
-            (click)="onClickNotificacion(notificacion)"
-          >
-
+          <article class="notif-card" [class.notif-card--leida]="notificacion.leida" [class.notif-card--seleccionada]="estaSeleccionada(notificacion.id)" (click)="onClickNotificacion(notificacion)">
             @if (modoSeleccion()) {
               <div class="notif-card__checkbox" (click)="toggleSeleccion(notificacion.id, $event)">
                 <div class="checkbox" [class.checkbox--checked]="estaSeleccionada(notificacion.id)">
@@ -275,25 +215,16 @@
 
             <div class="notif-card__content">
               <div class="notif-card__header">
-                <span class="notif-card__tipo" [style.color]="getColorTipo(notificacion.tipo)">
-                  {{ getEtiquetaTipo(notificacion.tipo) }}
-                </span>
-                @if (!notificacion.leida) {
-                  <span class="notif-card__nueva">Nueva</span>
-                }
+                <span class="notif-card__tipo" [style.color]="getColorTipo(notificacion.tipo)">{{ getEtiquetaTipo(notificacion.tipo) }}</span>
+                @if (!notificacion.leida) { <span class="notif-card__nueva">Nueva</span> }
               </div>
 
               <div class="notif-card__mensaje" [innerHTML]="notificacion.mensaje"></div>
 
               <div class="notif-card__footer">
                 <span class="notif-card__fecha">{{ formatearFecha(notificacion.fecha) }}</span>
-
                 @if (notificacion.url && !modoSeleccion()) {
-                  <a
-                    [routerLink]="notificacion.url"
-                    class="notif-card__link"
-                    (click)="$event.stopPropagation()"
-                  >
+                  <a [routerLink]="notificacion.url" class="notif-card__link" (click)="$event.stopPropagation()">
                     Ver
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <line x1="5" y1="12" x2="19" y2="12"/>
@@ -307,36 +238,20 @@
             @if (!modoSeleccion()) {
               <div class="notif-card__actions">
                 @if (!notificacion.leida) {
-                  <button
-                    class="btn-card-action"
-                    (click)="marcarComoLeida(notificacion.id, $event)"
-                    title="Marcar como leída"
-                    type="button"
-                  >
+                  <button class="btn-card-action" (click)="marcarComoLeida(notificacion.id, $event)" title="Marcar como leída" type="button">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
                   </button>
                 } @else {
-                  <button
-                    class="btn-card-action"
-                    (click)="marcarComoNoLeida(notificacion.id, $event)"
-                    title="Marcar como no leída"
-                    type="button"
-                  >
+                  <button class="btn-card-action" (click)="marcarComoNoLeida(notificacion.id, $event)" title="Marcar como no leída" type="button">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                       <circle cx="12" cy="12" r="3"/>
                     </svg>
                   </button>
                 }
-
-                <button
-                  class="btn-card-action btn-card-action--danger"
-                  (click)="eliminarNotificacion(notificacion.id, $event)"
-                  title="Eliminar"
-                  type="button"
-                >
+                <button class="btn-card-action btn-card-action--danger" (click)="abrirConfirmacionEliminar(notificacion.id, $event)" title="Eliminar" type="button">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -344,12 +259,30 @@
                 </button>
               </div>
             }
-
           </article>
         }
-
       </div>
     }
-
   </main>
 </div>
+
+<!-- ===== MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ===== -->
+@if (mostrarModalEliminar()) {
+  <div class="modal-overlay" (click)="cerrarModalEliminar()">
+    <div class="modal-card modal-card--small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Confirmar eliminación</h3>
+      </div>
+      <div class="modal-body">
+        <p>{{ textoConfirmacion() }}</p>
+        <p class="modal-warn" style="color: #f85149; font-size: 0.8rem; margin-top: 8px;">
+          Esta acción no se puede deshacer.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cerrarModalEliminar()">Cancelar</button>
+        <button class="btn-danger" (click)="confirmarEliminar()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+}

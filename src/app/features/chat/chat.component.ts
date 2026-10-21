@@ -242,6 +242,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // CICLO DE VIDA
   // ============================================================
   ngOnInit(): void {
+    // ✅ LIMPIAR ESTADO AL ENTRAR (evita datos residuales de otros usuarios)
+    this.conversaciones.set([]);
+    this.mensajes.set([]);
+    this.solicitudes.set([]);
+    this.usuarioSeleccionado.set(null);
+    this.grupoSeleccionado.set(null);
+
     this.cargarDatos();
     this.cargarGrupos();
     this.setupKeyboardListener();
@@ -251,6 +258,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const grupoId = params['grupoId'];
 
       if (usuarioId) {
+        // ✅ SEGURIDAD: No puedes chatear contigo mismo
+        if (Number(usuarioId) === this.authService.usuario()?.id) {
+          this.router.navigate(['/chat']);
+          return;
+        }
+
         this.tabActual.set('chats');
         const id = Number(usuarioId);
         this.usuarioSeleccionado.set(id);
@@ -303,9 +316,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ✅ LISTENER DE TECLADO MÓVIL — CORREGIDO
-  // Calcula el espacio real ocupado por el teclado Y por las
-  // barras del navegador (Safari/Chrome móvil, tablets).
+  // LISTENER DE TECLADO MÓVIL
   // ============================================================
   private setupKeyboardListener(): void {
     if (typeof window === 'undefined' || !window.visualViewport) return;
@@ -313,29 +324,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const vv = window.visualViewport;
 
     const update = () => {
-      // Altura del "layout viewport" real (incluye barras del navegador)
       const layoutH = window.innerHeight;
-
-      // Altura real VISIBLE (sin barras del navegador ni teclado)
       const visibleH = vv.height;
-
-      // Cuánto se ha desplazado el viewport visual desde el top
       const offsetTop = vv.offsetTop;
-
-      // Espacio ocupado ABAJO = teclado + barra inferior del navegador
-      // Math.max(0, ...) evita negativos en iOS cuando rebota
       const bottomInset = Math.max(0, layoutH - visibleH - offsetTop);
 
-      document.documentElement.style.setProperty(
-        '--kb-offset',
-        `${bottomInset}px`
-      );
-
-      // Altura visible real para el layout (útil para el chat)
-      document.documentElement.style.setProperty(
-        '--vv-height',
-        `${visibleH}px`
-      );
+      document.documentElement.style.setProperty('--kb-offset', `${bottomInset}px`);
+      document.documentElement.style.setProperty('--vv-height', `${visibleH}px`);
     };
 
     this.kbListener = update;
@@ -347,7 +342,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       window.addEventListener('orientationchange', update);
     });
 
-    // Ejecutar de inmediato
     update();
   }
 
@@ -756,6 +750,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // SELECCIÓN DE CONVERSACIÓN
   // ============================================================
   seleccionarConversacion(usuarioId: number): void {
+    // ✅ SEGURIDAD: No puedes chatear contigo mismo
+    if (usuarioId === this.authService.usuario()?.id) {
+      this.errorMsg.set('No puedes chatear contigo mismo');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+
     this.usuarioSeleccionado.set(usuarioId);
     this.grupoSeleccionado.set(null);
     this.mensajesGrupo.set([]);
@@ -779,7 +780,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.aplicarBloqueoScrollBody();
   }
 
-  /** Cierra el sidebar en móvil y libera el scroll del body */
   private cerrarSidebarMovil(): void {
     this.mobileMenuOpen.set(false);
     this.aplicarBloqueoScrollBody();

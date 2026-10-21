@@ -1,4 +1,4 @@
-//src/app/core/services/user.service.ts
+// src/app/core/services/user.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
@@ -25,9 +25,13 @@ export class UserService {
     return this.http.get<User>(`${this.API_URL}/usuarios/${id}`);
   }
 
-  /**
-   * Busca usuarios por nombre
-   */
+  // ✅ NUEVO MÉTODO: Actualizar perfil (incluyendo bio)
+  actualizarPerfil(id: number, datos: { nombreUsuario: string; email: string; bio: string }): Observable<User> {
+    return this.http.put<User>(`${this.API_URL}/usuarios/${id}`, datos).pipe(
+      tap(res => console.log('Perfil actualizado:', res))
+    );
+  }
+
   buscarUsuarios(query: string): Observable<User[]> {
     if (!query || query.trim().length < 1) {
       return of([]);
@@ -36,46 +40,32 @@ export class UserService {
     const url = `${this.API_URL}/usuarios/buscar?q=${encodeURIComponent(query.trim())}`;
     console.log(`Buscando usuarios: ${url}`);
 
-    // Tipamos correctamente la respuesta como any para poder acceder a sus propiedades
     return this.http.get<any>(url).pipe(
       tap(response => console.log('Respuesta usuarios:', response)),
       map(response => {
-        // Si la respuesta es un array directamente
         if (Array.isArray(response)) {
           return response as User[];
         }
-        
-        // Si la respuesta es un objeto con propiedades
         if (response && typeof response === 'object') {
-          // Si tiene propiedad 'data' con array
           if (response.data && Array.isArray(response.data)) {
             return response.data as User[];
           }
-          // Si tiene propiedad 'content' con array
           if (response.content && Array.isArray(response.content)) {
             return response.content as User[];
           }
-          // Si tiene propiedad 'usuarios' con array
           if (response.usuarios && Array.isArray(response.usuarios)) {
             return response.usuarios as User[];
           }
         }
-        
-        // Si no hay resultados, retornar array vacío
-        console.warn('Respuesta inesperada del servidor:', response);
         return [];
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error en búsqueda de usuarios:', error);
-        console.error('Detalles:', error.status, error.statusText);
         return of([]);
       })
     );
   }
 
-  /**
-   * Busca un usuario por nombre exacto
-   */
   buscarUsuarioPorNombre(username: string): Observable<User | null> {
     if (!username || username.trim().length < 1) {
       return of(null);
@@ -92,9 +82,6 @@ export class UserService {
     );
   }
 
-  /**
-   * Envía solicitud de contacto
-   */
   enviarSolicitudContacto(usuarioId: number): Observable<SolicitudContacto> {
     return this.http.post<SolicitudContacto>(
       `${this.API_URL}/usuarios/solicitud/${usuarioId}`,
@@ -102,18 +89,12 @@ export class UserService {
     );
   }
 
-  /**
-   * Obtiene solicitudes pendientes
-   */
   obtenerSolicitudesPendientes(): Observable<SolicitudContacto[]> {
     return this.http.get<SolicitudContacto[]>(
       `${this.API_URL}/usuarios/solicitudes/pendientes`
     );
   }
 
-  /**
-   * Acepta una solicitud de contacto
-   */
   aceptarSolicitud(solicitudId: number): Observable<SolicitudContacto> {
     return this.http.put<SolicitudContacto>(
       `${this.API_URL}/usuarios/solicitud/${solicitudId}/aceptar`,
@@ -121,18 +102,12 @@ export class UserService {
     );
   }
 
-  /**
-   * Rechaza una solicitud de contacto
-   */
   rechazarSolicitud(solicitudId: number): Observable<void> {
     return this.http.delete<void>(
       `${this.API_URL}/usuarios/solicitud/${solicitudId}`
     );
   }
 
-  /**
-   * Obtiene los contactos (amigos) del usuario
-   */
   obtenerContactos(): Observable<User[]> {
     return this.http.get<User[]>(
       `${this.API_URL}/usuarios/contactos`

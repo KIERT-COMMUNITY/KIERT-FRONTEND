@@ -1,21 +1,23 @@
 <!-- footer.component.html -->
 <footer class="footer">
   <!-- ===== ANUNCIOS DEL FOOTER ===== -->
-  <div class="footer-ads">
-    <div class="footer-ads__container">
-      @for (ad of footerAds(); track ad.id) {
-        <a [href]="ad.link" class="footer-ads__item" target="_blank" rel="noopener noreferrer">
-          <div class="footer-ads__image">
-            <img [src]="ad.image" [alt]="ad.alt" loading="lazy">
-          </div>
-          <div class="footer-ads__content">
-            <h4>{{ ad.title }}</h4>
-            <p>{{ ad.description }}</p>
-          </div>
-        </a>
-      }
+  @if (footerAds().length > 0) {
+    <div class="footer-ads">
+      <div class="footer-ads__container">
+        @for (ad of footerAds(); track ad.id) {
+          <a [href]="ad.link" class="footer-ads__item" target="_blank" rel="noopener noreferrer">
+            <div class="footer-ads__image">
+              <img [src]="ad.image" [alt]="ad.alt" loading="lazy">
+            </div>
+            <div class="footer-ads__content">
+              <h4>{{ ad.title }}</h4>
+              <p>{{ ad.description }}</p>
+            </div>
+          </a>
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- ===== FOOTER PRINCIPAL ===== -->
   <div class="footer-main">

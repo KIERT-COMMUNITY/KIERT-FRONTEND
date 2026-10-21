@@ -1,45 +1,83 @@
 <!-- src/app/features/perfil-autor/perfil-autor.component.html -->
-<div class="perfil-autor-container">
+<div class="perfil-autor-container" [style.background]="fondoPerfilDelAutor">
 
   @if (cargando()) {
-    <div class="loading">
+    <div class="loading-container">
       <div class="spinner"></div>
       <p>Cargando perfil...</p>
     </div>
   } @else if (errorMsg() && !autor()) {
-    <div class="error">
-      <p>{{ errorMsg() }}</p>
-      <button class="btn-volver" (click)="volver()">Volver</button>
+    <div class="error-container">
+      <div class="error-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h2>{{ errorMsg() }}</h2>
+      <p>El perfil que buscas no está disponible o ha sido eliminado.</p>
+      <button class="btn-volver" (click)="volver()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Volver
+      </button>
     </div>
   } @else if (autor()) {
+    @let a = autor()!;
 
-    <!-- ✅ SOLO la tarjeta lleva el fondo del autor (con animación vía clase) -->
-    <div class="perfil-card"
-         [class]="'fondo-' + autorFondoId()">
+    <div class="perfil-autor-card">
 
-      <!-- AVATAR CON MARCO DEL AUTOR (solo el avatar) -->
-      <div class="perfil-avatar-wrapper">
-        <div class="perfil-avatar"
-             [class]="marcoClaseDelAutor"
-             [style]="marcoEstiloDelAutor">
-          @if (fotoPerfilDelAutor) {
-            <img [src]="fotoPerfilDelAutor" [alt]="autor()?.nombreUsuario">
-          } @else {
-            <span class="avatar-inicial">{{ autor()?.nombreUsuario?.charAt(0)?.toUpperCase() }}</span>
-          }
-        </div>
-        @if (autorMarcoId() !== 'none') {
-          <div class="marco-indicator">
-            <span class="marco-indicator__label">Marco: {{ autorMarcoId() }}</span>
-          </div>
-        }
+      <!-- ===== HEADER (Solo botón volver arriba) ===== -->
+      <div class="perfil-header">
+        <button class="btn-back" (click)="volver()" title="Volver al feed">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <h2 class="perfil-titulo">Perfil de usuario</h2>
       </div>
 
-      <!-- INFO DEL AUTOR -->
-      <h2 class="perfil-nombre">&#64;{{ autor()?.nombreUsuario }}</h2>
-      <p class="perfil-email">{{ autor()?.email }}</p>
+      <!-- ===== BANNER ===== -->
+      @if (autorFotoPortada()) {
+        <div class="perfil-banner" [style.background-image]="'url(' + autorFotoPortada() + ')'"></div>
+      } @else {
+        <div class="perfil-banner perfil-banner--default"></div>
+      }
 
-      <!-- MENSAJES DE ESTADO -->
+      <!-- ===== AVATAR + INFO BÁSICA ===== -->
+      <div class="perfil-info-principal">
+        <div class="perfil-avatar-wrapper">
+          <div class="perfil-avatar"
+               [class]="marcoClaseDelAutor"
+               [style]="marcoEstiloDelAutor">
+            @if (fotoPerfilDelAutor) {
+              <img [src]="fotoPerfilDelAutor" [alt]="a.nombreUsuario">
+            } @else {
+              <span class="perfil-avatar__inicial">{{ a.nombreUsuario.charAt(0).toUpperCase() }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="perfil-datos">
+          <h1 class="perfil-nombre">&#64;{{ a.nombreUsuario }}</h1>
+          <p class="perfil-fecha">Miembro desde {{ a.fechaRegistro | date:'MMMM yyyy' }}</p>
+
+          <!-- ✅ BIOGRAFÍA DEL USUARIO -->
+          @if (a.bio) {
+            <div class="perfil-bio">
+              <p class="perfil-bio__texto">{{ a.bio }}</p>
+            </div>
+          } @else {
+            <div class="perfil-bio perfil-bio--vacia">
+              <p class="perfil-bio__texto">Este usuario aún no ha escrito una biografía.</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ===== MENSAJES DE ESTADO ===== -->
       @if (exitoMsg()) {
         <div class="exito">{{ exitoMsg() }}</div>
       }
@@ -47,7 +85,7 @@
         <div class="error-msg">{{ errorMsg() }}</div>
       }
 
-      <!-- INDICADOR DE ESTADO DE CONTACTO -->
+      <!-- ===== INDICADOR DE ESTADO DE CONTACTO ===== -->
       @if (estadoContacto() === 'pendiente-recibida') {
         <div class="estado-badge estado-badge--info">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -77,7 +115,7 @@
         </div>
       }
 
-      <!-- ACCIONES -->
+      <!-- ===== ACCIONES ===== -->
       <div class="perfil-acciones">
 
         @if (estaBloqueado()) {
@@ -153,7 +191,6 @@
         }
       </div>
 
-      <button class="btn-volver" (click)="volver()">Volver</button>
     </div>
   }
 

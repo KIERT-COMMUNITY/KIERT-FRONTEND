@@ -12,42 +12,38 @@
 }
 
 // ✅ TARJETA CON FONDO DE PERFIL DEL AUTOR
-.perfil-card {
+.perfil-autor-card {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
+  overflow: hidden;
   transition: background 0.5s ease, border-color 0.3s ease;
+  position: relative;
+  color: inherit;
 
   &:hover {
     border-color: rgba(45, 212, 191, 0.2);
   }
 
-  color: inherit;
-
-  .perfil-nombre,
-  .perfil-email,
-  .avatar-inicial {
-    color: inherit !important;
-  }
-
-  .btn-volver {
-    color: inherit !important;
-    opacity: 0.6;
-    background: none;
-    border: none;
+  // Botón volver del header
+  .btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: #e6edf3;
     cursor: pointer;
-    transition: all 0.2s;
-    padding: 0.5rem 1rem;
-    font-size: 0.95rem;
-    font-family: inherit;
-    margin-top: 0.5rem;
+    transition: all 0.2s ease;
 
     &:hover {
-      color: #2dd4bf !important;
-      opacity: 1;
-      transform: translateX(-4px);
+      background: rgba(45, 212, 191, 0.15);
+      border-color: #2dd4bf;
+      color: #2dd4bf;
+      transform: translateX(-2px);
     }
   }
 
@@ -56,14 +52,16 @@
     background: rgba(46, 160, 67, 0.15) !important;
     padding: 0.6rem 1rem;
     border-radius: 8px;
-    margin: 0.5rem 0 1rem;
-    display: inline-flex;
+    margin: 0.5rem auto 1rem;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     font-size: 0.85rem;
     font-weight: 500;
     animation: fadeIn 0.3s ease;
     border: 1px solid rgba(46, 160, 67, 0.3);
+    max-width: 90%;
   }
 
   .error-msg {
@@ -71,43 +69,94 @@
     background: rgba(248, 81, 73, 0.15) !important;
     padding: 0.6rem 1rem;
     border-radius: 8px;
-    margin: 0.5rem 0 1rem;
-    display: inline-flex;
+    margin: 0.5rem auto 1rem;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     font-size: 0.85rem;
     font-weight: 500;
     animation: fadeIn 0.3s ease;
     border: 1px solid rgba(248, 81, 73, 0.3);
-  }
-
-  .loading, .error {
-    color: inherit !important;
-    opacity: 0.6;
-    text-align: center;
-    padding: 2rem;
+    max-width: 90%;
   }
 }
 
 // ============================================================
-// AVATAR
+// HEADER (Título y botón volver)
 // ============================================================
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 10;
+
+  .perfil-titulo {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: inherit;
+  }
+}
+
+// ============================================================
+// BANNER
+// ============================================================
+.perfil-banner {
+  width: 100%;
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+
+  &--default {
+    background: linear-gradient(135deg, #1b232c 0%, #0d1117 100%);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 50%, rgba(45, 212, 191, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+    }
+  }
+}
+
+// ============================================================
+// INFO PRINCIPAL (Avatar + Datos)
+// ============================================================
+.perfil-info-principal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -50px;
+  padding: 0 1.5rem 1rem;
+  position: relative;
+  z-index: 5;
+  text-align: center;
+}
+
 .perfil-avatar-wrapper {
   position: relative;
   display: inline-block;
+  margin-bottom: 1rem;
 }
 
 .perfil-avatar {
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
-  margin: 0 auto 1rem;
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 50%;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 
   &:hover {
     transform: scale(1.05);
@@ -120,182 +169,171 @@
     border-radius: 50%;
   }
 
-  .avatar-inicial {
+  &__inicial {
     font-size: 2.5rem;
     font-weight: 700;
     color: #e6edf3 !important;
   }
 }
 
-.marco-indicator {
-  text-align: center;
-  margin-top: 0.25rem;
-
-  &__label {
-    font-size: 0.7rem;
-    color: #8b98a5;
-    background: rgba(45, 212, 191, 0.1);
-    padding: 2px 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(45, 212, 191, 0.2);
-    display: inline-block;
-  }
+.perfil-datos {
+  width: 100%;
+  max-width: 600px;
 }
 
-// ============================================================
-// INFO DEL AUTOR
-// ============================================================
 .perfil-nombre {
   font-size: 1.3rem;
-  margin: 0.5rem 0;
+  margin: 0 0 0.25rem;
   color: inherit !important;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-.perfil-email {
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
-  color: inherit !important;
-  opacity: 0.6;
+.perfil-fecha {
+  font-size: 0.85rem;
+  color: #8b98a5;
+  margin: 0 0 1rem;
 }
 
 // ============================================================
-// ACCIONES
+// BIOGRAFÍA
+// ============================================================
+.perfil-bio {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 0.85rem 1.15rem;
+  margin-bottom: 1rem;
+  text-align: left;
+
+  &__texto {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: inherit;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &--vacia {
+    opacity: 0.6;
+    border-style: dashed;
+
+    .perfil-bio__texto {
+      font-style: italic;
+      color: #8b98a5;
+    }
+  }
+}
+
+// ============================================================
+// BADGES DE ESTADO DE CONTACTO
+// ============================================================
+.estado-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin: 0 auto 1rem;
+  width: fit-content;
+
+  &--info {
+    color: #58a6ff;
+    background: rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+  }
+
+  &--warn {
+    color: #d29922;
+    background: rgba(210, 153, 34, 0.1);
+    border: 1px solid rgba(210, 153, 34, 0.2);
+  }
+
+  &--ok {
+    color: #2ea043;
+    background: rgba(46, 160, 67, 0.1);
+    border: 1px solid rgba(46, 160, 67, 0.2);
+  }
+}
+
+// ============================================================
+// ACCIONES (CENTRADAS Y PERFECTAS)
 // ============================================================
 .perfil-acciones {
   display: flex;
-  justify-content: center;
-  gap: 0.75rem;
   flex-wrap: wrap;
-  margin: 1rem 0;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+  max-width: 100%;
+  margin: 0 auto;
 
-  // ===== BOTÓN CHAT (contacto) =====
-  .btn-chat {
+  // === ESTILOS BASE PARA TODOS LOS BOTONES ===
+  button {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    background: #2dd4bf;
-    color: #0d1117 !important;
-    border: none;
-    padding: 0.7rem 1.5rem;
+    padding: 0.7rem 1.4rem;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.9rem;
-    cursor: pointer;
     font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
 
     svg { flex-shrink: 0; }
 
-    &:hover {
-      opacity: 0.85;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
-
-    &:active { transform: scale(0.95); }
   }
 
-  // ===== BOTÓN SOLICITAR (nuevo) =====
-  .btn-solicitar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+  // === COLORES ESPECÍFICOS ===
+  .btn-chat,
+  .btn-solicitar,
+  .btn-desbloquear {
     background: #2dd4bf;
     color: #0d1117 !important;
-    border: none;
-    padding: 0.7rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    svg { flex-shrink: 0; }
 
     &:hover:not(:disabled) {
       opacity: 0.85;
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
     }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
     &:active:not(:disabled) { transform: scale(0.95); }
   }
 
-  // 🔥 NUEVO: BOTÓN ACEPTAR (solicitud recibida)
   .btn-aceptar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
     background: #2ea043;
     color: #ffffff !important;
-    border: none;
-    padding: 0.7rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    svg { flex-shrink: 0; }
 
     &:hover:not(:disabled) {
       opacity: 0.9;
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(46, 160, 67, 0.4);
     }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
     &:active:not(:disabled) { transform: scale(0.95); }
   }
 
-  // ===== BOTÓN PENDIENTE (enviada) =====
   .btn-pendiente {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
     background: #5a6a7a;
     color: #e6edf3 !important;
-    border: none;
-    padding: 0.7rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
     cursor: not-allowed;
-    font-family: inherit;
-
-    svg { flex-shrink: 0; }
   }
 
-  // ===== BOTÓN BLOQUEAR =====
   .btn-bloquear {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.2rem;
     background: transparent;
     border: 1px solid rgba(248, 81, 73, 0.3);
-    border-radius: 8px;
     color: #f85149;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-    svg { flex-shrink: 0; }
 
     &:hover {
       background: rgba(248, 81, 73, 0.1);
@@ -303,40 +341,7 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(248, 81, 73, 0.15);
     }
-
-    &:active { transform: scale(0.96); }
-  }
-
-  // ===== BOTÓN DESBLOQUEAR =====
-  .btn-desbloquear {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.5rem;
-    background: #2dd4bf;
-    color: #0d1117;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-    svg { flex-shrink: 0; }
-
-    &:hover:not(:disabled) {
-      opacity: 0.85;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    &:active:not(:disabled) { transform: scale(0.96); }
+    &:active { transform: scale(0.95); }
   }
 }
 
@@ -373,6 +378,33 @@
   margin: 0 auto 1rem;
 }
 
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+
+  .error-icon {
+    color: #f85149;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+    color: inherit;
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    color: #8b98a5;
+    margin: 0 0 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -386,31 +418,31 @@
 // CORRECCIÓN PARA TEMA LIGHT DEL AUTOR
 // ============================================================
 .tema-light {
-  .perfil-card {
+  .perfil-autor-card {
     background: rgba(255, 255, 255, 0.85) !important;
     color: #1a1a2e !important;
   }
 
   .perfil-nombre,
-  .perfil-email {
+  .perfil-email,
+  .perfil-titulo {
     color: #1a1a2e !important;
   }
 
-  .btn-chat,
-  .btn-solicitar,
-  .btn-desbloquear {
-    color: #0d1117 !important;
+  .perfil-bio {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+    
+    &__texto {
+      color: #333333 !important;
+    }
+    
+    &--vacia .perfil-bio__texto {
+      color: #777777 !important;
+    }
   }
 
-  .btn-aceptar {
-    color: #ffffff !important;
-  }
-
-  .btn-pendiente {
-    color: #e6edf3 !important;
-  }
-
-  .marco-indicator__label {
+  .perfil-fecha {
     color: #666666 !important;
   }
 
@@ -422,8 +454,13 @@
     }
   }
 
-  .loading, .error {
+  .loading-container,
+  .error-container {
     color: #555555 !important;
+    
+    p {
+      color: #555555 !important;
+    }
   }
 
   .exito {
@@ -443,14 +480,21 @@
     padding: 1rem 0.75rem;
   }
 
-  .perfil-card {
-    padding: 1.5rem;
+  .perfil-autor-card {
     border-radius: 14px;
   }
 
   .perfil-avatar {
-    width: 100px;
-    height: 100px;
+    width: 96px;
+    height: 96px;
+
+    &__inicial {
+      font-size: 2rem;
+    }
+  }
+
+  .perfil-info-principal {
+    margin-top: -45px;
   }
 }
 
@@ -459,20 +503,28 @@
 // ============================================================
 @media (max-width: 480px) {
   .perfil-autor-container {
-    padding: 0.75rem;
+    padding: 0.5rem;
   }
 
-  .perfil-card {
-    padding: 1.25rem 1rem;
+  .perfil-autor-card {
     border-radius: 12px;
   }
 
-  .perfil-avatar {
-    width: 84px;
-    height: 84px;
+  .perfil-banner {
+    height: 110px;
+  }
 
-    .avatar-inicial {
-      font-size: 1.8rem;
+  .perfil-info-principal {
+    margin-top: -40px;
+    padding: 0 1rem 0.75rem;
+  }
+
+  .perfil-avatar {
+    width: 80px;
+    height: 80px;
+
+    &__inicial {
+      font-size: 1.6rem;
     }
   }
 
@@ -480,37 +532,33 @@
     font-size: 1.1rem;
   }
 
-  .perfil-email {
-    font-size: 0.8rem;
-    margin-bottom: 1rem;
+  .perfil-fecha {
+    font-size: 0.75rem;
   }
 
+  .perfil-bio {
+    padding: 0.7rem 0.9rem;
+
+    &__texto {
+      font-size: 0.85rem;
+    }
+  }
+
+  // ✅ BOTONES EN MÓVIL (uno debajo del otro, centrados)
   .perfil-acciones {
     flex-direction: column;
     gap: 0.5rem;
-    margin: 0.75rem 0;
+    padding: 0 1rem 1rem;
 
-    .btn-chat,
-    .btn-solicitar,
-    .btn-aceptar,      // 🔥 AÑADIDO
-    .btn-pendiente,
-    .btn-bloquear,
-    .btn-desbloquear {
+    button {
       width: 100%;
-      justify-content: center;
-      padding: 0.7rem 1rem;
-      font-size: 0.85rem;
+      padding: 0.75rem 1rem;
     }
 
     .bloqueo-aviso {
-      font-size: 0.8rem;
       padding: 0.6rem 1rem;
+      font-size: 0.8rem;
     }
-  }
-
-  .marco-indicator__label {
-    font-size: 0.65rem;
-    padding: 2px 8px;
   }
 }
 
@@ -518,16 +566,12 @@
 // RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
 // ============================================================
 @media (max-width: 380px) {
-  .perfil-card {
-    padding: 1rem 0.75rem;
-  }
-
   .perfil-avatar {
     width: 72px;
     height: 72px;
 
-    .avatar-inicial {
-      font-size: 1.5rem;
+    &__inicial {
+      font-size: 1.4rem;
     }
   }
 
@@ -536,14 +580,8 @@
   }
 
   .perfil-acciones {
-
-    .btn-chat,
-    .btn-solicitar,
-    .btn-aceptar,      // 🔥 AÑADIDO
-    .btn-pendiente,
-    .btn-bloquear,
-    .btn-desbloquear {
-      padding: 0.6rem 0.9rem;
+    button {
+      padding: 0.65rem 0.8rem;
       font-size: 0.8rem;
     }
   }

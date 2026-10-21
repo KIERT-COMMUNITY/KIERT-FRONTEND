@@ -12,13 +12,13 @@ import { CommonModule } from '@angular/common';
 export class FooterComponent {
   anioActual = new Date().getFullYear();
   
-  // Anuncios del footer - CORREGIDO
+  // Anuncios del footer
   footerAds = signal([
     {
       id: 1,
       title: 'Kiert',
       description: 'Funcionalidades basicas y seguir mejorando',
-      image: 'assets/images/anuncio/foto-anuncio.jpg', //  SIN src/ al inicio
+      image: 'assets/images/anuncio/foto-anuncio.jpg',
       link: 'https://www.instagram.com/kiert_2005?stkn=aG9wZmQyamUzemV5',
       alt: 'Kiert Pro'
     },
@@ -27,7 +27,7 @@ export class FooterComponent {
       title: 'Comunidad',
       description: 'Comparte y aprende de otras personas',
       image: 'assets/images/anuncio/foto-anuncio.jpeg',
-      link: 'https://www.tiktok.com/@kiert2005?_r=1&_t=ZS-99XPBPKJM7r',
+      link: 'https://www.tiktok.com/@kiert_2005?_r=1&_t=ZS-99XPBPKJM7r',
       alt: 'Comunidad Kiert'
     }
   ]);

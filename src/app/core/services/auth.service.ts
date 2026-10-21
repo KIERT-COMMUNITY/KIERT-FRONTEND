@@ -25,9 +25,6 @@ export class AuthService {
     this.cargarSesion();
   }
 
-  // ============================================================
-  // CARGAR SESIÓN DESDE LOCALSTORAGE
-  // ============================================================
   private cargarSesion(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
     const usuarioStr = localStorage.getItem(this.USER_KEY);
@@ -38,16 +35,12 @@ export class AuthService {
         this.token.set(token);
         this.usuario.set(usuario);
         queueMicrotask(() => this.sesionCambiadaSubject.next(true));
-        console.log('[AUTH] Sesión de usuario cargada desde storage');
       } catch {
         this.limpiarSesion();
       }
     }
   }
 
-  // ============================================================
-  // GUARDAR / LIMPIAR SESIÓN
-  // ============================================================
   private guardarSesion(token: string, usuario: User): void {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
@@ -64,9 +57,6 @@ export class AuthService {
     this.sesionCambiadaSubject.next(false);
   }
 
-  // ============================================================
-  // LOGIN
-  // ============================================================
   login(credenciales: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, credenciales).pipe(
       tap((respuesta) => {
@@ -77,9 +67,6 @@ export class AuthService {
     );
   }
 
-  // ============================================================
-  // REGISTRO Y VERIFICACIÓN
-  // ============================================================
   registro(datos: RegisterRequest): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/registro`, datos);
   }
@@ -102,9 +89,6 @@ export class AuthService {
     });
   }
 
-  // ============================================================
-  // PERFIL
-  // ============================================================
   obtenerPerfil(): Observable<User> {
     return this.http.get<User>(`${this.API_URL}/perfil`).pipe(
       tap((usuario) => {
@@ -143,7 +127,8 @@ export class AuthService {
     );
   }
 
-  actualizarPerfil(datos: { nombreUsuario?: string; email?: string }): Observable<User> {
+  // ✅ AÑADIDO EL CAMPO BIO AL TIPADO
+  actualizarPerfil(datos: { nombreUsuario?: string; email?: string; bio?: string }): Observable<User> {
     return this.http.patch<User>(`${this.API_URL}/perfil`, datos).pipe(
       tap((usuario) => {
         this.usuario.set(usuario);
@@ -152,9 +137,6 @@ export class AuthService {
     );
   }
 
-  // ============================================================
-  // LOGOUT
-  // ============================================================
   logout(): void {
     const token = this.token();
     this.limpiarSesion();
@@ -173,14 +155,10 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  // ============================================================
-  // HELPERS
-  // ============================================================
   isAuthenticated(): boolean {
     const token = this.token();
     if (!token) return false;
 
-    // ✅ Verificar expiración del JWT
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (payload.exp && Date.now() >= payload.exp * 1000) {
