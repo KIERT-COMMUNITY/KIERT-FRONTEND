@@ -503,7 +503,7 @@ $transition: 0.25s ease;
     bottom: 0;
     left: 0;
     width: min(86vw, 310px);
-    height: calc(100vh - 60px);
+    height: calc(100dvh - 60px); // <-- Ajustado a dvh
     background: rgba(13, 17, 23, 0.99);
     border-right: 1px solid $border;
     box-shadow: 18px 0 40px rgba(0, 0, 0, 0.3);
@@ -588,7 +588,7 @@ $transition: 0.25s ease;
     z-index: 990;
     display: block;
     width: 100%;
-    height: calc(100vh - 60px);
+    height: calc(100dvh - 60px); // <-- Ajustado a dvh
     padding: 0;
     background: rgba(0, 0, 0, 0.58);
     border: 0;
@@ -620,12 +620,12 @@ $transition: 0.25s ease;
 
   .navbar-container {
     top: 56px;
-    height: calc(100vh - 56px);
+    height: calc(100dvh - 56px); // <-- Ajustado a dvh
   }
 
   .navbar-overlay {
     inset: 56px 0 0;
-    height: calc(100vh - 56px);
+    height: calc(100dvh - 56px); // <-- Ajustado a dvh
   }
 }
 
@@ -658,8 +658,9 @@ $transition: 0.25s ease;
     transition: none !important;
   }
 }
+
 // ============================================================
-// ✅ SECCIÓN ADMIN (solo CEO / ADMIN / MODERADOR)
+// ✅ SECCIÓN ADMIN
 // ============================================================
 
 .menu-section--admin {
@@ -735,7 +736,6 @@ $transition: 0.25s ease;
   text-transform: uppercase;
 }
 
-// ✅ Ajustes para modo contraído
 .navbar.menu-contraido {
   .menu-badge--admin {
     position: absolute;

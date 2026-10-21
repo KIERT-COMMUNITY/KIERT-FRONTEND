@@ -1022,3 +1022,34 @@ select:focus-visible {
     outline-offset: 2px;
   }
 }
+/* ============================================================
+   RESET GLOBAL PARA MÓVIL — pegarlo AL FINAL de styles.scss
+   ============================================================ */
+
+:root {
+  --app-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root { --app-height: 100dvh; }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* iOS: 16px evita el zoom automático en inputs */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}

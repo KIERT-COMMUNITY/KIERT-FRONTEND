@@ -8,7 +8,8 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
-  computed
+  computed,
+  NgZone
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -51,6 +52,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private ngZone = inject(NgZone);                          // ✅ NUEVO
   public personalizacionStore = inject(PersonalizacionStore);
 
   @ViewChild('mensajesContainer') private mensajesContainer?: ElementRef;
@@ -220,6 +222,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   });
 
   private pollingInterval: any;
+
+  // ✅ Listeners de teclado (VisualViewport)
+  private kbListener?: () => void;
+
   private readonly onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       this.actualizarConversacionesYContadores();
@@ -240,6 +246,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   ngOnInit(): void {
     this.cargarDatos();
     this.cargarGrupos();
+    this.setupKeyboardListener();                          // ✅ NUEVO
 
     this.route.params.subscribe(params => {
       const usuarioId = params['usuarioId'];
@@ -279,6 +286,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy(): void {
+    this.teardownKeyboardListener();                       // ✅ NUEVO
+
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
     }
@@ -290,6 +299,44 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         next: () => this.chatService.resetearNoLeidos(usuarioId)
       });
     }
+  }
+
+  // ============================================================
+  // ✅ LISTENER DE TECLADO MÓVIL
+  // Ajusta --kb-offset según la altura real del teclado,
+  // para que el input fixed quede justo encima del teclado.
+  // ============================================================
+  private setupKeyboardListener(): void {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+
+    const vv = window.visualViewport;
+
+    this.kbListener = () => {
+      const kbHeight = Math.max(
+        0,
+        window.innerHeight - vv.height - vv.offsetTop
+      );
+      document.documentElement.style.setProperty(
+        '--kb-offset',
+        kbHeight + 'px'
+      );
+    };
+
+    this.ngZone.runOutsideAngular(() => {
+      vv.addEventListener('resize', this.kbListener!);
+      vv.addEventListener('scroll', this.kbListener!);
+    });
+
+    // Forzamos una medición inicial
+    this.kbListener();
+  }
+
+  private teardownKeyboardListener(): void {
+    if (typeof window === 'undefined' || !window.visualViewport || !this.kbListener) return;
+    window.visualViewport.removeEventListener('resize', this.kbListener);
+    window.visualViewport.removeEventListener('scroll', this.kbListener);
+    document.documentElement.style.setProperty('--kb-offset', '0px');
+    this.kbListener = undefined;
   }
 
   // ============================================================
@@ -823,11 +870,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
   }
-abrirCrearSticker(): void {
-  // ✅ El modal vive dentro de <kiert-sticker-picker>.
-  // No hacemos nada aquí: el propio picker abre el modal internamente.
-  // (Dejamos el método para compatibilidad con el Output.)
-}
+
+  abrirCrearSticker(): void {
+    // ✅ El modal vive dentro de <kiert-sticker-picker>.
+    // No hacemos nada aquí: el propio picker abre el modal internamente.
+    // (Dejamos el método para compatibilidad con el Output.)
+  }
+
   // ============================================================
   // ARCHIVOS
   // ============================================================

@@ -12,13 +12,6 @@ export interface SocialLink {
   iconColor: string;
 }
 
-export interface StaticAd {
-  id: number;
-  image: string;
-  link: string;
-  alt: string;
-}
-
 @Component({
   selector: 'kiert-floating-social',
   standalone: true,
@@ -27,75 +20,20 @@ export interface StaticAd {
   styleUrl: './floating-social.component.scss',
 })
 export class FloatingSocialComponent implements OnInit, OnDestroy {
-  // ===== CARRUSEL DE ANUNCIOS ESTÁTICOS =====
-  showStaticAd = signal(true);
-  indiceActual = signal(0);
-
-  staticAds = signal<StaticAd[]>([
-    { id: 1, image: 'assets/images/frase-anuncio/frase.jpg', link: 'http://localhost:4200/#/', alt: 'Anuncio 1 - Kiert' },
-    { id: 2, image: 'assets/images/frase-anuncio/anunci.jpg', link: 'https://www.facebook.com/confecciones.herliz/', alt: 'Anuncio 2 - Kiert' },
-    { id: 3, image: 'assets/images/frase-anuncio/anuncio.jpg', link: 'https://www.facebook.com/cykaconfeccion/?locale=es_LA', alt: 'Anuncio 3 - Kiert' },
-    { id: 4, image: 'assets/images/frase-anuncio/anuncio.jpg', link: 'https://www.ecosia.org/', alt: 'Anuncio 4 - Kiert' },
-    { id: 5, image: 'assets/images/frase-anuncio/anuncio.jpg', link: 'https://www.karnilcorp.com/index.html', alt: 'Anuncio 5 - Kiert' },
-    { id: 6, image: 'assets/images/frase-anuncio/anuncio.jpg', link: 'https://www.karnilcorp.com/index.html', alt: 'Anuncio 6 - Kiert' }
-  ]);
-
-  // ===== OTROS ANUNCIOS =====
-  showTopAd = signal(true);
-  showPopUp = signal(false);
-  showBanner = signal(true);
-
-  // ✅ Ya NO necesitamos showBottomAd (quitamos Colaboradores)
-  // pero lo dejamos como señal por si el botón de cerrar redes lo usa
-  showBottomAd = signal(true);
-
-  private popUpTimer: ReturnType<typeof setTimeout> | null = null;
-  private carouselTimer: ReturnType<typeof setInterval> | null = null;
+  // ===== REDES SOCIALES =====
+  showSocial = signal(true);
 
   ngOnInit(): void {
-    this.popUpTimer = setTimeout(() => {
-      this.showPopUp.set(true);
-    }, 3000);
-
-    this.carouselTimer = setInterval(() => {
-      if (this.showStaticAd()) this.siguiente();
-    }, 5000);
+    // Sin timers: no hay anuncios ni pop-ups que programar
   }
 
   ngOnDestroy(): void {
-    if (this.popUpTimer) clearTimeout(this.popUpTimer);
-    if (this.carouselTimer) clearInterval(this.carouselTimer);
+    // Nada que limpiar
   }
 
-  // ===== MÉTODOS DEL CARRUSEL =====
-  siguiente(): void {
-    const total = this.staticAds().length;
-    this.indiceActual.set((this.indiceActual() + 1) % total);
+  closeSocial(): void {
+    this.showSocial.set(false);
   }
-
-  anterior(): void {
-    const total = this.staticAds().length;
-    this.indiceActual.set((this.indiceActual() - 1 + total) % total);
-  }
-
-  irAlIndice(indice: number): void {
-    if (indice >= 0 && indice < this.staticAds().length) {
-      this.indiceActual.set(indice);
-    }
-  }
-
-  closeStaticAd(): void { this.showStaticAd.set(false); }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="250" viewBox="0 0 200 250"%3E%3Crect width="200" height="250" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%232dd4bf" text-anchor="middle" dy=".3em"%3EAnuncio%3C/text%3E%3C/svg%3E';
-  }
-
-  // ===== MÉTODOS PARA OTROS ANUNCIOS =====
-  closeTopAd(): void { this.showTopAd.set(false); }
-  closeBottomAd(): void { this.showBottomAd.set(false); }
-  closePopUp(): void { this.showPopUp.set(false); }
-  closeBanner(): void { this.showBanner.set(false); }
 
   // ===== REDES SOCIALES (solo las 7 que quieres) =====
   socialLinks = signal<SocialLink[]>([
