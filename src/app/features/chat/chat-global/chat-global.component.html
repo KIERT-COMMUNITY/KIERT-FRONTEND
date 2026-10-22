@@ -1,0 +1,52 @@
+<!-- src/app/features/chat-global/chat-global.component.html -->
+<div class="chat-global-container">
+  <header class="chat-header">
+    <div class="chat-title">
+      <h1>Chat Global</h1>
+      <p class="subtitulo">Sala pública: todos los usuarios pueden hablar aquí</p>
+    </div>
+    <span class="status" [class.connected]="conectado()">
+      <span class="dot"></span>
+      {{ conectado() ? 'Conectado' : 'Desconectado' }}
+    </span>
+  </header>
+
+  <div class="chat-mensajes" #scrollContainer>
+    @for (m of mensajes(); track m.id) {
+      <div class="mensaje" [class.propio]="esPropio(m)">
+        <img
+          class="avatar"
+          [src]="m.autorFotoPerfilUrl || 'assets/default-avatar.png'"
+          [alt]="m.autorNombreUsuario"
+        />
+        <div class="burbuja">
+          <div class="meta">
+            <strong>{{ m.autorNombreUsuario }}</strong>
+            <span class="fecha">{{ m.fechaEnvio | date:'shortTime' }}</span>
+          </div>
+          <p class="contenido">{{ m.contenido }}</p>
+        </div>
+      </div>
+    } @empty {
+      <div class="vacio">
+        <p>Aún no hay mensajes.</p>
+        <p>¡Sé el primero en hablar en el chat global!</p>
+      </div>
+    }
+  </div>
+
+  <form class="chat-input" (ngSubmit)="enviar()">
+    <input
+      type="text"
+      [(ngModel)]="texto"
+      name="texto"
+      placeholder="Escribe un mensaje para todos..."
+      maxlength="500"
+      [disabled]="!conectado()"
+      autocomplete="off"
+    />
+    <button type="submit" [disabled]="!conectado() || !texto.trim()">
+      Enviar
+    </button>
+  </form>
+</div>

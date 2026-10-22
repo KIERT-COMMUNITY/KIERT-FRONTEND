@@ -127,7 +127,6 @@ export class AuthService {
     );
   }
 
-  // ✅ AÑADIDO EL CAMPO BIO AL TIPADO
   actualizarPerfil(datos: { nombreUsuario?: string; email?: string; bio?: string }): Observable<User> {
     return this.http.patch<User>(`${this.API_URL}/perfil`, datos).pipe(
       tap((usuario) => {
@@ -177,4 +176,7 @@ export class AuthService {
   obtenerToken(): string | null { return this.token(); }
   getToken(): string | null { return this.token(); }
   getUser(): User | null { return this.usuario(); }
+
+  /** ✅ AÑADIDO: alias para chat-global y otros componentes */
+  getUsuarioActual(): User | null { return this.usuario(); }
 }

@@ -1,15 +1,11 @@
+<!-- src/app/layouts/main-layout/navbar/navbar.component.html -->
 <header
   class="navbar"
   [class.menu-abierto]="menuAbierto()"
   [class.menu-contraido]="menuContraido()"
 >
   <div class="navbar-mobile-header">
-    <a
-      routerLink="/comunidad"
-      class="navbar-brand"
-      aria-label="Ir a Comunidad"
-      (click)="cerrarMenu()"
-    >
+    <a routerLink="/comunidad" class="navbar-brand" aria-label="Ir a Comunidad" (click)="cerrarMenu()">
       <span class="brand-prompt">&gt;_</span>
       <span class="brand-name">kiert</span>
     </a>
@@ -30,12 +26,7 @@
 
   <div class="navbar-container">
     <div class="sidebar-header">
-      <a
-        routerLink="/comunidad"
-        class="navbar-brand sidebar-brand"
-        aria-label="Ir a Comunidad"
-        title="KIERT"
-      >
+      <a routerLink="/comunidad" class="navbar-brand sidebar-brand" aria-label="Ir a Comunidad" title="KIERT">
         <span class="brand-prompt">&gt;_</span>
         <span class="brand-name">kiert</span>
       </a>
@@ -61,6 +52,7 @@
 
     <nav class="navbar-menu" aria-label="Navegacion principal">
       <div class="navbar-menu-inner">
+        <!-- MENÚ PRINCIPAL -->
         <div class="menu-section">
           <span class="menu-section-title">Menu principal</span>
 
@@ -104,7 +96,6 @@
             <span class="menu-label">Biblioteca</span>
           </a>
 
-          <!-- ✅ NUEVO: Anuncios públicos (todos los usuarios logueados) -->
           <a routerLink="/anuncios" routerLinkActive="active" class="menu-item" title="Anuncios" (click)="cerrarMenu()">
             <span class="menu-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -117,16 +108,35 @@
           </a>
         </div>
 
+        <!-- COMUNICACIÓN: SOLO Chat Global + Chat privado -->
         <div class="menu-section">
           <span class="menu-section-title">Comunicacion</span>
 
-          <button type="button" class="menu-item menu-button" title="Chat" (click)="irAlChat()">
+          <!-- ✅ CHAT GLOBAL -->
+          <button
+            type="button"
+            class="menu-item menu-button"
+            title="Chat Global"
+            (click)="irAlChatGlobal()"
+          >
+            <span class="menu-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </span>
+            <span class="menu-label">Chat Global</span>
+          </button>
+
+          <!-- ✅ CHAT PRIVADO (el que ya tenías) -->
+          <button type="button" class="menu-item menu-button" title="Chat privado" (click)="irAlChat()">
             <span class="menu-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
             </span>
-            <span class="menu-label">Chat</span>
+            <span class="menu-label">Chat privado</span>
             @if (mensajesNoLeidos() > 0) {
               <span class="menu-badge" [attr.aria-label]="mensajesNoLeidos() + ' mensajes no leidos'">
                 {{ mensajesNoLeidos() > 99 ? '99+' : mensajesNoLeidos() }}
@@ -139,9 +149,7 @@
           </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- ✅ SECCIÓN ADMIN: SOLO si hay sesión admin VÁLIDA -->
-        <!-- ============================================================ -->
+        <!-- ADMIN -->
         @if (adminAuth.estaLogueado()) {
           <div class="menu-section menu-section--admin">
             <span class="menu-section-title">
@@ -151,12 +159,7 @@
               <span>Administración</span>
             </span>
 
-            <button
-              type="button"
-              class="menu-item menu-button menu-button--admin"
-              title="Panel de reportes"
-              (click)="irAlPanelReportes()"
-            >
+            <button type="button" class="menu-item menu-button menu-button--admin" title="Panel de reportes" (click)="irAlPanelReportes()">
               <span class="menu-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
@@ -169,12 +172,7 @@
               </span>
             </button>
 
-            <button
-              type="button"
-              class="menu-item menu-button menu-button--admin"
-              title="Gestionar anuncios"
-              (click)="irAlPanelAnuncios()"
-            >
+            <button type="button" class="menu-item menu-button menu-button--admin" title="Gestionar anuncios" (click)="irAlPanelAnuncios()">
               <span class="menu-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M3 11l18-8v18l-18-8z"></path>
@@ -186,8 +184,8 @@
             </button>
           </div>
         }
-        <!-- ============================================================ -->
 
+        <!-- MI CUENTA -->
         <div class="menu-section">
           <span class="menu-section-title">Mi cuenta</span>
 

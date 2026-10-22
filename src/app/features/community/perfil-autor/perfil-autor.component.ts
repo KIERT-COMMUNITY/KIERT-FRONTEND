@@ -2,14 +2,14 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
-import { ChatService } from '../../core/services/chat.service';
-import { UserService } from '../../core/services/user.service';
-import { BloqueoService, EstadoBloqueo } from '../../core/services/bloqueo.service';
-import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
-import { PersonalizacionService, Personalizacion } from '../../core/services/personalizacion.service';
-import { User } from '../../core/models/user.model';
-import { BloqueoModalComponent } from '../../shared/components/bloqueo-modal/bloqueo-modal.component';
+import { AuthService } from '../../../core/services/auth.service';
+import { ChatService } from '../../../core/services/chat.service';
+import { UserService } from '../../../core/services/user.service';
+import { BloqueoService, EstadoBloqueo } from '../../../core/services/bloqueo.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
+import { PersonalizacionService, Personalizacion } from '../../../core/services/personalizacion.service';
+import { User } from '../../../core/models/user.model';
+import { BloqueoModalComponent } from '../../../shared/components/bloqueo-modal/bloqueo-modal.component';
 
 type EstadoContacto = 'ninguno' | 'pendiente-enviada' | 'pendiente-recibida' | 'contacto';
 

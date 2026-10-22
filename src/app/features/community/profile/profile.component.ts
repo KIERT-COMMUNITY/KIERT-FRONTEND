@@ -3,13 +3,13 @@ import { Component, signal, computed, inject, OnInit, ChangeDetectorRef, effect 
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
-import { PostService } from '../../core/services/post.service';
-import { BloqueoService } from '../../core/services/bloqueo.service';
-import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
-import { ImageSanitizerService } from '../../core/services/image-sanitizer.service';
-import { UserService } from '../../core/services/user.service'; // ✅ Importado
-import { User } from '../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { PostService } from '../../../core/services/post.service';
+import { BloqueoService } from '../../../core/services/bloqueo.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
+import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
+import { UserService } from '../../../core/services/user.service'; // ✅ Importado
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'kiert-profile',

@@ -3,9 +3,9 @@ import { Component, signal, computed, inject, OnInit, OnDestroy, HostListener } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { BibliotecaService } from '../../core/services/biblioteca.service';
-import { RecursoBiblioteca } from '../../core/models/biblioteca.model';
-import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
+import { BibliotecaService } from '../../../core/services/biblioteca.service';
+import { RecursoBiblioteca } from '../../../core/models/biblioteca.model';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 
 @Component({
   selector: 'kiert-biblioteca',

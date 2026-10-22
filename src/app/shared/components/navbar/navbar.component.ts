@@ -19,12 +19,7 @@ import { NotificacionesComponent } from '../../../features/community/notificacio
 @Component({
   selector: 'kiert-navbar',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    NotificacionesComponent
-  ],
+  imports: [CommonModule, RouterLink, RouterLinkActive, NotificacionesComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
@@ -62,20 +57,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.menuAbierto()) {
-      this.cerrarMenu();
-    }
+    if (this.menuAbierto()) this.cerrarMenu();
   }
 
   @HostListener('window:resize')
   onResize(): void {
-    if (window.innerWidth > 1024 && this.menuAbierto()) {
-      this.cerrarMenu();
-    }
+    if (window.innerWidth > 1024 && this.menuAbierto()) this.cerrarMenu();
   }
 
   alternarMenu(): void {
-    this.menuAbierto.update((estadoActual) => !estadoActual);
+    this.menuAbierto.update((e) => !e);
   }
 
   cerrarMenu(): void {
@@ -91,13 +82,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     try {
       localStorage.setItem('kiert-menu-contraido', String(nuevoEstado));
-    } catch {
-      // Ignorar
-    }
+    } catch { /* ignore */ }
   }
 
   private validarSesionAdmin(): void {
-    // Fuerza la re-evaluación del computed
     void this.adminAuth.estaLogueado();
   }
 
@@ -113,9 +101,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ===== NAVEGACIÓN =====
   irAlChat(): void {
     this.cerrarMenu();
     this.router.navigate(['/chat']);
+  }
+
+  /** ✅ Chat Global (sala pública) */
+  irAlChatGlobal(): void {
+    this.cerrarMenu();
+    this.router.navigate(['/chat-global']);
   }
 
   irAlPanelReportes(): void {
@@ -136,19 +131,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/anuncios']);
   }
 
-  /**
-   * Cierra sesión NORMAL + ADMIN y limpia todo rastro.
-   */
   cerrarSesion(): void {
     this.cerrarMenu();
-
-    // 1. Cerrar sesión admin (limpia señales y localStorage)
     this.adminAuth.logout();
-
-    // 2. Cerrar sesión normal (limpia token y usuario)
     this.authService.logout();
-
-    // 3. Redirigir al login
     this.router.navigate(['/login']);
   }
 

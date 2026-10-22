@@ -4,51 +4,34 @@ import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  // ===== RUTAS DE AUTENTICACIÓN (USUARIOS NORMALES) =====
+  // ===== AUTENTICACIÓN =====
   {
     path: '',
     loadComponent: () =>
       import('./layouts/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
     children: [
-      {
-        path: 'login',
-        loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
-      },
-      {
-        path: 'registro',
-        loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
-      },
-      {
-        path: 'recuperar-contrasena',
-        loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
-      },
+      { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
+      { path: 'registro', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
+      { path: 'recuperar-contrasena', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
     ],
   },
 
-  // ============================================================
-  // ✅ ADMIN — LOGIN (público, sin navbar)
-  // ============================================================
+  // ===== ADMIN LOGIN (sin navbar) =====
   {
     path: 'admin/login',
     loadComponent: () =>
-      import('./features/admin/admin-login/admin-login.component').then(m => m.AdminLoginComponent)
+      import('./features/auth/admin-login/admin-login.component').then(m => m.AdminLoginComponent)
   },
 
-  // ============================================================
-  // RUTAS PRINCIPALES (con MainLayout → CON NAVBAR)
-  // ============================================================
+  // ===== RUTAS PRINCIPALES (con navbar) =====
   {
     path: '',
     loadComponent: () =>
       import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     children: [
-      {
-        path: '',
-        redirectTo: 'comunidad',
-        pathMatch: 'full'
-      },
+      { path: '', redirectTo: 'comunidad', pathMatch: 'full' },
 
-      // ===== COMUNIDAD =====
+      // COMUNIDAD
       {
         path: 'comunidad/nueva-publicacion',
         loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent),
@@ -68,80 +51,66 @@ export const routes: Routes = [
         canActivate: [authGuard]
       },
 
-      // ===== BIBLIOTECA =====
+      // BIBLIOTECA
       {
         path: 'biblioteca',
-        loadComponent: () => import('./features/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent)
+        loadComponent: () => import('../app/features/community/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent)
       },
 
-      // ============================================================
-      // ✅ ANUNCIOS — VISTA PÚBLICA (usuarios logueados, solo lectura)
-      // ============================================================
+      // ANUNCIOS
       {
         path: 'anuncios',
         loadComponent: () => import('./features/community/anuncios/anuncios.component').then(m => m.AnunciosComponent),
         canActivate: [authGuard]
       },
 
-      // ===== NOTIFICACIONES =====
+      // NOTIFICACIONES
       {
         path: 'notificaciones',
         loadComponent: () => import('./features/community/notificacion-page/notificaciones-page.component').then(m => m.NotificacionesPageComponent),
         canActivate: [authGuard]
       },
 
-      // ============================================================
-      // ✅ ADMIN — PANEL DE REPORTES (con navbar, protegido)
-      // ============================================================
+      // ADMIN
       {
         path: 'admin/reportes',
-        loadComponent: () =>
-          import('./features/admin/admin-reportes/reporte-admin.component').then(m => m.ReportesAdminComponent),
+        loadComponent: () => import('./features/admin/admin-reportes/reporte-admin.component').then(m => m.ReportesAdminComponent),
         canActivate: [adminGuard],
         data: { roles: ['CEO', 'ADMIN', 'MODERADOR'] }
       },
-
-      // ============================================================
-      // ✅ ADMIN — GESTIÓN DE ANUNCIOS (con navbar, protegido)
-      // ============================================================
       {
         path: 'admin/anuncios',
-        loadComponent: () =>
-          import('./features/admin/admin-anuncios/admin-anuncios.component').then(m => m.AdminAnunciosComponent),
+        loadComponent: () => import('./features/admin/admin-anuncios/admin-anuncios.component').then(m => m.AdminAnunciosComponent),
         canActivate: [adminGuard],
         data: { roles: ['CEO', 'ADMIN'] }
       },
+      { path: 'admin', redirectTo: 'admin/reportes', pathMatch: 'full' },
 
-      // Redirección /admin → /admin/reportes
-      {
-        path: 'admin',
-        redirectTo: 'admin/reportes',
-        pathMatch: 'full'
-      },
-
-      // ===== PERFIL =====
+      // PERFIL
       {
         path: 'perfil',
-        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
+        loadComponent: () => import('./features/community/profile/profile.component').then(m => m.ProfileComponent),
         canActivate: [authGuard]
       },
       {
         path: 'perfil-autor/:id',
-        loadComponent: () => import('./features/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
+        loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
       },
       {
         path: 'usuario/:id',
-        loadComponent: () => import('./features/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
+        loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
       },
 
-      // ===== CHAT =====
+      // ===== CHAT GLOBAL (antes de /chat/:usuarioId) =====
       {
-        path: 'chat',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),
+        path: 'chat-global',
+        loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent),
         canActivate: [authGuard]
       },
+
+      // ===== CHAT PRIVADO / GRUPOS =====
       {
-        path: 'chat/:usuarioId',
+        path: 'chat',
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),
         canActivate: [authGuard]
       },
@@ -150,8 +119,13 @@ export const routes: Routes = [
         loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent),
         canActivate: [authGuard]
       },
+      {
+        path: 'chat/:usuarioId',
+        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),
+        canActivate: [authGuard]
+      },
 
-      // ===== AJUSTES =====
+      // AJUSTES
       {
         path: 'ajustes',
         loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent),
@@ -160,9 +134,5 @@ export const routes: Routes = [
     ],
   },
 
-  // ===== RUTA COMODÍN (404) =====
-  {
-    path: '**',
-    redirectTo: 'comunidad'
-  },
+  { path: '**', redirectTo: 'comunidad' },
 ];
