@@ -2,7 +2,7 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { PersonalizacionService, Personalizacion, Marco, Fondo } from './personalizacion.service';
 import { AuthService } from './auth.service';
-
+import { StorageService } from './storage.service';
 export interface ColorTheme {
   id: string;
   name: string;
@@ -35,7 +35,7 @@ export interface FondoItem {
 export class PersonalizacionStore {
   private personalizacionService = inject(PersonalizacionService);
   private authService = inject(AuthService);
-
+ private storage = inject(StorageService);
   private personalizacionSignal = signal<Personalizacion | null>(null);
   private marcosSignal = signal<Marco[]>([]);
   private fondosSignal = signal<Fondo[]>([]);
@@ -274,22 +274,20 @@ export class PersonalizacionStore {
   ]);
 
   // ===== CONSTRUCTOR =====
-  constructor() {
-    // Efecto: cargar personalización cuando el usuario esté logueado
-    effect(() => {
-      const usuario = this.authService.usuario();
-      if (usuario) {
-        console.log('Usuario logueado, cargando personalización...');
-        this.cargarTodos();
-      }
-    });
+ constructor() {
+  effect(() => {
+    const usuario = this.authService.usuario();
+    if (usuario) {
+      console.log('Usuario logueado, cargando personalización...');
+      this.cargarTodos();
+    }
+  });
 
-    // Efecto: aplicar escala de fuente al <html> cuando cambie
-    effect(() => {
-      const escala = this.escalaFuente();
-      this.aplicarEscalaFuente(escala);
-    });
-  }
+  effect(() => {
+    const escala = this.escalaFuente();
+    this.aplicarEscalaFuente(escala);
+  });
+}
 
   // ============================================================
   // MÉTODOS DE ESCALA DE FUENTE
@@ -300,28 +298,25 @@ export class PersonalizacionStore {
    * Como todo el CSS usa rem/em, TODO se escala proporcionalmente.
    */
   private aplicarEscalaFuente(escala: number): void {
-    const basePx = 16 * escala;
-    document.documentElement.style.fontSize = `${basePx}px`;
-    document.documentElement.style.setProperty('--escala-fuente', String(escala));
-    document.documentElement.style.setProperty('--escala-fuente-px', `${basePx}px`);
+  const basePx = 16 * escala;
+  document.documentElement.style.fontSize = `${basePx}px`;
+  document.documentElement.style.setProperty('--escala-fuente', String(escala));
+  document.documentElement.style.setProperty('--escala-fuente-px', `${basePx}px`);
 
-    try {
-      localStorage.setItem('kiert_escala_fuente', String(escala));
-    } catch {}
+  // ✅ Preferencia compartida entre pestañas (localStorage)
+  this.storage.setLocal('kiert_escala_fuente', String(escala));
 
-    console.log(`🔤 Escala de fuente aplicada: ${basePx}px (${Math.round(escala * 100)}%)`);
+  console.log(`🔤 Escala de fuente aplicada: ${basePx}px (${Math.round(escala * 100)}%)`);
+}
+
+private cargarEscalaGuardada(): number {
+  const guardada = this.storage.getLocal('kiert_escala_fuente');
+  if (guardada) {
+    const num = parseFloat(guardada);
+    if (num >= 0.75 && num <= 1.5) return num;
   }
-
-  private cargarEscalaGuardada(): number {
-    try {
-      const guardada = localStorage.getItem('kiert_escala_fuente');
-      if (guardada) {
-        const num = parseFloat(guardada);
-        if (num >= 0.75 && num <= 1.5) return num;
-      }
-    } catch {}
-    return 1.0;
-  }
+  return 1.0;
+}
 
   /**
    * Establece una escala específica (entre 0.75 y 1.5)

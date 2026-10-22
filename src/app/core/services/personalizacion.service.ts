@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+// src/app/core/services/personalizacion.service.ts
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, retry, throwError, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface Personalizacion {
@@ -35,10 +36,12 @@ export interface Fondo {
 
 @Injectable({ providedIn: 'root' })
 export class PersonalizacionService {
+  private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/personalizacion`;
 
-  constructor(private http: HttpClient) {}
-
+  // ============================================================
+  // OBTENER
+  // ============================================================
   obtenerPersonalizacion(): Observable<Personalizacion> {
     return this.http.get<Personalizacion>(this.API_URL);
   }
@@ -47,9 +50,10 @@ export class PersonalizacionService {
     return this.http.get<Personalizacion>(`${this.API_URL}/usuario/${usuarioId}`);
   }
 
-  //  GUARDAR PERSONALIZACIÓN CON DTO (PUT)
+  // ============================================================
+  // GUARDAR (PUT con DTO)
+  // ============================================================
   guardarPersonalizacion(datos: Partial<Personalizacion>): Observable<Personalizacion> {
-    // Asegurar que los campos necesarios estén presentes
     const payload = {
       temaId: datos.temaId || 'default',
       marcoId: datos.marcoId || 'none',
@@ -61,17 +65,18 @@ export class PersonalizacionService {
     return this.http.put<Personalizacion>(this.API_URL, payload);
   }
 
-  // GUARDAR CON PARÁMETROS (POST - alternativa)
+  // ============================================================
+  // GUARDAR (POST alternativo por params)
+  // ============================================================
   guardarPersonalizacionParams(temaId: string, marcoId: string, fondoId: string): Observable<Personalizacion> {
-    const params = new URLSearchParams();
-    params.set('temaId', temaId);
-    params.set('marcoId', marcoId);
-    params.set('fondoId', fondoId);
-    return this.http.post<Personalizacion>(this.API_URL, null, { 
-      params: { temaId, marcoId, fondoId } 
+    return this.http.post<Personalizacion>(this.API_URL, null, {
+      params: { temaId, marcoId, fondoId }
     });
   }
 
+  // ============================================================
+  // FOTOS
+  // ============================================================
   subirFotoPerfil(archivo: File): Observable<Personalizacion> {
     const formData = new FormData();
     formData.append('archivo', archivo);
@@ -84,6 +89,9 @@ export class PersonalizacionService {
     return this.http.post<Personalizacion>(`${this.API_URL}/foto-portada`, formData);
   }
 
+  // ============================================================
+  // CATÁLOGOS
+  // ============================================================
   obtenerMarcos(): Observable<Marco[]> {
     return this.http.get<Marco[]>(`${this.API_URL}/marcos`);
   }
@@ -92,6 +100,9 @@ export class PersonalizacionService {
     return this.http.get<Fondo[]>(`${this.API_URL}/fondos`);
   }
 
+  // ============================================================
+  // COMPRAS
+  // ============================================================
   comprarMarco(marcoId: string): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/comprar/marco/${marcoId}`, {});
   }

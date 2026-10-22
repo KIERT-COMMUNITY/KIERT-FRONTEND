@@ -20,7 +20,6 @@
       margin: 0 auto;
       padding: 0 1rem;
       display: grid;
-      // auto-fit permite que en móvil ocupe 1 columna, en tablet 2, y en PC se adapte
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
     }
@@ -30,13 +29,14 @@
       align-items: center;
       gap: 14px;
       padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.02);
+      // Fondo más sutil para que el logo transparente resalte
+      background: rgba(255, 255, 255, 0.015);
       border: 1px solid rgba(255, 255, 255, 0.04);
       border-radius: 12px;
       text-decoration: none;
       transition: all 0.3s ease;
       overflow: hidden;
-      min-width: 0; // Evita desbordamiento en flex
+      min-width: 0;
 
       &:hover {
         background: rgba(45, 212, 191, 0.04);
@@ -55,20 +55,26 @@
       flex-shrink: 0;
       width: 80px;
       height: 60px;
-      border-radius: 8px;
-      overflow: hidden;
-      background: rgba(45, 212, 191, 0.05);
+      // SIN background: el PNG transparente se ve limpio
+      // SIN border-radius: no corta el logo transparente
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px; // respiro para el logo
 
       img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        // contain: el logo completo se ve, sin recortes
+        object-fit: contain;
         display: block;
         transition: transform 0.4s ease;
+        // Sutil sombra para que el logo transparente resalte
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
       }
 
       &:hover img {
-        transform: scale(1.05);
+        transform: scale(1.08);
       }
     }
 
@@ -167,7 +173,7 @@
       padding: 16px 0;
 
       &__container {
-        grid-template-columns: 1fr; // Una sola columna en móvil/tablet
+        grid-template-columns: 1fr;
         gap: 12px;
         padding: 0 0.85rem;
       }
@@ -232,7 +238,7 @@
       &__image {
         width: 56px;
         height: 42px;
-        border-radius: 6px;
+        padding: 3px;
       }
 
       &__content {
@@ -272,12 +278,13 @@
       &__container {
         padding: 0 0.4rem;
       }
-      
+
       &__image {
         width: 48px;
         height: 36px;
+        padding: 2px;
       }
-      
+
       &__content h4 { font-size: 0.7rem; }
       &__content p { font-size: 0.55rem; }
     }

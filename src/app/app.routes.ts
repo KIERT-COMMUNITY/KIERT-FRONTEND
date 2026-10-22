@@ -10,20 +10,21 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./layouts/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
     children: [
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
       { path: 'registro', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
       { path: 'recuperar-contrasena', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
     ],
   },
 
-  // ===== ADMIN LOGIN (sin navbar) =====
+  // ===== ADMIN LOGIN (pantalla completa, sin navbar) =====
   {
     path: 'admin/login',
     loadComponent: () =>
       import('./features/auth/admin-login/admin-login.component').then(m => m.AdminLoginComponent)
   },
 
-  // ===== RUTAS PRINCIPALES (con navbar) =====
+  // ===== RUTAS PRINCIPALES (con navbar normal) =====
   {
     path: '',
     loadComponent: () =>
@@ -32,46 +33,23 @@ export const routes: Routes = [
       { path: '', redirectTo: 'comunidad', pathMatch: 'full' },
 
       // COMUNIDAD
-      {
-        path: 'comunidad/nueva-publicacion',
-        loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'comunidad/:id',
-        loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent)
-      },
-      {
-        path: 'comunidad',
-        loadComponent: () => import('./features/community/feed/feed.component').then(m => m.FeedComponent)
-      },
-      {
-        path: 'mis-publicaciones',
-        loadComponent: () => import('./features/community/mis-publicaciones/mis-publicaciones.component').then(m => m.MisPublicacionesComponent),
-        canActivate: [authGuard]
-      },
+      { path: 'comunidad/nueva-publicacion', loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent), canActivate: [authGuard] },
+      { path: 'comunidad/:id', loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent) },
+      { path: 'comunidad', loadComponent: () => import('./features/community/feed/feed.component').then(m => m.FeedComponent) },
+      { path: 'mis-publicaciones', loadComponent: () => import('./features/community/mis-publicaciones/mis-publicaciones.component').then(m => m.MisPublicacionesComponent), canActivate: [authGuard] },
 
       // BIBLIOTECA
-      {
-        path: 'biblioteca',
-        loadComponent: () => import('../app/features/community/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent)
-      },
+      { path: 'biblioteca', loadComponent: () => import('./features/community/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent) },
 
       // ANUNCIOS
-      {
-        path: 'anuncios',
-        loadComponent: () => import('./features/community/anuncios/anuncios.component').then(m => m.AnunciosComponent),
-        canActivate: [authGuard]
-      },
+      { path: 'anuncios', loadComponent: () => import('./features/community/anuncios/anuncios.component').then(m => m.AnunciosComponent), canActivate: [authGuard] },
 
       // NOTIFICACIONES
-      {
-        path: 'notificaciones',
-        loadComponent: () => import('./features/community/notificacion-page/notificaciones-page.component').then(m => m.NotificacionesPageComponent),
-        canActivate: [authGuard]
-      },
+      { path: 'notificaciones', loadComponent: () => import('./features/community/notificacion-page/notificaciones-page.component').then(m => m.NotificacionesPageComponent), canActivate: [authGuard] },
 
-      // ADMIN
+      // ============================================================
+      // ✅ ADMIN (mismo navbar normal, solo protegido por adminGuard)
+      // ============================================================
       {
         path: 'admin/reportes',
         loadComponent: () => import('./features/admin/admin-reportes/reporte-admin.component').then(m => m.ReportesAdminComponent),
@@ -87,52 +65,22 @@ export const routes: Routes = [
       { path: 'admin', redirectTo: 'admin/reportes', pathMatch: 'full' },
 
       // PERFIL
-      {
-        path: 'perfil',
-        loadComponent: () => import('./features/community/profile/profile.component').then(m => m.ProfileComponent),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'perfil-autor/:id',
-        loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
-      },
-      {
-        path: 'usuario/:id',
-        loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent)
-      },
+      { path: 'perfil', loadComponent: () => import('./features/community/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
+      { path: 'perfil-autor/:id', loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent) },
+      { path: 'usuario/:id', loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent) },
 
-      // ===== CHAT GLOBAL (antes de /chat/:usuarioId) =====
-      {
-        path: 'chat-global',
-        loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent),
-        canActivate: [authGuard]
-      },
+      // CHAT GLOBAL
+      { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent), canActivate: [authGuard] },
 
-      // ===== CHAT PRIVADO / GRUPOS =====
-      {
-        path: 'chat',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'chat/grupo/:id',
-        loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'chat/:usuarioId',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),
-        canActivate: [authGuard]
-      },
+      // CHAT PRIVADO / GRUPOS
+      { path: 'chat', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent), canActivate: [authGuard] },
+      { path: 'chat/grupo/:id', loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent), canActivate: [authGuard] },
+      { path: 'chat/:usuarioId', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent), canActivate: [authGuard] },
 
       // AJUSTES
-      {
-        path: 'ajustes',
-        loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent),
-        canActivate: [authGuard]
-      },
+      { path: 'ajustes', loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent), canActivate: [authGuard] },
     ],
   },
 
-  { path: '**', redirectTo: 'comunidad' },
+  { path: '**', redirectTo: 'login' },
 ];

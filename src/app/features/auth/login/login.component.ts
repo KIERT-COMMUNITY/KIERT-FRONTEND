@@ -51,7 +51,6 @@ export class LoginComponent {
       error: (err) => {
         const mensaje = err.error?.error || err.error?.mensaje || '';
 
-        // DETECTAR SI ES UN ADMIN
         const esAdmin = mensaje.toLowerCase().includes('administrador') ||
                         mensaje.toLowerCase().includes('admin') ||
                         err.status === 403;

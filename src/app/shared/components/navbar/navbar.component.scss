@@ -747,3 +747,18 @@ $transition: 0.25s ease;
     font-size: 0.5rem;
   }
 }
+// ============================================================
+// ADMIN – ajuste del badge en modo contraído
+// (el resto de estilos ya están en el archivo)
+// ============================================================
+.navbar.menu-contraido {
+  .menu-badge--admin {
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    font-size: 0.5rem;
+  }
+}

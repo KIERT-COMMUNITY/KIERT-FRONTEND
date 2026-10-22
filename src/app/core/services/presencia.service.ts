@@ -2,19 +2,25 @@
 import { Injectable, inject, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
+import { AdminAuthService } from './admin-auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class PresenciaService {
   private http = inject(HttpClient);
   private ngZone = inject(NgZone);
+  private authService = inject(AuthService);
+  private adminAuth = inject(AdminAuthService);
 
   private heartbeatInterval: any = null;
   private readonly API = `${environment.apiUrl}/presencia`;
-  private readonly TOKEN_KEY = 'token';
   private readonly INTERVALO_MS = 60_000;
 
   iniciar(): void {
-    if (!this.hayToken()) {
+    // ✅ Usa AuthService.getToken() → devuelve el token activo (admin o normal) de ESTA pestaña
+    const token = this.authService.getToken();
+
+    if (!token) {
       console.warn('⚠️ Presencia: no hay token, no se inicia');
       return;
     }
@@ -50,7 +56,7 @@ export class PresenciaService {
   }
 
   marcarOffline(): void {
-    if (!this.hayToken()) return;
+    if (!this.authService.getToken()) return;
     console.log('🔴 Presencia: marcando offline');
     this.http.post(`${this.API}/offline`, {}).subscribe({
       next: () => {},
@@ -58,26 +64,18 @@ export class PresenciaService {
     });
   }
 
-  private hayToken(): boolean {
-    try { return !!localStorage.getItem(this.TOKEN_KEY); }
-    catch { return false; }
-  }
-
   private enviarHeartbeat(): void {
-    if (!this.hayToken()) {
+    const token = this.authService.getToken();
+    if (!token) {
       console.warn('⚠️ Heartbeat: no hay token, se omite');
       return;
     }
 
-    // ✅ DEBUG: verificar que el token está presente
-    const token = localStorage.getItem(this.TOKEN_KEY);
-    console.log('💓 Presencia: enviando heartbeat con token:', token?.substring(0, 20) + '...');
-
+    // El interceptor añade Authorization automáticamente
     this.http.post(`${this.API}/heartbeat`, {}).subscribe({
       next: () => console.log('✅ Presencia: heartbeat OK'),
       error: (e) => {
         console.warn('❌ Presencia: error heartbeat', e.status, e.message);
-        // Si es 401, el interceptor ya se encargará
       }
     });
   }
@@ -87,10 +85,8 @@ export class PresenciaService {
   };
 
   private onBeforeUnload = (): void => {
-    // ⚠️ sendBeacon NO pasa por el interceptor, así que no envía el token.
-    // En su lugar, usamos una petición síncrona al marcarOffline.
     try {
       this.marcarOffline();
-    } catch {}
+    } catch { /* ignore */ }
   };
 }

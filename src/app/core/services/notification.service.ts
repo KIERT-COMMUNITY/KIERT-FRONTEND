@@ -35,6 +35,9 @@ export interface Notificacion {
   respuestaId?: number;
   grupoId?: number;
   url?: string;
+  
+  // ✅ Agrega esta línea para que Angular no lance error en el HTML
+  estadoInvitacion?: 'aceptada' | 'rechazada'; 
 }
 
 @Injectable({

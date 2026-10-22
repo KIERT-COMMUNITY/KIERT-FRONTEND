@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
+import { StorageService } from './storage.service';
 
 export interface AdminUser {
   id: number;
@@ -22,38 +24,31 @@ export interface AdminLoginResponse {
 export class AdminAuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private storage = inject(StorageService);
 
   private readonly API = `${environment.apiUrl}/admin/auth`;
   private readonly TOKEN_KEY = 'kiert_admin_token';
   private readonly ADMIN_KEY = 'kiert_admin_data';
 
-  // Señales reactivas
   private _admin = signal<AdminUser | null>(this.cargarAdminDesdeStorage());
   private _token = signal<string | null>(this.cargarTokenDesdeStorage());
 
-  // Lecturas públicas
   admin = this._admin.asReadonly();
   token = this._token.asReadonly();
 
-  // ✅ Computed con validación de expiración y rol
   estaLogueado = computed(() => {
     const token = this._token();
     const admin = this._admin();
-
     if (!token || !admin) return false;
-
-    // Verificar si el JWT expiró
     if (this.tokenExpirado(token)) {
       this.limpiarStorage();
       return false;
     }
-
-    // Validar que el rol sea correcto
     if (!['CEO', 'ADMIN', 'MODERADOR'].includes(admin.rol)) {
       this.limpiarStorage();
       return false;
     }
-
     return true;
   });
 
@@ -77,8 +72,11 @@ export class AdminAuthService {
           }
           this._token.set(res.token);
           this._admin.set(res.admin);
-          localStorage.setItem(this.TOKEN_KEY, res.token);
-          localStorage.setItem(this.ADMIN_KEY, JSON.stringify(res.admin));
+          this.storage.setItem(this.TOKEN_KEY, res.token);
+          this.storage.setItem(this.ADMIN_KEY, JSON.stringify(res.admin));
+
+          // Sincronizar AuthService para que getToken() use el admin token
+          this.authService.cargarSesionPublica();
         }),
         catchError((err) => throwError(() => err))
       );
@@ -87,76 +85,56 @@ export class AdminAuthService {
   // ============================================================
   // LOGOUT
   // ============================================================
-  /**
-   * Cierra sesión SIN navegar. Limpia las señales y el localStorage.
-   */
   logout(): void {
     this._token.set(null);
     this._admin.set(null);
     this.limpiarStorage();
+    // Limpiar también la sesión normal de esta pestaña
+    this.authService.limpiarSesionPublica();
   }
 
-  /**
-   * Cierra sesión Y navega a /admin/login.
-   */
   logoutYNavegar(): void {
     this.logout();
     this.router.navigate(['/admin/login']);
   }
 
   // ============================================================
-  // HELPERS DE SEGURIDAD
+  // HELPERS
   // ============================================================
   getToken(): string | null {
     return this._token();
   }
 
-  /**
-   * Limpia el localStorage y fuerza un estado nulo.
-   */
   private limpiarStorage(): void {
-    try {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.ADMIN_KEY);
-    } catch {
-      // Ignorar errores de almacenamiento
-    }
-    // Forzar nulo para evitar bugs en memoria
+    this.storage.removeItem(this.TOKEN_KEY);
+    this.storage.removeItem(this.ADMIN_KEY);
     this._token.set(null);
     this._admin.set(null);
   }
 
-  /**
-   * Verifica si un JWT expiró sin librerías externas.
-   */
   private tokenExpirado(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (!payload.exp) return false;
-      const expiracion = payload.exp * 1000; // a milisegundos
-      return Date.now() >= expiracion;
+      return Date.now() >= payload.exp * 1000;
     } catch {
-      return true; // Si no se puede parsear, se considera expirado
+      return true;
     }
   }
 
   private cargarTokenDesdeStorage(): string | null {
-    try {
-      const token = localStorage.getItem(this.TOKEN_KEY);
-      if (token && this.tokenExpirado(token)) {
-        localStorage.removeItem(this.TOKEN_KEY);
-        return null;
-      }
-      return token;
-    } catch {
+    const token = this.storage.getItem(this.TOKEN_KEY);
+    if (token && this.tokenExpirado(token)) {
+      this.storage.removeItem(this.TOKEN_KEY);
       return null;
     }
+    return token;
   }
 
   private cargarAdminDesdeStorage(): AdminUser | null {
+    const raw = this.storage.getItem(this.ADMIN_KEY);
+    if (!raw) return null;
     try {
-      const raw = localStorage.getItem(this.ADMIN_KEY);
-      if (!raw) return null;
       const admin: AdminUser = JSON.parse(raw);
       if (!admin || !admin.id || !admin.rol) return null;
       return admin;

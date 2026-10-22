@@ -12,8 +12,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { ChatService } from '../../../core/services/chat.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
+import { ChatService } from '../../../core/services/chat.service';
+import { StorageService } from '../../../core/services/storage.service';
 import { NotificacionesComponent } from '../../../features/community/notificaciones/notificaciones.component';
 
 @Component({
@@ -27,8 +28,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @Output() estadoContraidoChange = new EventEmitter<boolean>();
 
   private readonly authService = inject(AuthService);
-  private readonly chatService = inject(ChatService);
   public readonly adminAuth = inject(AdminAuthService);
+  private readonly chatService = inject(ChatService);
+  private readonly storage = inject(StorageService);
   private readonly router = inject(Router);
 
   readonly menuAbierto = signal(false);
@@ -40,11 +42,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.restaurarEstadoMenu();
     this.cargarMensajesNoLeidos();
-    this.validarSesionAdmin();
 
     this.intervalId = setInterval(() => {
       this.cargarMensajesNoLeidos();
-      this.validarSesionAdmin();
     }, 30000);
   }
 
@@ -65,49 +65,36 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (window.innerWidth > 1024 && this.menuAbierto()) this.cerrarMenu();
   }
 
-  alternarMenu(): void {
-    this.menuAbierto.update((e) => !e);
-  }
-
-  cerrarMenu(): void {
-    this.menuAbierto.set(false);
-  }
+  alternarMenu(): void { this.menuAbierto.update((v) => !v); }
+  cerrarMenu(): void { this.menuAbierto.set(false); }
 
   alternarMenuContraido(): void {
     if (window.innerWidth <= 1024) return;
 
-    const nuevoEstado = !this.menuContraido();
-    this.menuContraido.set(nuevoEstado);
-    this.estadoContraidoChange.emit(nuevoEstado);
+    const nuevo = !this.menuContraido();
+    this.menuContraido.set(nuevo);
+    this.estadoContraidoChange.emit(nuevo);
 
-    try {
-      localStorage.setItem('kiert-menu-contraido', String(nuevoEstado));
-    } catch { /* ignore */ }
-  }
-
-  private validarSesionAdmin(): void {
-    void this.adminAuth.estaLogueado();
+    // Preferencia de UI compartida entre pestañas
+    this.storage.setLocal('kiert-menu-contraido', String(nuevo));
   }
 
   cargarMensajesNoLeidos(): void {
-    if (!this.authService.isAuthenticated()) {
+    if (!this.authService.isAuthenticated() && !this.adminAuth.estaLogueado()) {
       this.mensajesNoLeidos.set(0);
       return;
     }
-
     this.chatService.obtenerMensajesNoLeidos().subscribe({
-      next: (cantidad: number) => this.mensajesNoLeidos.set(cantidad || 0),
+      next: (n: number) => this.mensajesNoLeidos.set(n || 0),
       error: () => this.mensajesNoLeidos.set(0)
     });
   }
 
-  // ===== NAVEGACIÓN =====
   irAlChat(): void {
     this.cerrarMenu();
     this.router.navigate(['/chat']);
   }
 
-  /** ✅ Chat Global (sala pública) */
   irAlChatGlobal(): void {
     this.cerrarMenu();
     this.router.navigate(['/chat-global']);
@@ -115,8 +102,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   irAlPanelReportes(): void {
     this.cerrarMenu();
-    if (!this.adminAuth.esAdminOMayor()) {
-      this.router.navigate(['/comunidad']);
+    if (!this.adminAuth.estaLogueado()) {
+      this.router.navigate(['/admin/login']);
       return;
     }
     this.router.navigate(['/admin/reportes']);
@@ -124,8 +111,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   irAlPanelAnuncios(): void {
     this.cerrarMenu();
+    if (!this.adminAuth.estaLogueado()) {
+      this.router.navigate(['/admin/login']);
+      return;
+    }
     if (!this.adminAuth.esAdminOMayor()) {
-      this.router.navigate(['/comunidad']);
+      this.router.navigate(['/admin/reportes']);
       return;
     }
     this.router.navigate(['/admin/anuncios']);
@@ -139,13 +130,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private restaurarEstadoMenu(): void {
-    let estadoGuardado = false;
-    try {
-      estadoGuardado = localStorage.getItem('kiert-menu-contraido') === 'true';
-    } catch {
-      estadoGuardado = false;
-    }
-    this.menuContraido.set(estadoGuardado);
-    this.estadoContraidoChange.emit(estadoGuardado);
+    const guardado = this.storage.getLocal('kiert-menu-contraido') === 'true';
+    this.menuContraido.set(guardado);
+    this.estadoContraidoChange.emit(guardado);
   }
 }

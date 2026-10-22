@@ -18,7 +18,7 @@ export class FooterComponent {
       id: 1,
       title: 'Kiert',
       description: 'Funcionalidades basicas y seguir mejorando',
-      image: 'assets/images/anuncio/foto-anuncio.jpg',
+      image: 'assets/images/anuncio/kietlimpiado.png',
       link: 'https://www.instagram.com/kiert_2005?stkn=aG9wZmQyamUzemV5',
       alt: 'Kiert Pro'
     },
@@ -26,8 +26,8 @@ export class FooterComponent {
       id: 2,
       title: 'Comunidad',
       description: 'Comparte y aprende de otras personas',
-      image: 'assets/images/anuncio/foto-anuncio.jpeg',
-      link: 'https://www.tiktok.com/@kiert_2005?_r=1&_t=ZS-99XPBPKJM7r',
+      image: 'assets/images/anuncio/kietlimpiado.png',
+      link: 'https://www.tiktok.com/@kiert2005?_r=1&_t=ZS-9AlvehRZqy2',
       alt: 'Comunidad Kiert'
     }
   ]);

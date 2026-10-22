@@ -1,14 +1,15 @@
 // register.component.scss
+// Mismo look que login.component.scss (sin marco gigante)
 
 // ============================================================
-// VARIABLES DEL TEMA
+// VARIABLES
 // ============================================================
-$primary: var(--tema-accent, #2dd4bf);
-$primary-hover: #17b6a4;
-$text-primary: var(--tema-text, #e6edf3);
-$text-secondary: var(--tema-text-muted, #8b98a5);
-$text-muted: var(--tema-text-muted, #5a6a7a);
-$border: var(--tema-border, #26313c);
+$primary: #2dd4bf;
+$bg: #0d1117;
+$text-primary: #e6edf3;
+$text-secondary: #8b98a5;
+$text-muted: #5a6a7a;
+$border: rgba(255, 255, 255, 0.06);
 $danger: #f85149;
 $success: #2ea043;
 $warning: #f9ca24;
@@ -23,12 +24,11 @@ $transition: all 0.25s ease;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background: transparent;
-  color: $text-primary;
+  background: $bg;
 }
 
 // ============================================================
-// HEADER (identico al login)
+// HEADER (idéntico a login)
 // ============================================================
 .register-header {
   text-align: center;
@@ -43,7 +43,7 @@ $transition: all 0.25s ease;
   border: none;
   box-shadow: none;
   display: block;
-  margin: 0 auto 6px;
+  margin: 0 auto 8px;
 }
 
 .register-header-text {
@@ -54,6 +54,8 @@ $transition: all 0.25s ease;
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.3rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .register-prompt { color: $primary; }
@@ -61,9 +63,11 @@ $transition: all 0.25s ease;
 
 .register-desc {
   color: $text-secondary;
-  font-size: 0.7rem;
-  margin: 4px 0 0;
-  opacity: 0.6;
+  font-size: 0.75rem;
+  margin: 6px 0 0;
+  opacity: 0.75;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
 }
 
 // ============================================================
@@ -77,33 +81,34 @@ $transition: all 0.25s ease;
 }
 
 // ============================================================
-// CAMPOS (identico al login)
+// CAMPOS (idéntico a login)
 // ============================================================
 .field {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 
   input {
     width: 100%;
     padding: 10px 12px;
-    background: rgba(128, 128, 128, 0.04);
+    background: rgba(255, 255, 255, 0.04);
     border: none;
     border-bottom: 1px solid $border;
     color: $text-primary;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
     transition: $transition;
     border-radius: 0;
     font-family: inherit;
 
     &::placeholder {
       color: $text-secondary;
-      opacity: 0.4;
-      font-size: 0.8rem;
+      opacity: 0.45;
+      font-size: 0.825rem;
     }
 
     &:focus {
       outline: none;
       border-bottom-color: $primary;
-      background: rgba(128, 128, 128, 0.08);
+      background: rgba(255, 255, 255, 0.06);
     }
 
     &.is-invalid {
@@ -123,39 +128,42 @@ $transition: all 0.25s ease;
 
   .error-msg {
     display: block;
-    margin-top: 4px;
-    font-size: 0.65rem;
+    margin-top: 5px;
+    font-size: 0.7rem;
+    line-height: 1.35;
     color: $danger;
   }
 }
 
 // ============================================================
-// ALERTAS (identicas al login + info)
+// ALERTAS
 // ============================================================
 .form-alert {
-  padding: 6px 12px;
+  padding: 8px 12px;
   background: rgba(248, 81, 73, 0.06);
   border: 1px solid $danger;
   color: $danger;
   border-radius: 4px;
-  font-size: 0.7rem;
-  margin-bottom: 12px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-bottom: 14px;
   text-align: center;
 }
 
 .form-info {
-  padding: 6px 12px;
+  padding: 8px 12px;
   background: rgba(46, 160, 67, 0.06);
   border: 1px solid $success;
   color: $success;
   border-radius: 4px;
-  font-size: 0.7rem;
-  margin-bottom: 12px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-bottom: 14px;
   text-align: center;
 }
 
 // ============================================================
-// INFO TIP (aviso de spam)
+// INFO TIP (aviso spam)
 // ============================================================
 .info-tip {
   display: flex;
@@ -175,7 +183,7 @@ $transition: all 0.25s ease;
   }
 
   span {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: $text-secondary;
     line-height: 1.4;
 
@@ -184,17 +192,18 @@ $transition: all 0.25s ease;
 }
 
 // ============================================================
-// BOTON (identico al login)
+// BOTON (idéntico a login)
 // ============================================================
 .register-btn {
   width: 100%;
   padding: 10px;
   background: $primary;
-  color: #0d1117;
+  color: $bg;
   border: none;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: $transition;
   font-family: inherit;
@@ -212,18 +221,20 @@ $transition: all 0.25s ease;
 }
 
 // ============================================================
-// LOGIN LINK (identico al login)
+// LOGIN LINK
 // ============================================================
 .register-login {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
   color: $text-secondary;
-  margin-top: 14px;
+  margin-top: 16px;
 
   a {
     color: $primary;
     text-decoration: none;
     font-weight: 500;
+    margin-left: 4px;
 
     &:hover { text-decoration: underline; }
   }
@@ -310,7 +321,7 @@ $transition: all 0.25s ease;
   }
 
   .exito-small {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: $text-muted;
     margin-bottom: 12px;
   }
@@ -322,19 +333,17 @@ $transition: all 0.25s ease;
 @media (max-width: 480px) {
   .register-page { padding: 20px 16px; }
   .register-logo { width: 40px; height: 40px; }
-  .register-header-text { font-size: 1.1rem; }
-  .register-desc { font-size: 0.65rem; }
+  .register-header-text { font-size: 1.15rem; }
+  .register-desc { font-size: 0.7rem; }
 
   .register-form,
   .paso-box,
-  .exito-box {
-    max-width: 100%;
-  }
+  .exito-box { max-width: 100%; }
 
   .field {
     input {
-      font-size: 0.8rem;
-      padding: 8px 12px;
+      font-size: 0.85rem;
+      padding: 9px 12px;
     }
 
     &--codigo input {
@@ -343,5 +352,5 @@ $transition: all 0.25s ease;
     }
   }
 
-  .register-btn { font-size: 0.8rem; padding: 8px; }
+  .register-btn { font-size: 0.85rem; padding: 9px; }
 }

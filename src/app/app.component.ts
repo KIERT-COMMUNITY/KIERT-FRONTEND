@@ -1,5 +1,5 @@
 // src/app/app.component.ts
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
@@ -20,6 +20,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private adminAuth = inject(AdminAuthService);
 
   private suscripcion: Subscription | null = null;
+  private presenciaActiva = false;
 
   ngOnInit(): void {
     console.log('[APP] AppComponent: ngOnInit');
@@ -29,45 +30,41 @@ export class AppComponent implements OnInit, OnDestroy {
     // ============================================================
     this.suscripcion = this.auth.sesionCambiada$.subscribe((autenticado) => {
       console.log('[APP] Sesión usuario cambió →', autenticado);
-
-      if (autenticado) {
-        // Esperar a que el token esté en localStorage
-        setTimeout(() => {
-          console.log('[APP] Iniciando presencia (usuario normal)');
-          this.presencia.iniciar();
-        }, 500);
-      } else {
-        // ✅ SOLO detener presencia si NO hay sesión admin
-        const hayAdmin = this.adminAuth.estaLogueado();
-
-        if (!hayAdmin) {
-          console.log('[APP] Sin sesiones activas, deteniendo presencia');
-          this.presencia.detener();
-        } else {
-          console.log('[APP] Hay sesión admin, manteniendo presencia');
-        }
-      }
+      this.sincronizarPresencia();
     });
 
     // ============================================================
-    // Sesión ya activa al arrancar la app
+    // Sesión ya activa al arrancar (usuario o admin)
     // ============================================================
-    if (this.auth.isAuthenticated()) {
-      console.log('[APP] Sesión de usuario ya activa al arrancar');
-      setTimeout(() => this.presencia.iniciar(), 500);
-    } else if (this.adminAuth.estaLogueado()) {
-      console.log('[APP] Solo sesión admin al arrancar');
-      // Opcional: iniciar presencia si el backend lo permite con token admin
-      // setTimeout(() => this.presencia.iniciar(), 500);
-    }
+    this.sincronizarPresencia();
   }
 
   ngOnDestroy(): void {
     this.suscripcion?.unsubscribe();
     try {
       this.presencia.detener();
-    } catch {
-      // sin problema
+    } catch { /* ignore */ }
+  }
+
+  /**
+   * Decide si presencia debe estar activa:
+   *   - Usuario normal logueado O
+   *   - Admin logueado
+   * Solo se llama una vez por estado (evita dobles peticiones).
+   */
+  private sincronizarPresencia(): void {
+    const hayUsuario = this.auth.isAuthenticated();
+    const hayAdmin = this.adminAuth.estaLogueado();
+    const debeEstarActiva = hayUsuario || hayAdmin;
+
+    if (debeEstarActiva && !this.presenciaActiva) {
+      console.log('[APP] Iniciando presencia');
+      this.presencia.iniciar();
+      this.presenciaActiva = true;
+    } else if (!debeEstarActiva && this.presenciaActiva) {
+      console.log('[APP] Deteniendo presencia');
+      this.presencia.detener();
+      this.presenciaActiva = false;
     }
   }
 }

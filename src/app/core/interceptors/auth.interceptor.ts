@@ -11,13 +11,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  // 1. Detectar tipo de petición
-  const esAdmin = req.url.includes('/api/admin/');
-
-  // 2. Elegir token correcto
-  const token = esAdmin ? adminAuth.getToken() : auth.obtenerToken();
-
-  // 3. Endpoints públicos
+  // ============================================================
+  // 1. Endpoints públicos (no requieren token)
+  // ============================================================
   const esPublico =
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/registro') ||
@@ -29,58 +25,60 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/presencia/') ||
     req.url.includes('/grupos/invitacion/');
 
-  // 4. Clonar request con token
-  let cloned = req;
+  if (esPublico) {
+    return next(req);
+  }
 
-  if (token && !esPublico) {
+  // ============================================================
+  // 2. Elegir token:
+  //    - Si es /api/admin/* → SIEMPRE admin
+  //    - Si es cualquier otra ruta → admin si está logueado, si no usuario
+  // ============================================================
+  const esRutaAdminExplicita = req.url.includes('/api/admin/');
+
+  let token: string | null = null;
+
+  if (esRutaAdminExplicita) {
+    token = adminAuth.getToken();
+  } else {
+    // ✅ Admin logueado tiene prioridad en TODA la app
+    if (adminAuth.estaLogueado()) {
+      token = adminAuth.getToken();
+    }
+    // Si no hay admin, usar el token del usuario normal
+    if (!token) {
+      token = auth.obtenerToken();
+    }
+  }
+
+  // ============================================================
+  // 3. Clonar con Authorization
+  // ============================================================
+  let cloned = req;
+  if (token) {
     cloned = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
   }
 
-  // 5. Manejar errores
+  // ============================================================
+  // 4. Manejo de 401
+  // ============================================================
   return next(cloned).pipe(
     catchError((error) => {
-
-      // CASO A: Token de ADMIN expirado
-      if (error.status === 401 && esAdmin && !esPublico && token) {
-        console.warn('[INTERCEPTOR] Sesión admin expirada');
-        adminAuth.logout();
-        return throwError(() => error);
-      }
-
-      // CASO B: Token de USUARIO expirado
-      if (error.status === 401 && !esAdmin && !esPublico && token) {
-        console.warn('[INTERCEPTOR] Sesión de usuario expirada');
-
-        const estaEnPanelAdmin = estaEnRutaAdmin();
-
-        if (estaEnPanelAdmin) {
-          console.warn('[INTERCEPTOR] En ruta admin, no se desloguea al usuario normal');
-          return throwError(() => error);
+      if (error.status === 401 && token) {
+        if (esRutaAdminExplicita) {
+          console.warn('[INTERCEPTOR] Sesión admin expirada');
+          adminAuth.logout();
+        } else if (adminAuth.estaLogueado()) {
+          console.warn('[INTERCEPTOR] Token admin inválido en ruta de usuario');
+          adminAuth.logout();
+        } else {
+          console.warn('[INTERCEPTOR] Sesión de usuario expirada');
+          auth.logout();
         }
-
-        if (adminAuth.estaLogueado()) {
-          console.warn('[INTERCEPTOR] Hay sesión admin activa, no se desloguea al usuario');
-          return throwError(() => error);
-        }
-
-        console.warn('[INTERCEPTOR] Deslogueando usuario normal');
-        auth.logout();
-        router.navigate(['/login']);
       }
-
       return throwError(() => error);
     })
   );
 };
-
-function estaEnRutaAdmin(): boolean {
-  try {
-    const hash = window.location.hash || '';
-    const path = window.location.pathname || '';
-    return hash.includes('/admin/') || path.includes('/admin/');
-  } catch {
-    return false;
-  }
-}
