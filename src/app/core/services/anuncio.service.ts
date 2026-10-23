@@ -9,6 +9,7 @@ export interface Anuncio {
   titulo: string;
   texto: string;
   imagenUrl?: string;
+  imagenPublicId?: string;
   enlaceUrl?: string;
   activo?: boolean;
   destacado?: boolean;
@@ -19,28 +20,43 @@ export interface Anuncio {
 @Injectable({ providedIn: 'root' })
 export class AnuncioService {
   private http = inject(HttpClient);
-  private baseAdmin = `${environment.apiUrl}/admin/anuncios`;
-  private basePublico = `${environment.apiUrl}/anuncios`;
+  private readonly API = `${environment.apiUrl}/admin/anuncios`;
+  private readonly API_PUBLICOS = `${environment.apiUrl}/anuncios`;
 
-  // === PUBLICO (todos los usuarios logueados) ===
+  // ============================================================
+  // PÚBLICOS
+  // ============================================================
   listarPublicos(): Observable<Anuncio[]> {
-    return this.http.get<Anuncio[]>(`${this.basePublico}/publicos`);
+    return this.http.get<Anuncio[]>(`${this.API_PUBLICOS}/publicos`);
   }
 
-  // === ADMIN ===
+  // ============================================================
+  // ADMIN
+  // ============================================================
   listarTodos(): Observable<Anuncio[]> {
-    return this.http.get<Anuncio[]>(this.baseAdmin);
+    return this.http.get<Anuncio[]>(this.API);
   }
 
+  obtener(id: number): Observable<Anuncio> {
+    return this.http.get<Anuncio>(`${this.API}/${id}`);
+  }
+
+  /**
+   * Crear anuncio con FormData (multipart).
+   * ⚠️ NO añadir Content-Type: el navegador lo hace automáticamente con boundary
+   */
   crear(formData: FormData): Observable<Anuncio> {
-    return this.http.post<Anuncio>(this.baseAdmin, formData);
+    return this.http.post<Anuncio>(this.API, formData);
   }
 
+  /**
+   * Actualizar anuncio con FormData (multipart).
+   */
   actualizar(id: number, formData: FormData): Observable<Anuncio> {
-    return this.http.put<Anuncio>(`${this.baseAdmin}/${id}`, formData);
+    return this.http.put<Anuncio>(`${this.API}/${id}`, formData);
   }
 
   eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseAdmin}/${id}`);
+    return this.http.delete<void>(`${this.API}/${id}`);
   }
 }

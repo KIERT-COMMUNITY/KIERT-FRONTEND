@@ -34,7 +34,6 @@ export class AdminAnunciosComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Capa de seguridad en Frontend
     if (!this.adminAuth.esAdminOMayor()) {
       this.router.navigate(['/comunidad']);
       return;
@@ -49,7 +48,8 @@ export class AdminAnunciosComponent implements OnInit {
         this.anuncios.set(data);
         this.cargando.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error('[ADMIN ANUNCIOS] Error cargar:', err);
         this.cargando.set(false);
         this.errorMsg.set('No se pudieron cargar los anuncios');
       }
@@ -92,6 +92,7 @@ export class AdminAnunciosComponent implements OnInit {
   guardar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMsg.set('Completa todos los campos obligatorios');
       return;
     }
 
@@ -99,12 +100,27 @@ export class AdminAnunciosComponent implements OnInit {
     this.errorMsg.set(null);
 
     const { titulo, texto, enlaceUrl } = this.form.getRawValue();
+    
+    // ✅ FORMDATA correctamente armado
     const fd = new FormData();
-    fd.append('titulo', titulo!);
-    fd.append('texto', texto!);
-    if (enlaceUrl) fd.append('enlaceUrl', enlaceUrl);
+    fd.append('titulo', titulo!.trim());
+    fd.append('texto', texto!.trim());
+    if (enlaceUrl?.trim()) {
+      fd.append('enlaceUrl', enlaceUrl.trim());
+    }
     const file = this.archivoSeleccionado();
-    if (file) fd.append('imagen', file);
+    if (file) {
+      fd.append('imagen', file);
+    }
+
+    console.log('[ADMIN ANUNCIOS] Enviando FormData:', {
+      titulo: titulo,
+      texto: texto,
+      enlaceUrl: enlaceUrl,
+      tieneImagen: !!file,
+      nombreArchivo: file?.name,
+      tamanoArchivo: file?.size
+    });
 
     const id = this.editandoId();
 
@@ -113,14 +129,38 @@ export class AdminAnunciosComponent implements OnInit {
       : this.anuncioService.crear(fd);
 
     op.subscribe({
-      next: () => {
+      next: (res) => {
+        console.log('[ADMIN ANUNCIOS] ✅ Guardado OK:', res);
         this.guardando.set(false);
         this.limpiarFormulario();
         this.cargar();
       },
       error: (err) => {
         this.guardando.set(false);
-        this.errorMsg.set(err.error?.error || 'No se pudo guardar');
+        console.error('[ADMIN ANUNCIOS] ❌ Error:', err);
+        console.error('[ADMIN ANUNCIOS] Status:', err.status);
+        console.error('[ADMIN ANUNCIOS] Body del error:', err.error);
+        console.error('[ADMIN ANUNCIOS] Headers enviados:', err.headers);
+
+        // Diagnóstico del error
+        let mensaje = 'No se pudo guardar';
+        
+        if (err.status === 400) {
+          mensaje = err.error?.message 
+            || err.error?.error 
+            || 'Datos inválidos. Revisa todos los campos.';
+        } else if (err.status === 401) {
+          mensaje = 'Sesión expirada. Vuelve a iniciar sesión.';
+          this.adminAuth.logoutYNavegar();
+        } else if (err.status === 403) {
+          mensaje = 'No tienes permiso para crear anuncios.';
+        } else if (err.status === 413) {
+          mensaje = 'El archivo es demasiado grande (máx. 10MB).';
+        } else if (err.status === 415) {
+          mensaje = 'Tipo de archivo no permitido. Usa JPG, PNG o WEBP.';
+        }
+
+        this.errorMsg.set(mensaje);
       }
     });
   }
@@ -131,7 +171,10 @@ export class AdminAnunciosComponent implements OnInit {
 
     this.anuncioService.eliminar(a.id).subscribe({
       next: () => this.cargar(),
-      error: () => this.errorMsg.set('No se pudo eliminar')
+      error: (err) => {
+        console.error('[ADMIN ANUNCIOS] Error eliminar:', err);
+        this.errorMsg.set('No se pudo eliminar');
+      }
     });
   }
 
