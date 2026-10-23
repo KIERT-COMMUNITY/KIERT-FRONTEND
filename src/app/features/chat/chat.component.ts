@@ -1,29 +1,18 @@
 // src/app/features/chat/chat.component.ts
 import {
-  Component,
-  OnInit,
-  signal,
-  inject,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
-  AfterViewChecked,
-  computed,
-  NgZone
+  Component, OnInit, signal, inject, OnDestroy,
+  ViewChild, ElementRef, AfterViewChecked, computed, NgZone
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ChatService } from '../../core/services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
+import { PresenciaService, PresenciaUsuario } from '../../core/services/presencia.service';
 import { GrupoService, Grupo, MensajeGrupo, MiembroGrupo } from '../../core/services/grupo.service';
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import {
-  Conversacion,
-  Mensaje,
-  SolicitudContacto,
-  MensajeArchivo,
-  UsuarioDisponible
+  Conversacion, Mensaje, SolicitudContacto, MensajeArchivo, UsuarioDisponible
 } from '../../core/models/chat.model';
 import { Sticker } from '../../core/models/sticker.model';
 import { AvatarFrameComponent } from '../../shared/components/avatar-frame/avatar-frame.component';
@@ -36,11 +25,8 @@ type TabTipo = 'chats' | 'grupos';
   selector: 'kiert-chat',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    AvatarFrameComponent,
-    CrearGrupoModalComponent,
-    StickerPickerComponent
+    CommonModule, ReactiveFormsModule, AvatarFrameComponent,
+    CrearGrupoModalComponent, StickerPickerComponent
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
@@ -48,6 +34,7 @@ type TabTipo = 'chats' | 'grupos';
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
+  private presenciaService = inject(PresenciaService);
   private grupoService = inject(GrupoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -58,17 +45,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('mensajesContainer') private mensajesContainer?: ElementRef;
   @ViewChild('mensajesGrupoContainer') private mensajesGrupoContainer?: ElementRef;
 
-  // ===== TABS =====
   tabActual = signal<TabTipo>('chats');
-
-  // ===== CONVERSACIONES =====
   conversaciones = signal<Conversacion[]>([]);
   mensajes = signal<Mensaje[]>([]);
   solicitudes = signal<SolicitudContacto[]>([]);
   usuarioSeleccionado = signal<number | null>(null);
   cargando = signal(false);
 
-  // ===== GRUPOS =====
   grupos = signal<Grupo[]>([]);
   grupoSeleccionado = signal<number | null>(null);
   mensajesGrupo = signal<MensajeGrupo[]>([]);
@@ -76,7 +59,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   cargandoGrupo = signal(false);
   enviandoGrupo = signal(false);
 
-  // ===== ESTADO UI =====
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
   enviando = signal(false);
@@ -85,18 +67,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   solicitudesExpandidas = signal(false);
   mostrarModalGrupo = signal(false);
   mostrarMiembros = signal(false);
-
-  // ===== STICKERS =====
   mostrarStickerPicker = signal(false);
   mostrarStickerPickerGrupo = signal(false);
-
-  // ===== BÚSQUEDA =====
   busqueda = signal<string>('');
   buscadorActivo = signal(false);
   usuariosDisponibles = signal<UsuarioDisponible[]>([]);
   cargandoUsuarios = signal(false);
-
-  // ===== OPCIONES DE GRUPO =====
   mostrarOpcionesGrupo = signal(false);
   mostrarConfirmEliminar = signal(false);
   mostrarConfirmSalir = signal(false);
@@ -104,7 +80,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   grupoAEliminar = signal<Grupo | null>(null);
   miembroAExpulsar = signal<MiembroGrupo | null>(null);
 
-  // ===== FORMS =====
+  // ✅ NUEVO: Presencia
+  presencias = signal<Map<number, PresenciaUsuario>>(new Map());
+  private presenciaInterval: ReturnType<typeof setInterval> | null = null;
+
   formMensaje = this.fb.group({
     contenido: ['', [Validators.minLength(1)]]
   });
@@ -113,7 +92,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     contenido: ['', [Validators.minLength(1)]]
   });
 
-  // ===== GETTERS =====
   get cantidadSolicitudesPendientes(): number {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE').length;
   }
@@ -122,9 +100,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
   }
 
-  // ============================================================
-  // COMPUTED DE BÚSQUEDA
-  // ============================================================
   conversacionesFiltradas = computed(() => {
     const query = this.busqueda().toLowerCase().trim();
     if (!query) return this.conversaciones();
@@ -155,7 +130,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         || this.usuariosFiltrados().length > 0;
   });
 
-  // ===== AGRUPACIÓN POR FECHA (CHAT PRIVADO) =====
   mensajesAgrupados = computed(() => {
     const grupos: { [key: string]: Mensaje[] } = {};
     const hoy = new Date();
@@ -165,30 +139,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mensajes().forEach(msg => {
       const fecha = this.parsearFechaUtc(msg.fechaEnvio) ?? new Date();
       let key: string;
-
-      if (fecha.toDateString() === hoy.toDateString()) {
-        key = 'Hoy';
-      } else if (fecha.toDateString() === ayer.toDateString()) {
-        key = 'Ayer';
-      } else {
-        key = fecha.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        });
-      }
+      if (fecha.toDateString() === hoy.toDateString()) key = 'Hoy';
+      else if (fecha.toDateString() === ayer.toDateString()) key = 'Ayer';
+      else key = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
 
       if (!grupos[key]) grupos[key] = [];
       grupos[key].push(msg);
     });
 
-    return Object.keys(grupos).map(key => ({
-      fecha: key,
-      mensajes: grupos[key]
-    }));
+    return Object.keys(grupos).map(key => ({ fecha: key, mensajes: grupos[key] }));
   });
 
-  // ===== AGRUPACIÓN POR FECHA (GRUPO) =====
   mensajesGrupoAgrupados = computed(() => {
     const grupos: { [key: string]: MensajeGrupo[] } = {};
     const hoy = new Date();
@@ -198,27 +159,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mensajesGrupo().forEach(msg => {
       const fecha = this.parsearFechaUtc(msg.fechaEnvio) ?? new Date();
       let key: string;
-
-      if (fecha.toDateString() === hoy.toDateString()) {
-        key = 'Hoy';
-      } else if (fecha.toDateString() === ayer.toDateString()) {
-        key = 'Ayer';
-      } else {
-        key = fecha.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        });
-      }
+      if (fecha.toDateString() === hoy.toDateString()) key = 'Hoy';
+      else if (fecha.toDateString() === ayer.toDateString()) key = 'Ayer';
+      else key = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
 
       if (!grupos[key]) grupos[key] = [];
       grupos[key].push(msg);
     });
 
-    return Object.keys(grupos).map(key => ({
-      fecha: key,
-      mensajes: grupos[key]
-    }));
+    return Object.keys(grupos).map(key => ({ fecha: key, mensajes: grupos[key] }));
   });
 
   private pollingInterval: any;
@@ -227,6 +176,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       this.actualizarConversacionesYContadores();
+      this.actualizarPresencias();
     }
   };
 
@@ -238,11 +188,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // ============================================================
-  // CICLO DE VIDA
-  // ============================================================
   ngOnInit(): void {
-    // ✅ LIMPIAR ESTADO AL ENTRAR (evita datos residuales de otros usuarios)
     this.conversaciones.set([]);
     this.mensajes.set([]);
     this.solicitudes.set([]);
@@ -258,12 +204,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const grupoId = params['grupoId'];
 
       if (usuarioId) {
-        // ✅ SEGURIDAD: No puedes chatear contigo mismo
         if (Number(usuarioId) === this.authService.usuario()?.id) {
           this.router.navigate(['/chat']);
           return;
         }
-
         this.tabActual.set('chats');
         const id = Number(usuarioId);
         this.usuarioSeleccionado.set(id);
@@ -286,6 +230,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.actualizarConversacionesYContadores();
     }, 8000);
 
+    // ✅ Actualizar presencia cada 15 segundos
+    this.ngZone.runOutsideAngular(() => {
+      this.presenciaInterval = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          this.ngZone.run(() => this.actualizarPresencias());
+        }
+      }, 15000);
+    });
+
     document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
@@ -296,13 +249,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnDestroy(): void {
     this.teardownKeyboardListener();
-
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-    }
+    if (this.pollingInterval) clearInterval(this.pollingInterval);
+    if (this.presenciaInterval) clearInterval(this.presenciaInterval);
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
 
-    // ✅ Liberar scroll del body al destruir
     if (typeof document !== 'undefined') {
       document.body.style.overflow = '';
     }
@@ -313,6 +263,23 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         next: () => this.chatService.resetearNoLeidos(usuarioId)
       });
     }
+  }
+
+  // ============================================================
+  // ✅ ACTUALIZAR PRESENCIAS
+  // ============================================================
+  private actualizarPresencias(): void {
+    const ids = this.conversaciones().map(c => c.usuarioId);
+    if (ids.length === 0) return;
+
+    this.presenciaService.obtenerPresenciaMultiple(ids).subscribe({
+      next: (presencias) => {
+        const map = new Map<number, PresenciaUsuario>();
+        presencias.forEach(p => map.set(p.usuarioId, p));
+        this.presencias.set(map);
+      },
+      error: () => {}
+    });
   }
 
   // ============================================================
@@ -378,10 +345,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   onBusquedaChange(valor: string): void {
     this.busqueda.set(valor);
     this.buscadorActivo.set(true);
-
-    if (valor.trim().length >= 1) {
-      this.cargarUsuariosDisponibles();
-    }
+    if (valor.trim().length >= 1) this.cargarUsuariosDisponibles();
   }
 
   limpiarBusqueda(): void {
@@ -390,13 +354,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.usuariosDisponibles.set([]);
   }
 
-  cerrarBuscador(): void {
-    this.buscadorActivo.set(false);
-  }
+  cerrarBuscador(): void { this.buscadorActivo.set(false); }
 
   cargarUsuariosDisponibles(): void {
     if (this.cargandoUsuarios()) return;
-
     this.cargandoUsuarios.set(true);
     this.chatService.listarUsuariosDisponibles().subscribe({
       next: (usuarios) => {
@@ -430,7 +391,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   cargarConversaciones(): void {
     this.chatService.listarConversaciones().subscribe({
-      next: (data) => this.conversaciones.set(data),
+      next: (data) => {
+        this.conversaciones.set(data);
+        this.actualizarPresencias();
+      },
       error: () => {}
     });
   }
@@ -488,13 +452,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  abrirModalGrupo(): void {
-    this.mostrarModalGrupo.set(true);
-  }
-
-  cerrarModalGrupo(): void {
-    this.mostrarModalGrupo.set(false);
-  }
+  abrirModalGrupo(): void { this.mostrarModalGrupo.set(true); }
+  cerrarModalGrupo(): void { this.mostrarModalGrupo.set(false); }
 
   onGrupoCreado(grupo: Grupo): void {
     this.grupos.update(lista => [grupo, ...lista]);
@@ -549,11 +508,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   enviarMensajeGrupo(): void {
     const contenido = this.formMensajeGrupo.value.contenido?.trim();
     const grupoId = this.grupoSeleccionado();
-
     if (!contenido || !grupoId) return;
 
     this.enviandoGrupo.set(true);
-
     this.grupoService.enviarMensaje(grupoId, contenido).subscribe({
       next: (msg) => {
         this.mensajesGrupo.update(lista => [...lista, msg]);
@@ -577,17 +534,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   toggleMiembros(): void {
     this.mostrarMiembros.update(v => !v);
     const grupoId = this.grupoSeleccionado();
-    if (grupoId && this.mostrarMiembros()) {
-      this.cargarMiembros(grupoId);
-    }
+    if (grupoId && this.mostrarMiembros()) this.cargarMiembros(grupoId);
   }
 
-  // ============================================================
-  // OPCIONES DEL GRUPO
-  // ============================================================
-  toggleOpcionesGrupo(): void {
-    this.mostrarOpcionesGrupo.update(v => !v);
-  }
+  toggleOpcionesGrupo(): void { this.mostrarOpcionesGrupo.update(v => !v); }
 
   esAdmin(): boolean {
     const grupo = this.getGrupoActual();
@@ -608,9 +558,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.grupoSeleccionado() ?? 0;
   }
 
-  // ============================================================
-  // ELIMINAR GRUPO
-  // ============================================================
   abrirConfirmEliminar(): void {
     const grupo = this.getGrupoActual();
     if (!grupo) return;
@@ -644,17 +591,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // ============================================================
-  // SALIR DEL GRUPO
-  // ============================================================
   abrirConfirmSalir(): void {
     this.mostrarConfirmSalir.set(true);
     this.mostrarOpcionesGrupo.set(false);
   }
 
-  cerrarConfirmSalir(): void {
-    this.mostrarConfirmSalir.set(false);
-  }
+  cerrarConfirmSalir(): void { this.mostrarConfirmSalir.set(false); }
 
   confirmarSalirGrupo(): void {
     const grupoId = this.grupoSeleccionado();
@@ -676,9 +618,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // ============================================================
-  // EXPULSAR MIEMBRO
-  // ============================================================
   abrirConfirmExpulsar(miembro: MiembroGrupo): void {
     this.miembroAExpulsar.set(miembro);
     this.mostrarConfirmExpulsar.set(true);
@@ -709,12 +648,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // ============================================================
-  // SOLICITUDES
-  // ============================================================
-  toggleSolicitudes(): void {
-    this.solicitudesExpandidas.update(val => !val);
-  }
+  toggleSolicitudes(): void { this.solicitudesExpandidas.update(val => !val); }
 
   aceptarSolicitud(solicitudId: number): void {
     this.chatService.aceptarSolicitud(solicitudId).subscribe({
@@ -746,11 +680,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // ============================================================
-  // SELECCIÓN DE CONVERSACIÓN
-  // ============================================================
   seleccionarConversacion(usuarioId: number): void {
-    // ✅ SEGURIDAD: No puedes chatear contigo mismo
     if (usuarioId === this.authService.usuario()?.id) {
       this.errorMsg.set('No puedes chatear contigo mismo');
       setTimeout(() => this.errorMsg.set(null), 3000);
@@ -772,9 +702,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.router.navigate(['/chat']);
   }
 
-  // ============================================================
-  // MOBILE — helper centralizado
-  // ============================================================
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update(val => !val);
     this.aplicarBloqueoScrollBody();
@@ -790,9 +717,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     document.body.style.overflow = this.mobileMenuOpen() ? 'hidden' : '';
   }
 
-  // ============================================================
-  // ENVÍO DE MENSAJES PRIVADOS
-  // ============================================================
   enviarMensaje(): void {
     const receptorId = this.usuarioSeleccionado();
     if (!receptorId) {
@@ -852,21 +776,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // ============================================================
-  // STICKERS
-  // ============================================================
-  toggleStickerPicker(): void {
-    this.mostrarStickerPicker.update(v => !v);
-  }
-
-  toggleStickerPickerGrupo(): void {
-    this.mostrarStickerPickerGrupo.update(v => !v);
-  }
+  toggleStickerPicker(): void { this.mostrarStickerPicker.update(v => !v); }
+  toggleStickerPickerGrupo(): void { this.mostrarStickerPickerGrupo.update(v => !v); }
 
   onStickerSeleccionado(sticker: Sticker): void {
     const receptorId = this.usuarioSeleccionado();
     if (!receptorId) return;
-
     this.mostrarStickerPicker.set(false);
     this.enviando.set(true);
 
@@ -889,7 +804,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   onStickerSeleccionadoGrupo(sticker: Sticker): void {
     const grupoId = this.grupoSeleccionado();
     if (!grupoId) return;
-
     this.mostrarStickerPickerGrupo.set(false);
     this.enviandoGrupo.set(true);
 
@@ -908,13 +822,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  abrirCrearSticker(): void {
-    // El modal vive dentro de <kiert-sticker-picker>.
-  }
+  abrirCrearSticker(): void {}
 
-  // ============================================================
-  // ARCHIVOS
-  // ============================================================
   onArchivosSeleccionados(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
@@ -948,9 +857,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     window.open(url, '_blank');
   }
 
-  // ============================================================
-  // UTILIDADES
-  // ============================================================
   scrollToBottom(): void {
     try {
       if (this.mensajesContainer) {
@@ -988,56 +894,67 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return conv?.marcoId || 'none';
   }
 
-  // ============================================================
-  // PARSEO UTC
-  // ============================================================
   private parsearFechaUtc(fecha: string | Date | null | undefined): Date | null {
     if (!fecha) return null;
     if (fecha instanceof Date) return fecha;
-
     const s = String(fecha);
     const tieneZona = /Z$|[+-]\d{2}:?\d{2}$/.test(s);
     return new Date(tieneZona ? s : s + 'Z');
   }
 
   // ============================================================
-  // ESTADO ONLINE/OFFLINE
+  // ✅ ESTADO ONLINE/OFFLINE (usa backend)
   // ============================================================
   estaEnLinea(usuarioId: number): boolean {
+    const presencia = this.presencias().get(usuarioId);
+    if (presencia) return presencia.enLinea;
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.online ?? false;
   }
 
   getTextoEstado(usuarioId: number): string {
+    const presencia = this.presencias().get(usuarioId);
+    if (presencia) {
+      if (presencia.enLinea) return 'En línea';
+      
+      const fecha = this.parsearFechaUtc(presencia.ultimaConexion);
+      if (!fecha) return 'Desconectado';
+      
+      const diffMs = Date.now() - fecha.getTime();
+      if (diffMs < 0) return 'Últ. vez hace unos segundos';
+      
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffH = Math.floor(diffMin / 60);
+      const diffD = Math.floor(diffH / 24);
+      
+      if (diffMin < 1) return 'Últ. vez hace unos segundos';
+      if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
+      if (diffH < 24) return `Últ. vez hace ${diffH} h`;
+      if (diffD < 7) return `Últ. vez hace ${diffD} d`;
+      
+      return `Últ. vez ${fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`;
+    }
+    
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     if (!conv) return 'Desconocido';
-
     if (conv.online) return 'En línea';
-
+    
     const fecha = this.parsearFechaUtc(conv.ultimaConexion);
     if (!fecha) return 'Desconectado';
-
+    
     const diffMs = Date.now() - fecha.getTime();
-    if (diffMs < 0) return 'Últ. vez hace unos segundos';
-
     const diffMin = Math.floor(diffMs / 60000);
     const diffH = Math.floor(diffMin / 60);
     const diffD = Math.floor(diffH / 24);
-
+    
     if (diffMin < 1) return 'Últ. vez hace unos segundos';
     if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
     if (diffH < 24) return `Últ. vez hace ${diffH} h`;
     if (diffD < 7) return `Últ. vez hace ${diffD} d`;
-
-    return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short'
-    })}`;
+    
+    return `Últ. vez ${fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`;
   }
 
-  // ============================================================
-  // ESTADO DE MIEMBRO DE GRUPO
-  // ============================================================
   getEstadoMiembro(m: MiembroGrupo): string {
     if (m.enLinea) return 'En línea';
 
@@ -1056,9 +973,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (diffH < 24) return `Últ. vez hace ${diffH} h`;
     if (diffD < 7) return `Últ. vez hace ${diffD} d`;
 
-    return `Últ. vez ${fecha.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short'
-    })}`;
+    return `Últ. vez ${fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`;
   }
 }

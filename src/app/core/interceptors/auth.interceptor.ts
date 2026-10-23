@@ -11,9 +11,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  // ============================================================
-  // 1. Endpoints públicos (no requieren token)
-  // ============================================================
   const esPublico =
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/registro') ||
@@ -22,38 +19,31 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/auth/recuperar') ||
     req.url.includes('/auth/reset-password') ||
     req.url.includes('/admin/auth/login') ||
-    req.url.includes('/presencia/') ||
     req.url.includes('/grupos/invitacion/');
 
   if (esPublico) {
     return next(req);
   }
 
-  // ============================================================
-  // 2. Elegir token:
-  //    - Si es /api/admin/* → SIEMPRE admin
-  //    - Si es cualquier otra ruta → admin si está logueado, si no usuario
-  // ============================================================
   const esRutaAdminExplicita = req.url.includes('/api/admin/');
+  const esRutaPresencia = req.url.includes('/api/presencia/');
 
   let token: string | null = null;
 
   if (esRutaAdminExplicita) {
     token = adminAuth.getToken();
+  } else if (esRutaPresencia) {
+    // ✅ Presencia usa el token del usuario normal (no admin)
+    token = auth.obtenerTokenUsuario();
   } else {
-    // ✅ Admin logueado tiene prioridad en TODA la app
     if (adminAuth.estaLogueado()) {
       token = adminAuth.getToken();
     }
-    // Si no hay admin, usar el token del usuario normal
     if (!token) {
       token = auth.obtenerToken();
     }
   }
 
-  // ============================================================
-  // 3. Clonar con Authorization
-  // ============================================================
   let cloned = req;
   if (token) {
     cloned = req.clone({
@@ -61,12 +51,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
-  // ============================================================
-  // 4. Manejo de 401
-  // ============================================================
   return next(cloned).pipe(
     catchError((error) => {
-      if (error.status === 401 && token) {
+      // ✅ NUNCA desloguear por 401 en /presencia/
+      if (error.status === 401 && token && !esRutaPresencia) {
         if (esRutaAdminExplicita) {
           console.warn('[INTERCEPTOR] Sesión admin expirada');
           adminAuth.logout();

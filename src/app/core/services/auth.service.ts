@@ -25,9 +25,6 @@ export class AuthService {
   private router = inject(Router);
   private storage = inject(StorageService);
 
-  // ============================================================
-  // ✅ READY PROMISE — para que los guards esperen a la carga
-  // ============================================================
   private _ready: Promise<void>;
   private _readyResolver!: () => void;
   private _readyResolved = false;
@@ -39,10 +36,6 @@ export class AuthService {
     this.cargarSesion();
   }
 
-  /**
-   * Devuelve una Promise que se resuelve cuando la sesión está cargada.
-   * Los guards (authGuard, adminGuard) deben await esto antes de decidir.
-   */
   public async whenReady(): Promise<void> {
     return this._ready;
   }
@@ -54,12 +47,8 @@ export class AuthService {
     }
   }
 
-  // ============================================================
-  // CARGA INICIAL
-  // ============================================================
   private cargarSesion(): void {
     try {
-      // 1) Prioridad: sesión admin
       const adminToken = this.storage.getItem(this.ADMIN_TOKEN_KEY);
       const adminData = this.storage.getItem(this.ADMIN_DATA_KEY);
 
@@ -79,7 +68,6 @@ export class AuthService {
         } catch { /* ignore */ }
       }
 
-      // 2) Sesión normal
       const token = this.storage.getItem(this.TOKEN_KEY);
       const usuarioStr = this.storage.getItem(this.USER_KEY);
 
@@ -94,24 +82,43 @@ export class AuthService {
         }
       }
     } finally {
-      // ✅ SIEMPRE resolver, con o sin sesión
       this.marcarReady();
     }
   }
 
-  // ============================================================
-  // getToken — prioridad admin (siempre de sessionStorage)
-  // ============================================================
+  // ✅ PRIORIDAD 1: signal en memoria (más fresco, justo tras login)
+  // PRIORIDAD 2: storage admin
+  // PRIORIDAD 3: storage user
   getToken(): string | null {
+    const tokenMemoria = this.token();
+    if (tokenMemoria && !this.tokenExpirado(tokenMemoria)) {
+      return tokenMemoria;
+    }
+
     const adminToken = this.storage.getItem(this.ADMIN_TOKEN_KEY);
     if (adminToken && !this.tokenExpirado(adminToken)) {
       return adminToken;
+    }
+
+    const token = this.storage.getItem(this.TOKEN_KEY);
+    if (token && !this.tokenExpirado(token)) {
+      return token;
+    }
+
+    return null;
+  }
+
+  // ✅ NUEVO: Token del usuario NORMAL (ignora admin, para /presencia/*)
+  obtenerTokenUsuario(): string | null {
+    const tokenMemoria = this.token();
+    if (tokenMemoria && !this.tokenExpirado(tokenMemoria)) {
+      return tokenMemoria;
     }
     const token = this.storage.getItem(this.TOKEN_KEY);
     if (token && !this.tokenExpirado(token)) {
       return token;
     }
-    return this.token();
+    return null;
   }
 
   private tokenExpirado(token: string): boolean {
@@ -124,9 +131,6 @@ export class AuthService {
     }
   }
 
-  // ============================================================
-  // SESIÓN NORMAL
-  // ============================================================
   private guardarSesion(token: string, usuario: User): void {
     this.storage.setItem(this.TOKEN_KEY, token);
     this.storage.setItem(this.USER_KEY, JSON.stringify(usuario));
@@ -146,11 +150,7 @@ export class AuthService {
     this.sesionCambiadaSubject.next(false);
   }
 
-  // ============================================================
-  // LOGIN / LOGOUT
-  // ============================================================
   login(credenciales: LoginRequest): Observable<AuthResponse> {
-    // Al hacer login normal, limpiar sesión admin previa de ESTA pestaña
     this.storage.removeItem(this.ADMIN_TOKEN_KEY);
     this.storage.removeItem(this.ADMIN_DATA_KEY);
 
@@ -168,9 +168,6 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  // ============================================================
-  // PERFIL
-  // ============================================================
   obtenerPerfil(): Observable<User> {
     return this.http.get<User>(`${this.API_URL}/perfil`).pipe(
       tap((usuario) => {
@@ -218,9 +215,6 @@ export class AuthService {
     );
   }
 
-  // ============================================================
-  // RECUPERACIÓN DE CONTRASEÑA / REGISTRO
-  // ============================================================
   registro(datos: RegisterRequest): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/registro`, datos);
   }
@@ -243,9 +237,6 @@ export class AuthService {
     });
   }
 
-  // ============================================================
-  // HELPERS
-  // ============================================================
   isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) return false;
@@ -261,12 +252,10 @@ export class AuthService {
   getUser(): User | null { return this.usuario(); }
   getUsuarioActual(): User | null { return this.usuario(); }
 
-  /** Público para que AdminAuthService pueda recargar */
   public cargarSesionPublica(): void {
     this.cargarSesion();
   }
 
-  /** Público para que AdminAuthService pueda limpiar */
   public limpiarSesionPublica(): void {
     this.limpiarSesion();
   }

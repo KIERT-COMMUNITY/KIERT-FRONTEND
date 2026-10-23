@@ -1,9 +1,16 @@
 // src/app/core/services/presencia.service.ts
 import { Injectable, inject, NgZone } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import { AdminAuthService } from './admin-auth.service';
+
+export interface PresenciaUsuario {
+  usuarioId: number;
+  enLinea: boolean;
+  ultimaConexion: string | null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class PresenciaService {
@@ -16,16 +23,42 @@ export class PresenciaService {
   private readonly API = `${environment.apiUrl}/presencia`;
   private readonly INTERVALO_MS = 60_000;
 
-  iniciar(): void {
-    // ✅ Usa AuthService.getToken() → devuelve el token activo (admin o normal) de ESTA pestaña
-    const token = this.authService.getToken();
+  private getHeaders(): HttpHeaders {
+    const token = this.authService.obtenerTokenUsuario();
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    });
+  }
 
-    if (!token) {
-      console.warn('⚠️ Presencia: no hay token, no se inicia');
+  iniciar(): void {
+    this.esperarTokenYIniciar();
+  }
+
+  private esperarTokenYIniciar(): void {
+    if (this.authService.obtenerTokenUsuario()) {
+      this.arrancarHeartbeat();
       return;
     }
+
+    let intentos = 0;
+    const intentar = () => {
+      intentos++;
+      if (this.authService.obtenerTokenUsuario()) {
+        this.arrancarHeartbeat();
+        return;
+      }
+      if (intentos < 20) {
+        setTimeout(intentar, 150);
+      } else {
+        console.warn('⚠️ Presencia: no se encontró token tras 3s, abortando');
+      }
+    };
+    setTimeout(intentar, 100);
+  }
+
+  private arrancarHeartbeat(): void {
     if (this.heartbeatInterval) {
-      console.log('ℹ️ Presencia: ya estaba iniciada');
       return;
     }
 
@@ -56,28 +89,31 @@ export class PresenciaService {
   }
 
   marcarOffline(): void {
-    if (!this.authService.getToken()) return;
-    console.log('🔴 Presencia: marcando offline');
-    this.http.post(`${this.API}/offline`, {}).subscribe({
-      next: () => {},
-      error: (e) => console.warn('Error offline:', e)
-    });
+    const token = this.authService.obtenerTokenUsuario();
+    if (!token) return;
+    this.http.post(`${this.API}/offline`, {}, { headers: this.getHeaders() })
+      .subscribe({
+        next: () => {},
+        error: (e) => console.warn('Error offline:', e)
+      });
   }
 
   private enviarHeartbeat(): void {
-    const token = this.authService.getToken();
+    const token = this.authService.obtenerTokenUsuario();
     if (!token) {
       console.warn('⚠️ Heartbeat: no hay token, se omite');
       return;
     }
 
-    // El interceptor añade Authorization automáticamente
-    this.http.post(`${this.API}/heartbeat`, {}).subscribe({
-      next: () => console.log('✅ Presencia: heartbeat OK'),
-      error: (e) => {
-        console.warn('❌ Presencia: error heartbeat', e.status, e.message);
-      }
-    });
+    this.http.post(`${this.API}/heartbeat`, {}, { headers: this.getHeaders() })
+      .subscribe({
+        next: (res: any) => {
+          console.log('✅ Presencia: heartbeat OK', res);
+        },
+        error: (e) => {
+          console.warn('❌ Presencia: error heartbeat', e.status, e.message);
+        }
+      });
   }
 
   private onVisibility = (): void => {
@@ -89,4 +125,19 @@ export class PresenciaService {
       this.marcarOffline();
     } catch { /* ignore */ }
   };
+
+  obtenerPresencia(usuarioId: number): Observable<PresenciaUsuario> {
+    return this.http.get<PresenciaUsuario>(
+      `${this.API}/${usuarioId}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  obtenerPresenciaMultiple(usuarioIds: number[]): Observable<PresenciaUsuario[]> {
+    return this.http.post<PresenciaUsuario[]>(
+      `${this.API}/multiple`,
+      { usuarioIds },
+      { headers: this.getHeaders() }
+    );
+  }
 }
