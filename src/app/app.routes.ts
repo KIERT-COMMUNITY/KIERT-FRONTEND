@@ -79,6 +79,28 @@ export const routes: Routes = [
 
       // AJUSTES
       { path: 'ajustes', loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent), canActivate: [authGuard] },
+
+      // ============================================================
+      // ✅ RUTAS LEGALES (públicas, sin authGuard)
+      // ============================================================
+      {
+        path: 'legal/privacidad',
+        loadComponent: () =>
+          import('./features/legal/privacidad/privacidad.component')
+            .then(m => m.PrivacidadComponent),
+      },
+      {
+        path: 'legal/cookies',
+        loadComponent: () =>
+          import('./features/legal/cookies/cookies.component')
+            .then(m => m.CookiesComponent),
+      },
+      {
+        path: 'legal/terminos',
+        loadComponent: () =>
+          import('./features/legal/terminos/terminos.component')
+            .then(m => m.TerminosComponent),
+      },
     ],
   },
 

@@ -1,0 +1,95 @@
+<!-- src/app/features/legal/cookies/cookies.component.html -->
+<kiert-legal-layout [titulo]="titulo" [ultimaActualizacion]="ultimaActualizacion">
+
+  <p>
+    Esta Política de Cookies explica qué cookies y tecnologías similares usa
+    <strong>KIERT</strong> ("la App"), para qué sirven y cómo puedes gestionarlas.
+  </p>
+
+  <!-- 1 -->
+  <h2>1. ¿Qué son las cookies?</h2>
+  <p>
+    Las cookies son pequeños archivos que se guardan en tu navegador cuando visitas una web.
+    También usamos <strong>localStorage</strong> y <strong>sessionStorage</strong>
+    (tecnologías similares) que funcionan de forma parecida.
+  </p>
+
+  <!-- 2 -->
+  <h2>2. ¿Qué cookies usamos?</h2>
+  <p>
+    <strong>KIERT usa únicamente cookies técnicas, estrictamente necesarias para que la App funcione.</strong>
+    No usamos cookies de publicidad, ni de análisis, ni de redes sociales.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Cookie</th>
+        <th>Finalidad</th>
+        <th>Duración</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>kiert_token</code></td>
+        <td>Guardar tu sesión iniciada (JWT)</td>
+        <td>24 horas o hasta cerrar sesión</td>
+      </tr>
+      <tr>
+        <td><code>kiert_user</code></td>
+        <td>Guardar datos básicos de tu perfil para mostrarlos sin recargar</td>
+        <td>Hasta cerrar sesión</td>
+      </tr>
+      <tr>
+        <td><code>kiert_theme</code></td>
+        <td>Recordar tu tema visual (claro/oscuro)</td>
+        <td>1 año</td>
+      </tr>
+      <tr>
+        <td><code>kiert_cookies_accepted</code></td>
+        <td>Recordar que aceptaste esta política</td>
+        <td>1 año</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    <strong>Estas cookies son necesarias</strong> para que puedas iniciar sesión y usar la App.
+    Sin ellas, la App no funciona. Por eso <strong>no requieren consentimiento previo</strong>
+    (según el RGPD y la directiva ePrivacy).
+  </p>
+
+  <h3>No usamos</h3>
+  <ul>
+    <li>❌ Google Analytics</li>
+    <li>❌ Facebook Pixel</li>
+    <li>❌ Cookies publicitarias</li>
+    <li>❌ Cookies de seguimiento</li>
+    <li>❌ Cookies de terceros (salvo las técnicas de Cloudinary para mostrar imágenes, que no rastrean)</li>
+  </ul>
+
+  <!-- 3 -->
+  <h2>3. ¿Cómo gestionar las cookies?</h2>
+  <p>Puedes bloquear o eliminar cookies desde la configuración de tu navegador:</p>
+  <ul>
+    <li><strong>Chrome</strong>: Configuración → Privacidad y seguridad → Cookies</li>
+    <li><strong>Firefox</strong>: Preferencias → Privacidad y seguridad</li>
+    <li><strong>Safari</strong>: Preferencias → Privacidad</li>
+    <li><strong>Edge</strong>: Configuración → Privacidad, búsqueda y servicios</li>
+  </ul>
+  <p>
+    ⚠️ <strong>Si bloqueas las cookies técnicas, no podrás iniciar sesión ni usar la App.</strong>
+  </p>
+
+  <!-- 4 -->
+  <h2>4. Cambios en esta política</h2>
+  <p>
+    Si añadimos nuevas cookies (por ejemplo, si en el futuro integramos analíticas),
+    actualizaremos esta política y te pediremos consentimiento cuando sea necesario.
+  </p>
+
+  <!-- 5 -->
+  <h2>5. Contacto</h2>
+  <p>📧 <a href="mailto:privacidad@kiert.app">privacidad@kiert.app</a></p>
+
+</kiert-legal-layout>

@@ -1,11 +1,17 @@
-<!-- footer.component.html -->
+<!-- src/app/shared/components/footer/footer.component.html -->
 <footer class="footer">
+
   <!-- ===== ANUNCIOS DEL FOOTER ===== -->
   @if (footerAds().length > 0) {
     <div class="footer-ads">
       <div class="footer-ads__container">
         @for (ad of footerAds(); track ad.id) {
-          <a [href]="ad.link" class="footer-ads__item" target="_blank" rel="noopener noreferrer">
+          <a
+            [href]="ad.link"
+            class="footer-ads__item"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <div class="footer-ads__image">
               <img [src]="ad.image" [alt]="ad.alt" loading="lazy">
             </div>
@@ -22,6 +28,23 @@
   <!-- ===== FOOTER PRINCIPAL ===== -->
   <div class="footer-main">
     <div class="footer-container">
+
+      <!-- ✅ LINKS LEGALES (arriba, centrados) -->
+      <nav class="footer-legal" aria-label="Enlaces legales">
+        <a routerLink="/legal/privacidad" class="footer-legal__link">
+          Política de Privacidad
+        </a>
+        <span class="footer-legal__sep" aria-hidden="true">·</span>
+        <a routerLink="/legal/cookies" class="footer-legal__link">
+          Política de Cookies
+        </a>
+        <span class="footer-legal__sep" aria-hidden="true">·</span>
+        <a routerLink="/legal/terminos" class="footer-legal__link">
+          Términos de Uso
+        </a>
+      </nav>
+
+      <!-- ✅ MARCA Y COPYRIGHT -->
       <div class="footer-content">
         <span class="footer-brand">
           <span class="footer-prompt">&gt;_</span>
@@ -30,6 +53,7 @@
         </span>
         <span class="footer-year">© {{ anioActual }}</span>
       </div>
+
     </div>
   </div>
 </footer>

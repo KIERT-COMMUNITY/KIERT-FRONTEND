@@ -21,11 +21,19 @@ import {
 import { UserService } from "../../../core/services/user.service";
 import { User } from "../../../core/models/user.model";
 import { AuthService } from "../../../core/services/auth.service";
+import { PersonalizacionStore } from "../../../core/services/personalizacion-store.service";
+
+// ✅ AÑADIR:
+import { AvatarFrameComponent } from "../../components/avatar-frame/avatar-frame.component";
 
 @Component({
   selector: "kiert-grupo-info-modal",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    AvatarFrameComponent,      // ✅ AÑADIR
+  ],
   templateUrl: "./grupo-info-modal.component.html",
   styleUrl: "./grupo-info-modal.component.scss",
 })
@@ -34,6 +42,7 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private router = inject(Router);
   public authService = inject(AuthService);
+  public personalizacionStore = inject(PersonalizacionStore);
 
   @Input() grupoId!: number;
   @Output() cerrar = new EventEmitter<void>();
@@ -61,7 +70,7 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
 
   private clickIniciadoEnOverlay = false;
   private busquedaTimer: ReturnType<typeof setTimeout> | null = null;
-  private refreshInterval: any = null;   // ✅ NUEVO: refresca miembros
+  private refreshInterval: any = null;
 
   // ============================================================
   // CICLO DE VIDA
@@ -71,7 +80,6 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
     this.cargarMiembros();
     this.cargarHistorial();
 
-    // ✅ Refrescar miembros cada 8 s para ver cambios online/offline
     this.refreshInterval = setInterval(() => {
       this.cargarMiembros();
     }, 8000);
@@ -122,6 +130,33 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
 
   esAdmin(): boolean {
     return this.grupo()?.rolDelUsuario === "ADMIN";
+  }
+
+  // ============================================================
+  // ✅ MARCOS DE PERFIL
+  // ============================================================
+  getMarcoMiembro(miembro: MiembroGrupo | null | undefined): string {
+    if (!miembro) return "none";
+    return miembro.marcoId && miembro.marcoId.trim() !== ""
+      ? miembro.marcoId
+      : "none";
+  }
+
+  getMarcoUsuarioActual(): string {
+    const personalizacion = this.personalizacionStore.personalizacion?.();
+    if (personalizacion?.marcoId && personalizacion.marcoId.trim() !== "") {
+      return personalizacion.marcoId;
+    }
+    return "none";
+  }
+
+  getMarcoUsuario(usuarioId: number | null | undefined): string {
+    if (!usuarioId) return "none";
+    const miembro = this.miembros().find((m) => m.usuarioId === usuarioId);
+    if (miembro?.marcoId && miembro.marcoId.trim() !== "") {
+      return miembro.marcoId;
+    }
+    return "none";
   }
 
   // ============================================================
@@ -380,7 +415,7 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ✅ PARSEO UTC — arregla "hace 5 h" cuando fue hace 3 s
+  // PARSEO UTC
   // ============================================================
   private parsearFechaUtc(fecha: string | Date | null | undefined): Date | null {
     if (!fecha) return null;
@@ -388,21 +423,18 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
 
     const s = String(fecha);
     const tieneZona = /Z$|[+-]\d{2}:?\d{2}$/.test(s);
-    return new Date(tieneZona ? s : s + 'Z');
+    return new Date(tieneZona ? s : s + "Z");
   }
 
   // ============================================================
-  // ✅ ESTADO DEL MIEMBRO (online / offline)
+  // ESTADO DEL MIEMBRO (online / offline)
   // ============================================================
   getEstadoMiembro(m: MiembroGrupo): string {
-    // 1) Si está online, mostrarlo siempre primero
     if (m.enLinea) return "En línea";
 
-    // 2) Sin última conexión → desconectado
     const fecha = this.parsearFechaUtc(m.ultimaConexion);
     if (!fecha) return "Desconectado";
 
-    // 3) Calcular diferencia
     const diffMs = Date.now() - fecha.getTime();
     if (diffMs < 0) return "Últ. vez hace unos segundos";
 

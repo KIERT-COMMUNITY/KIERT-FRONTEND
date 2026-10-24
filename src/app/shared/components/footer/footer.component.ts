@@ -1,23 +1,23 @@
-// footer.component.ts
+// src/app/shared/components/footer/footer.component.ts
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'kiert-footer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
   anioActual = new Date().getFullYear();
-  
-  // Anuncios del footer
+
   footerAds = signal([
     {
       id: 1,
       title: 'Kiert',
-      description: 'Funcionalidades basicas y seguir mejorando',
+      description: 'Funcionalidades básicas y seguir mejorando',
       image: 'assets/images/anuncio/kietlimpiado.png',
       link: 'https://www.instagram.com/kiert_2005?stkn=aG9wZmQyamUzemV5',
       alt: 'Kiert Pro'

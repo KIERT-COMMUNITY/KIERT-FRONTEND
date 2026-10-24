@@ -225,17 +225,17 @@
                       (click)="abrirPerfil(m.usuarioId)"
                       [class.gim-member--admin]="m.rol === 'ADMIN'"
                     >
-                      <!-- ✅ AVATAR con capa interna para recortar la imagen -->
+                      <!-- ============================================ -->
+                      <!-- ✅ AVATAR CON MARCO DE PERFIL                -->
+                      <!-- ============================================ -->
                       <span class="gim-member__avatar">
-                        <span class="gim-member__avatar-img">
-                          @if (m.fotoPerfilUrl) {
-                            <img [src]="m.fotoPerfilUrl" [alt]="m.nombreUsuario" />
-                          } @else {
-                            <span class="gim-member__initial">
-                              {{ m.nombreUsuario.charAt(0).toUpperCase() }}
-                            </span>
-                          }
-                        </span>
+                        <kiert-avatar-frame
+                          [fotoUrl]="m.fotoPerfilUrl || null"
+                          [nombre]="m.nombreUsuario"
+                          [size]="44"
+                          [marcoId]="getMarcoMiembro(m)"
+                          [usuarioId]="m.usuarioId"
+                        ></kiert-avatar-frame>
                         <span
                           class="gim-member__status"
                           [class.gim-member__status--online]="m.enLinea"
@@ -360,15 +360,15 @@
                 [class.gim-user--selected]="estaSeleccionado(user.id)"
                 (click)="toggleUsuario(user.id)"
               >
-                <!-- ✅ AVATAR con capa interna -->
+                <!-- ✅ AVATAR con marco -->
                 <span class="gim-user__avatar">
-                  <span class="gim-user__avatar-img">
-                    @if (user.fotoPerfilUrl) {
-                      <img [src]="user.fotoPerfilUrl" [alt]="user.nombreUsuario" />
-                    } @else {
-                      <span>{{ user.nombreUsuario.charAt(0).toUpperCase() }}</span>
-                    }
-                  </span>
+                  <kiert-avatar-frame
+                    [fotoUrl]="user.fotoPerfilUrl || null"
+                    [nombre]="user.nombreUsuario"
+                    [size]="40"
+                    [marcoId]="getMarcoUsuario(user.id)"
+                    [usuarioId]="user.id"
+                  ></kiert-avatar-frame>
                 </span>
 
                 <span class="gim-user__info">

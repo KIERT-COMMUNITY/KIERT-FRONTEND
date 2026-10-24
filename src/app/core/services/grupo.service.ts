@@ -10,6 +10,7 @@ export interface MiembroGrupo {
   nombreUsuario: string;
   email: string;
   fotoPerfilUrl: string;
+  marcoId?: string;                 // ✅ NUEVO
   rol: string;
   estado: string;
   fechaUnion: string;
@@ -58,14 +59,14 @@ export interface MensajeGrupo {
   emisorId: number;
   emisorNombre: string;
   emisorFoto: string;
+  marcoEmisor?: string;             // ✅ NUEVO
   contenido: string;
-  tipoMensaje: string;              // "TEXTO" | "SISTEMA" | "STICKER" | ...
+  tipoMensaje: string;
   urlArchivo: string | null;
   nombreArchivo: string | null;
   fechaEnvio: string;
   propio: boolean;
 
-  // ✅ NUEVOS CAMPOS PARA STICKERS
   stickerId?: number | null;
   stickerUrl?: string | null;
   stickerNombre?: string | null;
@@ -203,7 +204,7 @@ export class GrupoService {
     );
   }
 
-  // ===== ✅ STICKERS =====
+  // ===== STICKERS =====
   enviarSticker(grupoId: number, stickerId: number): Observable<MensajeGrupo> {
     return this.http.post<MensajeGrupo>(
       `${this.baseUrl}/${grupoId}/mensajes/sticker`,
