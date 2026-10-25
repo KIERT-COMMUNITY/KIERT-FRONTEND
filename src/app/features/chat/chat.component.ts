@@ -230,7 +230,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.actualizarConversacionesYContadores();
     }, 8000);
 
-    // ✅ Actualizar presencia cada 15 segundos
+    //  Actualizar presencia cada 15 segundos
     this.ngZone.runOutsideAngular(() => {
       this.presenciaInterval = setInterval(() => {
         if (document.visibilityState === 'visible') {
@@ -266,7 +266,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ✅ ACTUALIZAR PRESENCIAS
+  // ACTUALIZAR PRESENCIAS
   // ============================================================
   private actualizarPresencias(): void {
     const ids = this.conversaciones().map(c => c.usuarioId);

@@ -100,8 +100,8 @@ export class AdminAnunciosComponent implements OnInit {
     this.errorMsg.set(null);
 
     const { titulo, texto, enlaceUrl } = this.form.getRawValue();
-    
-    // ✅ FORMDATA correctamente armado
+
+    // FORMDATA correctamente armado
     const fd = new FormData();
     fd.append('titulo', titulo!.trim());
     fd.append('texto', texto!.trim());
@@ -130,24 +130,24 @@ export class AdminAnunciosComponent implements OnInit {
 
     op.subscribe({
       next: (res) => {
-        console.log('[ADMIN ANUNCIOS] ✅ Guardado OK:', res);
+        console.log('[ADMIN ANUNCIOS] Guardado OK:', res);
         this.guardando.set(false);
         this.limpiarFormulario();
         this.cargar();
       },
       error: (err) => {
         this.guardando.set(false);
-        console.error('[ADMIN ANUNCIOS] ❌ Error:', err);
+        console.error('[ADMIN ANUNCIOS] Error:', err);
         console.error('[ADMIN ANUNCIOS] Status:', err.status);
         console.error('[ADMIN ANUNCIOS] Body del error:', err.error);
         console.error('[ADMIN ANUNCIOS] Headers enviados:', err.headers);
 
         // Diagnóstico del error
         let mensaje = 'No se pudo guardar';
-        
+
         if (err.status === 400) {
-          mensaje = err.error?.message 
-            || err.error?.error 
+          mensaje = err.error?.message
+            || err.error?.error
             || 'Datos inválidos. Revisa todos los campos.';
         } else if (err.status === 401) {
           mensaje = 'Sesión expirada. Vuelve a iniciar sesión.';

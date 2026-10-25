@@ -71,7 +71,7 @@ export class PostDetailComponent implements OnInit {
   idiomaSeleccionado = signal<{ [adjuntoId: number]: string }>({});
   subiendoSubtitulo = signal<number | null>(null);
 
-  // ========== ✅ EMOJI FLOTANTE AL REACCIONAR ==========
+  // ========== EMOJI FLOTANTE AL REACCIONAR ==========
   emojiFlotante = signal<{ emoji: string; x: number; y: number } | null>(null);
 
   reacciones = signal({
@@ -191,7 +191,7 @@ export class PostDetailComponent implements OnInit {
           mostrandoRespuestas: false,
           mostrandoFormularioRespuesta: false,
           cargandoRespuestas: false,
-          // ✅ Inicializar userReactions si no viene del backend
+          //  Inicializar userReactions si no viene del backend
           userReactions: c.userReactions || { like: false, love: false }
         }));
         this.comentarios.set(comentariosConUI);
@@ -215,7 +215,7 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // ✅ EMOJIS FLOTANTES
+  // EMOJIS FLOTANTES
   // ============================================================
   private getEmojiPorTipo(tipo: string): string {
     const map: Record<string, string> = {
@@ -230,7 +230,7 @@ export class PostDetailComponent implements OnInit {
   }
 
   /**
-   * ✅ Lanza un emoji flotante desde la posición del elemento clickeado.
+   * Lanza un emoji flotante desde la posición del elemento clickeado.
    */
   private lanzarEmojiFlotante(tipo: string, event: MouseEvent): void {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
@@ -243,7 +243,7 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // ✅ REACCIONES AL POST
+  //  REACCIONES AL POST
   // ============================================================
   reaccionar(tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
@@ -252,7 +252,7 @@ export class PostDetailComponent implements OnInit {
       return;
     }
 
-    // ✅ Emoji flotante
+    // Emoji flotante
     if (event) {
       this.lanzarEmojiFlotante(tipo, event);
     }
@@ -272,7 +272,7 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // ✅ REACCIONES A COMENTARIOS (con emoji flotante)
+  //  REACCIONES A COMENTARIOS (con emoji flotante)
   // ============================================================
   reaccionarComentario(comentarioId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
@@ -281,7 +281,7 @@ export class PostDetailComponent implements OnInit {
       return;
     }
 
-    // ✅ Emoji flotante
+    // Emoji flotante
     if (event) {
       this.lanzarEmojiFlotante(tipo, event);
     }
@@ -311,7 +311,7 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // ✅ REACCIONES A RESPUESTAS (con emoji flotante)
+  // REACCIONES A RESPUESTAS (con emoji flotante)
   // ============================================================
   reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
@@ -320,7 +320,7 @@ export class PostDetailComponent implements OnInit {
       return;
     }
 
-    // ✅ Emoji flotante
+    // Emoji flotante
     if (event) {
       this.lanzarEmojiFlotante(tipo, event);
     }
@@ -493,7 +493,7 @@ export class PostDetailComponent implements OnInit {
 
     this.comentarioService.listarRespuestas(comentarioId).subscribe({
       next: (respuestas) => {
-        // ✅ Asegurar que cada respuesta tenga userReactions
+        //  Asegurar que cada respuesta tenga userReactions
         const respuestasConUI = respuestas.map(r => ({
           ...r,
           userReactions: r.userReactions || { like: false, love: false }

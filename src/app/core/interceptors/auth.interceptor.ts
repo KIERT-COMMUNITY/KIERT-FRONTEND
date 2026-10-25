@@ -33,7 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (esRutaAdminExplicita) {
     token = adminAuth.getToken();
   } else if (esRutaPresencia) {
-    // ✅ Presencia usa el token del usuario normal (no admin)
+    // Presencia usa el token del usuario normal (no admin)
     token = auth.obtenerTokenUsuario();
   } else {
     if (adminAuth.estaLogueado()) {
@@ -53,7 +53,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(cloned).pipe(
     catchError((error) => {
-      // ✅ NUNCA desloguear por 401 en /presencia/
+      // NUNCA desloguear por 401 en /presencia/
       if (error.status === 401 && token && !esRutaPresencia) {
         if (esRutaAdminExplicita) {
           console.warn('[INTERCEPTOR] Sesión admin expirada');

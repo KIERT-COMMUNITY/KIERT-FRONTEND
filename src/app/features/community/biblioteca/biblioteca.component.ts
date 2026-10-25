@@ -39,15 +39,15 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   destacadosExpandidos = signal(false);
   destacadosPorPagina = 4;
 
-  // ===== ✅ MODAL DE AVISO DE ENLACE =====
+  // ===== MODAL DE AVISO DE ENLACE =====
   mostrarAvisoEnlace = signal(false);
   enlaceAAbrir = signal<{ url: string; titulo: string } | null>(null);
 
-  // ===== ✅ MODAL DE AVISO DE SEGURIDAD (5s auto-cierre) =====
+  // ===== MODAL DE AVISO DE SEGURIDAD (5s auto-cierre) =====
   mostrarAvisoSeguridad = signal(true);
   private avisoSeguridadTimer: ReturnType<typeof setTimeout> | null = null;
 
-  // ===== ✅ LISTA BLANCA DE DOMINIOS CONFIABLES =====
+  // ===== LISTA BLANCA DE DOMINIOS CONFIABLES =====
   private readonly DOMINIOS_CONFIABLES = [
     // Cursos / educación
     'coursera.org', 'edx.org', 'udemy.com', 'udacity.com', 'platzi.com',
@@ -144,7 +144,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cargarCategorias();
     this.cargarRecursos();
-    this.iniciarAvisoSeguridad(); // ✅ NUEVO
+    this.iniciarAvisoSeguridad();
   }
 
   ngOnDestroy(): void {
@@ -152,7 +152,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ✅ AVISO DE SEGURIDAD (auto-cierre 5s)
+  // AVISO DE SEGURIDAD (auto-cierre 5s)
   // ============================================================
   private iniciarAvisoSeguridad(): void {
     this.mostrarAvisoSeguridad.set(true);
@@ -307,7 +307,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ✅ VALIDACIÓN Y APERTURA DE ENLACES
+  // VALIDACIÓN Y APERTURA DE ENLACES
   // ============================================================
 
   /**
@@ -440,7 +440,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
     const urlLimpia = this.formUrl().trim();
 
-    // ✅ Validación frontend (rápida, antes de ir al backend)
+    // Validación frontend (rápida, antes de ir al backend)
     if (!urlLimpia.startsWith('https://')) {
       this.formError.set('La URL debe comenzar con https://');
       return;
@@ -453,11 +453,11 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ Advertir si el dominio no está en la lista blanca
+    // Advertir si el dominio no está en la lista blanca
     if (!this.esDominioConfiable(urlLimpia)) {
       const dominio = this.getDominio(urlLimpia);
       const confirmar = confirm(
-        `⚠️ ADVERTENCIA\n\n` +
+        `ADVERTENCIA\n\n` +
         `El dominio "${dominio}" no está en la lista de sitios verificados.\n\n` +
         `El servidor podría rechazarlo. ¿Deseas continuar?`
       );

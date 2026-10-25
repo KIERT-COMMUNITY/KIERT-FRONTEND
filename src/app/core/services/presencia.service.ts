@@ -51,7 +51,7 @@ export class PresenciaService {
       if (intentos < 20) {
         setTimeout(intentar, 150);
       } else {
-        console.warn('⚠️ Presencia: no se encontró token tras 3s, abortando');
+        console.warn('Presencia: no se encontró token tras 3s, abortando');
       }
     };
     setTimeout(intentar, 100);
@@ -62,7 +62,7 @@ export class PresenciaService {
       return;
     }
 
-    console.log('🟢 Presencia: iniciando heartbeat');
+    console.log('Presencia: iniciando heartbeat');
     this.enviarHeartbeat();
 
     this.ngZone.runOutsideAngular(() => {
@@ -79,7 +79,7 @@ export class PresenciaService {
 
   detener(): void {
     if (this.heartbeatInterval) {
-      console.log('🔴 Presencia: deteniendo heartbeat');
+      console.log('Presencia: deteniendo heartbeat');
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
@@ -101,17 +101,17 @@ export class PresenciaService {
   private enviarHeartbeat(): void {
     const token = this.authService.obtenerTokenUsuario();
     if (!token) {
-      console.warn('⚠️ Heartbeat: no hay token, se omite');
+      console.warn('Heartbeat: no hay token, se omite');
       return;
     }
 
     this.http.post(`${this.API}/heartbeat`, {}, { headers: this.getHeaders() })
       .subscribe({
         next: (res: any) => {
-          console.log('✅ Presencia: heartbeat OK', res);
+          console.log('Presencia: heartbeat OK', res);
         },
         error: (e) => {
-          console.warn('❌ Presencia: error heartbeat', e.status, e.message);
+          console.warn('Presencia: error heartbeat', e.status, e.message);
         }
       });
   }

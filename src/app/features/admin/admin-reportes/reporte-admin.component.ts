@@ -29,7 +29,7 @@ export class ReportesAdminComponent implements OnInit {
   notas: Record<number, string> = {};
 
   ngOnInit(): void {
-    // ✅ Validar sesión al entrar
+    // Validar sesión al entrar
     if (!this.adminAuth.estaLogueado()) {
       this.router.navigate(['/admin/login']);
       return;
@@ -39,7 +39,7 @@ export class ReportesAdminComponent implements OnInit {
     this.cargarResumen();
   }
 
-  // ✅ LOGOUT — usa el nuevo método que limpia Y navega
+  // LOGOUT — usa el nuevo método que limpia Y navega
   logout(): void {
     if (confirm('¿Cerrar sesión de administrador?')) {
       this.adminAuth.logoutYNavegar();
@@ -57,7 +57,7 @@ export class ReportesAdminComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar reportes:', err);
-        // ✅ Si token expiró → logout automático
+        // Si token expiró → logout automático
         if (err.status === 401 || err.status === 403) {
           this.adminAuth.logoutYNavegar();
           return;

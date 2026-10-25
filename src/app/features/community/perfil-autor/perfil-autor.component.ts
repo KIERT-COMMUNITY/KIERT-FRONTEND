@@ -99,13 +99,13 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   // ============================================================
-  // ✅ FOTO DEL AUTOR — Prioridad al USUARIO (fuente de verdad)
+  // FOTO DEL AUTOR — Prioridad al USUARIO (fuente de verdad)
   // ============================================================
   get fotoPerfilDelAutor(): string {
     const autor = this.autor();
     if (!autor) return '';
 
-    // ✅ El usuario es la fuente de verdad
+    // El usuario es la fuente de verdad
     const fotoUsuario = autor.fotoPerfilUrl;
 
     // Si el usuario tiene foto explícita, usarla
@@ -202,7 +202,7 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   // ============================================================
-  // ✅ CARGAR AUTOR (la foto del usuario es la fuente de verdad)
+  // CARGAR AUTOR (la foto del usuario es la fuente de verdad)
   // ============================================================
   cargarAutor(userId: number): void {
     this.cargando.set(true);
@@ -210,7 +210,7 @@ export class PerfilAutorComponent implements OnInit {
       next: (user) => {
         this.autor.set(user);
 
-        // ✅ Si el usuario tiene foto, usarla; si es null, dejar vacío
+        // Si el usuario tiene foto, usarla; si es null, dejar vacío
         // (NO sobreescribir con la personalización)
         if (user.fotoPerfilUrl) {
           this.autorFotoPerfil.set(user.fotoPerfilUrl);
@@ -228,7 +228,7 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   // ============================================================
-  // ✅ CARGAR PERSONALIZACIÓN
+  // CARGAR PERSONALIZACIÓN
   // ============================================================
   cargarPersonalizacionAutor(userId: number): void {
     this.personalizacionService.obtenerPersonalizacionPorUsuario(userId).subscribe({
@@ -238,7 +238,7 @@ export class PerfilAutorComponent implements OnInit {
         this.autorMarcoId.set(data?.marcoId || 'none');
         this.autorFondoId.set(data?.fondoId || 'default');
 
-        // ⚠️ NO usar data.fotoPerfilUrl para autorFotoPerfil
+        // NO usar data.fotoPerfilUrl para autorFotoPerfil
         // La foto del autor SIEMPRE viene del usuario (autor().fotoPerfilUrl)
         // (Ya se asignó en cargarAutor)
 

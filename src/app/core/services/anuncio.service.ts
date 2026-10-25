@@ -43,7 +43,7 @@ export class AnuncioService {
 
   /**
    * Crear anuncio con FormData (multipart).
-   * ⚠️ NO añadir Content-Type: el navegador lo hace automáticamente con boundary
+   *NO añadir Content-Type: el navegador lo hace automáticamente con boundary
    */
   crear(formData: FormData): Observable<Anuncio> {
     return this.http.post<Anuncio>(this.API, formData);

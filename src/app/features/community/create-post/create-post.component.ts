@@ -54,7 +54,7 @@ export class CreatePostComponent implements OnInit {
     return 'Documento';
   }
 
-  // ✅ AHORA ES ASYNC PARA LIMPIAR METADATOS
+  // AHORA ES ASYNC PARA LIMPIAR METADATOS
   async onArchivosSeleccionados(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     if (!input.files) return;
@@ -91,7 +91,7 @@ export class CreatePostComponent implements OnInit {
     }
 
     if (validos.length > 0) {
-      // ✅ Limpiar metadatos EXIF de las imágenes antes de agregarlas
+      // Limpiar metadatos EXIF de las imágenes antes de agregarlas
       try {
         const limpios = await this.imageSanitizer.limpiarArchivos(validos);
         this.archivosSeleccionados.set(limpios);

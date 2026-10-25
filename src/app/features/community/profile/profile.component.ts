@@ -23,7 +23,7 @@ export class ProfileComponent implements OnInit {
   private postService = inject(PostService);
   private bloqueoService = inject(BloqueoService);
   private imageSanitizer = inject(ImageSanitizerService);
-  private userService = inject(UserService); // ✅ Inyectado
+  private userService = inject(UserService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -37,7 +37,7 @@ export class ProfileComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
 
-  // ===== ✅ ELIMINAR FOTO =====
+  // =====  ELIMINAR FOTO =====
   mostrarConfirmEliminarFoto = signal(false);
   eliminandoFoto = signal(false);
 
@@ -57,14 +57,14 @@ export class ProfileComponent implements OnInit {
   email = computed(() => this.usuario()?.email || 'Sin correo');
   fotoPerfil = computed(() => this.usuario()?.fotoPerfilUrl || null);
   
-  // ✅ Computed para la biografía
+  //  Computed para la biografía
   bio = computed(() => this.usuario()?.bio || null);
 
   // ===== FORMULARIO (Añadido campo bio) =====
   formEditar = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
-    bio: ['', [Validators.maxLength(150)]], // ✅ NUEVO
+    bio: ['', [Validators.maxLength(150)]], 
   });
 
   constructor() {
@@ -110,7 +110,7 @@ export class ProfileComponent implements OnInit {
       this.formEditar.patchValue({
         nombreUsuario: user.nombreUsuario,
         email: user.email,
-        bio: user.bio || '', // ✅ Cargar bio en el formulario
+        bio: user.bio || '', 
       });
     }
   }
@@ -225,7 +225,7 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // ✅ Guardar cambios reales (incluye la bio)
+  //  Guardar cambios reales (incluye la bio)
   guardarCambios(): void {
     if (this.formEditar.invalid) {
       this.formEditar.markAllAsTouched();
@@ -241,7 +241,7 @@ export class ProfileComponent implements OnInit {
     this.userService.actualizarPerfil(usuarioId, {
       nombreUsuario: data.nombreUsuario!,
       email: data.email!,
-      bio: data.bio || '' // ✅ Enviar bio
+      bio: data.bio || ''
     }).subscribe({
       next: (usuarioActualizado) => {
         this.authService.usuario.set(usuarioActualizado);

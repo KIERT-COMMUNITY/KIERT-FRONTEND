@@ -30,7 +30,7 @@ export interface Mensaje {
   leido?: boolean;
   archivos?: MensajeArchivo[];
 
-  // ✅ Stickers
+  // Stickers
   tipoMensaje?: string | null;    // "TEXTO" | "STICKER" | "imagen" | ...
   stickerId?: number | null;
   stickerUrl?: string | null;

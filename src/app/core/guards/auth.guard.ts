@@ -9,7 +9,7 @@ export const authGuard: CanActivateFn = async (route, state) => {
   const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  // ✅ Esperar a que AuthService termine de leer de sessionStorage
+  // Esperar a que AuthService termine de leer de sessionStorage
   //    (evita el parpadeo "Sin sesión → login")
   await auth.whenReady();
 

@@ -25,7 +25,7 @@ export class UserService {
     return this.http.get<User>(`${this.API_URL}/usuarios/${id}`);
   }
 
-  // ✅ NUEVO MÉTODO: Actualizar perfil (incluyendo bio)
+  //  NUEVO MÉTODO: Actualizar perfil (incluyendo bio)
   actualizarPerfil(id: number, datos: { nombreUsuario: string; email: string; bio: string }): Observable<User> {
     return this.http.put<User>(`${this.API_URL}/usuarios/${id}`, datos).pipe(
       tap(res => console.log('Perfil actualizado:', res))

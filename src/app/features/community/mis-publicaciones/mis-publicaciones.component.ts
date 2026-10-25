@@ -19,7 +19,7 @@ export class MisPublicacionesComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private confirm = inject(ConfirmService);  // ✅ NUEVO
+  private confirm = inject(ConfirmService); 
   public personalizacionStore = inject(PersonalizacionStore);
 
   posts = signal<Post[]>([]);
@@ -57,7 +57,7 @@ export class MisPublicacionesComponent implements OnInit {
   }
 
   /**
-   * ✅ Elimina una publicación usando el modal personalizado.
+   * Elimina una publicación usando el modal personalizado.
    * Reemplaza el `confirm()` nativo del navegador.
    */
   async eliminarPublicacion(post: Post): Promise<void> {

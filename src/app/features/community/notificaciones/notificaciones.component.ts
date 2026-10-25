@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 
 type TipoMensaje = 'exito' | 'error' | 'rechazo';
 
-// ✅ Clave para guardar en localStorage
+// Clave para guardar en localStorage
 const STORAGE_KEY = 'kiert_notificaciones_estados';
 
 @Component({
@@ -130,8 +130,8 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     this.cargando.set(true);
     this.notificationService.obtenerNotificaciones().subscribe({
       next: (data: Notificacion[]) => {
-        // ✅ Recuperamos el estado guardado en localStorage (por si recargaron la página)
-        const estadosGuardados: Record<string, 'aceptada' | 'rechazada'> = 
+        // Recuperamos el estado guardado en localStorage (por si recargaron la página)
+        const estadosGuardados: Record<string, 'aceptada' | 'rechazada'> =
           JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
         const dataConEstado = (data || []).map(n => {
@@ -139,20 +139,20 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
           const existente = this.notificaciones().find(x => x.id === n.id);
           if (existente && existente.estadoInvitacion) {
             n.estadoInvitacion = existente.estadoInvitacion;
-          } 
+          }
           // 2. Si el estado estaba en el localStorage (después de recargar)
           else if (estadosGuardados[n.id]) {
             n.estadoInvitacion = estadosGuardados[n.id];
             n.leida = true;
             n.mensaje = `<strong>Invitación ${estadosGuardados[n.id]}.</strong> ${
-              estadosGuardados[n.id] === 'aceptada' 
-                ? 'Te has unido al grupo.' 
+              estadosGuardados[n.id] === 'aceptada'
+                ? 'Te has unido al grupo.'
                 : 'Ya no formas parte de esta invitación.'
             }`;
           }
           return n;
         });
-        
+
         this.notificaciones.set(dataConEstado);
         this.noLeidas.set((data || []).filter(n => !n.leida).length);
         this.cargando.set(false);
@@ -187,11 +187,11 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   eliminarNotificacion(id: number, event: Event): void {
     event.stopPropagation();
     this.notificationService.eliminarNotificacion(id).subscribe({
-      next: () => { 
-        this.notificaciones.update(lista => lista.filter(n => n.id !== id)); 
-        this.actualizarContadorNoLeidas(); 
-        
-        // ✅ Limpiamos el localStorage si se elimina la notificación
+      next: () => {
+        this.notificaciones.update(lista => lista.filter(n => n.id !== id));
+        this.actualizarContadorNoLeidas();
+
+        // Limpiamos el localStorage si se elimina la notificación
         const estadosGuardados = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         delete estadosGuardados[id];
         localStorage.setItem(STORAGE_KEY, JSON.stringify(estadosGuardados));
@@ -200,7 +200,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ CORREGIDO: Al dar clic, solo marca como leída pero NO navega
+  // CORREGIDO: Al dar clic, solo marca como leída pero NO navega
   onClickNotificacion(notificacion: Notificacion): void {
     // Si ya fue procesada o es una invitación, no hacemos nada
     if (notificacion.estadoInvitacion || this.esInvitacionGrupo(notificacion.tipo)) {
@@ -249,7 +249,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   aceptarInvitacionGrupo(notificacion: Notificacion, event: Event): void {
     event.stopPropagation();
     if (!notificacion.grupoId || this.invitacionProcesandoId() !== null || notificacion.estadoInvitacion) return;
-    
+
     this.invitacionProcesandoId.set(notificacion.id);
 
     this.grupoService.aceptarInvitacion(notificacion.grupoId).subscribe({
@@ -278,7 +278,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       return n;
     }));
 
-    // ✅ Guardamos el estado en localStorage
+    // Guardamos el estado en localStorage
     this.guardarEstadoEnStorage(notificacion.id, 'aceptada');
 
     this.notificationService.marcarComoLeida(notificacion.id).subscribe({
@@ -287,10 +287,10 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     });
 
     this.invitacionProcesandoId.set(null);
-    
+
     const titulo = mensajePersonalizado ? 'Aviso' : 'Solicitud aceptada';
     const descripcion = mensajePersonalizado || 'Te uniste correctamente al grupo.';
-    
+
     this.mostrarMensajeFlotante('exito', titulo, descripcion);
 
     this.navegacionTimerId = setTimeout(() => {
@@ -329,18 +329,18 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
           return n;
         }));
 
-        // ✅ Guardamos el estado en localStorage
+        // Guardamos el estado en localStorage
         this.guardarEstadoEnStorage(notificacion.id, 'rechazada');
 
         this.notificationService.marcarComoLeida(notificacion.id).subscribe({
           next: () => this.actualizarContadorNoLeidas(),
           error: () => this.actualizarContadorNoLeidas()
         });
-        
+
         this.invitacionProcesandoId.set(null);
         this.invitacionPendienteRechazo.set(null);
         this.renderer.setStyle(this.document.body, 'overflow', 'auto');
-        
+
         this.mostrarMensajeFlotante('rechazo', 'Solicitud rechazada', 'La invitación al grupo fue rechazada.');
       },
       error: (err) => {
@@ -353,7 +353,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ Método auxiliar para guardar en localStorage
+  // Método auxiliar para guardar en localStorage
   private guardarEstadoEnStorage(id: number, estado: 'aceptada' | 'rechazada'): void {
     try {
       const estadosGuardados = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
