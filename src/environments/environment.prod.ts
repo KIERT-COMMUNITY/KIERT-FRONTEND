@@ -1,8 +1,11 @@
+// src/environments/environment.prod.ts
 // Variables de entorno para PRODUCCIÓN (ng build).
-// Cuando despliegues el backend real, reemplaza esta URL por la definitiva (https).
 export const environment = {
   production: true,
-  apiUrl: 'https://api.kiert.com/api',
-  //supabaseUrl: 'LINK SUPABASE.ICO',
- // supabaseBucket: 'kiert-files',
+  // ⚠️ REEMPLAZA ESTA URL por la que te dio Render (termina en /api)
+  apiUrl: 'https://kiert-backend.onrender.com/api', 
+  
+  // ⚠️ REEMPLAZA ESTA URL por la de Render pero con wss:// (sin /api al final)
+  wsUrl: 'wss://kiert-backend.onrender.com', 
 };
+export * from './environment';
