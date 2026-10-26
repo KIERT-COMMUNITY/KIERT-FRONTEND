@@ -17,7 +17,7 @@ export const routes: Routes = [
     ],
   },
 
-  // ===== ADMIN LOGIN (pantalla completa, sin navbar) =====
+  // ===== ADMIN GOOD LOGIN (pantalla completa, sin navbar) =====
   {
     path: 'admin/login',
     loadComponent: () =>
