@@ -2672,3 +2672,44 @@ $transition: all 0.25s ease;
     }
   }
 }
+// ============================================================
+// ✅ AVISO DE LOGIN (invitados)
+// ============================================================
+
+.biblioteca-container {
+  kiert-aviso-login {
+    display: block;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+// Botón "Agregar recurso" atenuado para invitados
+.btn-agregar--disabled {
+  background: rgba(45, 212, 191, 0.18) !important;
+  color: rgba(13, 17, 23, 0.55) !important;
+  cursor: not-allowed;
+  box-shadow: none !important;
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.18) !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+// Tema claro (si aplica)
+.tema-light {
+  kiert-aviso-login .aviso-login {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+}
+
+@media (max-width: 768px) {
+  .biblioteca-container kiert-aviso-login {
+    margin-bottom: 16px;
+  }
+}

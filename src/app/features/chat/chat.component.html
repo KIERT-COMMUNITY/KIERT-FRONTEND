@@ -1,12 +1,9 @@
 <!-- src/app/features/chat/chat.component.html -->
 <div class="chat-messenger">
 
-  <!-- ============================================================ -->
-  <!-- SIDEBAR (LISTA DE CHATS)                                     -->
-  <!-- ============================================================ -->
+  <!-- SIDEBAR -->
   <aside class="messenger-sidebar" [class.messenger-sidebar--open]="mobileMenuOpen()">
 
-    <!-- Header -->
     <div class="sidebar-head">
       <h1 class="sidebar-head__title">Chats</h1>
       <div class="sidebar-head__actions">
@@ -27,7 +24,7 @@
       </div>
     </div>
 
-    <!-- Búsqueda funcional -->
+    <!-- Búsqueda -->
     <div class="sidebar-search-wrapper">
       <div class="sidebar-search" [class.sidebar-search--active]="buscadorActivo()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -150,7 +147,7 @@
       }
     </div>
 
-    <!-- Tabs Chat/Grupos -->
+    <!-- Tabs -->
     <div class="sidebar-tabs">
       <button class="tab-btn" [class.tab-btn--active]="tabActual() === 'chats'" (click)="cambiarTab('chats')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -268,7 +265,6 @@
         }
       }
 
-      <!-- Solicitudes -->
       @if (solicitudesPendientes.length > 0) {
         <div class="sidebar-solicitudes">
           <button class="solicitudes-head" (click)="toggleSolicitudes()">
@@ -320,12 +316,9 @@
     </div>
   </aside>
 
-  <!-- ============================================================ -->
-  <!-- VENTANA DE CONVERSACIÓN                                      -->
-  <!-- ============================================================ -->
+  <!-- VENTANA DE CONVERSACIÓN -->
   <main class="messenger-chat">
 
-    <!-- Botón hamburguesa móvil -->
     <button class="btn-toggle-sidebar" (click)="toggleMobileMenu()">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <line x1="3" y1="6" x2="21" y2="6"/>
@@ -398,7 +391,6 @@
         </button>
       </header>
 
-      <!-- STREAM DE MENSAJES PRIVADOS -->
       <div class="chat-stream" #mensajesContainer>
         @if (cargando()) {
           <div class="chat-state">
@@ -472,7 +464,6 @@
         }
       </div>
 
-      <!-- PREVIEW ARCHIVOS SELECCIONADOS -->
       @if (archivosSeleccionados().length > 0) {
         <div class="files-preview">
           @for (archivo of archivosSeleccionados(); track $index) {
@@ -489,48 +480,74 @@
         </div>
       }
 
-      <!-- INPUT DE MENSAJE PRIVADO -->
-      <form class="chat-input" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
-        <label class="chat-input__file" title="Adjuntar archivo">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-          </svg>
-          <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden>
-        </label>
+      <!-- ✅ AVISO REUTILIZABLE (PRIVADO) -->
+      <kiert-aviso-login
+        [visible]="mostrarAvisoLoginPrivado()"
+        icono="🔒"
+        titulo="Debes registrarte para chatear en privado"
+        mensaje="Como invitado solo puedes ver la conversación. Inicia sesión para enviar mensajes."
+        textoBoton="Ir al login"
+        (irAlLogin)="irALogin()"
+        (cerrar)="cerrarAvisoLoginPrivado()">
+      </kiert-aviso-login>
 
-        <button type="button"
-                class="chat-input__sticker"
-                (click)="toggleStickerPicker()"
-                title="Stickers">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
-            <path d="M15 3v6h6"/>
-            <circle cx="9" cy="13" r="1.2"/>
-            <circle cx="14" cy="13" r="1.2"/>
-            <path d="M9 17c1.5 1 4.5 1 6 0"/>
-          </svg>
-        </button>
-
-        <input
-          formControlName="contenido"
-          type="text"
-          placeholder="Aa"
-          class="chat-input__field"
-          autocomplete="off"
-        >
-
-        <button type="submit"
-                class="chat-input__send"
-                [disabled]="enviando() || (!formMensaje.valid && archivosSeleccionados().length === 0)">
-          @if (enviando()) {
-            <div class="spinner-mini"></div>
-          } @else {
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      <!-- ✅ INPUT PRIVADO -->
+      @if (estaLogueado) {
+        <form class="chat-input" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
+          <label class="chat-input__file" title="Adjuntar archivo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
             </svg>
-          }
-        </button>
-      </form>
+            <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden>
+          </label>
+
+          <button type="button"
+                  class="chat-input__sticker"
+                  (click)="toggleStickerPicker()"
+                  title="Stickers">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
+              <path d="M15 3v6h6"/>
+              <circle cx="9" cy="13" r="1.2"/>
+              <circle cx="14" cy="13" r="1.2"/>
+              <path d="M9 17c1.5 1 4.5 1 6 0"/>
+            </svg>
+          </button>
+
+          <input
+            formControlName="contenido"
+            type="text"
+            placeholder="Aa"
+            class="chat-input__field"
+            autocomplete="off"
+          >
+
+          <button type="submit"
+                  class="chat-input__send"
+                  [disabled]="enviando() || (!formMensaje.valid && archivosSeleccionados().length === 0)">
+            @if (enviando()) {
+              <div class="spinner-mini"></div>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            }
+          </button>
+        </form>
+      } @else {
+        <!-- ✅ BLOQUE INVITADO (PRIVADO) -->
+        <div class="chat-input chat-input--guest" (click)="mostrarAvisoLoginPrivado.set(true)">
+          <input
+            type="text"
+            placeholder="Inicia sesión para chatear en privado..."
+            readonly
+            class="chat-input__field input-guest"
+          >
+          <button type="button" class="btn-guest" (click)="irALogin(); $event.stopPropagation()">
+            Registrarse
+          </button>
+        </div>
+      }
 
       @if (mostrarStickerPicker()) {
         <kiert-sticker-picker
@@ -663,47 +680,74 @@
         }
       </div>
 
-      <form class="chat-input" [formGroup]="formMensajeGrupo" (ngSubmit)="enviarMensajeGrupo()">
-        <label class="chat-input__file" title="Adjuntar">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-          </svg>
-          <input type="file" multiple hidden>
-        </label>
+      <!-- ✅ AVISO REUTILIZABLE (GRUPO) -->
+      <kiert-aviso-login
+        [visible]="mostrarAvisoLoginGrupo()"
+        icono="🔒"
+        titulo="Debes registrarte para escribir en el grupo"
+        mensaje="Como invitado solo puedes ver los mensajes. Inicia sesión para participar."
+        textoBoton="Ir al login"
+        (irAlLogin)="irALogin()"
+        (cerrar)="cerrarAvisoLoginGrupo()">
+      </kiert-aviso-login>
 
-        <button type="button"
-                class="chat-input__sticker"
-                (click)="toggleStickerPickerGrupo()"
-                title="Stickers">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
-            <path d="M15 3v6h6"/>
-            <circle cx="9" cy="13" r="1.2"/>
-            <circle cx="14" cy="13" r="1.2"/>
-            <path d="M9 17c1.5 1 4.5 1 6 0"/>
-          </svg>
-        </button>
-
-        <input
-          formControlName="contenido"
-          type="text"
-          placeholder="Aa"
-          class="chat-input__field"
-          autocomplete="off"
-        >
-
-        <button type="submit"
-                class="chat-input__send"
-                [disabled]="enviandoGrupo() || !formMensajeGrupo.valid">
-          @if (enviandoGrupo()) {
-            <div class="spinner-mini"></div>
-          } @else {
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      <!-- ✅ INPUT GRUPO -->
+      @if (estaLogueado) {
+        <form class="chat-input" [formGroup]="formMensajeGrupo" (ngSubmit)="enviarMensajeGrupo()">
+          <label class="chat-input__file" title="Adjuntar">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
             </svg>
-          }
-        </button>
-      </form>
+            <input type="file" multiple hidden>
+          </label>
+
+          <button type="button"
+                  class="chat-input__sticker"
+                  (click)="toggleStickerPickerGrupo()"
+                  title="Stickers">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
+              <path d="M15 3v6h6"/>
+              <circle cx="9" cy="13" r="1.2"/>
+              <circle cx="14" cy="13" r="1.2"/>
+              <path d="M9 17c1.5 1 4.5 1 6 0"/>
+            </svg>
+          </button>
+
+          <input
+            formControlName="contenido"
+            type="text"
+            placeholder="Aa"
+            class="chat-input__field"
+            autocomplete="off"
+          >
+
+          <button type="submit"
+                  class="chat-input__send"
+                  [disabled]="enviandoGrupo() || !formMensajeGrupo.valid">
+            @if (enviandoGrupo()) {
+              <div class="spinner-mini"></div>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            }
+          </button>
+        </form>
+      } @else {
+        <!-- ✅ BLOQUE INVITADO (GRUPO) -->
+        <div class="chat-input chat-input--guest" (click)="mostrarAvisoLoginGrupo.set(true)">
+          <input
+            type="text"
+            placeholder="Inicia sesión para escribir en el grupo..."
+            readonly
+            class="chat-input__field input-guest"
+          >
+          <button type="button" class="btn-guest" (click)="irALogin(); $event.stopPropagation()">
+            Registrarse
+          </button>
+        </div>
+      }
 
       @if (mostrarStickerPickerGrupo()) {
         <kiert-sticker-picker
@@ -717,7 +761,7 @@
   </main>
 </div>
 
-<!-- ✅ OVERLAY MÓVIL — FUERA del .chat-messenger -->
+<!-- OVERLAY MÓVIL -->
 @if (mobileMenuOpen()) {
   <div class="messenger-overlay" (click)="toggleMobileMenu()"></div>
 }

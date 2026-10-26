@@ -10,11 +10,12 @@ import { PersonalizacionStore } from '../../../core/services/personalizacion-sto
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 @Component({
   selector: 'kiert-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, AvisoLoginComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -45,6 +46,10 @@ export class ProfileComponent implements OnInit {
   totalPosts = signal(0);
   totalBloqueados = signal(0);
 
+  // ✅ AVISO LOGIN
+  mostrarAvisoLogin = signal(false);
+  mensajeAvisoLogin = signal('Debes registrarte para ver tu perfil.');
+
   // ===== USUARIO =====
   usuario = this.authService.usuario;
 
@@ -72,7 +77,17 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
+  }
+
   ngOnInit(): void {
+    if (!this.estaLogueado) {
+      this.mensajeAvisoLogin.set('Debes registrarte para ver tu perfil.');
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
+
     this.cargarEstadisticas();
     this.cargarDatosUsuario();
 
@@ -80,6 +95,26 @@ export class ProfileComponent implements OnInit {
     this.aplicarTemaGlobal(tema);
   }
 
+  // ✅ Navegación al login
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: '/perfil' }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
+  }
+
+  abrirAvisoLogin(mensaje: string): void {
+    this.mensajeAvisoLogin.set(mensaje);
+    this.mostrarAvisoLogin.set(true);
+  }
+
+  // ============================================================
+  // TEMA GLOBAL
+  // ============================================================
   private aplicarTemaGlobal(themeId: string): void {
     const html = document.documentElement;
     const body = document.body;
@@ -95,7 +130,6 @@ export class ProfileComponent implements OnInit {
     limpiar(body);
 
     const tema = themeId && themeId !== 'default' ? themeId : 'default';
-
     html.setAttribute('data-theme', tema);
     html.classList.add(`tema-${tema}`);
     body.setAttribute('data-theme', tema);
@@ -131,6 +165,12 @@ export class ProfileComponent implements OnInit {
   }
 
   async onFotoSeleccionada(evento: Event): Promise<void> {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para subir una foto de perfil.');
+      (evento.target as HTMLInputElement).value = '';
+      return;
+    }
+
     const input = evento.target as HTMLInputElement;
     const archivoOriginal = input.files?.[0];
     if (!archivoOriginal) return;
@@ -185,6 +225,10 @@ export class ProfileComponent implements OnInit {
   }
 
   abrirConfirmEliminarFoto(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para eliminar tu foto.');
+      return;
+    }
     this.mostrarConfirmEliminarFoto.set(true);
   }
 
@@ -194,6 +238,10 @@ export class ProfileComponent implements OnInit {
   }
 
   confirmarEliminarFoto(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para eliminar tu foto.');
+      return;
+    }
     this.eliminandoFoto.set(true);
     this.errorMsg.set(null);
 
@@ -217,13 +265,19 @@ export class ProfileComponent implements OnInit {
   }
 
   toggleEditar(): void {
-    this.editando.set(!this.editando());
-    if (this.editando()) {
-      this.cargarDatosUsuario();
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para editar tu perfil.');
+      return;
     }
+    this.editando.set(!this.editando());
+    if (this.editando()) this.cargarDatosUsuario();
   }
 
   guardarCambios(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para guardar tu perfil.');
+      return;
+    }
     if (this.formEditar.invalid) {
       this.formEditar.markAllAsTouched();
       return;
@@ -257,18 +311,34 @@ export class ProfileComponent implements OnInit {
   }
 
   irHistorialPublicaciones(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para ver tu historial.');
+      return;
+    }
     this.router.navigate(['/mis-publicaciones']);
   }
 
   irAlChat(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para entrar al chat.');
+      return;
+    }
     this.router.navigate(['/chat']);
   }
 
   irAjustes(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para acceder a los ajustes.');
+      return;
+    }
     this.router.navigate(['/ajustes']);
   }
 
   irABloqueados(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para ver bloqueados.');
+      return;
+    }
     this.router.navigate(['/ajustes'], { fragment: 'bloqueados' });
   }
 

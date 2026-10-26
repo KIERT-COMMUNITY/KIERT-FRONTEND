@@ -3,37 +3,67 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PostService } from '../../../core/services/post.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Post } from '../../../core/models/post.model';
 import { PostCardComponent } from '../../../shared/components/post-card/post-card.component';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 @Component({
   selector: 'kiert-feed',
   standalone: true,
-  imports: [RouterLink, PostCardComponent, CommonModule],
+  imports: [RouterLink, PostCardComponent, CommonModule, AvisoLoginComponent],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })
 export class FeedComponent implements OnInit {
   private postService = inject(PostService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   posts = signal<Post[]>([]);
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
 
+  // ✅ AVISO LOGIN
+  mostrarAvisoLogin = signal(false);
+  mensajeAvisoLogin = signal('Debes registrarte para publicar en la comunidad.');
+
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
+  }
+
   ngOnInit(): void {
-    console.log('FeedComponent: Inicializando');
     this.cargarPosts();
   }
 
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: '/comunidad' }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
+  }
+
+  /** ✅ Botón "Publicar" clic */
+  irACrearPublicacion(event?: Event): void {
+    event?.preventDefault();
+    if (!this.estaLogueado) {
+      this.mensajeAvisoLogin.set('Debes registrarte para crear publicaciones.');
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
+    this.router.navigate(['/comunidad/nueva-publicacion']);
+  }
+
   cargarPosts(): void {
-    console.log('FeedComponent: Cargando posts...');
     this.cargando.set(true);
     this.errorMsg.set(null);
 
     this.postService.listar().subscribe({
       next: (data) => {
-        console.log('FeedComponent: Posts recibidos:', data.length);
         this.posts.set(data);
         this.cargando.set(false);
       },
@@ -51,11 +81,8 @@ export class FeedComponent implements OnInit {
   }
 
   irAlPost(postId: number): void {
-    console.log('FeedComponent: Navegando al post:', postId);
     if (postId && !isNaN(postId) && postId > 0) {
       this.router.navigate(['/comunidad', postId]);
-    } else {
-      console.error('FeedComponent: ID inválido:', postId);
     }
   }
 }

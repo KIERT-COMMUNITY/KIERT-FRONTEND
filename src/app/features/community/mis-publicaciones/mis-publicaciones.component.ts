@@ -5,13 +5,14 @@ import { RouterLink, Router } from '@angular/router';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
-import { ConfirmService } from '../../../core/services/confirm.service';  // ✅ NUEVO
+import { ConfirmService } from '../../../core/services/confirm.service';
 import { Post } from '../../../core/models/post.model';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 @Component({
   selector: 'kiert-mis-publicaciones',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AvisoLoginComponent],
   templateUrl: './mis-publicaciones.component.html',
   styleUrl: './mis-publicaciones.component.scss',
 })
@@ -19,7 +20,7 @@ export class MisPublicacionesComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private confirm = inject(ConfirmService); 
+  private confirm = inject(ConfirmService);
   public personalizacionStore = inject(PersonalizacionStore);
 
   posts = signal<Post[]>([]);
@@ -27,14 +28,40 @@ export class MisPublicacionesComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
 
+  // ✅ AVISO LOGIN
+  mostrarAvisoLogin = signal(false);
+  mensajeAvisoLogin = signal('Debes registrarte para ver y gestionar tus publicaciones.');
+
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
+  }
+
   ngOnInit(): void {
+    if (!this.estaLogueado) {
+      this.mensajeAvisoLogin.set('Debes registrarte para ver tus publicaciones.');
+      this.mostrarAvisoLogin.set(true);
+      this.cargando.set(false);
+      return;
+    }
     this.cargarMisPublicaciones();
+  }
+
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: '/mis-publicaciones' }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
   }
 
   cargarMisPublicaciones(): void {
     const userId = this.authService.usuario()?.id;
     if (!userId) {
-      this.errorMsg.set('Debes iniciar sesión para ver tus publicaciones');
+      this.mensajeAvisoLogin.set('Debes registrarte para ver tus publicaciones.');
+      this.mostrarAvisoLogin.set(true);
       this.cargando.set(false);
       return;
     }
@@ -56,11 +83,13 @@ export class MisPublicacionesComponent implements OnInit {
     });
   }
 
-  /**
-   * Elimina una publicación usando el modal personalizado.
-   * Reemplaza el `confirm()` nativo del navegador.
-   */
   async eliminarPublicacion(post: Post): Promise<void> {
+    if (!this.estaLogueado) {
+      this.mensajeAvisoLogin.set('Debes registrarte para eliminar publicaciones.');
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
+
     const ok = await this.confirm.eliminar(
       `Se eliminará permanentemente "${post.titulo}".`,
       '¿Eliminar publicación?'

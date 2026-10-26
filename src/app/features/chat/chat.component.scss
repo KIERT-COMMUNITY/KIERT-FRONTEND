@@ -973,3 +973,46 @@
     transition-duration: 0.01ms !important;
   }
 }
+// ============================================================
+// ✅ BLOQUE INVITADO (input falso + botón "Registrarse")
+// ============================================================
+.chat-input--guest {
+  cursor: pointer;
+
+  .chat-input__field.input-guest {
+    cursor: pointer;
+    color: var(--text-muted);
+    background: var(--bg-input);
+  }
+
+  .btn-guest {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+    height: 40px;
+    background: var(--primary);
+    color: var(--bubble-mine-text);
+    border: none;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--primary-dark);
+      transform: scale(1.03);
+    }
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .chat-input--guest .btn-guest {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 0.8rem;
+  }
+}

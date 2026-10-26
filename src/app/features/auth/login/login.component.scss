@@ -213,3 +213,75 @@
     padding: 9px;
   }
 }
+// ========== SEPARADOR "o" ==========
+.login-divider {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+  color: #8b98a5;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+// ========== BOTÓN INVITADO ==========
+.guest-btn {
+  width: 100%;
+  max-width: 300px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: transparent;
+  color: #e6edf3;
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  svg { flex-shrink: 0; }
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.08);
+    border-color: #2dd4bf;
+    color: #2dd4bf;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ========== HINT INVITADO ==========
+.guest-hint {
+  max-width: 300px;
+  margin: 10px auto 0;
+  text-align: center;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: #8b98a5;
+  opacity: 0.75;
+}
+
+// ========== RESPONSIVE EXTRA ==========
+@media (max-width: 480px) {
+  .login-divider { max-width: 100%; margin: 14px 0 12px; }
+  .guest-btn { max-width: 100%; }
+  .guest-hint { max-width: 100%; font-size: 0.68rem; }
+}

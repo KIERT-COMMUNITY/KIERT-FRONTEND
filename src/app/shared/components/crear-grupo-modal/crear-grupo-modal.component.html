@@ -1,4 +1,16 @@
 <!-- src/app/shared/components/crear-grupo-modal/crear-grupo-modal.component.html -->
+
+<!-- ✅ AVISO LOGIN -->
+<kiert-aviso-login
+  [visible]="mostrarAvisoLogin()"
+  icono="🔒"
+  titulo="Debes registrarte"
+  [mensaje]="mensajeAvisoLogin()"
+  textoBoton="Ir al login"
+  (irAlLogin)="irALogin()"
+  (cerrar)="cerrarAvisoLogin()">
+</kiert-aviso-login>
+
 <div class="modal-overlay" (click)="cerrar.emit()">
   <div class="modal-content" (click)="$event.stopPropagation()">
 

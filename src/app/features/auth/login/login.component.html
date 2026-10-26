@@ -54,7 +54,6 @@
 
     <!-- Opciones -->
     <div class="field-options">
-      <!-- ✅ CORREGIDO: la ruta real es /recuperar-contrasena -->
       <a routerLink="/recuperar-contrasena" class="forgot-link">¿Olvidaste tu contraseña?</a>
     </div>
 
@@ -81,6 +80,25 @@
       }
     </button>
   </form>
+
+  <!-- ✅ SEPARADOR -->
+  <div class="login-divider">
+    <span>o</span>
+  </div>
+
+  <!-- ✅ BOTÓN INVITADO -->
+  <button type="button" class="guest-btn" (click)="entrarComoInvitado()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    <span>Entrar como invitado</span>
+  </button>
+
+  <p class="guest-hint">
+    Como invitado puedes ver el chat global y las publicaciones,
+    pero no podrás escribir, publicar ni chatear en privado.
+  </p>
 
   <!-- REGISTRO -->
   <div class="register-link">

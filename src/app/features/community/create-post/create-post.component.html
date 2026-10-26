@@ -1,20 +1,31 @@
-<!-- APLICAR TEMA DE COLOR A TODA LA PÁGINA -->
+<!-- src/app/features/community/create-post/create-post.component.html -->
 <div class="create-post-container" [ngClass]="personalizacionStore.temaClass()">
-  
+
   <div class="page-header">
     <h1 class="page-title">Nueva Publicación</h1>
     <p class="page-sub">Comparte tu caso, pide ayuda o cuenta tu historia</p>
   </div>
 
+  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <kiert-aviso-login
+    [visible]="mostrarAvisoLogin()"
+    icono="🔒"
+    titulo="Debes registrarte para publicar"
+    mensaje="Como invitado solo puedes leer el feed. Crea una cuenta o inicia sesión para publicar."
+    textoBoton="Ir al login"
+    (irAlLogin)="irALogin()"
+    (cerrar)="cerrarAvisoLogin()">
+  </kiert-aviso-login>
+
   <form [formGroup]="form" (ngSubmit)="publicar()" class="post-form" novalidate>
 
-    <!-- CAMPO CATEGORÍA - TEXTO LIBRE -->
+    <!-- CAMPO CATEGORÍA -->
     <div class="field">
       <label for="categoria">Categoría *</label>
-      <input 
-        id="categoria" 
-        type="text" 
-        formControlName="categoria" 
+      <input
+        id="categoria"
+        type="text"
+        formControlName="categoria"
         placeholder="Ej: Ciberseguridad, Programación, Redes, IA, ..."
         [class.is-invalid]="categoria.invalid && categoria.touched"
         required
@@ -27,11 +38,11 @@
 
     <div class="field">
       <label for="titulo">Título *</label>
-      <input 
-        id="titulo" 
-        type="text" 
-        formControlName="titulo" 
-        placeholder="Resume tu caso en una frase" 
+      <input
+        id="titulo"
+        type="text"
+        formControlName="titulo"
+        placeholder="Resume tu caso en una frase"
         [class.is-invalid]="titulo.invalid && titulo.touched"
         required
       >
@@ -43,11 +54,11 @@
 
     <div class="field">
       <label for="descripcion">Descripción *</label>
-      <textarea 
-        id="descripcion" 
-        formControlName="descripcion" 
-        rows="6" 
-        placeholder="Explica qué pasó, qué necesitas o qué aprendiste..." 
+      <textarea
+        id="descripcion"
+        formControlName="descripcion"
+        rows="6"
+        placeholder="Explica qué pasó, qué necesitas o qué aprendiste..."
         [class.is-invalid]="descripcion.invalid && descripcion.touched"
         required
       ></textarea>
@@ -65,10 +76,10 @@
     <div class="field">
       <label for="archivos">Adjuntar archivos (opcional)</label>
       <p class="file-hint">Imágenes: 15MB | GIFs: 15MB | Videos: 50MB</p>
-      <input 
-        id="archivos" 
-        type="file" 
-        multiple 
+      <input
+        id="archivos"
+        type="file"
+        multiple
         (change)="onArchivosSeleccionados($event)"
         accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar,video/*,.gif"
       >

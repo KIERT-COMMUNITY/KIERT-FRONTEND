@@ -451,3 +451,27 @@
     font-style: italic;
   }
 }
+// ============================================================
+// ✅ Ajustes para el aviso de login dentro del post form
+// ============================================================
+
+// Aseguramos que el aviso se vea bien en tema claro y oscuro
+.create-post-container {
+  kiert-aviso-login {
+    display: block;
+    margin-bottom: 1.25rem;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+// En tema claro, mantener buen contraste
+.tema-light {
+  kiert-aviso-login {
+    .aviso-login {
+      background: #fff3cd;
+      border-color: #ffeeba;
+      color: #856404;
+    }
+  }
+}

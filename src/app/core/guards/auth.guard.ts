@@ -9,20 +9,17 @@ export const authGuard: CanActivateFn = async (route, state) => {
   const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  // Esperar a que AuthService termine de leer de sessionStorage
-  //    (evita el parpadeo "Sin sesión → login")
+  // ✅ Esperar a que AuthService termine de leer del storage
   await auth.whenReady();
 
   const hayUsuario = auth.isAuthenticated();
   const hayAdmin = adminAuth.estaLogueado();
 
-  if (hayUsuario || hayAdmin) {
-    return true;
-  }
+  if (hayUsuario || hayAdmin) return true;
 
-  console.warn('[AUTH GUARD] Sin sesión, redirigiendo a login');
+  console.warn('[AUTH GUARD] Sin sesión → /login (returnUrl:', state.url, ')');
   router.navigate(['/login'], {
-    queryParams: { redirect: state.url }
+    queryParams: { returnUrl: state.url }
   });
   return false;
 };

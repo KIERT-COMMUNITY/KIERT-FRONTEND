@@ -1276,3 +1276,53 @@ $font-display: 'JetBrains Mono', monospace;
     transition: none !important;
   }
 }
+// ============================================================
+// ✅ AVISO DE LOGIN (invitados)
+// ============================================================
+
+.post-detail-wrapper {
+  kiert-aviso-login {
+    display: block;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+// Formulario de comentario "invitado"
+.comentarios__form--guest {
+  cursor: pointer;
+
+  .comentarios__input {
+    cursor: pointer;
+    color: var(--tema-text);
+    opacity: 0.6;
+  }
+}
+
+.btn-guest-small {
+  background: $primary !important;
+  color: $bg-primary !important;
+  font-weight: 700 !important;
+  padding: 8px 14px !important;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+// Tema claro
+.tema-light {
+  kiert-aviso-login .aviso-login {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+}
+
+@media (max-width: 768px) {
+  .post-detail-wrapper kiert-aviso-login {
+    margin-bottom: 12px;
+  }
+}

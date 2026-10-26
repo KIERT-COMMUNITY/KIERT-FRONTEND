@@ -1,4 +1,4 @@
-// src/app/features/chat-global/chat-global.component.scss
+// src/app/features/chat/chat-global/chat-global.component.scss
 $primary: #2dd4bf;
 $bg-primary: #0d1117;
 $bg-secondary: #131a22;
@@ -105,7 +105,6 @@ $text-muted: #5a6a7a;
     }
   }
 
-  // ===== AVATAR CLICKEABLE =====
   .avatar-btn {
     padding: 0;
     margin: 0;
@@ -153,7 +152,6 @@ $text-muted: #5a6a7a;
       align-items: baseline;
       margin-bottom: 0.2rem;
 
-      // ===== NOMBRE CLICKEABLE =====
       .autor-link {
         font-size: 0.8rem;
         color: $primary;
@@ -225,6 +223,23 @@ $text-muted: #5a6a7a;
 
     &:hover:not(:disabled) { filter: brightness(1.1); }
     &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+}
+
+/* ✅ Bloque invitado (input falso + botón "Registrarse") */
+.chat-input--guest {
+  cursor: pointer;
+
+  .input-guest {
+    cursor: pointer;
+    color: $text-muted;
+  }
+
+  .btn-guest {
+    background: $primary;
+    color: $bg-primary;
+
+    &:hover { filter: brightness(1.1); }
   }
 }
 

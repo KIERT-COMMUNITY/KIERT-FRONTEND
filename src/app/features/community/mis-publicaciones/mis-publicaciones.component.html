@@ -1,6 +1,17 @@
-<!-- APLICAR TEMA DE COLOR -->
+<!-- src/app/features/community/mis-publicaciones/mis-publicaciones.component.html -->
 <div class="mis-publicaciones-container" [ngClass]="personalizacionStore.temaClass()">
-  
+
+  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <kiert-aviso-login
+    [visible]="mostrarAvisoLogin()"
+    icono="🔒"
+    titulo="Debes registrarte"
+    [mensaje]="mensajeAvisoLogin()"
+    textoBoton="Ir al login"
+    (irAlLogin)="irALogin()"
+    (cerrar)="cerrarAvisoLogin()">
+  </kiert-aviso-login>
+
   <div class="header">
     <button class="btn-volver" (click)="volverAlFeed()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -30,7 +41,7 @@
       <div class="spinner"></div>
       <p>Cargando tus publicaciones...</p>
     </div>
-  } @else if (posts().length === 0) {
+  } @else if (posts().length === 0 && estaLogueado) {
     <div class="empty-state">
       <div class="empty-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -39,15 +50,15 @@
       </div>
       <h3>No tienes publicaciones</h3>
       <p>Comienza a compartir tus casos, dudas o historias con la comunidad.</p>
-      <button class="btn-primary" routerLink="/comunidad/nueva-publicacion">
+      <a class="btn-primary" routerLink="/comunidad/nueva-publicacion">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"/>
           <line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
         Crear publicación
-      </button>
+      </a>
     </div>
-  } @else {
+  } @else if (posts().length > 0) {
     <div class="posts-grid">
       @for (post of posts(); track post.id) {
         <div class="post-card">
@@ -60,7 +71,7 @@
               </div>
             </div>
             <div class="post-actions">
-            <button class="btn-eliminar" (click)="eliminarPublicacion(post)" title="Eliminar publicación">
+              <button class="btn-eliminar" (click)="eliminarPublicacion(post)" title="Eliminar publicación">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"/>
                   <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>

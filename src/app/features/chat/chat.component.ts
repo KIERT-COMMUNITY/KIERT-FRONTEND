@@ -18,6 +18,7 @@ import { Sticker } from '../../core/models/sticker.model';
 import { AvatarFrameComponent } from '../../shared/components/avatar-frame/avatar-frame.component';
 import { CrearGrupoModalComponent } from '../../shared/components/crear-grupo-modal/crear-grupo-modal.component';
 import { StickerPickerComponent } from '../../shared/components/sticker-picker/sticker-picker.component';
+import { AvisoLoginComponent } from '../../shared/components/aviso-login/aviso-login.component'; // ✅ NUEVO
 
 type TabTipo = 'chats' | 'grupos';
 
@@ -26,7 +27,8 @@ type TabTipo = 'chats' | 'grupos';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, AvatarFrameComponent,
-    CrearGrupoModalComponent, StickerPickerComponent
+    CrearGrupoModalComponent, StickerPickerComponent,
+    AvisoLoginComponent // ✅ NUEVO
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
@@ -80,7 +82,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   grupoAEliminar = signal<Grupo | null>(null);
   miembroAExpulsar = signal<MiembroGrupo | null>(null);
 
-  // ✅ NUEVO: Presencia
+  // ✅ NUEVO: aviso para invitados (privado + grupos)
+  mostrarAvisoLoginPrivado = signal(false);
+  mostrarAvisoLoginGrupo = signal(false);
+
   presencias = signal<Map<number, PresenciaUsuario>>(new Map());
   private presenciaInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -98,6 +103,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   get solicitudesPendientes(): SolicitudContacto[] {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
+  }
+
+  /** ✅ Getter para el template */
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
   }
 
   conversacionesFiltradas = computed(() => {
@@ -230,7 +240,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.actualizarConversacionesYContadores();
     }, 8000);
 
-    //  Actualizar presencia cada 15 segundos
     this.ngZone.runOutsideAngular(() => {
       this.presenciaInterval = setInterval(() => {
         if (document.visibilityState === 'visible') {
@@ -506,6 +515,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   enviarMensajeGrupo(): void {
+    // ✅ BLOQUEO PARA INVITADOS
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLoginGrupo.set(true);
+      return;
+    }
+
     const contenido = this.formMensajeGrupo.value.contenido?.trim();
     const grupoId = this.grupoSeleccionado();
     if (!contenido || !grupoId) return;
@@ -717,7 +732,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     document.body.style.overflow = this.mobileMenuOpen() ? 'hidden' : '';
   }
 
+  // ============================================================
+  // ENVÍO PRIVADO
+  // ============================================================
   enviarMensaje(): void {
+    // ✅ BLOQUEO PARA INVITADOS
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLoginPrivado.set(true);
+      return;
+    }
+
     const receptorId = this.usuarioSeleccionado();
     if (!receptorId) {
       this.errorMsg.set('Selecciona un usuario para chatear');
@@ -776,8 +800,22 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  toggleStickerPicker(): void { this.mostrarStickerPicker.update(v => !v); }
-  toggleStickerPickerGrupo(): void { this.mostrarStickerPickerGrupo.update(v => !v); }
+  // ✅ Bloqueo de stickers para invitados
+  toggleStickerPicker(): void {
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLoginPrivado.set(true);
+      return;
+    }
+    this.mostrarStickerPicker.update(v => !v);
+  }
+
+  toggleStickerPickerGrupo(): void {
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLoginGrupo.set(true);
+      return;
+    }
+    this.mostrarStickerPickerGrupo.update(v => !v);
+  }
 
   onStickerSeleccionado(sticker: Sticker): void {
     const receptorId = this.usuarioSeleccionado();
@@ -879,6 +917,18 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.router.navigate(['/usuario', usuarioId]);
   }
 
+  /** ✅ Ir al login guardando URL */
+  irALogin(): void {
+    this.mostrarAvisoLoginPrivado.set(false);
+    this.mostrarAvisoLoginGrupo.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
+  cerrarAvisoLoginPrivado(): void { this.mostrarAvisoLoginPrivado.set(false); }
+  cerrarAvisoLoginGrupo(): void   { this.mostrarAvisoLoginGrupo.set(false); }
+
   getNombreUsuario(usuarioId: number): string {
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     return conv?.nombreUsuario || 'Usuario';
@@ -902,9 +952,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return new Date(tieneZona ? s : s + 'Z');
   }
 
-  // ============================================================
-  // ✅ ESTADO ONLINE/OFFLINE (usa backend)
-  // ============================================================
   estaEnLinea(usuarioId: number): boolean {
     const presencia = this.presencias().get(usuarioId);
     if (presencia) return presencia.enLinea;
@@ -916,42 +963,42 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const presencia = this.presencias().get(usuarioId);
     if (presencia) {
       if (presencia.enLinea) return 'En línea';
-      
+
       const fecha = this.parsearFechaUtc(presencia.ultimaConexion);
       if (!fecha) return 'Desconectado';
-      
+
       const diffMs = Date.now() - fecha.getTime();
       if (diffMs < 0) return 'Últ. vez hace unos segundos';
-      
+
       const diffMin = Math.floor(diffMs / 60000);
       const diffH = Math.floor(diffMin / 60);
       const diffD = Math.floor(diffH / 24);
-      
+
       if (diffMin < 1) return 'Últ. vez hace unos segundos';
       if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
       if (diffH < 24) return `Últ. vez hace ${diffH} h`;
       if (diffD < 7) return `Últ. vez hace ${diffD} d`;
-      
+
       return `Últ. vez ${fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`;
     }
-    
+
     const conv = this.conversaciones().find(c => c.usuarioId === usuarioId);
     if (!conv) return 'Desconocido';
     if (conv.online) return 'En línea';
-    
+
     const fecha = this.parsearFechaUtc(conv.ultimaConexion);
     if (!fecha) return 'Desconectado';
-    
+
     const diffMs = Date.now() - fecha.getTime();
     const diffMin = Math.floor(diffMs / 60000);
     const diffH = Math.floor(diffMin / 60);
     const diffD = Math.floor(diffH / 24);
-    
+
     if (diffMin < 1) return 'Últ. vez hace unos segundos';
     if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
     if (diffH < 24) return `Últ. vez hace ${diffH} h`;
     if (diffD < 7) return `Últ. vez hace ${diffD} d`;
-    
+
     return `Últ. vez ${fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`;
   }
 

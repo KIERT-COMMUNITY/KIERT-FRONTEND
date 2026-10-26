@@ -13,6 +13,7 @@ import { Post, Comentario, Respuesta, Adjunto, Autor, Subtitulo } from '../../..
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 import { CompartirModalComponent } from '../../../shared/components/compartir-modal/compartir-modal.component';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 @Component({
   selector: 'kiert-post-detail',
@@ -23,7 +24,8 @@ import { CompartirModalComponent } from '../../../shared/components/compartir-mo
     RouterLink,
     AvatarFrameComponent,
     ReporteModalComponent,
-    CompartirModalComponent
+    CompartirModalComponent,
+    AvisoLoginComponent
   ],
   templateUrl: './post-detail.component.html',
   styleUrl: './post-detail.component.scss',
@@ -52,6 +54,10 @@ export class PostDetailComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
 
+  // ✅ AVISO LOGIN
+  mostrarAvisoLogin = signal(false);
+  mensajeAvisoLogin = signal<string>('Debes registrarte para interactuar con esta publicación.');
+
   // ========== REPORTES ==========
   mostrarModalReporte = signal(false);
   tipoReporteActual = signal<'POST' | 'COMENTARIO' | 'RESPUESTA' | 'USUARIO'>('POST');
@@ -66,7 +72,7 @@ export class PostDetailComponent implements OnInit {
   mostrarModalCompartir = signal(false);
   totalCompartidos = signal(0);
 
-  // ========== SUBTÍTULOS DE VIDEO ==========
+  // ========== SUBTÍTULOS ==========
   subtitulosActivos = signal<{ [adjuntoId: number]: boolean }>({});
   idiomaSeleccionado = signal<{ [adjuntoId: number]: string }>({});
   subiendoSubtitulo = signal<number | null>(null);
@@ -102,6 +108,25 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
+  // ✅ AVISO LOGIN
+  // ============================================================
+  abrirAviso(mensaje: string): void {
+    this.mensajeAvisoLogin.set(mensaje);
+    this.mostrarAvisoLogin.set(true);
+  }
+
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
+  }
+
+  // ============================================================
   // CATEGORÍA
   // ============================================================
   getCategoriaFormateada(categoria: string): string {
@@ -116,30 +141,15 @@ export class PostDetailComponent implements OnInit {
   getColorCategoria(categoria: string): string {
     if (!categoria) return '#8b98a5';
     const categoriaLower = categoria.toLowerCase();
-    if (categoriaLower.includes('hacking') || categoriaLower.includes('seguridad') || categoriaLower.includes('ciber')) {
-      return '#ff6b6b';
-    }
-    if (categoriaLower.includes('ayuda') || categoriaLower.includes('emergencia') || categoriaLower.includes('socorro')) {
-      return '#feca57';
-    }
-    if (categoriaLower.includes('historia') || categoriaLower.includes('experiencia') || categoriaLower.includes('caso')) {
-      return '#55efc4';
-    }
-    if (categoriaLower.includes('programacion') || categoriaLower.includes('codigo') || categoriaLower.includes('desarrollo')) {
-      return '#0984e3';
-    }
-    if (categoriaLower.includes('redes') || categoriaLower.includes('network') || categoriaLower.includes('infraestructura')) {
-      return '#6c5ce7';
-    }
-    if (categoriaLower.includes('ia') || categoriaLower.includes('inteligencia') || categoriaLower.includes('machine')) {
-      return '#fd79a8';
-    }
+    if (categoriaLower.includes('hacking') || categoriaLower.includes('seguridad') || categoriaLower.includes('ciber')) return '#ff6b6b';
+    if (categoriaLower.includes('ayuda') || categoriaLower.includes('emergencia') || categoriaLower.includes('socorro')) return '#feca57';
+    if (categoriaLower.includes('historia') || categoriaLower.includes('experiencia') || categoriaLower.includes('caso')) return '#55efc4';
+    if (categoriaLower.includes('programacion') || categoriaLower.includes('codigo') || categoriaLower.includes('desarrollo')) return '#0984e3';
+    if (categoriaLower.includes('redes') || categoriaLower.includes('network') || categoriaLower.includes('infraestructura')) return '#6c5ce7';
+    if (categoriaLower.includes('ia') || categoriaLower.includes('inteligencia') || categoriaLower.includes('machine')) return '#fd79a8';
     return '#2dd4bf';
   }
 
-  // ============================================================
-  // MARCO DEL AUTOR (se pasa a kiert-avatar-frame)
-  // ============================================================
   getMarcoDelAutor(): string {
     return this.post()?.autor?.marcoId || 'none';
   }
@@ -166,7 +176,6 @@ export class PostDetailComponent implements OnInit {
   private inicializarSubtitulos(post: Post): void {
     const activos: { [id: number]: boolean } = {};
     const idiomas: { [id: number]: string } = {};
-
     (post.adjuntos || [])
       .filter(a => this.esVideo(a))
       .forEach(video => {
@@ -176,7 +185,6 @@ export class PostDetailComponent implements OnInit {
           idiomas[video.id] = porDefecto.idioma;
         }
       });
-
     this.subtitulosActivos.set(activos);
     this.idiomaSeleccionado.set(idiomas);
   }
@@ -214,15 +222,13 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // REACCIONES AL POST
+  // REACCIONES
   // ============================================================
   reaccionar(tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para reaccionar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para reaccionar a las publicaciones.');
       return;
     }
-
     const postId = Number(this.id());
     this.reaccionService.reaccionarPost(postId, tipo).subscribe({
       next: (data) => {
@@ -237,16 +243,11 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // REACCIONES A COMENTARIOS
-  // ============================================================
   reaccionarComentario(comentarioId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para reaccionar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para reaccionar a los comentarios.');
       return;
     }
-
     this.comentarioService.reaccionarComentario(comentarioId, tipo).subscribe({
       next: (data) => {
         this.comentarios.update(lista =>
@@ -257,10 +258,7 @@ export class PostDetailComponent implements OnInit {
               return {
                 ...c,
                 reacciones: data,
-                userReactions: {
-                  ...userReactions,
-                  [key]: !userReactions[key]
-                }
+                userReactions: { ...userReactions, [key]: !userReactions[key] }
               };
             }
             return c;
@@ -271,16 +269,11 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // REACCIONES A RESPUESTAS
-  // ============================================================
   reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para reaccionar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para reaccionar a las respuestas.');
       return;
     }
-
     this.comentarioService.reaccionarRespuesta(respuestaId, tipo).subscribe({
       next: (data) => {
         this.comentarios.update(lista =>
@@ -295,10 +288,7 @@ export class PostDetailComponent implements OnInit {
                   return {
                     ...r,
                     reacciones: data,
-                    userReactions: {
-                      ...userReactions,
-                      [key]: !userReactions[key]
-                    }
+                    userReactions: { ...userReactions, [key]: !userReactions[key] }
                   };
                 })
               };
@@ -312,16 +302,15 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // ENVIAR COMENTARIO
+  // COMENTAR / RESPONDER
   // ============================================================
   enviarComentario(): void {
-    if (this.formComentario.invalid) {
-      this.formComentario.markAllAsTouched();
+    if (!this.authService.isAuthenticated()) {
+      this.abrirAviso('Debes registrarte para comentar.');
       return;
     }
-    if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Debes iniciar sesion para comentar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+    if (this.formComentario.invalid) {
+      this.formComentario.markAllAsTouched();
       return;
     }
     this.enviandoComentario.set(true);
@@ -350,17 +339,13 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // ENVIAR RESPUESTA
-  // ============================================================
   enviarRespuesta(comentarioId: number): void {
-    if (this.formRespuesta.invalid) {
-      this.formRespuesta.markAllAsTouched();
+    if (!this.authService.isAuthenticated()) {
+      this.abrirAviso('Debes registrarte para responder.');
       return;
     }
-    if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Debes iniciar sesion para comentar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+    if (this.formRespuesta.invalid) {
+      this.formRespuesta.markAllAsTouched();
       return;
     }
     this.enviandoRespuesta.set(comentarioId);
@@ -400,25 +385,23 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // TOGGLE RESPONDER
+  // TOGGLES
   // ============================================================
   toggleResponder(comentarioId: number): void {
+    if (!this.authService.isAuthenticated()) {
+      this.abrirAviso('Debes registrarte para responder.');
+      return;
+    }
     this.comentarios.update(lista =>
       lista.map(c => {
         if (c.id === comentarioId) {
-          return {
-            ...c,
-            mostrandoFormularioRespuesta: !c.mostrandoFormularioRespuesta
-          };
+          return { ...c, mostrandoFormularioRespuesta: !c.mostrandoFormularioRespuesta };
         }
         return c;
       })
     );
   }
 
-  // ============================================================
-  // TOGGLE VER RESPUESTAS
-  // ============================================================
   toggleVerRespuestas(comentarioId: number): void {
     this.comentarios.update(lista =>
       lista.map(c => {
@@ -427,10 +410,7 @@ export class PostDetailComponent implements OnInit {
           if (mostrando && (!c.respuestas || c.respuestas.length === 0)) {
             this.cargarRespuestas(comentarioId);
           }
-          return {
-            ...c,
-            mostrandoRespuestas: mostrando
-          };
+          return { ...c, mostrandoRespuestas: mostrando };
         }
         return c;
       })
@@ -439,43 +419,24 @@ export class PostDetailComponent implements OnInit {
 
   cargarRespuestas(comentarioId: number): void {
     this.comentarios.update(lista =>
-      lista.map(c => {
-        if (c.id === comentarioId) {
-          return { ...c, cargandoRespuestas: true };
-        }
-        return c;
-      })
+      lista.map(c => c.id === comentarioId ? { ...c, cargandoRespuestas: true } : c)
     );
-
     this.comentarioService.listarRespuestas(comentarioId).subscribe({
       next: (respuestas) => {
         const respuestasConUI = respuestas.map(r => ({
           ...r,
           userReactions: r.userReactions || { like: false, love: false }
         }));
-
         this.comentarios.update(lista =>
-          lista.map(c => {
-            if (c.id === comentarioId) {
-              return {
-                ...c,
-                respuestas: respuestasConUI,
-                totalRespuestas: respuestasConUI.length,
-                cargandoRespuestas: false
-              };
-            }
-            return c;
-          })
+          lista.map(c => c.id === comentarioId
+            ? { ...c, respuestas: respuestasConUI, totalRespuestas: respuestasConUI.length, cargandoRespuestas: false }
+            : c
+          )
         );
       },
       error: () => {
         this.comentarios.update(lista =>
-          lista.map(c => {
-            if (c.id === comentarioId) {
-              return { ...c, cargandoRespuestas: false };
-            }
-            return c;
-          })
+          lista.map(c => c.id === comentarioId ? { ...c, cargandoRespuestas: false } : c)
         );
       }
     });
@@ -485,6 +446,10 @@ export class PostDetailComponent implements OnInit {
   // ELIMINAR
   // ============================================================
   eliminarComentario(comentarioId: number): void {
+    if (!this.authService.isAuthenticated()) {
+      this.abrirAviso('Debes registrarte para eliminar comentarios.');
+      return;
+    }
     if (!confirm('¿Seguro que quieres eliminar este comentario?')) return;
     this.comentarioService.eliminar(comentarioId).subscribe({
       next: () => {
@@ -498,6 +463,10 @@ export class PostDetailComponent implements OnInit {
   }
 
   eliminarRespuesta(comentarioId: number, respuestaId: number): void {
+    if (!this.authService.isAuthenticated()) {
+      this.abrirAviso('Debes registrarte para eliminar respuestas.');
+      return;
+    }
     if (!confirm('¿Seguro que quieres eliminar esta respuesta?')) return;
     this.comentarioService.eliminarRespuesta(respuestaId).subscribe({
       next: () => {
@@ -521,9 +490,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // AUTOR
-  // ============================================================
   esAutor(autor: Autor): boolean {
     const usuario = this.authService.usuario();
     return usuario?.id === autor.id;
@@ -534,8 +500,7 @@ export class PostDetailComponent implements OnInit {
   // ============================================================
   reportarPost(): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para reportar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para reportar publicaciones.');
       return;
     }
     this.tipoReporteActual.set('POST');
@@ -545,8 +510,7 @@ export class PostDetailComponent implements OnInit {
 
   reportarComentario(comentarioId: number): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para reportar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para reportar comentarios.');
       return;
     }
     this.tipoReporteActual.set('COMENTARIO');
@@ -556,8 +520,7 @@ export class PostDetailComponent implements OnInit {
 
   reportarRespuesta(respuestaId: number): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para reportar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para reportar respuestas.');
       return;
     }
     this.tipoReporteActual.set('RESPUESTA');
@@ -567,8 +530,7 @@ export class PostDetailComponent implements OnInit {
 
   reportarUsuario(usuarioId: number): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para reportar');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para reportar usuarios.');
       return;
     }
     this.tipoReporteActual.set('USUARIO');
@@ -585,8 +547,7 @@ export class PostDetailComponent implements OnInit {
   // ============================================================
   abrirModalCompartir(): void {
     if (!this.authService.isAuthenticated()) {
-      this.errorMsg.set('Inicia sesión para compartir');
-      setTimeout(() => this.errorMsg.set(null), 3000);
+      this.abrirAviso('Debes registrarte para compartir publicaciones.');
       return;
     }
     this.mostrarModalCompartir.set(true);
@@ -598,92 +559,6 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // UTILIDADES
-  // ============================================================
-  getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
-    switch(tipo) {
-      case 'like': return 'like';
-      case 'love': return 'love';
-      case 'haha': return 'haha';
-      case 'wow': return 'wow';
-      case 'sad': return 'sad';
-      case 'angry': return 'angry';
-      default: return 'like';
-    }
-  }
-
-  volverAlFeed(): void {
-    this.router.navigate(['/comunidad']);
-  }
-
-  // ============================================================
-  // DETECCIÓN DE TIPOS DE ADJUNTO
-  // ============================================================
-  esImagen(adjunto: Adjunto): boolean {
-    if (!adjunto) return false;
-    const tipo = adjunto.tipo?.toLowerCase() || '';
-    const nombre = adjunto.nombre?.toLowerCase() || '';
-    if (tipo === 'imagen' || tipo === 'image' || tipo === 'gif') return true;
-    if (tipo === 'archivo' || tipo === 'file') {
-      const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.tiff', '.ico'];
-      return extensiones.some(ext => nombre.endsWith(ext));
-    }
-    return false;
-  }
-
-  esVideo(adjunto: Adjunto): boolean {
-    if (!adjunto) return false;
-    const tipo = adjunto.tipo?.toLowerCase() || '';
-    const nombre = adjunto.nombre?.toLowerCase() || '';
-    const mime = adjunto.mimeType?.toLowerCase() || '';
-
-    if (tipo === 'video') return true;
-    if (mime.startsWith('video/')) return true;
-
-    const extensiones = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
-    return extensiones.some(ext => nombre.endsWith(ext));
-  }
-
-  // ============================================================
-  // COLECCIONES DE ADJUNTOS
-  // ============================================================
-  obtenerImagenes(): Adjunto[] {
-    const adjuntos = this.post()?.adjuntos || [];
-    return adjuntos.filter(a => this.esImagen(a));
-  }
-
-  obtenerVideos(): Adjunto[] {
-    const adjuntos = this.post()?.adjuntos || [];
-    return adjuntos.filter(a => this.esVideo(a));
-  }
-
-  obtenerOtrosAdjuntos(): Adjunto[] {
-    const adjuntos = this.post()?.adjuntos || [];
-    return adjuntos.filter(a => !this.esImagen(a) && !this.esVideo(a));
-  }
-
-  cantidadImagenes(): number {
-    return this.obtenerImagenes().length;
-  }
-
-  tieneImagenes(): boolean {
-    return this.cantidadImagenes() > 0;
-  }
-
-  tieneVideos(): boolean {
-    return this.obtenerVideos().length > 0;
-  }
-
-  tieneOtrosAdjuntos(): boolean {
-    return this.obtenerOtrosAdjuntos().length > 0;
-  }
-
-  tieneAdjuntos(): boolean {
-    const adjuntos = this.post()?.adjuntos || [];
-    return adjuntos.length > 0;
-  }
-
-  // ============================================================
   // SUBTÍTULOS
   // ============================================================
   tieneSubtitulos(adjunto: Adjunto): boolean {
@@ -691,30 +566,29 @@ export class PostDetailComponent implements OnInit {
   }
 
   toggleSubtitulos(adjuntoId: number): void {
-    this.subtitulosActivos.update(prev => ({
-      ...prev,
-      [adjuntoId]: !prev[adjuntoId]
-    }));
+    this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: !prev[adjuntoId] }));
   }
 
   cambiarIdiomaSubtitulos(adjuntoId: number, idioma: string): void {
-    this.idiomaSeleccionado.update(prev => ({
-      ...prev,
-      [adjuntoId]: idioma
-    }));
+    this.idiomaSeleccionado.update(prev => ({ ...prev, [adjuntoId]: idioma }));
     this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
   }
 
   obtenerSubtituloActivo(adjunto: Adjunto): Subtitulo | undefined {
     if (!adjunto.subtitulos?.length) return undefined;
     const idioma = this.idiomaSeleccionado()[adjunto.id];
-    if (idioma) {
-      return adjunto.subtitulos.find(s => s.idioma === idioma);
-    }
+    if (idioma) return adjunto.subtitulos.find(s => s.idioma === idioma);
     return adjunto.subtitulos.find(s => s.porDefecto) || adjunto.subtitulos[0];
   }
 
   onSubtituloSeleccionado(event: Event, adjuntoId: number): void {
+    // ✅ Bloqueo invitado
+    if (!this.authService.isAuthenticated()) {
+      this.abrirAviso('Debes registrarte para subir subtítulos.');
+      (event.target as HTMLInputElement).value = '';
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
@@ -747,10 +621,8 @@ export class PostDetailComponent implements OnInit {
             })
           };
         });
-
         this.idiomaSeleccionado.update(prev => ({ ...prev, [adjuntoId]: nuevoSub.idioma }));
         this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
-
         this.subiendoSubtitulo.set(null);
         input.value = '';
       },
@@ -764,8 +636,65 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // ICONOS Y UTILIDADES DE ARCHIVO (sin emojis)
+  // UTILIDADES
   // ============================================================
+  getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
+    switch(tipo) {
+      case 'like': return 'like';
+      case 'love': return 'love';
+      case 'haha': return 'haha';
+      case 'wow': return 'wow';
+      case 'sad': return 'sad';
+      case 'angry': return 'angry';
+      default: return 'like';
+    }
+  }
+
+  volverAlFeed(): void {
+    this.router.navigate(['/comunidad']);
+  }
+
+  esImagen(adjunto: Adjunto): boolean {
+    if (!adjunto) return false;
+    const tipo = adjunto.tipo?.toLowerCase() || '';
+    const nombre = adjunto.nombre?.toLowerCase() || '';
+    if (tipo === 'imagen' || tipo === 'image' || tipo === 'gif') return true;
+    if (tipo === 'archivo' || tipo === 'file') {
+      const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.tiff', '.ico'];
+      return extensiones.some(ext => nombre.endsWith(ext));
+    }
+    return false;
+  }
+
+  esVideo(adjunto: Adjunto): boolean {
+    if (!adjunto) return false;
+    const tipo = adjunto.tipo?.toLowerCase() || '';
+    const nombre = adjunto.nombre?.toLowerCase() || '';
+    const mime = adjunto.mimeType?.toLowerCase() || '';
+    if (tipo === 'video') return true;
+    if (mime.startsWith('video/')) return true;
+    const extensiones = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
+    return extensiones.some(ext => nombre.endsWith(ext));
+  }
+
+  obtenerImagenes(): Adjunto[] {
+    return (this.post()?.adjuntos || []).filter(a => this.esImagen(a));
+  }
+
+  obtenerVideos(): Adjunto[] {
+    return (this.post()?.adjuntos || []).filter(a => this.esVideo(a));
+  }
+
+  obtenerOtrosAdjuntos(): Adjunto[] {
+    return (this.post()?.adjuntos || []).filter(a => !this.esImagen(a) && !this.esVideo(a));
+  }
+
+  cantidadImagenes(): number { return this.obtenerImagenes().length; }
+  tieneImagenes(): boolean { return this.cantidadImagenes() > 0; }
+  tieneVideos(): boolean { return this.obtenerVideos().length > 0; }
+  tieneOtrosAdjuntos(): boolean { return this.obtenerOtrosAdjuntos().length > 0; }
+  tieneAdjuntos(): boolean { return (this.post()?.adjuntos || []).length > 0; }
+
   getIconoAdjunto(adjunto: Adjunto): string {
     if (!adjunto) return 'Archivo';
     if (adjunto.tipo === 'link') return 'Enlace';

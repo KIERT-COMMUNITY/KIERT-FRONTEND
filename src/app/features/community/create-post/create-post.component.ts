@@ -7,15 +7,17 @@ import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { CommonModule } from '@angular/common';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component'; // ✅
 
 @Component({
   selector: 'kiert-create-post',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, AvisoLoginComponent], // ✅
   templateUrl: './create-post.component.html',
   styleUrl: './create-post.component.scss',
 })
 export class CreatePostComponent implements OnInit {
+  // ✅ 1) injects primero
   private fb = inject(FormBuilder);
   private postService = inject(PostService);
   private authService = inject(AuthService);
@@ -23,11 +25,14 @@ export class CreatePostComponent implements OnInit {
   private imageSanitizer = inject(ImageSanitizerService);
   public personalizacionStore = inject(PersonalizacionStore);
 
+  // 2) signals
   publicando = signal(false);
   errorMsg = signal<string | null>(null);
   archivosSeleccionados = signal<File[]>([]);
   estaLogueado = signal<boolean>(false);
+  mostrarAvisoLogin = signal(false); // ✅ NUEVO
 
+  // 3) form (ya puede usar this.fb)
   form = this.fb.group({
     categoria: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     titulo: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(120)]],
@@ -36,10 +41,12 @@ export class CreatePostComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.estaLogueado.set(this.authService.estaLogueado());
-    if (!this.estaLogueado()) {
-      this.errorMsg.set('Debes iniciar sesión para publicar');
-      setTimeout(() => this.router.navigate(['/login']), 2000);
+    const logueado = this.authService.estaLogueado();
+    this.estaLogueado.set(logueado);
+
+    if (!logueado) {
+      // ✅ Mostramos el aviso inmediatamente al invitado
+      this.mostrarAvisoLogin.set(true);
     }
   }
 
@@ -54,8 +61,13 @@ export class CreatePostComponent implements OnInit {
     return 'Documento';
   }
 
-  // AHORA ES ASYNC PARA LIMPIAR METADATOS
   async onArchivosSeleccionados(evento: Event): Promise<void> {
+    // ✅ Bloqueo si no está logueado
+    if (!this.estaLogueado()) {
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
+
     const input = evento.target as HTMLInputElement;
     if (!input.files) return;
 
@@ -91,13 +103,11 @@ export class CreatePostComponent implements OnInit {
     }
 
     if (validos.length > 0) {
-      // Limpiar metadatos EXIF de las imágenes antes de agregarlas
       try {
         const limpios = await this.imageSanitizer.limpiarArchivos(validos);
         this.archivosSeleccionados.set(limpios);
       } catch (error) {
         console.error('Error al limpiar metadatos:', error);
-        // Fallback: usar originales
         this.archivosSeleccionados.set(validos);
       }
     }
@@ -110,7 +120,11 @@ export class CreatePostComponent implements OnInit {
   }
 
   publicar(): void {
-    console.log('Intentando publicar...');
+    // ✅ Bloqueo de invitado ANTES de cualquier otra cosa
+    if (!this.estaLogueado()) {
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -126,12 +140,6 @@ export class CreatePostComponent implements OnInit {
       }
 
       setTimeout(() => this.errorMsg.set(null), 4000);
-      return;
-    }
-
-    if (!this.authService.estaLogueado()) {
-      this.errorMsg.set('Debes iniciar sesión para publicar');
-      setTimeout(() => this.router.navigate(['/login']), 2000);
       return;
     }
 
@@ -193,5 +201,17 @@ export class CreatePostComponent implements OnInit {
 
   cancelar(): void {
     this.router.navigate(['/comunidad']);
+  }
+
+  /** ✅ Ir al login con returnUrl */
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: '/comunidad/nueva-publicacion' }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
   }
 }

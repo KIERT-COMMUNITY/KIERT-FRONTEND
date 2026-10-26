@@ -2,15 +2,18 @@
 import { Component, signal, computed, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BibliotecaService } from '../../../core/services/biblioteca.service';
 import { RecursoBiblioteca } from '../../../core/models/biblioteca.model';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 @Component({
   selector: 'kiert-biblioteca',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AvisoLoginComponent],
   templateUrl: './biblioteca.component.html',
   styleUrl: './biblioteca.component.scss'
 })
@@ -18,6 +21,8 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   private bibliotecaService = inject(BibliotecaService);
   private sanitizer = inject(DomSanitizer);
   public personalizacionStore = inject(PersonalizacionStore);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   // ===== DATOS =====
   recursos = signal<RecursoBiblioteca[]>([]);
@@ -32,6 +37,9 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   errorMsg = signal<string | null>(null);
   vista = signal<'grid' | 'lista'>('grid');
 
+  // ===== AVISO LOGIN =====
+  mostrarAvisoLogin = signal(false);
+
   // ===== DROPDOWN CATEGORÍA =====
   dropdownCategoriaAbierto = signal(false);
 
@@ -43,41 +51,32 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   mostrarAvisoEnlace = signal(false);
   enlaceAAbrir = signal<{ url: string; titulo: string } | null>(null);
 
-  // ===== MODAL DE AVISO DE SEGURIDAD (CONTADOR) =====
+  // ===== MODAL DE AVISO DE SEGURIDAD =====
   mostrarAvisoSeguridad = signal(true);
   contadorSeguridad = signal(5);
   private avisoSeguridadInterval: ReturnType<typeof setInterval> | null = null;
 
-  // ===== LISTA BLANCA DE DOMINIOS CONFIABLES =====
+  // ===== LISTA BLANCA =====
   private readonly DOMINIOS_CONFIABLES = [
-    // Cursos / educación
     'coursera.org', 'edx.org', 'udemy.com', 'udacity.com', 'platzi.com',
     'domestika.org', 'crehana.com', 'khanacademy.org', 'classcentral.com',
     'freecodecamp.org', 'codecademy.com', 'aprendesql.dev', 'midu.link',
     'mygreatlearning.com', 'exceedlms.com', 'nobook.com',
-    // Documentación técnica
     'developer.mozilla.org', 'docs.microsoft.com', 'docs.python.org',
     'docs.oracle.com', 'docs.spring.io', 'angular.io', 'react.dev',
     'vuejs.org', 'nodejs.org', 'kotlinlang.org', 'go.dev', 'rust-lang.org',
     'minecraft.wiki', 'wikipedia.org',
-    // Repositorios y herramientas
     'github.com', 'gitlab.com', 'bitbucket.org', 'stackoverflow.com',
     'figma.com', 'notion.so', 'trello.com', 'miro.com',
     'photopea.com', 'ninite.com', 'ventoy.net', 'rufus.ie',
     'optijuegos.net', '4download.net', 'technical.city', 'ifixit.com',
-    // Idiomas
     'duolingo.com', 'babbel.com', 'busuu.com', 'lingoda.com',
-    // Video
     'youtube.com', 'vimeo.com', 'ted.com',
-    // Artículos
     'medium.com', 'dev.to', 'vidaextra.com', 'scholar.google.com',
-    // Ciberseguridad
     'hackthebox.com', 'tryhackme.com', 'netacad.com',
-    // IA
     'openai.com', 'anthropic.com', 'claude.ai', 'chatgpt.com',
     'gemini.google.com', 'perplexity.ai', 'deepseek.com', 'kimi.ai',
     'grok.com', 'toolify.ai', 'opencode.ai', 'pippit.ai',
-    // Otros
     'kaggle.com', 'hackerrank.com', 'leetcode.com', 'codewars.com',
     'encoded.pe', 'rebajitas.com', 'itsfree.dev', 'minecraftsearch.com',
     'frivlegend.com', 'kawaiianimes.app', 'moewalls.com',
@@ -85,6 +84,11 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     'geode-sdk.org', 'viper.pages.dev', 'rojatvdirecta.online',
     'futbollibrefullhd.org', 'capacitacionlaboral.trabajo.gob.pe'
   ];
+
+  /** ✅ Getter para el template */
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
+  }
 
   destacadosMostrados = computed(() => {
     const todos = this.recursos().filter(r => r.destacado);
@@ -102,7 +106,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.destacadosExpandidos.update(v => !v);
   }
 
-  // ===== PAGINACIÓN DE RECURSOS =====
+  // ===== PAGINACIÓN =====
   recursosExpandidos = signal(false);
   recursosPorPagina = 8;
 
@@ -153,17 +157,16 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // AVISO DE SEGURIDAD CON CONTADOR (5, 4, 3, 2, 1)
+  // AVISO DE SEGURIDAD
   // ============================================================
   private iniciarAvisoSeguridad(): void {
     this.mostrarAvisoSeguridad.set(true);
     this.contadorSeguridad.set(5);
-    
+
     if (this.avisoSeguridadInterval) clearInterval(this.avisoSeguridadInterval);
-    
+
     this.avisoSeguridadInterval = setInterval(() => {
       this.contadorSeguridad.update(c => c - 1);
-      
       if (this.contadorSeguridad() <= 0) {
         this.cerrarAvisoSeguridad();
       }
@@ -251,7 +254,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.recursos().filter(r => r.esUsuario).length
   );
 
-  // ===== DROPDOWN CATEGORÍA =====
+  // ===== DROPDOWN =====
   contarPorCategoria(categoria: string): number {
     if (categoria === 'todas') return this.recursos().length;
     return this.recursos().filter(r => r.categoria === categoria).length;
@@ -280,15 +283,10 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.dropdownCategoriaAbierto()) {
-      this.dropdownCategoriaAbierto.set(false);
-    }
-    if (this.mostrarAvisoEnlace()) {
-      this.cerrarAvisoEnlace();
-    }
-    if (this.mostrarAvisoSeguridad()) {
-      this.cerrarAvisoSeguridad();
-    }
+    if (this.dropdownCategoriaAbierto()) this.dropdownCategoriaAbierto.set(false);
+    if (this.mostrarAvisoEnlace()) this.cerrarAvisoEnlace();
+    if (this.mostrarAvisoSeguridad()) this.cerrarAvisoSeguridad();
+    if (this.mostrarAvisoLogin()) this.cerrarAvisoLogin();
   }
 
   // ===== ACCIONES =====
@@ -315,9 +313,22 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
+  // ✅ AVISO LOGIN
+  // ============================================================
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: '/biblioteca' }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
+  }
+
+  // ============================================================
   // VALIDACIÓN Y APERTURA DE ENLACES
   // ============================================================
-
   esDominioConfiable(url: string): boolean {
     if (!url) return false;
     try {
@@ -368,6 +379,11 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   // ===== MODAL CREAR/EDITAR =====
   abrirModalAgregar(): void {
+    // ✅ Bloqueo invitado
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
     this.modoEdicion.set(false);
     this.recursoEditandoId.set(null);
     this.limpiarFormulario();
@@ -376,6 +392,11 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   abrirModalEditar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
+    // ✅ Bloqueo invitado
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
     if (!recurso.esUsuario) return;
 
     this.modoEdicion.set(true);
@@ -417,6 +438,13 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   // ===== GUARDAR =====
   guardarRecurso(): void {
+    // ✅ Bloqueo extra de seguridad
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLogin.set(true);
+      this.cerrarModal();
+      return;
+    }
+
     if (!this.formTitulo().trim()) {
       this.formError.set('El título es obligatorio');
       return;
@@ -492,6 +520,11 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ===== ELIMINAR =====
   confirmarEliminar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
+    // ✅ Bloqueo invitado
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
     if (!recurso.esUsuario) return;
     this.recursoAEliminar.set(recurso);
   }

@@ -10,13 +10,14 @@ import { PersonalizacionStore } from '../../../core/services/personalizacion-sto
 import { PersonalizacionService, Personalizacion } from '../../../core/services/personalizacion.service';
 import { User } from '../../../core/models/user.model';
 import { BloqueoModalComponent } from '../../../shared/components/bloqueo-modal/bloqueo-modal.component';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 type EstadoContacto = 'ninguno' | 'pendiente-enviada' | 'pendiente-recibida' | 'contacto';
 
 @Component({
   selector: 'kiert-perfil-autor',
   standalone: true,
-  imports: [CommonModule, BloqueoModalComponent],
+  imports: [CommonModule, BloqueoModalComponent, AvisoLoginComponent],
   templateUrl: './perfil-autor.component.html',
   styleUrl: './perfil-autor.component.scss',
 })
@@ -62,6 +63,32 @@ export class PerfilAutorComponent implements OnInit {
   autorFotoPerfil = signal<string>('');
   autorFotoPortada = signal<string>('');
 
+  // ✅ AVISO LOGIN
+  mostrarAvisoLogin = signal(false);
+  mensajeAvisoLogin = signal('Debes registrarte para interactuar con este usuario.');
+
+  // ✅ Getter
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
+  }
+
+  // ✅ Métodos del aviso
+  abrirAvisoLogin(mensaje: string): void {
+    this.mensajeAvisoLogin.set(mensaje);
+    this.mostrarAvisoLogin.set(true);
+  }
+
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
+  }
+
   // ============================================================
   // FONDO DEL PERFIL DEL AUTOR
   // ============================================================
@@ -99,33 +126,24 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   // ============================================================
-  // FOTO DEL AUTOR — Prioridad al USUARIO (fuente de verdad)
+  // FOTO DEL AUTOR
   // ============================================================
   get fotoPerfilDelAutor(): string {
     const autor = this.autor();
     if (!autor) return '';
 
-    // El usuario es la fuente de verdad
     const fotoUsuario = autor.fotoPerfilUrl;
 
-    // Si el usuario tiene foto explícita, usarla
     if (fotoUsuario && fotoUsuario.trim() !== '') {
       return fotoUsuario;
     }
-
-    // Si el usuario la eliminó (null), NO mostrar nada (inicial)
     if (fotoUsuario === null) {
       return '';
     }
-
-    // Fallback: la foto de personalización (solo si usuario no tiene el campo)
     const fotoPers = this.autorFotoPerfil();
     return fotoPers || '';
   }
 
-  // ============================================================
-  // BORDES Y SOMBRAS DE MARCOS
-  // ============================================================
   getMarcoBorder(marcoId: string): string {
     const map: Record<string, string> = {
       'none': 'none',
@@ -197,27 +215,27 @@ export class PerfilAutorComponent implements OnInit {
 
     this.cargarAutor(userId);
     this.cargarPersonalizacionAutor(userId);
-    this.verificarEstadoContacto(userId);
-    this.verificarBloqueo(userId);
+
+    // ✅ Solo consultar contacto/bloqueo si el visitante está logueado
+    if (this.estaLogueado) {
+      this.verificarEstadoContacto(userId);
+      this.verificarBloqueo(userId);
+    }
   }
 
   // ============================================================
-  // CARGAR AUTOR (la foto del usuario es la fuente de verdad)
+  // CARGAR AUTOR
   // ============================================================
   cargarAutor(userId: number): void {
     this.cargando.set(true);
     this.userService.obtenerUsuarioPorId(userId).subscribe({
       next: (user) => {
         this.autor.set(user);
-
-        // Si el usuario tiene foto, usarla; si es null, dejar vacío
-        // (NO sobreescribir con la personalización)
         if (user.fotoPerfilUrl) {
           this.autorFotoPerfil.set(user.fotoPerfilUrl);
         } else {
           this.autorFotoPerfil.set('');
         }
-
         this.cargando.set(false);
       },
       error: () => {
@@ -237,11 +255,6 @@ export class PerfilAutorComponent implements OnInit {
         this.autorTemaId.set(data?.temaId || 'default');
         this.autorMarcoId.set(data?.marcoId || 'none');
         this.autorFondoId.set(data?.fondoId || 'default');
-
-        // NO usar data.fotoPerfilUrl para autorFotoPerfil
-        // La foto del autor SIEMPRE viene del usuario (autor().fotoPerfilUrl)
-        // (Ya se asignó en cargarAutor)
-
         if (data?.fotoPortadaUrl) this.autorFotoPortada.set(data.fotoPortadaUrl);
       },
       error: () => this.autorPersonalizacion.set(null)
@@ -271,23 +284,19 @@ export class PerfilAutorComponent implements OnInit {
         const recibida = recibidas.find(s =>
           s.usuarioId === userId && s.estado === 'PENDIENTE'
         );
-
         if (recibida) {
           this.estadoContacto.set('pendiente-recibida');
           return;
         }
-
         this.chatService.listarSolicitudesEnviadas().subscribe({
           next: (enviadas) => {
             const enviada = enviadas.find(s =>
               s.usuarioId === userId && s.estado === 'PENDIENTE'
             );
-
             if (enviada) {
               this.estadoContacto.set('pendiente-enviada');
               return;
             }
-
             this.estadoContacto.set('ninguno');
           },
           error: () => this.estadoContacto.set('ninguno')
@@ -310,7 +319,14 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  abrirModalBloqueo(): void { this.mostrarModalBloqueo.set(true); }
+  abrirModalBloqueo(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para bloquear usuarios.');
+      return;
+    }
+    this.mostrarModalBloqueo.set(true);
+  }
+
   cerrarModalBloqueo(): void { this.mostrarModalBloqueo.set(false); }
 
   onUsuarioBloqueado(): void {
@@ -322,6 +338,10 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   desbloquear(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para desbloquear usuarios.');
+      return;
+    }
     if (!confirm('¿Desbloquear a este usuario?')) return;
     const userId = this.autor()?.id;
     if (!userId) return;
@@ -348,6 +368,10 @@ export class PerfilAutorComponent implements OnInit {
   // ACCIONES DE CONTACTO
   // ============================================================
   enviarSolicitud(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para enviar solicitudes de contacto.');
+      return;
+    }
     const autorId = this.autor()?.id;
     if (!autorId) return;
 
@@ -378,6 +402,10 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   aceptarSolicitudRecibida(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para aceptar solicitudes.');
+      return;
+    }
     const autorId = this.autor()?.id;
     if (!autorId) return;
 
@@ -386,7 +414,6 @@ export class PerfilAutorComponent implements OnInit {
         const solicitud = solicitudes.find(s =>
           s.usuarioId === autorId && s.estado === 'PENDIENTE'
         );
-
         if (!solicitud) {
           this.errorMsg.set('No se encontró la solicitud');
           setTimeout(() => this.errorMsg.set(null), 3000);
@@ -412,12 +439,15 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   irAlChat(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para chatear en privado.');
+      return;
+    }
     if (this.estadoContacto() !== 'contacto') {
       this.errorMsg.set('Primero deben ser contactos');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-
     const autorId = this.autor()?.id;
     if (autorId) this.router.navigate(['/chat', autorId]);
   }

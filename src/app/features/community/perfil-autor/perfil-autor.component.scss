@@ -581,3 +581,38 @@
     }
   }
 }
+// ============================================================
+// ✅ AVISO DE LOGIN (invitados)
+// ============================================================
+
+.perfil-autor-container {
+  kiert-aviso-login {
+    display: block;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
+// Bloque "invitado" en acciones
+.bloqueo-aviso--guest {
+  background: rgba(45, 212, 191, 0.1) !important;
+  border-color: rgba(45, 212, 191, 0.3) !important;
+  color: #2dd4bf !important;
+}
+
+.tema-light {
+  kiert-aviso-login .aviso-login {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+}
+
+@media (max-width: 768px) {
+  .perfil-autor-container kiert-aviso-login {
+    margin-bottom: 12px;
+  }
+}

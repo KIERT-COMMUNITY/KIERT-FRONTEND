@@ -31,8 +31,13 @@ export class ChatGlobalService implements OnDestroy {
   private readonly apiUrl = `${environment.apiUrl}/chat-global`;
   private readonly wsUrl = environment.wsUrl;
 
+  // ✅ Getter para el componente
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
+  }
+
   // ============================================================
-  // REST: historial
+  // REST: historial (público)
   // ============================================================
   obtenerHistorial(page = 0, size = 50): Observable<MensajeGlobal[]> {
     return this.http.get<MensajeGlobal[]>(`${this.apiUrl}/mensajes`, {
@@ -41,19 +46,18 @@ export class ChatGlobalService implements OnDestroy {
   }
 
   // ============================================================
-  // STOMP
+  // STOMP: solo conectar si hay usuario autenticado
   // ============================================================
   conectar(): void {
     if (this.stompClient?.active) return;
 
     const usuario = this.authService.getUser();
     if (!usuario) {
-      console.warn('[CHAT-GLOBAL] No hay usuario autenticado');
+      console.warn('[CHAT-GLOBAL] Invitado: no se conecta al STOMP');
       return;
     }
 
     const token = this.authService.getToken();
-
     const socket = new SockJS(`${this.wsUrl}/ws`);
 
     this.stompClient = new Client({
@@ -83,6 +87,10 @@ export class ChatGlobalService implements OnDestroy {
   }
 
   enviarMensaje(contenido: string): void {
+    if (!this.estaLogueado) {
+      console.warn('[CHAT-GLOBAL] Invitado: no puede enviar');
+      return;
+    }
     if (!this.stompClient?.connected) {
       console.warn('[CHAT-GLOBAL] No conectado, no se puede enviar');
       return;

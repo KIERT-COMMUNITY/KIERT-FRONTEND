@@ -3,7 +3,7 @@ import { Component, OnInit, signal, computed, inject, OnDestroy, effect } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http'; // ✅ Inyectado para el DELETE
+import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { Subject, of } from 'rxjs';
 
@@ -15,10 +15,11 @@ import { ChatService } from '../../../core/services/chat.service';
 import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { User } from '../../../core/models/user.model';
-import { environment } from '../../../../environments/environment'; // Asegúrate de que la ruta sea correcta
+import { environment } from '../../../../environments/environment';
 
 import { KeyboardHelpComponent } from '../../../shared/components/keyboard-help/keyboard-help.component';
 import { KeyboardShortcutsService } from '../../../core/services/keyboard-shortcuts.service';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 type SeccionActiva = 'perfil' | 'bloqueados' | 'accesibilidad' | 'cuenta';
 type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICITUD_RECIBIDA' | 'YO_MISMO';
@@ -30,7 +31,8 @@ type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICI
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    KeyboardHelpComponent
+    KeyboardHelpComponent,
+    AvisoLoginComponent
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -73,7 +75,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   cargandoBloqueados = signal(false);
   busquedaBloqueado = signal('');
 
-  // ✅ SIGNALS PARA EL MODAL DE ELIMINACIÓN
+  // ✅ AVISO LOGIN
+  mostrarAvisoLogin = signal(false);
+  mensajeAvisoLogin = signal('Debes registrarte para acceder a los ajustes.');
+
   mostrarModalEliminar = signal(false);
   confirmacionTexto = signal('');
 
@@ -124,7 +129,34 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ✅ Getter logueado
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
+  }
+
+  // ✅ Abrir/cerrar aviso
+  abrirAvisoLogin(mensaje: string): void {
+    this.mensajeAvisoLogin.set(mensaje);
+    this.mostrarAvisoLogin.set(true);
+  }
+
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: '/ajustes' }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
+  }
+
   ngOnInit(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para acceder a los ajustes de tu cuenta.');
+      return;
+    }
+
     this.cargarDatosUsuario();
     this.personalizacionStore.cargarPersonalizacion();
     this.personalizacionStore.cargarMarcos();
@@ -184,10 +216,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ELIMINAR CUENTA (SOFT DELETE CON MODAL PERSONALIZADO)
+  // ELIMINAR CUENTA
   // ============================================================
-  
   abrirModalEliminar(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para eliminar tu cuenta.');
+      return;
+    }
     this.confirmacionTexto.set('');
     this.mostrarModalEliminar.set(true);
   }
@@ -198,9 +233,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   confirmarEliminarCuenta(): void {
-    if (this.confirmacionTexto().trim().toUpperCase() !== 'ELIMINAR') {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para eliminar tu cuenta.');
       return;
     }
+    if (this.confirmacionTexto().trim().toUpperCase() !== 'ELIMINAR') return;
 
     this.cargando.set(true);
     this.http.delete(`${environment.apiUrl}/usuarios/me`).subscribe({
@@ -252,10 +289,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.chatService.sonContactos(usuarioId).subscribe({
       next: (respuesta: any) => {
         let esContacto = false;
-
-        if (typeof respuesta === 'boolean') {
-          esContacto = respuesta;
-        } else if (respuesta && typeof respuesta === 'object' && 'sonContactos' in respuesta) {
+        if (typeof respuesta === 'boolean') esContacto = respuesta;
+        else if (respuesta && typeof respuesta === 'object' && 'sonContactos' in respuesta) {
           esContacto = respuesta.sonContactos;
         }
 
@@ -265,9 +300,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           return nuevo;
         });
       },
-      error: () => {
-        console.warn('No se pudo verificar si son contactos con usuario', usuarioId);
-      }
+      error: () => {}
     });
   }
 
@@ -296,9 +329,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       const element = document.getElementById(seccion);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);
   }
 
@@ -320,6 +351,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   desbloquear(usuarioId: number, nombreUsuario: string): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para gestionar bloqueados.');
+      return;
+    }
     if (!confirm(`¿Desbloquear a @${nombreUsuario}? Volverán a poder enviarse mensajes.`)) return;
 
     this.bloqueoService.desbloquear(usuarioId).subscribe({
@@ -337,11 +372,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   formatearFecha(fecha: string | Date): string {
     const d = new Date(fecha);
-    return d.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   // ============================================================
@@ -362,7 +393,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     limpiar(body);
 
     const tema = themeId && themeId !== 'default' ? themeId : 'default';
-
     html.setAttribute('data-theme', tema);
     html.classList.add(`tema-${tema}`);
     body.setAttribute('data-theme', tema);
@@ -404,6 +434,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // ESCALA DE FUENTE
   // ============================================================
   seleccionarTamanoFuente(valor: number): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para cambiar el tamaño de texto.');
+      return;
+    }
     this.personalizacionStore.setEscalaFuente(valor);
     this.exitoMsg.set(`Tamaño de texto: ${this.personalizacionStore.etiquetaEscala()}`);
     setTimeout(() => this.exitoMsg.set(null), 2000);
@@ -414,10 +448,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ajustarFuente(delta: number): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para cambiar el tamaño de texto.');
+      return;
+    }
     this.personalizacionStore.ajustarEscala(delta);
   }
 
   resetearFuente(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para cambiar el tamaño de texto.');
+      return;
+    }
     this.personalizacionStore.resetearEscala();
     this.exitoMsg.set('Tamaño de texto restablecido');
     setTimeout(() => this.exitoMsg.set(null), 2000);
@@ -432,9 +474,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   onInputPorcentajeChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const valor = parseFloat(input.value) / 100;
-    if (!isNaN(valor)) {
-      this.personalizacionStore.setEscalaFuente(valor);
-    }
+    if (!isNaN(valor)) this.personalizacionStore.setEscalaFuente(valor);
   }
 
   // ============================================================
@@ -450,6 +490,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   buscarUsuario(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para buscar usuarios.');
+      return;
+    }
     const query = this.busquedaUsuario().trim();
     if (!query) {
       this.busquedaError.set('Ingresa un nombre de usuario');
@@ -496,23 +540,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   enviarMensaje(usuarioId: number | undefined): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para enviar mensajes.');
+      return;
+    }
     if (usuarioId) this.router.navigate(['/chat', usuarioId]);
   }
 
   enviarSolicitud(usuarioId: number): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para enviar solicitudes.');
+      return;
+    }
     if (!usuarioId) return;
+
     this.enviandoSolicitud.set(true);
     this.userService.enviarSolicitudContacto(usuarioId).subscribe({
       next: () => {
         this.enviandoSolicitud.set(false);
         this.solicitudEnviada.set(usuarioId);
-
         this.estadosRelacion.update(map => {
           const nuevo = new Map(map);
           nuevo.set(usuarioId, 'SOLICITUD_ENVIADA');
           return nuevo;
         });
-
         this.exitoMsg.set('Solicitud de contacto enviada correctamente');
         setTimeout(() => {
           this.exitoMsg.set(null);
@@ -532,19 +583,35 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // PERSONALIZACIÓN
   // ============================================================
   seleccionarTheme(themeId: string): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para cambiar el tema.');
+      return;
+    }
     this.selectedTheme.set(themeId);
     this.aplicarTemaGlobal(themeId);
   }
 
   seleccionarFrame(frameId: string): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para cambiar el marco.');
+      return;
+    }
     this.selectedFrame.set(frameId);
   }
 
   seleccionarBackground(bgId: string): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para cambiar el fondo.');
+      return;
+    }
     this.selectedBackground.set(bgId);
   }
 
   aplicarPersonalizacion(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para guardar tus preferencias.');
+      return;
+    }
     this.cargando.set(true);
     const temaId = this.selectedTheme();
     const marcoId = this.selectedFrame();
@@ -576,11 +643,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   toggleEditarPerfil(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para editar tu perfil.');
+      return;
+    }
     this.editandoPerfil.update(v => !v);
     if (this.editandoPerfil()) this.cargarDatosUsuario();
   }
 
   guardarPerfil(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para guardar tu perfil.');
+      return;
+    }
     if (this.formPerfil.invalid) {
       this.formPerfil.markAllAsTouched();
       return;
@@ -617,6 +692,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async subirFotoPerfil(event: Event): Promise<void> {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para subir una foto de perfil.');
+      (event.target as HTMLInputElement).value = '';
+      return;
+    }
     const input = event.target as HTMLInputElement;
     const archivoOriginal = input.files?.[0];
     if (!archivoOriginal) return;
@@ -642,9 +722,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.personalizacionService.subirFotoPerfil(archivoLimpio).subscribe({
         next: (data) => {
           const user = this.usuario();
-          if (user) {
-            this.authService.usuario.set({ ...user, fotoPerfilUrl: data.fotoPerfilUrl });
-          }
+          if (user) this.authService.usuario.set({ ...user, fotoPerfilUrl: data.fotoPerfilUrl });
           this.exitoMsg.set('Foto de perfil actualizada');
           this.cargando.set(false);
           this.personalizacionStore.recargar();
@@ -669,9 +747,29 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return nombre?.charAt(0)?.toUpperCase() || '?';
   }
 
-  irChat(): void { this.router.navigate(['/chat']); }
-  irPerfil(): void { this.router.navigate(['/perfil']); }
-  irHistorial(): void { this.router.navigate(['/mis-publicaciones']); }
+  irChat(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para entrar al chat.');
+      return;
+    }
+    this.router.navigate(['/chat']);
+  }
+
+  irPerfil(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para ver tu perfil.');
+      return;
+    }
+    this.router.navigate(['/perfil']);
+  }
+
+  irHistorial(): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para ver tu historial.');
+      return;
+    }
+    this.router.navigate(['/mis-publicaciones']);
+  }
 
   abrirAyudaAtajos(): void {
     this.shortcuts.mostrarAyuda.set(true);

@@ -1,6 +1,17 @@
 <!-- src/app/features/feed/feed.component.html -->
 <div class="feed-container">
 
+  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <kiert-aviso-login
+    [visible]="mostrarAvisoLogin()"
+    icono="🔒"
+    titulo="Debes registrarte"
+    [mensaje]="mensajeAvisoLogin()"
+    textoBoton="Ir al login"
+    (irAlLogin)="irALogin()"
+    (cerrar)="cerrarAvisoLogin()">
+  </kiert-aviso-login>
+
   <!-- LOGO DEL SITIO -->
   <div class="feed-logo-section">
     <div class="feed-logo">
@@ -27,13 +38,15 @@
         </svg>
         Actualizar
       </button>
-      <a [routerLink]="['/comunidad/nueva-publicacion']" class="btn btn--primary">
+
+      <!-- ✅ BOTÓN "Publicar" con bloqueo para invitados -->
+      <button type="button" class="btn btn--primary" (click)="irACrearPublicacion($event)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"/>
           <line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
         Publicar
-      </a>
+      </button>
     </div>
   </div>
 

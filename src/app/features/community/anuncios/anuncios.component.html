@@ -2,6 +2,17 @@
 <div class="anuncios-page">
   <h1 class="anuncios-title">Anuncios de la comunidad</h1>
 
+  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <kiert-aviso-login
+    [visible]="mostrarAvisoLogin()"
+    icono="🔒"
+    titulo="Debes registrarte"
+    [mensaje]="mensajeAvisoLogin()"
+    textoBoton="Ir al login"
+    (irAlLogin)="irALogin()"
+    (cerrar)="cerrarAvisoLogin()">
+  </kiert-aviso-login>
+
   @if (cargando()) {
     <div class="anuncios-loading">
       <div class="spinner"></div>
@@ -13,13 +24,13 @@
       <span>Vuelve más tarde para ver novedades.</span>
     </div>
   } @else {
-    
+
     <!-- ========================================================= -->
-    <!-- BANNER FLOTANTE (Usa el anuncio específico del endpoint)  -->
+    <!-- BANNER FLOTANTE                                           -->
     <!-- ========================================================= -->
     @if (mostrarBanner() && anuncioFlotante()) {
       @let banner = anuncioFlotante()!;
-      
+
       <div class="floating-ad">
         <button class="floating-ad__close" (click)="cerrarBanner()" aria-label="Cerrar anuncio">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -27,7 +38,7 @@
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
-        
+
         <div class="floating-ad__content">
           @if (banner.imagenUrl) {
             <div class="floating-ad__img-wrapper">
@@ -53,7 +64,7 @@
     <div class="anuncios-list">
       @for (a of anuncios(); track a.id) {
         <article class="anuncio-banner">
-          
+
           @if (a.imagenUrl) {
             <div class="anuncio-banner__icon">
               <img [src]="a.imagenUrl" [alt]="a.titulo" loading="lazy" />

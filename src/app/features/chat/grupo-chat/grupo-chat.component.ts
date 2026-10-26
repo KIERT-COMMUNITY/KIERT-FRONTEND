@@ -17,6 +17,7 @@ import { CrearGrupoModalComponent } from '../../../shared/components/crear-grupo
 import { InvitarLinkModalComponent } from '../../../shared/components/invitacion-modal/invitar-link-modal.component';
 import { GrupoInfoModalComponent } from '../../../shared/components/grupo-info-modal/grupo-info-modal.component';
 import { StickerPickerComponent } from '../../../shared/components/sticker-picker/sticker-picker.component';
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 type TabTipo = 'chats' | 'grupos';
 
@@ -30,7 +31,8 @@ type TabTipo = 'chats' | 'grupos';
     CrearGrupoModalComponent,
     InvitarLinkModalComponent,
     GrupoInfoModalComponent,
-    StickerPickerComponent
+    StickerPickerComponent,
+    AvisoLoginComponent // ✅ NUEVO
   ],
   templateUrl: './grupo-chat.component.html',
   styleUrl: './grupo-chat.component.scss'
@@ -74,6 +76,9 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   mostrarInvitarLink = signal(false);
   mostrarInfoGrupo = signal(false);
 
+  // ✅ NUEVO: aviso de login
+  mostrarAvisoLogin = signal(false);
+
   // ===== STICKERS =====
   mostrarStickerPicker = signal(false);
 
@@ -101,6 +106,11 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   get solicitudesPendientes(): SolicitudContacto[] {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
+  }
+
+  /** ✅ Getter para el template */
+  get estaLogueado(): boolean {
+    return this.authService.estaLogueado();
   }
 
   // ============================================================
@@ -162,7 +172,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private pollingInterval: any;
 
   constructor() {
-    // ✅ Escuchamos las conversaciones del chat privado (compartido)
     this.chatService.conversaciones$.subscribe(conversaciones => {
       if (conversaciones.length > 0) {
         this.conversaciones.set(conversaciones);
@@ -174,7 +183,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // CICLO DE VIDA
   // ============================================================
   ngOnInit(): void {
-    // ✅ LIMPIEZA INICIAL (evita datos residuales)
     this.mensajes.set([]);
     this.miembros.set([]);
     this.grupo.set(null);
@@ -201,7 +209,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    // Polling más eficiente: solo si hay grupo activo
     this.pollingInterval = setInterval(() => {
       const gid = this.grupoSeleccionado();
       if (gid && this.tabActual() === 'grupos') {
@@ -294,11 +301,8 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   cargarGrupo(grupoId: number): void {
     this.grupoService.obtenerGrupo(grupoId).subscribe({
       next: (g) => {
-        // ✅ SEGURIDAD: Solo cargar si el usuario es miembro
         const usuario = this.authService.usuario();
-        if (usuario && g && !g.totalMiembros) {
-          // Si el backend no devuelve miembros, intentamos igual
-        }
+        if (usuario && g && !g.totalMiembros) { /* noop */ }
         this.grupo.set(g);
       },
       error: () => {
@@ -309,11 +313,10 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   cargarMensajes(grupoId: number): void {
-    // ✅ SEGURIDAD: Solo cargar mensajes si el usuario tiene acceso al grupo
     if (!this.grupoSeleccionado() || grupoId !== this.grupoSeleccionado()) {
       return;
     }
-    
+
     this.cargando.set(true);
     this.grupoService.obtenerMensajes(grupoId).subscribe({
       next: (msgs) => {
@@ -364,7 +367,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   seleccionarGrupo(grupoId: number): void {
-    // ✅ SEGURIDAD: No permitir seleccionar grupo si ya hay otro activo
     if (this.grupoSeleccionado() === grupoId) return;
 
     this.grupoSeleccionado.set(grupoId);
@@ -372,7 +374,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.grupo.set(null);
     this.mensajes.set([]);
     this.miembros.set([]);
-    
+
     this.cargarGrupo(grupoId);
     this.cargarMensajes(grupoId);
     this.cargarMiembros(grupoId);
@@ -390,7 +392,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   seleccionarConversacion(usuarioId: number): void {
-    // ✅ SEGURIDAD: No permitir chatear consigo mismo
     if (usuarioId === this.authService.usuario()?.id) {
       this.errorMsg.set('No puedes chatear contigo mismo');
       setTimeout(() => this.errorMsg.set(null), 3000);
@@ -613,6 +614,10 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // STICKERS
   // ============================================================
   toggleStickerPicker(): void {
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
     this.mostrarStickerPicker.update(v => !v);
   }
 
@@ -646,6 +651,12 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ENVÍO DE MENSAJES
   // ============================================================
   enviarMensaje(): void {
+    // ✅ BLOQUEO PARA INVITADOS
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLogin.set(true);
+      return;
+    }
+
     const contenido = this.formMensaje.value.contenido?.trim() || '';
     const grupoId = this.grupoSeleccionado();
     const archivos = this.archivosSeleccionados();
@@ -686,6 +697,18 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
       });
     }
+  }
+
+  /** ✅ Ir al login guardando URL */
+  irALogin(): void {
+    this.mostrarAvisoLogin.set(false);
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
+  cerrarAvisoLogin(): void {
+    this.mostrarAvisoLogin.set(false);
   }
 
   // ============================================================
@@ -762,12 +785,12 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (m.ultimaConexion) {
       const fecha = this.parsearFechaUtc(m.ultimaConexion);
       if (!fecha) return 'Desconectado';
-      
+
       const ahora = new Date();
       const diffMs = ahora.getTime() - fecha.getTime();
-      
+
       if (diffMs < 0) return 'Últ. vez hace unos segundos';
-      
+
       const diffMin = Math.floor(diffMs / 60000);
       const diffH = Math.floor(diffMin / 60);
       const diffD = Math.floor(diffH / 24);

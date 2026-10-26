@@ -1084,3 +1084,29 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
+// ============================================================
+// ✅ AVISO DE LOGIN (invitados)
+// ============================================================
+
+.profile-container {
+  kiert-aviso-login {
+    display: block;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+.tema-light {
+  kiert-aviso-login .aviso-login {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container kiert-aviso-login {
+    margin-bottom: 12px;
+  }
+}

@@ -39,21 +39,26 @@
   border: 3px solid var(--tema-border, rgba(255, 255, 255, 0.1));
   border-top-color: #2dd4bf;
   border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 // ============================================================
-// BANNER FLOTANTE (Estilo Redes Sociales)
+// BANNER FLOTANTE
 // ============================================================
 .floating-ad {
   position: fixed;
   z-index: 9998;
-  bottom: 100px; // Un poco más arriba para no chocar con el teclado o FAB
-  left: 270px;    // A la izquierda para no chocar con las redes sociales (que suelen estar a la derecha)
-  
+  bottom: 100px;
+  left: 270px;
+
   background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  
+
   border: 1px solid var(--tema-border, #26313c);
   border-radius: 16px;
   padding: 14px;
@@ -143,7 +148,7 @@
 }
 
 // ============================================================
-// LISTA DE ANUNCIOS (Estilo Banner)
+// LISTA DE ANUNCIOS
 // ============================================================
 .anuncios-list {
   display: flex;
@@ -156,11 +161,11 @@
   align-items: center;
   gap: 1.5rem;
   padding: 1.25rem 1.5rem;
-  
+
   background: rgba(13, 17, 23, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  
+
   border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.08));
   border-left: 4px solid #2dd4bf;
   border-radius: 12px;
@@ -213,9 +218,7 @@
     overflow: hidden;
   }
 
-  &__action {
-    flex-shrink: 0;
-  }
+  &__action { flex-shrink: 0; }
 
   &__btn {
     display: inline-flex;
@@ -246,11 +249,36 @@
 }
 
 // ============================================================
+// ✅ AVISO DE LOGIN (invitados)
+// ============================================================
+.anuncios-page {
+  kiert-aviso-login {
+    display: block;
+    margin: 0 auto 24px;
+    max-width: 720px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+.tema-light {
+  kiert-aviso-login .aviso-login {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+}
+
+// ============================================================
 // RESPONSIVE
 // ============================================================
 @media (max-width: 768px) {
   .anuncios-page {
     padding: 1rem 0.75rem;
+
+    kiert-aviso-login {
+      margin-bottom: 16px;
+    }
   }
 
   .anuncios-title {
@@ -281,9 +309,7 @@
       height: 48px;
     }
 
-    &__action {
-      width: 100%;
-    }
+    &__action { width: 100%; }
 
     &__btn {
       width: 100%;
@@ -294,6 +320,6 @@
 
 @media (max-width: 480px) {
   .floating-ad {
-    display: none; // Ocultar banner flotante en móviles muy pequeños para no tapar el contenido
+    display: none;
   }
 }

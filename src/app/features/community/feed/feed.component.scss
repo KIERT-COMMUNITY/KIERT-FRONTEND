@@ -315,3 +315,29 @@ $transition: all 0.2s ease;
     min-height: 120px;
   }
 }
+// ============================================================
+// ✅ AVISO DE LOGIN (invitados)
+// ============================================================
+
+.feed-container {
+  kiert-aviso-login {
+    display: block;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+.tema-light {
+  kiert-aviso-login .aviso-login {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+}
+
+@media (max-width: 768px) {
+  .feed-container kiert-aviso-login {
+    margin-bottom: 12px;
+  }
+}

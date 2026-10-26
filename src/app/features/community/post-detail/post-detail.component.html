@@ -1,6 +1,17 @@
 <!-- src/app/features/community/post-detail/post-detail.component.html -->
 <div [ngClass]="'tema-' + personalizacionStore.temaId()" class="post-detail-wrapper" style="min-height: 100vh;">
 
+  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <kiert-aviso-login
+    [visible]="mostrarAvisoLogin()"
+    icono="🔒"
+    titulo="Debes registrarte"
+    [mensaje]="mensajeAvisoLogin()"
+    textoBoton="Ir al login"
+    (irAlLogin)="irALogin()"
+    (cerrar)="cerrarAvisoLogin()">
+  </kiert-aviso-login>
+
   @if (cargando()) {
     <div class="loading-container">
       <div class="spinner"></div>
@@ -92,7 +103,7 @@
         </div>
       }
 
-      <!-- VIDEOS CON SUBTÍTULOS -->
+      <!-- VIDEOS -->
       @if (tieneVideos()) {
         <div class="post-detail__videos">
           @for (video of obtenerVideos(); track video.id) {
@@ -220,10 +231,8 @@
                 </linearGradient>
               </defs>
               <circle cx="12" cy="12" r="11" fill="url(#likeGradient)"/>
-              <path d="M7 11v7a1 1 0 0 0 1 1h7.28a2 2 0 0 0 1.95-1.55l1.1-4.4A2 2 0 0 0 16.38 10H13V7a2 2 0 0 0-2-2l-3 6H7z"
-                    fill="white" opacity="0.95"/>
-              <path d="M7 11H5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2v-7z"
-                    fill="white" opacity="0.75"/>
+              <path d="M7 11v7a1 1 0 0 0 1 1h7.28a2 2 0 0 0 1.95-1.55l1.1-4.4A2 2 0 0 0 16.38 10H13V7a2 2 0 0 0-2-2l-3 6H7z" fill="white" opacity="0.95"/>
+              <path d="M7 11H5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2v-7z" fill="white" opacity="0.75"/>
             </svg>
             <span class="reaction-count">{{ reacciones().likes }}</span>
           </button>
@@ -242,8 +251,7 @@
                 </linearGradient>
               </defs>
               <circle cx="12" cy="12" r="11" fill="url(#loveGradient)"/>
-              <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"
-                    fill="white" opacity="0.95"/>
+              <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z" fill="white" opacity="0.95"/>
             </svg>
             <span class="reaction-count">{{ reacciones().loves }}</span>
           </button>
@@ -264,8 +272,7 @@
               <circle cx="12" cy="12" r="11" fill="url(#hahaGradient)"/>
               <circle cx="8.5" cy="10" r="1.3" fill="#1f2937"/>
               <circle cx="15.5" cy="10" r="1.3" fill="#1f2937"/>
-              <path d="M7 14c1 2 3 3 5 3s4-1 5-3"
-                    stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+              <path d="M7 14c1 2 3 3 5 3s4-1 5-3" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
             </svg>
             <span class="reaction-count">{{ reacciones().hahas }}</span>
           </button>
@@ -307,10 +314,8 @@
               <circle cx="12" cy="12" r="11" fill="url(#sadGradient)"/>
               <circle cx="8.5" cy="10" r="1.3" fill="#1f2937"/>
               <circle cx="15.5" cy="10" r="1.3" fill="#1f2937"/>
-              <path d="M7.5 17c1-1.5 2.5-2.5 4.5-2.5s3.5 1 4.5 2.5"
-                    stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-              <path d="M18 5.5c-1 0-1.5 1-1.5 2s.5 2 1.5 2 1.5-1 1.5-2-.5-2-1.5-2z"
-                    fill="#60a5fa"/>
+              <path d="M7.5 17c1-1.5 2.5-2.5 4.5-2.5s3.5 1 4.5 2.5" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+              <path d="M18 5.5c-1 0-1.5 1-1.5 2s.5 2 1.5 2 1.5-1 1.5-2-.5-2-1.5-2z" fill="#60a5fa"/>
             </svg>
             <span class="reaction-count">{{ reacciones().sads }}</span>
           </button>
@@ -333,8 +338,7 @@
               <circle cx="15.5" cy="10.5" r="1.3" fill="#1f2937"/>
               <path d="M6.5 7.5l3 1.5" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
               <path d="M17.5 7.5l-3 1.5" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
-              <path d="M7.5 17c1-1.5 2.5-2.5 4.5-2.5s3.5 1 4.5 2.5"
-                    stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+              <path d="M7.5 17c1-1.5 2.5-2.5 4.5-2.5s3.5 1 4.5 2.5" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
             </svg>
             <span class="reaction-count">{{ reacciones().angrys }}</span>
           </button>
@@ -389,23 +393,40 @@
         <span class="comentarios__count">{{ comentarios().length }}</span>
       </div>
 
-      <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
-        <div class="comentarios__input-wrapper">
-          <input
-            formControlName="contenido"
-            type="text"
-            placeholder="{{ estaLogueado() ? 'Escribe un comentario...' : 'Inicia sesión para comentar' }}"
-            class="comentarios__input"
-            [class.disabled]="!estaLogueado()"
-          >
-          <button type="submit" class="comentarios__btn" [class.disabled]="!estaLogueado()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22 2 11 13"/>
-              <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-          </button>
+      <!-- ✅ FORM COMENTARIO: logueados → form; invitados → botón bloqueado -->
+      @if (estaLogueado()) {
+        <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
+          <div class="comentarios__input-wrapper">
+            <input
+              formControlName="contenido"
+              type="text"
+              placeholder="Escribe un comentario..."
+              class="comentarios__input"
+            >
+            <button type="submit" class="comentarios__btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 2 11 13"/>
+                <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      } @else {
+        <div class="comentarios__form comentarios__form--guest"
+             (click)="abrirAviso('Debes registrarte para comentar esta publicación.')">
+          <div class="comentarios__input-wrapper">
+            <input
+              type="text"
+              placeholder="Inicia sesión para comentar..."
+              class="comentarios__input"
+              readonly
+            >
+            <button type="button" class="comentarios__btn btn-guest-small" (click)="abrirAviso('Debes registrarte para comentar esta publicación.'); $event.stopPropagation()">
+              Registrarse
+            </button>
+          </div>
         </div>
-      </form>
+      }
 
       <div class="comentarios__lista">
         @for (c of comentarios(); track c.id) {
@@ -442,10 +463,7 @@
               </div>
               <p class="comentario__texto">{{ c.contenido }}</p>
 
-              <!-- ACCIONES DEL COMENTARIO -->
               <div class="comentario__actions">
-
-                <!-- LIKE -->
                 <button class="comentario__reaction"
                         data-tipo="like"
                         [class.active]="c.userReactions?.like"
@@ -459,15 +477,12 @@
                       </linearGradient>
                     </defs>
                     <circle cx="12" cy="12" r="11" [attr.fill]="'url(#likeGradC' + c.id + ')'"/>
-                    <path d="M7 11v7a1 1 0 0 0 1 1h7.28a2 2 0 0 0 1.95-1.55l1.1-4.4A2 2 0 0 0 16.38 10H13V7a2 2 0 0 0-2-2l-3 6H7z"
-                          fill="white" opacity="0.95"/>
-                    <path d="M7 11H5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2v-7z"
-                          fill="white" opacity="0.75"/>
+                    <path d="M7 11v7a1 1 0 0 0 1 1h7.28a2 2 0 0 0 1.95-1.55l1.1-4.4A2 2 0 0 0 16.38 10H13V7a2 2 0 0 0-2-2l-3 6H7z" fill="white" opacity="0.95"/>
+                    <path d="M7 11H5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2v-7z" fill="white" opacity="0.75"/>
                   </svg>
                   <span>{{ c.reacciones?.likes || 0 }}</span>
                 </button>
 
-                <!-- LOVE -->
                 <button class="comentario__reaction"
                         data-tipo="love"
                         [class.active]="c.userReactions?.love"
@@ -481,8 +496,7 @@
                       </linearGradient>
                     </defs>
                     <circle cx="12" cy="12" r="11" [attr.fill]="'url(#loveGradC' + c.id + ')'"/>
-                    <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"
-                          fill="white" opacity="0.95"/>
+                    <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z" fill="white" opacity="0.95"/>
                   </svg>
                   <span>{{ c.reacciones?.loves || 0 }}</span>
                 </button>
@@ -558,10 +572,7 @@
                         </div>
                         <p class="respuesta__texto">{{ r.contenido }}</p>
 
-                        <!-- ACCIONES DE LA RESPUESTA -->
                         <div class="respuesta__actions">
-
-                          <!-- LIKE -->
                           <button class="respuesta__reaction"
                                   data-tipo="like"
                                   [class.active]="r.userReactions?.like"
@@ -575,15 +586,12 @@
                                 </linearGradient>
                               </defs>
                               <circle cx="12" cy="12" r="11" [attr.fill]="'url(#likeGradR' + r.id + ')'"/>
-                              <path d="M7 11v7a1 1 0 0 0 1 1h7.28a2 2 0 0 0 1.95-1.55l1.1-4.4A2 2 0 0 0 16.38 10H13V7a2 2 0 0 0-2-2l-3 6H7z"
-                                    fill="white" opacity="0.95"/>
-                              <path d="M7 11H5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2v-7z"
-                                    fill="white" opacity="0.75"/>
+                              <path d="M7 11v7a1 1 0 0 0 1 1h7.28a2 2 0 0 0 1.95-1.55l1.1-4.4A2 2 0 0 0 16.38 10H13V7a2 2 0 0 0-2-2l-3 6H7z" fill="white" opacity="0.95"/>
+                              <path d="M7 11H5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2v-7z" fill="white" opacity="0.75"/>
                             </svg>
                             <span>{{ r.reacciones?.likes || 0 }}</span>
                           </button>
 
-                          <!-- LOVE -->
                           <button class="respuesta__reaction"
                                   data-tipo="love"
                                   [class.active]="r.userReactions?.love"
@@ -597,8 +605,7 @@
                                 </linearGradient>
                               </defs>
                               <circle cx="12" cy="12" r="11" [attr.fill]="'url(#loveGradR' + r.id + ')'"/>
-                              <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"
-                                    fill="white" opacity="0.95"/>
+                              <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z" fill="white" opacity="0.95"/>
                             </svg>
                             <span>{{ r.reacciones?.loves || 0 }}</span>
                           </button>

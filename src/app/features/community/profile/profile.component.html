@@ -1,6 +1,17 @@
 <!-- src/app/features/profile/profile.component.html -->
 <div class="profile-container">
 
+  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <kiert-aviso-login
+    [visible]="mostrarAvisoLogin()"
+    icono="🔒"
+    titulo="Debes registrarte"
+    [mensaje]="mensajeAvisoLogin()"
+    textoBoton="Ir al login"
+    (irAlLogin)="irALogin()"
+    (cerrar)="cerrarAvisoLogin()">
+  </kiert-aviso-login>
+
   <!-- ===== HEADER ===== -->
   <header class="profile-header">
     <div class="profile-header__left">
@@ -49,7 +60,7 @@
   <!-- ===== TARJETA PRINCIPAL ===== -->
   <div class="profile-card" [class]="'fondo-' + personalizacionStore.fondoId()">
 
-    <!-- ===== SECCIÓN AVATAR ===== -->
+    <!-- SECCIÓN AVATAR -->
     <section class="profile-avatar-section">
       <div class="profile-avatar-wrapper">
         <div class="profile-avatar"
@@ -79,7 +90,7 @@
         }
       </div>
 
-      <!-- ✅ BOTONES DE FOTO -->
+      <!-- BOTONES DE FOTO -->
       <div class="profile-avatar-buttons">
         <label class="btn-upload" [class.disabled]="subiendoFoto()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -105,7 +116,7 @@
       </div>
     </section>
 
-    <!-- ===== SECCIÓN INFO ===== -->
+    <!-- SECCIÓN INFO -->
     <section class="profile-info" [formGroup]="formEditar">
       <div class="profile-info__item">
         <div class="profile-info__icon">
@@ -141,7 +152,6 @@
         </div>
       </div>
 
-      <!-- ✅ SECCIÓN BIOGRAFÍA -->
       <div class="profile-info__item">
         <div class="profile-info__icon">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -155,10 +165,10 @@
         <div class="profile-info__content">
           <span class="profile-info__label">Biografía</span>
           @if (editando()) {
-            <textarea 
-              class="profile-info__input" 
-              formControlName="bio" 
-              rows="3" 
+            <textarea
+              class="profile-info__input"
+              formControlName="bio"
+              rows="3"
               placeholder="Cuéntanos sobre ti..."></textarea>
           } @else {
             @if (bio()) {
@@ -185,7 +195,7 @@
       }
     </section>
 
-    <!-- ===== SECCIÓN STATS ===== -->
+    <!-- SECCIÓN STATS -->
     <section class="profile-stats">
       <div class="profile-stats__item">
         <div class="profile-stats__icon">
@@ -199,7 +209,7 @@
       </div>
     </section>
 
-    <!-- ===== SECCIÓN ACCIONES ===== -->
+    <!-- SECCIÓN ACCIONES -->
     <section class="profile-actions">
       <button class="btn-action" (click)="irHistorialPublicaciones()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -248,7 +258,7 @@
   </div>
 </div>
 
-<!-- ✅ MODAL CONFIRMAR ELIMINAR FOTO -->
+<!-- MODAL CONFIRMAR ELIMINAR FOTO -->
 @if (mostrarConfirmEliminarFoto()) {
   <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminarFoto()">
     <div class="confirm-delete-card" (click)="$event.stopPropagation()">

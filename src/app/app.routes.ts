@@ -17,7 +17,7 @@ export const routes: Routes = [
     ],
   },
 
-  // ===== ADMIN GOOD LOGIN (pantalla completa, sin navbar) =====
+  // ===== ADMIN LOGIN (pantalla completa, sin navbar) =====
   {
     path: 'admin/login',
     loadComponent: () =>
@@ -32,24 +32,22 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'comunidad', pathMatch: 'full' },
 
-      // COMUNIDAD
-      { path: 'comunidad/nueva-publicacion', loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent), canActivate: [authGuard] },
-      { path: 'comunidad/:id', loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent) },
+      // ---------- COMUNIDAD ----------
       { path: 'comunidad', loadComponent: () => import('./features/community/feed/feed.component').then(m => m.FeedComponent) },
-      { path: 'mis-publicaciones', loadComponent: () => import('./features/community/mis-publicaciones/mis-publicaciones.component').then(m => m.MisPublicacionesComponent), canActivate: [authGuard] },
+      { path: 'comunidad/:id', loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent) },
+      { path: 'comunidad/nueva-publicacion', loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent) },
+      { path: 'mis-publicaciones', loadComponent: () => import('./features/community/mis-publicaciones/mis-publicaciones.component').then(m => m.MisPublicacionesComponent) },
 
-      // BIBLIOTECA
+      // ---------- BIBLIOTECA (pública) ----------
       { path: 'biblioteca', loadComponent: () => import('./features/community/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent) },
 
-      // ANUNCIOS
-      { path: 'anuncios', loadComponent: () => import('./features/community/anuncios/anuncios.component').then(m => m.AnunciosComponent), canActivate: [authGuard] },
+      // ---------- ANUNCIOS (invitado puede ver, pero no interactuar) ----------
+      { path: 'anuncios', loadComponent: () => import('./features/community/anuncios/anuncios.component').then(m => m.AnunciosComponent) },
 
-      // NOTIFICACIONES
-      { path: 'notificaciones', loadComponent: () => import('./features/community/notificacion-page/notificaciones-page.component').then(m => m.NotificacionesPageComponent), canActivate: [authGuard] },
+      // ---------- NOTIFICACIONES (invitado puede ver, pero no interactuar) ----------
+      { path: 'notificaciones', loadComponent: () => import('./features/community/notificacion-page/notificaciones-page.component').then(m => m.NotificacionesPageComponent) },
 
-      // ============================================================
-      // ✅ ADMIN (mismo navbar normal, solo protegido por adminGuard)
-      // ============================================================
+      // ---------- ADMIN ----------
       {
         path: 'admin/reportes',
         loadComponent: () => import('./features/admin/admin-reportes/reporte-admin.component').then(m => m.ReportesAdminComponent),
@@ -64,42 +62,34 @@ export const routes: Routes = [
       },
       { path: 'admin', redirectTo: 'admin/reportes', pathMatch: 'full' },
 
-      // PERFIL
-      { path: 'perfil', loadComponent: () => import('./features/community/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
+      // ---------- PERFIL ----------
+      { path: 'perfil', loadComponent: () => import('./features/community/profile/profile.component').then(m => m.ProfileComponent) },
       { path: 'perfil-autor/:id', loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent) },
       { path: 'usuario/:id', loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent) },
 
-      // CHAT GLOBAL
-      { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent), canActivate: [authGuard] },
+      // ---------- CHAT GLOBAL (público) ----------
+      { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent) },
 
-      // CHAT PRIVADO / GRUPOS
-      { path: 'chat', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent), canActivate: [authGuard] },
-      { path: 'chat/grupo/:id', loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent), canActivate: [authGuard] },
-      { path: 'chat/:usuarioId', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent), canActivate: [authGuard] },
+      // ---------- CHAT PRIVADO / GRUPOS (público, aviso al interactuar) ----------
+      { path: 'chat', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
+      { path: 'chat/grupo/:id', loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent) },
+      { path: 'chat/:usuarioId', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
 
-      // AJUSTES
-      { path: 'ajustes', loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent), canActivate: [authGuard] },
+      // ---------- AJUSTES (invitado puede ver, pero no interactuar) ----------
+      { path: 'ajustes', loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent) },
 
-      // ============================================================
-      // ✅ RUTAS LEGALES (públicas, sin authGuard)
-      // ============================================================
+      // ---------- LEGALES (públicas) ----------
       {
         path: 'legal/privacidad',
-        loadComponent: () =>
-          import('./features/legal/privacidad/privacidad.component')
-            .then(m => m.PrivacidadComponent),
+        loadComponent: () => import('./features/legal/privacidad/privacidad.component').then(m => m.PrivacidadComponent),
       },
       {
         path: 'legal/cookies',
-        loadComponent: () =>
-          import('./features/legal/cookies/cookies.component')
-            .then(m => m.CookiesComponent),
+        loadComponent: () => import('./features/legal/cookies/cookies.component').then(m => m.CookiesComponent),
       },
       {
         path: 'legal/terminos',
-        loadComponent: () =>
-          import('./features/legal/terminos/terminos.component')
-            .then(m => m.TerminosComponent),
+        loadComponent: () => import('./features/legal/terminos/terminos.component').then(m => m.TerminosComponent),
       },
     ],
   },
