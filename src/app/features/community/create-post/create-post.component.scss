@@ -1,174 +1,264 @@
-// ============================================================
-// CREATE POST - ESTILOS CON TEMA DE COLOR
-// ============================================================
+// src/app/features/community/create-post/create-post.component.scss
 
+// ============================================================
+// VARIABLES
+// ============================================================
+$primary: #2dd4bf;
+$primary-dark: #17b6a4;
+$danger: #f85149;
+$radius: 12px;
+$radius-sm: 8px;
+$font-display: 'JetBrains Mono', monospace;
+$transition: all 0.2s ease;
+
+// ============================================================
+// CONTENEDOR
+// ============================================================
 .create-post-container {
   max-width: 720px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 1rem 3rem;
   min-height: 100vh;
-  transition: background 0.5s ease, color 0.5s ease;
   color: inherit;
 }
 
-// ===== HEADER =====
+// ============================================================
+// HEADER
+// ============================================================
 .page-header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.15);
 
   .page-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: inherit !important;
+    color: inherit;
     margin: 0;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.02em;
+    font-family: $font-display;
   }
 
   .page-sub {
-    color: inherit !important;
+    color: inherit;
     opacity: 0.6;
-    margin: 0.25rem 0 0;
-    font-size: 0.95rem;
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
   }
 }
 
-// ===== FORMULARIO =====
+// ============================================================
+// FORMULARIO
+// ============================================================
 .post-form {
   max-width: 640px;
   margin: 0 auto;
   padding: 1.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 16px;
-  transition: background 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  background: rgba(128, 128, 128, 0.04);
+  border: 1px solid rgba(128, 128, 128, 0.12);
+  border-radius: $radius;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  transition: $transition;
+}
 
-  &:hover {
-    border-color: rgba(45, 212, 191, 0.12);
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
-  }
+// ============================================================
+// CAMPOS
+// ============================================================
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 
-  .field {
-    margin-bottom: 1.25rem;
-
-    label {
-      display: block;
-      font-weight: 500;
-      font-size: 0.85rem;
-      margin-bottom: 0.4rem;
-      color: inherit !important;
-      opacity: 0.8;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 0.6rem 0.85rem;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      color: inherit !important;
-      font-size: 0.95rem;
-      transition: all 0.3s ease;
-      font-family: 'Inter', -apple-system, sans-serif;
-
-      &:focus {
-        outline: none;
-        border-color: #2dd4bf;
-        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08);
-      }
-
-      &.is-invalid {
-        border-color: #f85149;
-        box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.08);
-      }
-
-      &::placeholder {
-        color: inherit !important;
-        opacity: 0.3;
-      }
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b98a5' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 40px;
-      cursor: pointer;
-    }
-
-    .error-msg {
-      display: block;
-      margin-top: 0.3rem;
-      font-size: 0.8rem;
-      color: #f85149 !important;
-    }
-
-    .char-counter {
-      display: block;
-      text-align: right;
-      font-size: 0.7rem;
-      color: inherit !important;
-      opacity: 0.4;
-      margin-top: 0.2rem;
-    }
-
-    .file-hint {
-      font-size: 0.75rem;
-      color: inherit !important;
-      opacity: 0.4;
-      margin: 0 0 0.5rem;
-    }
-  }
-
-  // ===== INPUT FILE =====
-  input[type="file"] {
-    padding: 0.6rem;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px dashed rgba(255, 255, 255, 0.08);
-    cursor: pointer;
-    color: inherit !important;
-    opacity: 0.7;
+  > label {
     font-size: 0.85rem;
+    font-weight: 600;
+    color: inherit;
+    opacity: 0.85;
+    letter-spacing: 0.01em;
+
+    .required {
+      color: $danger;
+      margin-left: 2px;
+    }
+
+    .optional {
+      color: inherit;
+      opacity: 0.5;
+      font-weight: 400;
+      font-size: 0.78rem;
+      margin-left: 2px;
+    }
+  }
+
+  input[type="text"],
+  input[type="url"],
+  textarea {
     width: 100%;
-    border-radius: 10px;
-    transition: all 0.3s ease;
+    padding: 0.7rem 0.9rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: $radius-sm;
+    color: inherit;
+    font-size: 0.92rem;
+    font-family: inherit;
+    outline: none;
+    transition: $transition;
+    line-height: 1.5;
+
+    &::placeholder {
+      color: inherit;
+      opacity: 0.35;
+    }
+
+    &:focus {
+      border-color: $primary;
+      background: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+    }
+
+    &.is-invalid {
+      border-color: $danger;
+      box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.1);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 130px;
+  }
+
+  .field-hint {
+    font-size: 0.72rem;
+    color: inherit;
+    opacity: 0.45;
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  .error-msg {
+    font-size: 0.75rem;
+    color: $danger;
+    font-weight: 500;
+  }
+
+  .char-counter {
+    align-self: flex-end;
+    font-size: 0.7rem;
+    color: inherit;
+    opacity: 0.4;
+    font-family: $font-display;
+  }
+
+  .file-hint {
+    font-size: 0.72rem;
+    color: inherit;
+    opacity: 0.45;
+    margin: 0 0 0.5rem;
+  }
+}
+
+// ============================================================
+// CHECKBOX ANONIMO
+// ============================================================
+.field--anonimo {
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    background: rgba(45, 212, 191, 0.05);
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: $transition;
 
     &:hover {
-      border-color: rgba(45, 212, 191, 0.3);
-      opacity: 1;
+      background: rgba(45, 212, 191, 0.08);
+      border-color: rgba(45, 212, 191, 0.35);
     }
 
-    &::file-selector-button {
-      padding: 0.4rem 1rem;
-      background: #2dd4bf;
-      color: #0d1117;
-      border: none;
-      border-radius: 6px;
+    input[type="checkbox"] {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: $primary;
       cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      margin-right: 0.6rem;
+    }
 
-      &:hover {
-        opacity: 0.85;
-        transform: translateY(-1px);
+    .checkbox-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+
+      strong {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: inherit;
+      }
+
+      small {
+        font-size: 0.72rem;
+        color: inherit;
+        opacity: 0.6;
+        line-height: 1.4;
       }
     }
   }
 }
 
-// ===== ARCHIVOS =====
+// ============================================================
+// INPUT DE ARCHIVOS
+// ============================================================
+.file-input {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: rgba(128, 128, 128, 0.08);
+  border: 1px dashed rgba(128, 128, 128, 0.3);
+  border-radius: $radius-sm;
+  color: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  align-self: flex-start;
+
+  svg {
+    stroke: currentColor;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+    background: rgba(45, 212, 191, 0.06);
+
+    svg { opacity: 1; }
+  }
+}
+
+.sin-archivos {
+  font-size: 0.75rem;
+  color: inherit;
+  opacity: 0.4;
+  margin: 0.4rem 0 0;
+  font-style: italic;
+}
+
+// ============================================================
+// LISTA DE ARCHIVOS
+// ============================================================
 .archivos-lista {
   list-style: none;
-  margin-top: 0.6rem;
+  margin: 0.6rem 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -177,301 +267,283 @@
   li {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
     background: rgba(0, 0, 0, 0.2);
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: $radius-sm;
+    font-size: 0.8rem;
+    transition: $transition;
 
     .archivo-nombre {
       flex: 1;
-      color: inherit !important;
-      word-break: break-all;
+      min-width: 0;
+      color: inherit;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
     }
 
     .archivo-tamano {
       font-size: 0.7rem;
-      color: inherit !important;
-      opacity: 0.4;
+      color: inherit;
+      opacity: 0.5;
       white-space: nowrap;
+      font-family: $font-display;
     }
 
     .archivo-tipo {
       font-size: 0.65rem;
-      padding: 0.1rem 0.5rem;
-      border-radius: 12px;
-      background: rgba(45, 212, 191, 0.08);
-      color: inherit !important;
-      opacity: 0.6;
-      border: 1px solid rgba(45, 212, 191, 0.06);
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(45, 212, 191, 0.1);
+      border: 1px solid rgba(45, 212, 191, 0.2);
+      color: $primary;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
     }
 
     .btn-remove {
-      background: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      background: transparent;
       border: none;
-      color: #f85149 !important;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0.2rem 0.4rem;
       border-radius: 50%;
-      transition: all 0.2s;
-      line-height: 1;
+      color: $danger;
+      cursor: pointer;
+      transition: $transition;
+      flex-shrink: 0;
+
+      svg { stroke: currentColor; }
 
       &:hover {
-        background: rgba(248, 81, 73, 0.1);
-        transform: scale(1.15);
+        background: rgba(248, 81, 73, 0.15);
       }
     }
   }
 }
 
-// ===== ALERTAS =====
+// ============================================================
+// ALERTA DE ERROR
+// ============================================================
 .form-alert {
-  padding: 0.6rem 1rem;
+  padding: 0.7rem 1rem;
   background: rgba(248, 81, 73, 0.1);
-  border: 1px solid rgba(248, 81, 73, 0.25);
-  border-radius: 8px;
-  color: #f85149 !important;
-  font-size: 0.9rem;
-  margin: 0.6rem 0 0;
-  animation: slideDown 0.3s ease;
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: $radius-sm;
+  color: $danger;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.4;
 }
 
-// ===== BOTONES =====
+// ============================================================
+// BOTONES
+// ============================================================
 .form-actions {
   display: flex;
-  gap: 0.6rem;
-  margin-top: 1.25rem;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(128, 128, 128, 0.12);
 }
 
-.btn {
+.btn,
+.btn-cancel {
+  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.6rem 1.5rem;
-  border: none;
-  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  border-radius: $radius-sm;
+  font-family: inherit;
+  font-size: 0.88rem;
   font-weight: 600;
-  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex: 1;
-
-  &--primary {
-    background: #2dd4bf;
-    color: #0d1117;
-
-    &:hover:not(:disabled) {
-      opacity: 0.85;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(45, 212, 191, 0.25);
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.96);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-}
-
-.btn-cancel {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem 1.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  color: inherit !important;
-  opacity: 0.6;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex: 1;
-
-  &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.12);
-    opacity: 1;
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.96);
-  }
+  transition: $transition;
+  border: 1px solid transparent;
+  min-height: 44px;
 
   &:disabled {
-    opacity: 0.3;
+    opacity: 0.45;
     cursor: not-allowed;
   }
 }
 
-// ===== ANIMACIONES =====
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+.btn--primary {
+  background: $primary;
+  color: #0d1117;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.btn-cancel {
+  background: transparent;
+  border-color: rgba(128, 128, 128, 0.25);
+  color: inherit;
+  opacity: 0.7;
+
+  &:hover:not(:disabled) {
+    background: rgba(128, 128, 128, 0.08);
+    opacity: 1;
+  }
+}
+
+.spinner-btn {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #0d1117;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 // ============================================================
-// CORRECCIÓN PARA TEMA LIGHT
+// AVISO DE LOGIN
 // ============================================================
+.create-post-container {
+  kiert-aviso-login {
+    display: block;
+    margin-bottom: 1.25rem;
+    border-radius: $radius;
+    overflow: hidden;
+  }
+}
 
+// ============================================================
+// TEMA LIGHT
+// ============================================================
 .tema-light {
   .post-form {
-    background: rgba(255, 255, 255, 0.75) !important;
-    color: #1a1a2e !important;
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.08);
 
-    input, textarea, select {
-      background: rgba(255, 255, 255, 0.6) !important;
-      border-color: rgba(0, 0, 0, 0.08) !important;
-      color: #1a1a2e !important;
+    input[type="text"],
+    input[type="url"],
+    textarea {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(0, 0, 0, 0.12);
+      color: #1a1a2e;
 
-      &::placeholder {
-        color: #1a1a2e !important;
-        opacity: 0.3;
-      }
+      &::placeholder { color: #666; }
     }
 
     .archivos-lista li {
-      background: rgba(255, 255, 255, 0.4) !important;
-      border-color: rgba(0, 0, 0, 0.06) !important;
-
-      .archivo-nombre,
-      .archivo-tamano,
-      .archivo-tipo {
-        color: #1a1a2e !important;
-      }
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.08);
     }
 
-    .btn-cancel {
-      color: #555555 !important;
-      border-color: rgba(0, 0, 0, 0.08) !important;
+    .file-input {
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.15);
     }
   }
 
   .page-header {
-    border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+  }
 
-    .page-title,
-    .page-sub {
-      color: #1a1a2e !important;
-    }
+  .form-actions {
+    border-top-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .field--anonimo .checkbox-label {
+    background: rgba(45, 212, 191, 0.08);
+    border-color: rgba(45, 212, 191, 0.3);
+  }
+
+  kiert-aviso-login .aviso-login {
+    background: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
   }
 }
 
 // ============================================================
 // RESPONSIVE
 // ============================================================
-
 @media (max-width: 768px) {
   .create-post-container {
-    padding: 1rem 0.75rem;
+    padding: 1rem 0.75rem 2rem;
   }
 
   .post-form {
     padding: 1.25rem;
-    border-radius: 12px;
+    gap: 1.1rem;
+    border-radius: $radius-sm;
+  }
+
+  .page-header {
+    .page-title { font-size: 1.25rem; }
+    .page-sub { font-size: 0.82rem; }
   }
 }
 
 @media (max-width: 480px) {
   .create-post-container {
-    padding: 0.5rem;
-  }
-
-  .page-title {
-    font-size: 1.2rem;
-  }
-
-  .page-sub {
-    font-size: 0.85rem;
+    padding: 0.75rem 0.5rem 1.5rem;
   }
 
   .post-form {
     padding: 1rem;
-    border-radius: 0;
-    margin: 0 -0.5rem;
+    border-radius: $radius-sm;
   }
 
-  .field {
-    input, textarea, select {
-      font-size: 0.9rem;
-      padding: 0.5rem 0.75rem;
-    }
-
-    label {
-      font-size: 0.8rem;
-    }
+  .page-header {
+    .page-title { font-size: 1.15rem; }
+    .page-sub { font-size: 0.78rem; }
   }
 
   .form-actions {
-    flex-direction: column;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
   }
 
-  .btn, .btn-cancel {
+  .btn,
+  .btn-cancel {
     width: 100%;
+    min-height: 42px;
   }
 
-  .archivos-lista {
-    li {
-      flex-wrap: wrap;
-      gap: 0.3rem;
+  .archivos-lista li {
+    flex-wrap: wrap;
 
-      .archivo-nombre {
-        width: 100%;
-        font-size: 0.8rem;
-      }
+    .archivo-nombre {
+      width: 100%;
+      white-space: normal;
+      word-break: break-all;
+    }
 
-      .btn-remove {
-        margin-left: auto;
-      }
+    .btn-remove {
+      margin-left: auto;
     }
   }
 }
 
-@media (min-width: 481px) and (max-width: 768px) {
-  .create-post-container {
-    padding: 0.75rem;
-  }
-}
-// Agrega este estilo para el hint del campo categoría
-.field {
-  .field-hint {
-    display: block;
-    margin-top: 0.3rem;
-    font-size: 0.7rem;
-    color: inherit !important;
-    opacity: 0.4;
-    font-style: italic;
-  }
-}
-// ============================================================
-// ✅ Ajustes para el aviso de login dentro del post form
-// ============================================================
-
-// Aseguramos que el aviso se vea bien en tema claro y oscuro
-.create-post-container {
-  kiert-aviso-login {
-    display: block;
-    margin-bottom: 1.25rem;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-}
-
-// En tema claro, mantener buen contraste
-.tema-light {
-  kiert-aviso-login {
-    .aviso-login {
-      background: #fff3cd;
-      border-color: #ffeeba;
-      color: #856404;
-    }
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

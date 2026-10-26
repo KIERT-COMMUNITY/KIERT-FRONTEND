@@ -1,6 +1,6 @@
 // src/app/features/feed/feed.component.ts
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';                 // ✅ RouterLink eliminado
 import { CommonModule } from '@angular/common';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -11,7 +11,7 @@ import { AvisoLoginComponent } from '../../../shared/components/aviso-login/avis
 @Component({
   selector: 'kiert-feed',
   standalone: true,
-  imports: [RouterLink, PostCardComponent, CommonModule, AvisoLoginComponent],
+  imports: [PostCardComponent, CommonModule, AvisoLoginComponent], // ✅ RouterLink eliminado
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })

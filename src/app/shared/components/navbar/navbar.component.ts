@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { ChatService } from '../../../core/services/chat.service';
 import { StorageService } from '../../../core/services/storage.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { NotificacionesComponent } from '../../../features/community/notificaciones/notificaciones.component';
 
 @Component({
@@ -31,6 +32,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   public readonly adminAuth = inject(AdminAuthService);
   private readonly chatService = inject(ChatService);
   private readonly storage = inject(StorageService);
+  private readonly personalizacionStore = inject(PersonalizacionStore);
   private readonly router = inject(Router);
 
   readonly menuAbierto = signal(false);
@@ -122,10 +124,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/anuncios']);
   }
 
+  /** ✅ Cerrar sesión: reset completo para que el siguiente NO herede el tema */
   cerrarSesion(): void {
     this.cerrarMenu();
     this.adminAuth.logout();
     this.authService.logout();
+
+    // Reset de personalización → vuelve al tema por defecto (teal)
+    this.personalizacionStore.resetear();
+
+    // Quitar preferencias guardadas en storage
+    this.storage.resetearPreferencias();
+
+    // Quitar flag de invitado por si acaso
+    this.storage.quitarInvitado();
+
     this.router.navigate(['/login']);
   }
 

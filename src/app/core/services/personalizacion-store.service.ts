@@ -276,8 +276,13 @@ export class PersonalizacionStore {
     effect(() => {
       const usuario = this.authService.usuario();
       if (usuario) {
+        // Usuario logueado → cargar SU personalización
         console.log('Usuario logueado, cargando personalización...');
         this.cargarTodos();
+      } else if (this.storage.esInvitado()) {
+        // ✅ Invitado → resetear al tema por defecto
+        console.log('Modo invitado detectado, reseteando personalización...');
+        this.resetear();
       }
     });
 
@@ -285,6 +290,53 @@ export class PersonalizacionStore {
       const escala = this.escalaFuente();
       this.aplicarEscalaFuente(escala);
     });
+  }
+
+  // ============================================================
+  // ✅ RESET AL TEMA POR DEFECTO (usado por invitado)
+  // ============================================================
+  /**
+   * Vuelve al tema/marco/fondo por defecto y quita las clases tema-*
+   * del <html> y <body>. Se usa al entrar como invitado para NO
+   * heredar la personalización del usuario anterior.
+   */
+  resetear(): void {
+    // 1. Estado interno a default
+    this.personalizacionSignal.set({
+      id: 0,
+      usuarioId: 0,
+      temaId: 'default',
+      marcoId: 'none',
+      fondoId: 'default',
+      fotoPerfilUrl: '',
+      fotoPortadaUrl: '',
+      marcoPersonalizadoUrl: ''
+    });
+
+    // 2. Limpiar clases tema-* del html y body
+    const limpiar = (el: HTMLElement) => {
+      el.removeAttribute('data-theme');
+      Array.from(el.classList)
+        .filter(c => c.startsWith('tema-'))
+        .forEach(c => el.classList.remove(c));
+    };
+    limpiar(document.documentElement);
+    limpiar(document.body);
+
+    // 3. Aplicar tema default
+    document.documentElement.setAttribute('data-theme', 'default');
+    document.documentElement.classList.add('tema-default');
+    document.body.setAttribute('data-theme', 'default');
+    document.body.classList.add('tema-default');
+
+    // 4. Resetear estilos inline que pudo haber puesto el usuario anterior
+    document.body.style.backgroundImage = '';
+    document.body.style.background = '';
+
+    // 5. Resetear escala de fuente
+    this.setEscalaFuente(1.0);
+
+    console.log('[PERSONALIZACION] Reset a tema default');
   }
 
   // ============================================================
@@ -296,10 +348,7 @@ export class PersonalizacionStore {
     document.documentElement.style.setProperty('--escala-fuente', String(escala));
     document.documentElement.style.setProperty('--escala-fuente-px', `${basePx}px`);
 
-    // Preferencia compartida entre pestañas (localStorage)
     this.storage.setLocal('kiert_escala_fuente', String(escala));
-
-    console.log(`Escala de fuente aplicada: ${basePx}px (${Math.round(escala * 100)}%)`);
   }
 
   private cargarEscalaGuardada(): number {

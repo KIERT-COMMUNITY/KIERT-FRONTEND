@@ -33,9 +33,10 @@ export const routes: Routes = [
       { path: '', redirectTo: 'comunidad', pathMatch: 'full' },
 
       // ---------- COMUNIDAD ----------
+      // ⚠️ ORDEN IMPORTANTE: primero estáticas, luego dinámicas
       { path: 'comunidad', loadComponent: () => import('./features/community/feed/feed.component').then(m => m.FeedComponent) },
-      { path: 'comunidad/:id', loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent) },
       { path: 'comunidad/nueva-publicacion', loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent) },
+      { path: 'comunidad/:id', loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent) },
       { path: 'mis-publicaciones', loadComponent: () => import('./features/community/mis-publicaciones/mis-publicaciones.component').then(m => m.MisPublicacionesComponent) },
 
       // ---------- BIBLIOTECA (pública) ----------
@@ -71,6 +72,7 @@ export const routes: Routes = [
       { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent) },
 
       // ---------- CHAT PRIVADO / GRUPOS (público, aviso al interactuar) ----------
+      // ⚠️ ORDEN IMPORTANTE: primero estáticas (chat/grupo/:id), luego dinámicas (chat/:usuarioId)
       { path: 'chat', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
       { path: 'chat/grupo/:id', loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent) },
       { path: 'chat/:usuarioId', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },

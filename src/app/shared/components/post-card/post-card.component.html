@@ -1,55 +1,68 @@
 <!-- src/app/features/community/post-card/post-card.component.html -->
 <div class="post-card" [class]="temaClase" (click)="onClick()">
-  
+
   <!-- HEADER -->
   <div class="post-card__header">
     <div class="post-card__user">
-      <kiert-avatar-frame
-        [fotoUrl]="post().autor.fotoPerfilUrl || null"
-        [nombre]="post().autor.nombreUsuario"
-        [size]="40"
-        [alt]="post().autor.nombreUsuario"
-        [navigateToProfile]="true"
-        [usuarioId]="post().autor.id"
-        [marcoId]="getMarcoDelAutor()"
-      />
-      <div class="post-card__user-info">
-        <span class="post-card__username" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">
-          &#64;{{ post().autor.nombreUsuario }}
-        </span>
-        <span class="post-card__badge" [style.background]="getColorCategoria(post().categoria)" [style.color]="'#0d1117'">
-          {{ getCategoriaFormateada(post().categoria) }}
-        </span>
-      </div>
+
+      @if (esAnonimo()) {
+        <div class="post-card__avatar post-card__avatar--anonimo">
+          <span class="avatar-inicial">?</span>
+        </div>
+        <div class="post-card__user-info">
+          <span class="post-card__username post-card__username--anonimo">
+            Anonimo
+          </span>
+          <span class="post-card__badge" [style.background]="getColorCategoria(post().categoria)" [style.color]="'#0d1117'">
+            {{ getCategoriaFormateada(post().categoria) }}
+          </span>
+        </div>
+      } @else {
+        <kiert-avatar-frame
+          [fotoUrl]="post().autor.fotoPerfilUrl || null"
+          [nombre]="post().autor.nombreUsuario"
+          [size]="40"
+          [alt]="post().autor.nombreUsuario"
+          [navigateToProfile]="true"
+          [usuarioId]="post().autor.id"
+          [marcoId]="getMarcoDelAutor()"
+        />
+        <div class="post-card__user-info">
+          <span class="post-card__username" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">
+            &#64;{{ post().autor.nombreUsuario }}
+          </span>
+          <span class="post-card__badge" [style.background]="getColorCategoria(post().categoria)" [style.color]="'#0d1117'">
+            {{ getCategoriaFormateada(post().categoria) }}
+          </span>
+        </div>
+      }
     </div>
+
     <span class="post-card__fecha">{{ formatearFecha(post().fechaCreacion) }}</span>
   </div>
 
-  <!-- TÍTULO -->
+  <!-- TITULO -->
   <h3 class="post-card__titulo">{{ post().titulo }}</h3>
-  
-  <!-- DESCRIPCIÓN -->
+
+  <!-- DESCRIPCION -->
   <p class="post-card__desc">{{ post().descripcion }}</p>
 
-  <!-- ========================================================= -->
-  <!-- CONTENIDO VISUAL: IMAGEN, VIDEO O GIF -->
-  <!-- ========================================================= -->
+  <!-- CONTENIDO VISUAL -->
   @if (tieneVisuales()) {
     @let visual = obtenerPrimerVisual();
     @if (visual) {
       <div class="post-card__media">
-        
-        <!-- VIDEO -->
+
         @if (esVideo(visual)) {
           <div class="post-card__video-wrapper">
-            <video 
-              [src]="visual.url" 
-              controls 
-              muted 
+            <video
+              [src]="visual.url"
+              controls
+              muted
               playsinline
               preload="metadata"
               class="post-card__video"
-              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%231b232c'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='20' fill='%232dd4bf' text-anchor='middle' dy='.3em'%3E▶ Video%3C/text%3E%3C/svg%3E"
+              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%231b232c'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='20' fill='%232dd4bf' text-anchor='middle' dy='.3em'%3EVideo%3C/text%3E%3C/svg%3E"
               (error)="onVideoError($event)"
             >
               Tu navegador no soporta videos.
@@ -62,12 +75,10 @@
             <div class="post-card__media-badge video-badge">Video</div>
           </div>
         }
-        
-        <!-- GIF -->
         @else if (esGif(visual)) {
           <div class="post-card__gif-wrapper">
-            <img 
-              [src]="visual.url" 
+            <img
+              [src]="visual.url"
               [alt]="post().titulo"
               loading="lazy"
               class="post-card__gif"
@@ -76,12 +87,10 @@
             <div class="post-card__media-badge gif-badge">GIF</div>
           </div>
         }
-        
-        <!-- IMAGEN -->
         @else {
           <div class="post-card__image-wrapper">
-            <img 
-              [src]="visual.url" 
+            <img
+              [src]="visual.url"
               [alt]="post().titulo"
               loading="lazy"
               class="post-card__image"
@@ -89,8 +98,7 @@
             >
           </div>
         }
-        
-        <!-- OVERLAY CON CONTADOR DE ARCHIVOS -->
+
         @if (cantidadVisuales() > 1) {
           <div class="post-card__media-overlay">
             +{{ cantidadVisuales() - 1 }}
@@ -100,9 +108,7 @@
     }
   }
 
-  <!-- ========================================================= -->
-  <!-- OTROS ADJUNTOS (ARCHIVOS) -->
-  <!-- ========================================================= -->
+  <!-- OTROS ADJUNTOS -->
   @if (tieneOtrosAdjuntos()) {
     <div class="post-card__otros-adjuntos">
       @for (adjunto of post().adjuntos; track adjunto.id) {
@@ -119,9 +125,7 @@
     </div>
   }
 
-  <!-- ========================================================= -->
   <!-- FOOTER -->
-  <!-- ========================================================= -->
   <div class="post-card__footer">
     <div class="post-card__stats">
       <span class="post-card__stat">

@@ -1326,3 +1326,28 @@ $font-display: 'JetBrains Mono', monospace;
     margin-bottom: 12px;
   }
 }
+// ============================================================
+// AVATAR Y USERNAME ANONIMO
+// ============================================================
+.post-detail__avatar--anonimo {
+  background: linear-gradient(135deg, #4a5568, #2d3748) !important;
+  color: #ffffff !important;
+
+  .avatar-inicial {
+    color: #ffffff !important;
+  }
+}
+
+.post-detail__username--anonimo {
+  cursor: default !important;
+  opacity: 0.9;
+  font-style: normal;              // ← antes era italic
+  color: var(--tema-text-muted, #8b98a5) !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  &:hover {
+    color: var(--tema-text-muted, #8b98a5) !important;
+    text-decoration: none !important;
+  }
+}

@@ -13,6 +13,7 @@ import { BloqueoModalComponent } from '../../../shared/components/bloqueo-modal/
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 type EstadoContacto = 'ninguno' | 'pendiente-enviada' | 'pendiente-recibida' | 'contacto';
+type ErrorTipo = 'eliminada' | 'bloqueada' | 'restringida' | 'error' | 'invalido' | null;
 
 @Component({
   selector: 'kiert-perfil-autor',
@@ -34,11 +35,11 @@ export class PerfilAutorComponent implements OnInit {
   autor = signal<User | null>(null);
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
+  errorTipo = signal<ErrorTipo>(null);
   exitoMsg = signal<string | null>(null);
   esMiPerfil = signal(false);
   usuarioActual = this.authService.usuario;
 
-  // ===== CONTACTO =====
   estadoContacto = signal<EstadoContacto>('ninguno');
   enviandoSolicitud = signal(false);
   procesando = signal(false);
@@ -49,13 +50,11 @@ export class PerfilAutorComponent implements OnInit {
     this.estadoContacto() === 'pendiente-recibida'
   );
 
-  // ===== BLOQUEO =====
   estaBloqueado = signal(false);
   mostrarModalBloqueo = signal(false);
   bloqueoInfo = signal<EstadoBloqueo | null>(null);
   procesandoBloqueo = signal(false);
 
-  // ===== PERSONALIZACIÓN DEL AUTOR =====
   autorPersonalizacion = signal<Personalizacion | null>(null);
   autorTemaId = signal<string>('default');
   autorMarcoId = signal<string>('none');
@@ -63,16 +62,13 @@ export class PerfilAutorComponent implements OnInit {
   autorFotoPerfil = signal<string>('');
   autorFotoPortada = signal<string>('');
 
-  // ✅ AVISO LOGIN
   mostrarAvisoLogin = signal(false);
   mensajeAvisoLogin = signal('Debes registrarte para interactuar con este usuario.');
 
-  // ✅ Getter
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
 
-  // ✅ Métodos del aviso
   abrirAvisoLogin(mensaje: string): void {
     this.mensajeAvisoLogin.set(mensaje);
     this.mostrarAvisoLogin.set(true);
@@ -89,9 +85,6 @@ export class PerfilAutorComponent implements OnInit {
     this.mostrarAvisoLogin.set(false);
   }
 
-  // ============================================================
-  // FONDO DEL PERFIL DEL AUTOR
-  // ============================================================
   get fondoPerfilDelAutor(): string {
     const fondoId = this.autorFondoId();
     const fondos = this.personalizacionStore.fondos();
@@ -125,21 +118,12 @@ export class PerfilAutorComponent implements OnInit {
     };
   }
 
-  // ============================================================
-  // FOTO DEL AUTOR
-  // ============================================================
   get fotoPerfilDelAutor(): string {
     const autor = this.autor();
     if (!autor) return '';
-
     const fotoUsuario = autor.fotoPerfilUrl;
-
-    if (fotoUsuario && fotoUsuario.trim() !== '') {
-      return fotoUsuario;
-    }
-    if (fotoUsuario === null) {
-      return '';
-    }
+    if (fotoUsuario && fotoUsuario.trim() !== '') return fotoUsuario;
+    if (fotoUsuario === null) return '';
     const fotoPers = this.autorFotoPerfil();
     return fotoPers || '';
   }
@@ -198,11 +182,13 @@ export class PerfilAutorComponent implements OnInit {
   // CICLO DE VIDA
   // ============================================================
   ngOnInit(): void {
-    const userId = Number(this.route.snapshot.params['id']);
+    const idParam = this.route.snapshot.params['id'];
+    const userId = Number(idParam);
     const usuarioActual = this.usuarioActual();
 
-    if (!userId || isNaN(userId)) {
-      this.errorMsg.set('Usuario no válido');
+    if (!idParam || isNaN(userId) || userId <= 0) {
+      this.errorTipo.set('invalido');
+      this.errorMsg.set('Usuario no valido');
       this.cargando.set(false);
       return;
     }
@@ -216,7 +202,6 @@ export class PerfilAutorComponent implements OnInit {
     this.cargarAutor(userId);
     this.cargarPersonalizacionAutor(userId);
 
-    // ✅ Solo consultar contacto/bloqueo si el visitante está logueado
     if (this.estaLogueado) {
       this.verificarEstadoContacto(userId);
       this.verificarBloqueo(userId);
@@ -224,10 +209,13 @@ export class PerfilAutorComponent implements OnInit {
   }
 
   // ============================================================
-  // CARGAR AUTOR
+  // CARGAR AUTOR con manejo de errores por status
   // ============================================================
   cargarAutor(userId: number): void {
     this.cargando.set(true);
+    this.errorMsg.set(null);
+    this.errorTipo.set(null);
+
     this.userService.obtenerUsuarioPorId(userId).subscribe({
       next: (user) => {
         this.autor.set(user);
@@ -238,16 +226,28 @@ export class PerfilAutorComponent implements OnInit {
         }
         this.cargando.set(false);
       },
-      error: () => {
-        this.errorMsg.set('Error al cargar el perfil del usuario');
+      error: (err) => {
+        const status = err?.status;
+
+        if (status === 404) {
+          this.errorTipo.set('eliminada');
+          this.errorMsg.set('Cuenta eliminada');
+        } else if (status === 403) {
+          this.errorTipo.set('bloqueada');
+          this.errorMsg.set('Cuenta bloqueada');
+        } else if (status === 401) {
+          this.errorTipo.set('restringida');
+          this.errorMsg.set('Acceso restringido');
+        } else {
+          this.errorTipo.set('error');
+          this.errorMsg.set('No se pudo cargar el perfil');
+        }
+
         this.cargando.set(false);
       }
     });
   }
 
-  // ============================================================
-  // CARGAR PERSONALIZACIÓN
-  // ============================================================
   cargarPersonalizacionAutor(userId: number): void {
     this.personalizacionService.obtenerPersonalizacionPorUsuario(userId).subscribe({
       next: (data: Personalizacion) => {
@@ -261,9 +261,6 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // VERIFICAR CONTACTO
-  // ============================================================
   verificarEstadoContacto(userId: number): void {
     this.chatService.sonContactos(userId).subscribe({
       next: (res: any) => {
@@ -306,9 +303,6 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // BLOQUEO
-  // ============================================================
   verificarBloqueo(userId: number): void {
     this.bloqueoService.verificarEstado(userId).subscribe({
       next: (estado) => {
@@ -342,7 +336,7 @@ export class PerfilAutorComponent implements OnInit {
       this.abrirAvisoLogin('Debes registrarte para desbloquear usuarios.');
       return;
     }
-    if (!confirm('¿Desbloquear a este usuario?')) return;
+    if (!confirm('Desbloquear a este usuario?')) return;
     const userId = this.autor()?.id;
     if (!userId) return;
 
@@ -364,9 +358,6 @@ export class PerfilAutorComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // ACCIONES DE CONTACTO
-  // ============================================================
   enviarSolicitud(): void {
     if (!this.estaLogueado) {
       this.abrirAvisoLogin('Debes registrarte para enviar solicitudes de contacto.');
@@ -390,7 +381,7 @@ export class PerfilAutorComponent implements OnInit {
 
         if (mensaje.toLowerCase().includes('ya enviaste')) {
           this.estadoContacto.set('pendiente-enviada');
-        } else if (mensaje.toLowerCase().includes('ya te envió')) {
+        } else if (mensaje.toLowerCase().includes('ya te envio')) {
           this.estadoContacto.set('pendiente-recibida');
         } else if (mensaje.toLowerCase().includes('ya son contactos')) {
           this.estadoContacto.set('contacto');
@@ -415,7 +406,7 @@ export class PerfilAutorComponent implements OnInit {
           s.usuarioId === autorId && s.estado === 'PENDIENTE'
         );
         if (!solicitud) {
-          this.errorMsg.set('No se encontró la solicitud');
+          this.errorMsg.set('No se encontro la solicitud');
           setTimeout(() => this.errorMsg.set(null), 3000);
           return;
         }
@@ -425,7 +416,7 @@ export class PerfilAutorComponent implements OnInit {
           next: () => {
             this.procesando.set(false);
             this.estadoContacto.set('contacto');
-            this.exitoMsg.set('¡Solicitud aceptada! Ya pueden chatear');
+            this.exitoMsg.set('Solicitud aceptada. Ya pueden chatear');
             setTimeout(() => this.exitoMsg.set(null), 3000);
           },
           error: (err) => {

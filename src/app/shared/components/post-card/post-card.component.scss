@@ -1,25 +1,33 @@
-// ============================================================
-// POST CARD - ADAPTABLE A TEMAS
-// ============================================================
+// src/app/features/community/post-card/post-card.component.scss
 
+// ============================================================
+// VARIABLES
+// ============================================================
+$primary: #2dd4bf;
+$primary-dark: #17b6a4;
+$radius: 12px;
+$radius-sm: 8px;
+$transition: all 0.25s ease;
+$font-display: 'JetBrains Mono', monospace;
+
+// ============================================================
+// POST CARD BASE
+// ============================================================
 .post-card {
   display: block;
-  border-radius: 12px;
+  border-radius: $radius;
   padding: 20px;
   margin-bottom: 16px;
-  transition: all 0.25s ease;
-  
-  // ✅ Fondo semitransparente para que se vea el degradado del feed
-  background: rgba(13, 17, 23, 0.4); 
+  transition: $transition;
+
+  background: rgba(13, 17, 23, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  
+
   border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.08));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   overflow: hidden;
-  
-  // ✅ Color de texto dinámico según el tema
   color: var(--tema-text, #e6edf3);
 
   &:hover {
@@ -27,329 +35,400 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
     border-color: rgba(45, 212, 191, 0.3);
   }
+}
 
-  // HEADER
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
+// ============================================================
+// HEADER
+// ============================================================
+.post-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.post-card__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.post-card__user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.post-card__username {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: color 0.2s;
+  color: var(--tema-text, #e6edf3);
+  text-decoration: none;
+
+  &:hover {
+    color: $primary;
+    text-decoration: underline;
   }
+}
 
-  &__user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+.post-card__badge {
+  font-size: 0.55rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
 
-  &__user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-    min-width: 0;
-  }
+.post-card__fecha {
+  font-size: 0.68rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--tema-text-muted, #8b98a5);
+  opacity: 0.8;
+  font-family: $font-display;
+}
 
-  &__username {
-    font-weight: 600;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    transition: color 0.2s;
-    color: var(--tema-text, #e6edf3); // ✅ Variable dinámica
+// ============================================================
+// AVATAR ANONIMO
+// ============================================================
+.post-card__avatar--anonimo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a5568, #2d3748);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.1);
 
-    &:hover {
-      color: #2dd4bf !important;
-      text-decoration: underline;
-    }
-  }
-
-  &__badge {
-    font-size: 0.55rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    display: inline-block;
-    width: fit-content;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
-
-  &__fecha {
-    font-size: 0.65rem;
-    white-space: nowrap;
-    flex-shrink: 0;
-    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
-    opacity: 0.8;
-  }
-
-  &__titulo {
-    font-size: 1.1rem;
+  .avatar-inicial {
+    color: #ffffff;
     font-weight: 700;
-    margin: 8px 0;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    color: var(--tema-text, #e6edf3); // ✅ Variable dinámica
+    font-size: 1rem;
+    font-family: $font-display;
   }
+}
 
-  &__desc {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    margin: 8px 0 12px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
-    opacity: 0.9;
+.post-card__username--anonimo {
+  cursor: default !important;
+  opacity: 0.85;
+  font-style: normal;              // ← antes era italic
+  color: var(--tema-text-muted, #8b98a5) !important;
+  font-weight: 600;                // ← opcional, se ve mejor en negrita
+  letter-spacing: 0.02em;
+
+  &:hover {
+    color: var(--tema-text-muted, #8b98a5) !important;
+    text-decoration: none !important;
   }
+}
 
-  // ============================================================
-  // MEDIA: IMAGEN, VIDEO, GIF
-  // ============================================================
-  &__media {
-    position: relative;
-    margin: 12px 0;
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.3);
+// ============================================================
+// TITULO Y DESCRIPCION
+// ============================================================
+.post-card__titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 8px 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--tema-text, #e6edf3);
+  font-family: $font-display;
+}
+
+.post-card__desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 8px 0 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--tema-text-muted, #8b98a5);
+  opacity: 0.9;
+}
+
+// ============================================================
+// MEDIA
+// ============================================================
+.post-card__media {
+  position: relative;
+  margin: 12px 0;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.post-card__image-wrapper,
+.post-card__video-wrapper,
+.post-card__gif-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.post-card__image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+
+  &:hover {
+    transform: scale(1.02);
   }
+}
 
-  &__image-wrapper,
-  &__video-wrapper,
-  &__gif-wrapper {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    background: transparent;
-  }
+.post-card__video {
+  width: 100%;
+  max-height: 450px;
+  background: #000;
+  display: block;
+  border-radius: 0;
 
-  &__image {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease;
-    
-    &:hover {
-      transform: scale(1.02);
-    }
-  }
+  &:focus { outline: none; }
+}
 
-  &__video {
-    width: 100%;
-    max-height: 450px;
-    background: #000;
-    display: block;
-    border-radius: 0;
-    
-    &:focus {
-      outline: none;
-    }
-  }
+.post-card__gif {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  display: block;
+}
 
-  &__gif {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    display: block;
-  }
+// ============================================================
+// MEDIA BADGES
+// ============================================================
+.post-card__media-badge {
+  position: absolute;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
 
-  // ============================================================
-  // MEDIA BADGES
-  // ============================================================
-  &__media-badge {
-    position: absolute;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    pointer-events: none;
-  }
+.video-duracion {
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+}
 
-  .video-duracion {
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-  }
+.video-badge {
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: $primary;
+}
 
-  .video-badge {
-    top: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: #2dd4bf;
-  }
+.gif-badge {
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fd79a8;
+}
 
-  .gif-badge {
-    top: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fd79a8;
-  }
+.post-card__video-error {
+  padding: 20px;
+  text-align: center;
+  color: var(--tema-text-muted, #8b98a5);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: $radius-sm;
+}
 
-  &__video-error {
-    padding: 20px;
-    text-align: center;
-    color: var(--tema-text-muted, #8b98a5);
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-  }
+.post-card__media-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 4px 14px;
+  border-radius: 0 0 0 $radius-sm;
+  font-size: 0.8rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
 
-  // ============================================================
-  // MEDIA OVERLAY (contador de archivos)
-  // ============================================================
-  &__media-overlay {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-    padding: 4px 14px;
-    border-radius: 0 0 0 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    backdrop-filter: blur(4px);
-    pointer-events: none;
-  }
+// ============================================================
+// OTROS ADJUNTOS
+// ============================================================
+.post-card__otros-adjuntos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 8px 0 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
+}
 
-  // ============================================================
-  // OTROS ADJUNTOS
-  // ============================================================
-  &__otros-adjuntos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 8px 0 12px;
-    padding: 8px 0;
-    border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
-  }
+.post-card__adjunto-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 10px;
+  background: rgba(45, 212, 191, 0.05);
+  border: 1px solid rgba(45, 212, 191, 0.1);
+  border-radius: 6px;
+  color: var(--tema-text-muted, #8b98a5);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
 
-  &__adjunto-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 4px 10px;
-    background: rgba(45, 212, 191, 0.05);
-    border: 1px solid rgba(45, 212, 191, 0.1);
-    border-radius: 6px;
-    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
-    font-size: 0.75rem;
+  &:hover {
+    background: rgba(45, 212, 191, 0.1);
+    border-color: rgba(45, 212, 191, 0.3);
+    color: $primary;
     text-decoration: none;
-    transition: all 0.2s;
-    cursor: pointer;
+  }
+}
+
+.post-card__adjunto-icono {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: $primary;
+  font-family: $font-display;
+}
+
+.post-card__adjunto-nombre {
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-card__adjunto-peso {
+  font-size: 0.6rem;
+  color: var(--tema-text-muted, #5a6a7a);
+  opacity: 0.7;
+}
+
+// ============================================================
+// FOOTER
+// ============================================================
+.post-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
+}
+
+.post-card__stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.post-card__stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--tema-text-muted, #8b98a5);
+
+  svg { stroke: currentColor; }
+}
+
+// ============================================================
+// TEMA LIGHT
+// ============================================================
+.tema-light {
+  .post-card {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(0, 0, 0, 0.08);
 
     &:hover {
-      background: rgba(45, 212, 191, 0.1);
-      border-color: rgba(45, 212, 191, 0.3);
-      color: #2dd4bf;
-      text-decoration: none;
+      border-color: rgba(45, 212, 191, 0.4);
     }
   }
 
-  &__adjunto-icono {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #2dd4bf;
+  .post-card__username {
+    color: #1a1a2e;
+
+    &:hover { color: $primary; }
   }
 
-  &__adjunto-nombre {
-    max-width: 120px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .post-card__username--anonimo {
+    color: #666 !important;
+
+    &:hover { color: #666 !important; }
   }
 
-  &__adjunto-peso {
-    font-size: 0.6rem;
-    color: var(--tema-text-muted, #5a6a7a);
-    opacity: 0.7;
-  }
-
-  // ============================================================
-  // FOOTER
-  // ============================================================
-  &__footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
-  }
-
-  &__stats {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  &__stat {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.8rem;
-    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
-
-    svg {
-      stroke: currentColor;
-    }
-  }
-
-  &__media-indicator {
-    font-size: 0.9rem;
-  }
+  .post-card__fecha { color: #666; }
+  .post-card__titulo { color: #1a1a2e; }
+  .post-card__desc { color: #555; }
+  .post-card__stat { color: #666; }
+  .post-card__adjunto-link { color: #666; }
 }
 
 // ============================================================
 // RESPONSIVE
 // ============================================================
+@media (max-width: 768px) {
+  .post-card {
+    padding: 16px;
+  }
+
+  .post-card__image { max-height: 320px; }
+  .post-card__video { max-height: 350px; }
+  .post-card__gif { max-height: 320px; }
+}
+
 @media (max-width: 480px) {
   .post-card {
     padding: 14px;
     border-radius: 0;
     margin-bottom: 12px;
   }
-  
-  .post-card__image {
-    max-height: 250px;
-  }
-  
-  .post-card__video {
-    max-height: 280px;
-  }
-  
-  .post-card__gif {
-    max-height: 250px;
-  }
-  
-  .post-card__adjunto-nombre {
-    max-width: 80px;
+
+  .post-card__image { max-height: 250px; }
+  .post-card__video { max-height: 280px; }
+  .post-card__gif { max-height: 250px; }
+  .post-card__adjunto-nombre { max-width: 80px; }
+  .post-card__titulo { font-size: 1rem; }
+  .post-card__desc { font-size: 0.85rem; }
+
+  .post-card__avatar--anonimo {
+    width: 36px;
+    height: 36px;
+
+    .avatar-inicial { font-size: 0.9rem; }
   }
 }
 
-@media (min-width: 481px) and (max-width: 768px) {
-  .post-card {
-    padding: 16px;
-  }
-  
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  .post-card,
   .post-card__image {
-    max-height: 320px;
-  }
-  
-  .post-card__video {
-    max-height: 350px;
-  }
-  
-  .post-card__gif {
-    max-height: 320px;
+    transition: none !important;
+
+    &:hover { transform: none; }
   }
 }

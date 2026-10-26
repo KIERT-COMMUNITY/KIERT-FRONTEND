@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { StorageService } from '../../../core/services/storage.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -19,6 +20,7 @@ export class LoginComponent implements OnInit {
   private auth = inject(AuthService);
   private adminAuth = inject(AdminAuthService);
   private storage = inject(StorageService);
+  private personalizacionStore = inject(PersonalizacionStore);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -28,7 +30,6 @@ export class LoginComponent implements OnInit {
 
   private returnUrl = '/comunidad';
 
-  // ✅ Rutas que el invitado NO puede usar (fallback → /comunidad)
   private readonly RUTAS_PRIVADAS = [
     '/perfil',
     '/ajustes',
@@ -71,6 +72,7 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         const mensaje = err.error?.error || err.error?.mensaje || '';
+
         const esAdmin = mensaje.toLowerCase().includes('administrador') ||
                         mensaje.toLowerCase().includes('admin') ||
                         err.status === 403;
@@ -88,12 +90,22 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  /** ✅ Entrar como invitado */
+  /** ✅ Entrar como invitado: reset total para NO heredar del usuario anterior */
   entrarComoInvitado(): void {
+    // 1. Limpiar cualquier sesión previa
     this.auth.limpiarSesionPublica();
+
+    // 2. Resetear personalización al tema por defecto (evita que el invitado
+    //    herede el tema/marco/fondo del usuario anterior)
+    this.personalizacionStore.resetear();
+
+    // 3. Limpiar claves de preferencias guardadas en storage
+    this.storage.resetearPreferencias();
+
+    // 4. Marcar modo invitado
     this.storage.setInvitado();
 
-    // ✅ Si el returnUrl es una ruta privada, mandamos al invitado a /comunidad
+    // 5. Si el returnUrl es ruta privada, mandamos al invitado a /comunidad
     const esRutaPrivada = this.RUTAS_PRIVADAS.some(r => this.returnUrl.startsWith(r));
     const destino = esRutaPrivada ? '/comunidad' : (this.returnUrl || '/comunidad');
 

@@ -1,10 +1,8 @@
 <!-- src/app/features/community/post-detail/post-detail.component.html -->
 <div [ngClass]="'tema-' + personalizacionStore.temaId()" class="post-detail-wrapper" style="min-height: 100vh;">
 
-  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
-    icono="🔒"
     titulo="Debes registrarte"
     [mensaje]="mensajeAvisoLogin()"
     textoBoton="Ir al login"
@@ -15,7 +13,7 @@
   @if (cargando()) {
     <div class="loading-container">
       <div class="spinner"></div>
-      <p>Cargando publicación...</p>
+      <p>Cargando publicacion...</p>
     </div>
   } @else if (errorMsg() && !post()) {
     <div class="error-container">
@@ -27,7 +25,7 @@
         </svg>
       </div>
       <h2>{{ errorMsg() }}</h2>
-      <p>La publicación que buscas no está disponible o ha sido eliminada.</p>
+      <p>La publicacion que buscas no esta disponible o ha sido eliminada.</p>
       <button class="btn-volver" (click)="volverAlFeed()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"/>
@@ -43,29 +41,44 @@
       <!-- HEADER -->
       <div class="post-detail__header">
         <div class="post-detail__user">
-          <kiert-avatar-frame
-            [fotoUrl]="postActual.autor.fotoPerfilUrl || null"
-            [nombre]="postActual.autor.nombreUsuario"
-            [size]="48"
-            [alt]="postActual.autor.nombreUsuario"
-            [navigateToProfile]="true"
-            [usuarioId]="postActual.autor.id"
-            [marcoId]="getMarcoDelAutor()"
-          />
+          @if (postActual.autor && postActual.autor.id) {
+            <kiert-avatar-frame
+              [fotoUrl]="postActual.autor.fotoPerfilUrl || null"
+              [nombre]="postActual.autor.nombreUsuario"
+              [size]="48"
+              [alt]="postActual.autor.nombreUsuario"
+              [navigateToProfile]="true"
+              [usuarioId]="postActual.autor.id"
+              [marcoId]="getMarcoDelAutor()"
+            />
 
-          <div class="post-detail__user-info">
-            <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
-              @{{ postActual.autor.nombreUsuario }}
-            </span>
-            <span class="post-detail__badge" [style.background]="getColorCategoria(postActual.categoria)" [style.color]="'#0d1117'">
-              {{ getCategoriaFormateada(postActual.categoria) }}
-            </span>
-          </div>
+            <div class="post-detail__user-info">
+              <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
+                &#64;{{ postActual.autor.nombreUsuario }}
+              </span>
+              <span class="post-detail__badge" [style.background]="getColorCategoria(postActual.categoria)" [style.color]="'#0d1117'">
+                {{ getCategoriaFormateada(postActual.categoria) }}
+              </span>
+            </div>
+          } @else {
+            <div class="post-detail__avatar post-detail__avatar--anonimo">
+              <span class="avatar-inicial">?</span>
+            </div>
+
+            <div class="post-detail__user-info">
+              <span class="post-detail__username post-detail__username--anonimo">
+                Anonimo
+              </span>
+              <span class="post-detail__badge" [style.background]="getColorCategoria(postActual.categoria)" [style.color]="'#0d1117'">
+                {{ getCategoriaFormateada(postActual.categoria) }}
+              </span>
+            </div>
+          }
         </div>
 
         <div class="post-detail__header-right">
           <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
-          <button class="btn-compartir-header" (click)="abrirModalCompartir()" title="Compartir publicación">
+          <button class="btn-compartir-header" (click)="abrirModalCompartir()" title="Compartir publicacion">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="18" cy="5" r="3"/>
               <circle cx="6" cy="12" r="3"/>
@@ -74,7 +87,7 @@
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
             </svg>
           </button>
-          <button class="btn-reportar" (click)="reportarPost()" title="Reportar publicación">
+          <button class="btn-reportar" (click)="reportarPost()" title="Reportar publicacion">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
               <line x1="4" y1="22" x2="4" y2="15"/>
@@ -86,7 +99,6 @@
       <h1 class="post-detail__titulo">{{ postActual.titulo }}</h1>
       <p class="post-detail__desc">{{ postActual.descripcion }}</p>
 
-      <!-- IMÁGENES -->
       @if (tieneImagenes()) {
         <div class="post-detail__galeria" [class.galeria-multiple]="cantidadImagenes() > 1">
           @for (img of obtenerImagenes(); track img.id) {
@@ -103,7 +115,6 @@
         </div>
       }
 
-      <!-- VIDEOS -->
       @if (tieneVideos()) {
         <div class="post-detail__videos">
           @for (video of obtenerVideos(); track video.id) {
@@ -136,7 +147,7 @@
                     class="btn-subtitulos"
                     [class.active]="subtitulosActivos()[video.id]"
                     (click)="toggleSubtitulos(video.id)"
-                    title="Activar/desactivar subtítulos"
+                    title="Activar/desactivar subtitulos"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="5" width="18" height="14" rx="2"/>
@@ -152,7 +163,7 @@
                     class="select-idioma"
                     [value]="idiomaSeleccionado()[video.id] || ''"
                     (change)="cambiarIdiomaSubtitulos(video.id, $any($event.target).value)"
-                    title="Idioma de subtítulos"
+                    title="Idioma de subtitulos"
                   >
                     @for (sub of video.subtitulos; track sub.id) {
                       <option [value]="sub.idioma">{{ sub.etiqueta }}</option>
@@ -160,7 +171,7 @@
                   </select>
 
                   @if (obtenerSubtituloActivo(video)?.esAutoGenerado) {
-                    <span class="badge-auto" title="Generado automáticamente">Auto</span>
+                    <span class="badge-auto" title="Generado automaticamente">Auto</span>
                   }
                 }
 
@@ -175,7 +186,7 @@
                         <polyline points="17 8 12 3 7 8"/>
                         <line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
-                      <span>{{ tieneSubtitulos(video) ? 'Añadir subtítulo' : 'Añadir subtítulos (.vtt)' }}</span>
+                      <span>{{ tieneSubtitulos(video) ? 'Anadir subtitulo' : 'Anadir subtitulos (.vtt)' }}</span>
                     }
                     <input
                       type="file"
@@ -192,7 +203,6 @@
         </div>
       }
 
-      <!-- ADJUNTOS -->
       @if (tieneOtrosAdjuntos()) {
         <div class="post-detail__adjuntos">
           <h4>Archivos adjuntos</h4>
@@ -213,11 +223,9 @@
         </div>
       }
 
-      <!-- REACCIONES -->
       <div class="post-detail__interactions">
         <div class="reactions">
 
-          <!-- LIKE -->
           <button class="reaction-btn"
                   data-tipo="like"
                   [class.active]="userReactions().like"
@@ -237,7 +245,6 @@
             <span class="reaction-count">{{ reacciones().likes }}</span>
           </button>
 
-          <!-- LOVE -->
           <button class="reaction-btn"
                   data-tipo="love"
                   [class.active]="userReactions().love"
@@ -256,7 +263,6 @@
             <span class="reaction-count">{{ reacciones().loves }}</span>
           </button>
 
-          <!-- HAHA -->
           <button class="reaction-btn"
                   data-tipo="haha"
                   [class.active]="userReactions().haha"
@@ -277,7 +283,6 @@
             <span class="reaction-count">{{ reacciones().hahas }}</span>
           </button>
 
-          <!-- WOW -->
           <button class="reaction-btn"
                   data-tipo="wow"
                   [class.active]="userReactions().wow"
@@ -298,7 +303,6 @@
             <span class="reaction-count">{{ reacciones().wows }}</span>
           </button>
 
-          <!-- SAD -->
           <button class="reaction-btn"
                   data-tipo="sad"
                   [class.active]="userReactions().sad"
@@ -320,7 +324,6 @@
             <span class="reaction-count">{{ reacciones().sads }}</span>
           </button>
 
-          <!-- ANGRY -->
           <button class="reaction-btn"
                   data-tipo="angry"
                   [class.active]="userReactions().angry"
@@ -343,8 +346,7 @@
             <span class="reaction-count">{{ reacciones().angrys }}</span>
           </button>
 
-          <!-- COMPARTIR -->
-          <button class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicación">
+          <button class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicacion">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="18" cy="5" r="3"/>
               <circle cx="6" cy="12" r="3"/>
@@ -386,14 +388,12 @@
       </div>
     </article>
 
-    <!-- COMENTARIOS -->
     <section class="comentarios" [style.background]="personalizacionStore.fondoGradiente()">
       <div class="comentarios__header">
         <h3>Comentarios</h3>
         <span class="comentarios__count">{{ comentarios().length }}</span>
       </div>
 
-      <!-- ✅ FORM COMENTARIO: logueados → form; invitados → botón bloqueado -->
       @if (estaLogueado()) {
         <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
           <div class="comentarios__input-wrapper">
@@ -413,15 +413,15 @@
         </form>
       } @else {
         <div class="comentarios__form comentarios__form--guest"
-             (click)="abrirAviso('Debes registrarte para comentar esta publicación.')">
+             (click)="abrirAviso('Debes registrarte para comentar esta publicacion.')">
           <div class="comentarios__input-wrapper">
             <input
               type="text"
-              placeholder="Inicia sesión para comentar..."
+              placeholder="Inicia sesion para comentar..."
               class="comentarios__input"
               readonly
             >
-            <button type="button" class="comentarios__btn btn-guest-small" (click)="abrirAviso('Debes registrarte para comentar esta publicación.'); $event.stopPropagation()">
+            <button type="button" class="comentarios__btn btn-guest-small" (click)="abrirAviso('Debes registrarte para comentar esta publicacion.'); $event.stopPropagation()">
               Registrarse
             </button>
           </div>
@@ -441,7 +441,7 @@
             <div class="comentario__body">
               <div class="comentario__header">
                 <span class="comentario__autor" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
-                  @{{ c.autor.nombreUsuario }}
+                  &#64;{{ c.autor.nombreUsuario }}
                 </span>
                 <span class="comentario__fecha">{{ c.fechaCreacion | date:'dd MMM yyyy' }}</span>
 
@@ -550,7 +550,7 @@
                       <div class="respuesta__body">
                         <div class="respuesta__header">
                           <span class="respuesta__autor" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
-                            @{{ r.autor.nombreUsuario }}
+                            &#64;{{ r.autor.nombreUsuario }}
                           </span>
                           <span class="respuesta__fecha">{{ r.fechaCreacion | date:'dd MMM yyyy' }}</span>
 
@@ -629,14 +629,13 @@
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
-            <p>No hay comentarios aún. Sé el primero en comentar.</p>
+            <p>No hay comentarios aun. Se el primero en comentar.</p>
           </div>
         }
       </div>
     </section>
   }
 
-  <!-- MODAL DE REPORTE -->
   @if (mostrarModalReporte()) {
     <kiert-reporte-modal
       [tipoReporte]="tipoReporteActual()"
@@ -648,7 +647,6 @@
     </kiert-reporte-modal>
   }
 
-  <!-- MODAL DE COMPARTIR -->
   @if (mostrarModalCompartir()) {
     <kiert-compartir-modal
       [postId]="postId"

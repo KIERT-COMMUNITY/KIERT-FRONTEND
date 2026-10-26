@@ -11,8 +11,8 @@ import { FormatDurationPipe } from '../../pipes/format.pipe';
   selector: 'kiert-post-card',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterLink, 
+    CommonModule,
+    RouterLink,
     AvatarFrameComponent,
     FormatDurationPipe
   ],
@@ -21,7 +21,7 @@ import { FormatDurationPipe } from '../../pipes/format.pipe';
 })
 export class PostCardComponent implements OnInit {
   private personalizacionStore = inject(PersonalizacionStore);
-  
+
   post = input.required<Post>();
   postClick = output<number>();
 
@@ -29,12 +29,24 @@ export class PostCardComponent implements OnInit {
     return 'tema-' + this.personalizacionStore.temaId();
   }
 
-  ngOnInit(): void {
-    // Sin logs
+  ngOnInit(): void {}
+
+  // ============================================================
+  // ANONIMO
+  // ============================================================
+  esAnonimo(): boolean {
+    const p = this.post();
+    if (!p) return false;
+    if ((p as any).esAnonimo === true) return true;
+    if (!p.autor || !p.autor.id) return true;
+    return false;
   }
 
+  // ============================================================
+  // CATEGORIA
+  // ============================================================
   getCategoriaFormateada(categoria: string): string {
-    if (!categoria) return 'Sin categoría';
+    if (!categoria) return 'Sin categoria';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
     return categoriaLimpia
       .split(' ')
@@ -45,24 +57,12 @@ export class PostCardComponent implements OnInit {
   getColorCategoria(categoria: string): string {
     if (!categoria) return '#8b98a5';
     const categoriaLower = categoria.toLowerCase();
-    if (categoriaLower.includes('hacking') || categoriaLower.includes('seguridad') || categoriaLower.includes('ciber')) {
-      return '#ff6b6b';
-    }
-    if (categoriaLower.includes('ayuda') || categoriaLower.includes('emergencia') || categoriaLower.includes('socorro')) {
-      return '#feca57';
-    }
-    if (categoriaLower.includes('historia') || categoriaLower.includes('experiencia') || categoriaLower.includes('caso')) {
-      return '#55efc4';
-    }
-    if (categoriaLower.includes('programacion') || categoriaLower.includes('codigo') || categoriaLower.includes('desarrollo')) {
-      return '#0984e3';
-    }
-    if (categoriaLower.includes('redes') || categoriaLower.includes('network') || categoriaLower.includes('infraestructura')) {
-      return '#6c5ce7';
-    }
-    if (categoriaLower.includes('ia') || categoriaLower.includes('inteligencia') || categoriaLower.includes('machine')) {
-      return '#fd79a8';
-    }
+    if (categoriaLower.includes('hacking') || categoriaLower.includes('seguridad') || categoriaLower.includes('ciber')) return '#ff6b6b';
+    if (categoriaLower.includes('ayuda') || categoriaLower.includes('emergencia') || categoriaLower.includes('socorro')) return '#feca57';
+    if (categoriaLower.includes('historia') || categoriaLower.includes('experiencia') || categoriaLower.includes('caso')) return '#55efc4';
+    if (categoriaLower.includes('programacion') || categoriaLower.includes('codigo') || categoriaLower.includes('desarrollo')) return '#0984e3';
+    if (categoriaLower.includes('redes') || categoriaLower.includes('network') || categoriaLower.includes('infraestructura')) return '#6c5ce7';
+    if (categoriaLower.includes('ia') || categoriaLower.includes('inteligencia') || categoriaLower.includes('machine')) return '#fd79a8';
     return '#2dd4bf';
   }
 
@@ -70,6 +70,9 @@ export class PostCardComponent implements OnInit {
     return this.post().autor?.marcoId || 'none';
   }
 
+  // ============================================================
+  // FECHA RELATIVA
+  // ============================================================
   formatearFecha(fecha: string): string {
     const date = new Date(fecha);
     const ahora = new Date();
@@ -82,14 +85,16 @@ export class PostCardComponent implements OnInit {
     if (minutos < 60) return `Hace ${minutos} min`;
     if (horas < 24) return `Hace ${horas} h`;
     if (dias < 7) return `Hace ${dias} d`;
-    return date.toLocaleDateString('es-ES', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
   }
 
-  // ========== DETECCIÓN DE TIPOS DE ARCHIVO ==========
+  // ============================================================
+  // DETECCION DE ARCHIVOS
+  // ============================================================
   esImagen(adjunto: Adjunto): boolean {
     if (!adjunto) return false;
     const tipo = adjunto.tipo?.toLowerCase() || '';
@@ -130,6 +135,9 @@ export class PostCardComponent implements OnInit {
     return !this.esImagen(adjunto) && !this.esVideo(adjunto) && !this.esGif(adjunto);
   }
 
+  // ============================================================
+  // VISUALES
+  // ============================================================
   obtenerPrimerVisual(): Adjunto | null {
     const adjuntos = this.post().adjuntos;
     if (!adjuntos || adjuntos.length === 0) return null;
@@ -164,7 +172,7 @@ export class PostCardComponent implements OnInit {
 
   tieneAdjuntos(): boolean {
     const adjuntos = this.post().adjuntos;
-    return adjuntos && adjuntos.length > 0;
+    return !!(adjuntos && adjuntos.length > 0);
   }
 
   getIconoArchivo(adjunto: Adjunto): string {
@@ -177,6 +185,9 @@ export class PostCardComponent implements OnInit {
     return 'FILE';
   }
 
+  // ============================================================
+  // ERRORES DE MEDIA
+  // ============================================================
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b232c"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="14" fill="%235a6a7a" text-anchor="middle" dy=".3em"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
@@ -195,6 +206,9 @@ export class PostCardComponent implements OnInit {
     }
   }
 
+  // ============================================================
+  // CLICK
+  // ============================================================
   onClick(): void {
     const postId = this.post().id;
     if (postId && !isNaN(postId) && postId > 0) {

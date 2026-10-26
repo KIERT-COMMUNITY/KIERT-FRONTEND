@@ -54,11 +54,9 @@ export class PostDetailComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
 
-  // ✅ AVISO LOGIN
   mostrarAvisoLogin = signal(false);
-  mensajeAvisoLogin = signal<string>('Debes registrarte para interactuar con esta publicación.');
+  mensajeAvisoLogin = signal<string>('Debes registrarte para interactuar con esta publicacion.');
 
-  // ========== REPORTES ==========
   mostrarModalReporte = signal(false);
   tipoReporteActual = signal<'POST' | 'COMENTARIO' | 'RESPUESTA' | 'USUARIO'>('POST');
   datosReporte = signal<{
@@ -68,11 +66,9 @@ export class PostDetailComponent implements OnInit {
     usuarioReportadoId?: number;
   }>({});
 
-  // ========== COMPARTIR ==========
   mostrarModalCompartir = signal(false);
   totalCompartidos = signal(0);
 
-  // ========== SUBTÍTULOS ==========
   subtitulosActivos = signal<{ [adjuntoId: number]: boolean }>({});
   idiomaSeleccionado = signal<{ [adjuntoId: number]: string }>({});
   subiendoSubtitulo = signal<number | null>(null);
@@ -97,7 +93,7 @@ export class PostDetailComponent implements OnInit {
     this.estaLogueado.set(this.authService.isAuthenticated());
     const postId = Number(this.id());
     if (!postId || isNaN(postId)) {
-      this.errorMsg.set('ID de publicación inválido');
+      this.errorMsg.set('ID de publicacion invalido');
       this.cargando.set(false);
       return;
     }
@@ -107,9 +103,6 @@ export class PostDetailComponent implements OnInit {
     this.cargarCompartidos(postId);
   }
 
-  // ============================================================
-  // ✅ AVISO LOGIN
-  // ============================================================
   abrirAviso(mensaje: string): void {
     this.mensajeAvisoLogin.set(mensaje);
     this.mostrarAvisoLogin.set(true);
@@ -126,11 +119,8 @@ export class PostDetailComponent implements OnInit {
     this.mostrarAvisoLogin.set(false);
   }
 
-  // ============================================================
-  // CATEGORÍA
-  // ============================================================
   getCategoriaFormateada(categoria: string): string {
-    if (!categoria) return 'Sin categoría';
+    if (!categoria) return 'Sin categoria';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
     return categoriaLimpia
       .split(' ')
@@ -154,9 +144,13 @@ export class PostDetailComponent implements OnInit {
     return this.post()?.autor?.marcoId || 'none';
   }
 
-  // ============================================================
-  // CARGAS
-  // ============================================================
+  esAutor(autor: Autor | null | undefined): boolean {
+    if (!autor || !autor.id) return false;
+    const usuario = this.authService.usuario();
+    if (!usuario?.id) return false;
+    return usuario.id === autor.id;
+  }
+
   cargarPost(postId: number): void {
     this.cargando.set(true);
     this.postService.obtenerPorId(postId).subscribe({
@@ -168,7 +162,7 @@ export class PostDetailComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar post:', error);
         this.cargando.set(false);
-        this.errorMsg.set('Error al cargar la publicación');
+        this.errorMsg.set('Error al cargar la publicacion');
       }
     });
   }
@@ -221,9 +215,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // REACCIONES
-  // ============================================================
   reaccionar(tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para reaccionar a las publicaciones.');
@@ -237,7 +228,7 @@ export class PostDetailComponent implements OnInit {
         this.userReactions.update(prev => ({ ...prev, [userKey]: !prev[userKey] }));
       },
       error: () => {
-        this.errorMsg.set('Error al procesar la reacción');
+        this.errorMsg.set('Error al procesar la reaccion');
         setTimeout(() => this.errorMsg.set(null), 3000);
       }
     });
@@ -301,9 +292,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // COMENTAR / RESPONDER
-  // ============================================================
   enviarComentario(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para comentar.');
@@ -384,9 +372,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // TOGGLES
-  // ============================================================
   toggleResponder(comentarioId: number): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para responder.');
@@ -442,15 +427,12 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // ELIMINAR
-  // ============================================================
   eliminarComentario(comentarioId: number): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para eliminar comentarios.');
       return;
     }
-    if (!confirm('¿Seguro que quieres eliminar este comentario?')) return;
+    if (!confirm('Seguro que quieres eliminar este comentario?')) return;
     this.comentarioService.eliminar(comentarioId).subscribe({
       next: () => {
         this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
@@ -467,7 +449,7 @@ export class PostDetailComponent implements OnInit {
       this.abrirAviso('Debes registrarte para eliminar respuestas.');
       return;
     }
-    if (!confirm('¿Seguro que quieres eliminar esta respuesta?')) return;
+    if (!confirm('Seguro que quieres eliminar esta respuesta?')) return;
     this.comentarioService.eliminarRespuesta(respuestaId).subscribe({
       next: () => {
         this.comentarios.update(lista =>
@@ -490,14 +472,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  esAutor(autor: Autor): boolean {
-    const usuario = this.authService.usuario();
-    return usuario?.id === autor.id;
-  }
-
-  // ============================================================
-  // REPORTES
-  // ============================================================
   reportarPost(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para reportar publicaciones.');
@@ -542,9 +516,6 @@ export class PostDetailComponent implements OnInit {
     this.mostrarModalReporte.set(false);
   }
 
-  // ============================================================
-  // COMPARTIR
-  // ============================================================
   abrirModalCompartir(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para compartir publicaciones.');
@@ -558,9 +529,6 @@ export class PostDetailComponent implements OnInit {
     this.cargarCompartidos(Number(this.id()));
   }
 
-  // ============================================================
-  // SUBTÍTULOS
-  // ============================================================
   tieneSubtitulos(adjunto: Adjunto): boolean {
     return !!(adjunto.subtitulos && adjunto.subtitulos.length > 0);
   }
@@ -582,9 +550,8 @@ export class PostDetailComponent implements OnInit {
   }
 
   onSubtituloSeleccionado(event: Event, adjuntoId: number): void {
-    // ✅ Bloqueo invitado
     if (!this.authService.isAuthenticated()) {
-      this.abrirAviso('Debes registrarte para subir subtítulos.');
+      this.abrirAviso('Debes registrarte para subir subtitulos.');
       (event.target as HTMLInputElement).value = '';
       return;
     }
@@ -594,16 +561,16 @@ export class PostDetailComponent implements OnInit {
     if (!file) return;
 
     if (!file.name.toLowerCase().endsWith('.vtt')) {
-      this.errorMsg.set('Solo se permiten archivos .vtt para subtítulos');
+      this.errorMsg.set('Solo se permiten archivos .vtt para subtitulos');
       setTimeout(() => this.errorMsg.set(null), 3000);
       input.value = '';
       return;
     }
 
-    const idioma = prompt('Código de idioma (ej: es, en, pt):', 'es');
+    const idioma = prompt('Codigo de idioma (ej: es, en, pt):', 'es');
     if (!idioma) { input.value = ''; return; }
 
-    const etiqueta = prompt('Nombre visible del idioma (ej: Español):', 'Español');
+    const etiqueta = prompt('Nombre visible del idioma (ej: Espanol):', 'Espanol');
     if (!etiqueta) { input.value = ''; return; }
 
     this.subiendoSubtitulo.set(adjuntoId);
@@ -627,7 +594,7 @@ export class PostDetailComponent implements OnInit {
         input.value = '';
       },
       error: () => {
-        this.errorMsg.set('Error al subir subtítulos');
+        this.errorMsg.set('Error al subir subtitulos');
         this.subiendoSubtitulo.set(null);
         input.value = '';
         setTimeout(() => this.errorMsg.set(null), 3000);
@@ -635,9 +602,6 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // UTILIDADES
-  // ============================================================
   getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
     switch(tipo) {
       case 'like': return 'like';

@@ -7,6 +7,15 @@ export class StorageService {
   private readonly sessionPrefix = 'kiert_s_';
   private readonly INVITADO_KEY = 'kiert_modo_invitado';
 
+  /** Claves de preferencias que hay que borrar al entrar como invitado */
+  private readonly PREF_KEYS = [
+    'kiert_escala_fuente',
+    'kiert_tema',
+    'kiert_marco',
+    'kiert_fondo',
+    'kiert_personalizacion',
+  ];
+
   // ============================================================
   // GET con migración automática
   // ============================================================
@@ -85,5 +94,21 @@ export class StorageService {
 
   quitarInvitado(): void {
     this.removeLocal(this.INVITADO_KEY);
+  }
+
+  // ============================================================
+  // ✅ RESETEAR PREFERENCIAS (para no heredar del usuario anterior)
+  // ============================================================
+  /**
+   * Borra las preferencias visuales del usuario anterior para que el
+   * invitado empiece con el tema por defecto.
+   */
+  resetearPreferencias(): void {
+    this.PREF_KEYS.forEach(k => {
+      try {
+        sessionStorage.removeItem(this.sessionPrefix + k);
+        localStorage.removeItem(k);
+      } catch {}
+    });
   }
 }

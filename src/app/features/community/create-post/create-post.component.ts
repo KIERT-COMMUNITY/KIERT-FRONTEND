@@ -7,17 +7,16 @@ import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { CommonModule } from '@angular/common';
-import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component'; // ✅
+import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
 @Component({
   selector: 'kiert-create-post',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, AvisoLoginComponent], // ✅
+  imports: [ReactiveFormsModule, CommonModule, AvisoLoginComponent],
   templateUrl: './create-post.component.html',
   styleUrl: './create-post.component.scss',
 })
 export class CreatePostComponent implements OnInit {
-  // ✅ 1) injects primero
   private fb = inject(FormBuilder);
   private postService = inject(PostService);
   private authService = inject(AuthService);
@@ -25,14 +24,13 @@ export class CreatePostComponent implements OnInit {
   private imageSanitizer = inject(ImageSanitizerService);
   public personalizacionStore = inject(PersonalizacionStore);
 
-  // 2) signals
   publicando = signal(false);
   errorMsg = signal<string | null>(null);
   archivosSeleccionados = signal<File[]>([]);
   estaLogueado = signal<boolean>(false);
-  mostrarAvisoLogin = signal(false); // ✅ NUEVO
+  mostrarAvisoLogin = signal(false);
+  esAnonimo = signal(false);
 
-  // 3) form (ya puede usar this.fb)
   form = this.fb.group({
     categoria: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     titulo: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(120)]],
@@ -43,9 +41,7 @@ export class CreatePostComponent implements OnInit {
   ngOnInit(): void {
     const logueado = this.authService.estaLogueado();
     this.estaLogueado.set(logueado);
-
     if (!logueado) {
-      // ✅ Mostramos el aviso inmediatamente al invitado
       this.mostrarAvisoLogin.set(true);
     }
   }
@@ -62,9 +58,9 @@ export class CreatePostComponent implements OnInit {
   }
 
   async onArchivosSeleccionados(evento: Event): Promise<void> {
-    // ✅ Bloqueo si no está logueado
     if (!this.estaLogueado()) {
       this.mostrarAvisoLogin.set(true);
+      (evento.target as HTMLInputElement).value = '';
       return;
     }
 
@@ -85,16 +81,11 @@ export class CreatePostComponent implements OnInit {
       let maxSize = MAX_IMAGE_SIZE;
       let tipo = 'imagen';
 
-      if (esVideo) {
-        maxSize = MAX_VIDEO_SIZE;
-        tipo = 'video';
-      } else if (esGif) {
-        maxSize = MAX_GIF_SIZE;
-        tipo = 'GIF';
-      }
+      if (esVideo) { maxSize = MAX_VIDEO_SIZE; tipo = 'video'; }
+      else if (esGif) { maxSize = MAX_GIF_SIZE; tipo = 'GIF'; }
 
       if (archivo.size > maxSize) {
-        this.errorMsg.set(`${archivo.name} excede el límite de ${tipo === 'video' ? '50MB' : '15MB'}`);
+        this.errorMsg.set(`${archivo.name} excede el limite de ${tipo === 'video' ? '50MB' : '15MB'}`);
         setTimeout(() => this.errorMsg.set(null), 3000);
         continue;
       }
@@ -120,7 +111,6 @@ export class CreatePostComponent implements OnInit {
   }
 
   publicar(): void {
-    // ✅ Bloqueo de invitado ANTES de cualquier otra cosa
     if (!this.estaLogueado()) {
       this.mostrarAvisoLogin.set(true);
       return;
@@ -130,11 +120,11 @@ export class CreatePostComponent implements OnInit {
       this.form.markAllAsTouched();
 
       if (this.categoria.invalid) {
-        this.errorMsg.set('La categoría es obligatoria (mínimo 2 caracteres)');
+        this.errorMsg.set('La categoria es obligatoria (minimo 2 caracteres)');
       } else if (this.titulo.invalid) {
-        this.errorMsg.set('El título debe tener entre 6 y 120 caracteres');
+        this.errorMsg.set('El titulo debe tener entre 6 y 120 caracteres');
       } else if (this.descripcion.invalid) {
-        this.errorMsg.set('La descripción debe tener al menos 20 caracteres');
+        this.errorMsg.set('La descripcion debe tener al menos 20 caracteres');
       } else {
         this.errorMsg.set('Completa todos los campos obligatorios');
       }
@@ -153,6 +143,7 @@ export class CreatePostComponent implements OnInit {
     formData.append('titulo', datos.titulo?.trim() || '');
     formData.append('categoria', categoriaOriginal);
     formData.append('descripcion', datos.descripcion?.trim() || '');
+    formData.append('esAnonimo', String(this.esAnonimo()));
 
     if (datos.link && datos.link.trim()) {
       formData.append('link', datos.link.trim());
@@ -168,9 +159,14 @@ export class CreatePostComponent implements OnInit {
         this.publicando.set(false);
         this.archivosSeleccionados.set([]);
         this.form.reset();
-        if (nuevoPost && nuevoPost.id) {
-          this.router.navigate(['/comunidad', nuevoPost.id]);
+        this.esAnonimo.set(false);
+
+        // Validacion defensiva: solo navegar si hay id valido
+        const id = nuevoPost?.id;
+        if (id != null && !isNaN(Number(id)) && Number(id) > 0) {
+          this.router.navigate(['/comunidad', id]);
         } else {
+          console.warn('Post creado pero sin id valido, volviendo al feed');
           this.router.navigate(['/comunidad']);
         }
       },
@@ -185,13 +181,12 @@ export class CreatePostComponent implements OnInit {
           else if (error.error.message) mensaje = error.error.message;
           else if (error.error.errors) {
             const errores = Object.values(error.error.errors).join(', ');
-            mensaje = `Error de validación: ${errores}`;
+            mensaje = `Error de validacion: ${errores}`;
           }
         }
 
         this.errorMsg.set(mensaje);
         this.publicando.set(false);
-
         setTimeout(() => {
           if (this.errorMsg()) this.errorMsg.set(null);
         }, 5000);
@@ -203,7 +198,6 @@ export class CreatePostComponent implements OnInit {
     this.router.navigate(['/comunidad']);
   }
 
-  /** ✅ Ir al login con returnUrl */
   irALogin(): void {
     this.mostrarAvisoLogin.set(false);
     this.router.navigate(['/login'], {
