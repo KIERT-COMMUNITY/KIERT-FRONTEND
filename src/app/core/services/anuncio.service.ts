@@ -13,6 +13,7 @@ export interface Anuncio {
   enlaceUrl?: string;
   activo?: boolean;
   destacado?: boolean;
+  esFlotante?: boolean; // ✅ NUEVO CAMPO
   fechaCreacion?: string;
   fechaPublicacion?: string;
 }
@@ -30,6 +31,11 @@ export class AnuncioService {
     return this.http.get<Anuncio[]>(`${this.API_PUBLICOS}/publicos`);
   }
 
+  // ✅ NUEVO: Obtener el anuncio para el banner flotante
+  obtenerFlotante(): Observable<Anuncio> {
+    return this.http.get<Anuncio>(`${this.API_PUBLICOS}/flotante`);
+  }
+
   // ============================================================
   // ADMIN
   // ============================================================
@@ -41,17 +47,10 @@ export class AnuncioService {
     return this.http.get<Anuncio>(`${this.API}/${id}`);
   }
 
-  /**
-   * Crear anuncio con FormData (multipart).
-   *NO añadir Content-Type: el navegador lo hace automáticamente con boundary
-   */
   crear(formData: FormData): Observable<Anuncio> {
     return this.http.post<Anuncio>(this.API, formData);
   }
 
-  /**
-   * Actualizar anuncio con FormData (multipart).
-   */
   actualizar(id: number, formData: FormData): Observable<Anuncio> {
     return this.http.put<Anuncio>(`${this.API}/${id}`, formData);
   }

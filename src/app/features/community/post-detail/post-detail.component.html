@@ -1,5 +1,5 @@
-<!-- APLICAR TEMA DE COLOR -->
-<div [ngClass]="'tema-' + personalizacionStore.temaId()" style="min-height: 100vh;">
+<!-- src/app/features/community/post-detail/post-detail.component.html -->
+<div [ngClass]="'tema-' + personalizacionStore.temaId()" class="post-detail-wrapper" style="min-height: 100vh;">
 
   @if (cargando()) {
     <div class="loading-container">
@@ -39,7 +39,9 @@
             [alt]="postActual.autor.nombreUsuario"
             [navigateToProfile]="true"
             [usuarioId]="postActual.autor.id"
+            [marcoId]="getMarcoDelAutor()"
           />
+
           <div class="post-detail__user-info">
             <span class="post-detail__username" [routerLink]="['/usuario', postActual.autor.id]">
               @{{ postActual.autor.nombreUsuario }}
@@ -204,7 +206,7 @@
       <div class="post-detail__interactions">
         <div class="reactions">
 
-          <!-- ✅ LIKE -->
+          <!-- LIKE -->
           <button class="reaction-btn"
                   data-tipo="like"
                   [class.active]="userReactions().like"
@@ -226,7 +228,7 @@
             <span class="reaction-count">{{ reacciones().likes }}</span>
           </button>
 
-          <!-- ✅ LOVE -->
+          <!-- LOVE -->
           <button class="reaction-btn"
                   data-tipo="love"
                   [class.active]="userReactions().love"
@@ -246,7 +248,7 @@
             <span class="reaction-count">{{ reacciones().loves }}</span>
           </button>
 
-          <!-- ✅ HAHA -->
+          <!-- HAHA -->
           <button class="reaction-btn"
                   data-tipo="haha"
                   [class.active]="userReactions().haha"
@@ -268,7 +270,7 @@
             <span class="reaction-count">{{ reacciones().hahas }}</span>
           </button>
 
-          <!-- ✅ WOW -->
+          <!-- WOW -->
           <button class="reaction-btn"
                   data-tipo="wow"
                   [class.active]="userReactions().wow"
@@ -289,7 +291,7 @@
             <span class="reaction-count">{{ reacciones().wows }}</span>
           </button>
 
-          <!-- ✅ SAD -->
+          <!-- SAD -->
           <button class="reaction-btn"
                   data-tipo="sad"
                   [class.active]="userReactions().sad"
@@ -313,7 +315,7 @@
             <span class="reaction-count">{{ reacciones().sads }}</span>
           </button>
 
-          <!-- ✅ ANGRY -->
+          <!-- ANGRY -->
           <button class="reaction-btn"
                   data-tipo="angry"
                   [class.active]="userReactions().angry"
@@ -337,7 +339,7 @@
             <span class="reaction-count">{{ reacciones().angrys }}</span>
           </button>
 
-          <!-- ✅ COMPARTIR -->
+          <!-- COMPARTIR -->
           <button class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicación">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="18" cy="5" r="3"/>
@@ -440,7 +442,7 @@
               </div>
               <p class="comentario__texto">{{ c.contenido }}</p>
 
-              <!-- ✅ ACCIONES DEL COMENTARIO CON EMOJIS PROFESIONALES -->
+              <!-- ACCIONES DEL COMENTARIO -->
               <div class="comentario__actions">
 
                 <!-- LIKE -->
@@ -556,7 +558,7 @@
                         </div>
                         <p class="respuesta__texto">{{ r.contenido }}</p>
 
-                        <!-- ✅ ACCIONES DE LA RESPUESTA CON EMOJIS PROFESIONALES -->
+                        <!-- ACCIONES DE LA RESPUESTA -->
                         <div class="respuesta__actions">
 
                           <!-- LIKE -->
@@ -646,14 +648,5 @@
       [postTitulo]="post()?.titulo || ''"
       (cerrar)="cerrarModalCompartir()">
     </kiert-compartir-modal>
-  }
-
-  <!-- ✅ EMOJI FLOTANTE AL REACCIONAR -->
-  @if (emojiFlotante()) {
-    <div class="emoji-flotante"
-         [style.left.px]="emojiFlotante()!.x"
-         [style.top.px]="emojiFlotante()!.y">
-      {{ emojiFlotante()!.emoji }}
-    </div>
   }
 </div>

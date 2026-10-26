@@ -3,6 +3,7 @@ import { Component, OnInit, signal, computed, inject, OnDestroy, effect } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http'; // ✅ Inyectado para el DELETE
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { Subject, of } from 'rxjs';
 
@@ -14,11 +15,12 @@ import { ChatService } from '../../../core/services/chat.service';
 import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
 import { User } from '../../../core/models/user.model';
+import { environment } from '../../../../environments/environment'; // Asegúrate de que la ruta sea correcta
 
 import { KeyboardHelpComponent } from '../../../shared/components/keyboard-help/keyboard-help.component';
 import { KeyboardShortcutsService } from '../../../core/services/keyboard-shortcuts.service';
 
-type SeccionActiva = 'perfil' | 'bloqueados' | 'accesibilidad';
+type SeccionActiva = 'perfil' | 'bloqueados' | 'accesibilidad' | 'cuenta';
 type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICITUD_RECIBIDA' | 'YO_MISMO';
 
 @Component({
@@ -40,6 +42,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private chatService = inject(ChatService);
   private bloqueoService = inject(BloqueoService);
   private imageSanitizer = inject(ImageSanitizerService);
+  private http = inject(HttpClient);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -69,6 +72,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   bloqueados = signal<Bloqueo[]>([]);
   cargandoBloqueados = signal(false);
   busquedaBloqueado = signal('');
+
+  // ✅ SIGNALS PARA EL MODAL DE ELIMINACIÓN
+  mostrarModalEliminar = signal(false);
+  confirmacionTexto = signal('');
 
   bloqueadosFiltrados = computed(() => {
     const query = this.busquedaBloqueado().toLowerCase().trim();
@@ -174,6 +181,42 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // ============================================================
+  // ELIMINAR CUENTA (SOFT DELETE CON MODAL PERSONALIZADO)
+  // ============================================================
+  
+  abrirModalEliminar(): void {
+    this.confirmacionTexto.set('');
+    this.mostrarModalEliminar.set(true);
+  }
+
+  cerrarModalEliminar(): void {
+    this.mostrarModalEliminar.set(false);
+    this.confirmacionTexto.set('');
+  }
+
+  confirmarEliminarCuenta(): void {
+    if (this.confirmacionTexto().trim().toUpperCase() !== 'ELIMINAR') {
+      return;
+    }
+
+    this.cargando.set(true);
+    this.http.delete(`${environment.apiUrl}/usuarios/me`).subscribe({
+      next: () => {
+        this.cargando.set(false);
+        this.cerrarModalEliminar();
+        alert('Tu cuenta ha sido eliminada correctamente. Serás redirigido al inicio.');
+        this.authService.logout();
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.errorMsg.set('Error al eliminar la cuenta: ' + (err.error?.error || 'Inténtalo de nuevo.'));
+        setTimeout(() => this.errorMsg.set(null), 5000);
+        this.cerrarModalEliminar();
+      }
+    });
   }
 
   // ============================================================

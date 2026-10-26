@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ChatGlobalService, MensajeGlobal } from '../../../core/services/chat-global.service';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -23,6 +24,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class ChatGlobalComponent implements OnInit, OnDestroy {
   private readonly chatService = inject(ChatGlobalService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   @ViewChild('scrollContainer') scrollContainer?: ElementRef<HTMLDivElement>;
 
@@ -63,6 +65,22 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
 
   esPropio(m: MensajeGlobal): boolean {
     return m.autorId === this.authService.getUser()?.id;
+  }
+
+  /**
+   * Navega al perfil del autor del mensaje.
+   * Si es el propio usuario, va a /perfil (su perfil personal).
+   */
+  irAlPerfil(usuarioId: number | undefined, event?: Event): void {
+    event?.stopPropagation();
+    if (!usuarioId) return;
+
+    const usuarioActual = this.authService.getUser();
+    if (usuarioActual && usuarioActual.id === usuarioId) {
+      this.router.navigate(['/perfil']);
+      return;
+    }
+    this.router.navigate(['/usuario', usuarioId]);
   }
 
   private scrollAbajo(): void {

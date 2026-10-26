@@ -1,10 +1,9 @@
-<!-- post-card.component.html -->
+<!-- src/app/features/community/post-card/post-card.component.html -->
 <div class="post-card" [class]="temaClase" (click)="onClick()">
   
   <!-- HEADER -->
   <div class="post-card__header">
     <div class="post-card__user">
-      <!-- ✅ PASAR EL marcoId DEL AUTOR -->
       <kiert-avatar-frame
         [fotoUrl]="post().autor.fotoPerfilUrl || null"
         [nombre]="post().autor.nombreUsuario"
@@ -16,7 +15,7 @@
       />
       <div class="post-card__user-info">
         <span class="post-card__username" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">
-          {{ post().autor.nombreUsuario }}
+          &#64;{{ post().autor.nombreUsuario }}
         </span>
         <span class="post-card__badge" [style.background]="getColorCategoria(post().categoria)" [style.color]="'#0d1117'">
           {{ getCategoriaFormateada(post().categoria) }}
@@ -60,7 +59,7 @@
                 {{ visual.duracionSegundos | formatDuration }}
               </div>
             }
-            <div class="post-card__media-badge video-badge">▶ Video</div>
+            <div class="post-card__media-badge video-badge">Video</div>
           </div>
         }
         
@@ -74,7 +73,7 @@
               class="post-card__gif"
               (error)="onImageError($event)"
             >
-            <div class="post-card__media-badge gif-badge">🎬 GIF</div>
+            <div class="post-card__media-badge gif-badge">GIF</div>
           </div>
         }
         

@@ -71,9 +71,6 @@ export class PostDetailComponent implements OnInit {
   idiomaSeleccionado = signal<{ [adjuntoId: number]: string }>({});
   subiendoSubtitulo = signal<number | null>(null);
 
-  // ========== EMOJI FLOTANTE AL REACCIONAR ==========
-  emojiFlotante = signal<{ emoji: string; x: number; y: number } | null>(null);
-
   reacciones = signal({
     likes: 0, loves: 0, hahas: 0, wows: 0, sads: 0, angrys: 0
   });
@@ -140,6 +137,9 @@ export class PostDetailComponent implements OnInit {
     return '#2dd4bf';
   }
 
+  // ============================================================
+  // MARCO DEL AUTOR (se pasa a kiert-avatar-frame)
+  // ============================================================
   getMarcoDelAutor(): string {
     return this.post()?.autor?.marcoId || 'none';
   }
@@ -191,7 +191,6 @@ export class PostDetailComponent implements OnInit {
           mostrandoRespuestas: false,
           mostrandoFormularioRespuesta: false,
           cargandoRespuestas: false,
-          //  Inicializar userReactions si no viene del backend
           userReactions: c.userReactions || { like: false, love: false }
         }));
         this.comentarios.set(comentariosConUI);
@@ -215,46 +214,13 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // EMOJIS FLOTANTES
-  // ============================================================
-  private getEmojiPorTipo(tipo: string): string {
-    const map: Record<string, string> = {
-      'like': '👍',
-      'love': '❤️',
-      'haha': '😂',
-      'wow': '😮',
-      'sad': '😢',
-      'angry': '😡'
-    };
-    return map[tipo] || '👍';
-  }
-
-  /**
-   * Lanza un emoji flotante desde la posición del elemento clickeado.
-   */
-  private lanzarEmojiFlotante(tipo: string, event: MouseEvent): void {
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    this.emojiFlotante.set({
-      emoji: this.getEmojiPorTipo(tipo),
-      x: rect.left + rect.width / 2,
-      y: rect.top
-    });
-    setTimeout(() => this.emojiFlotante.set(null), 900);
-  }
-
-  // ============================================================
-  //  REACCIONES AL POST
+  // REACCIONES AL POST
   // ============================================================
   reaccionar(tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
-    }
-
-    // Emoji flotante
-    if (event) {
-      this.lanzarEmojiFlotante(tipo, event);
     }
 
     const postId = Number(this.id());
@@ -272,18 +238,13 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  //  REACCIONES A COMENTARIOS (con emoji flotante)
+  // REACCIONES A COMENTARIOS
   // ============================================================
   reaccionarComentario(comentarioId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
-    }
-
-    // Emoji flotante
-    if (event) {
-      this.lanzarEmojiFlotante(tipo, event);
     }
 
     this.comentarioService.reaccionarComentario(comentarioId, tipo).subscribe({
@@ -311,18 +272,13 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // REACCIONES A RESPUESTAS (con emoji flotante)
+  // REACCIONES A RESPUESTAS
   // ============================================================
   reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.errorMsg.set('Inicia sesión para reaccionar');
       setTimeout(() => this.errorMsg.set(null), 3000);
       return;
-    }
-
-    // Emoji flotante
-    if (event) {
-      this.lanzarEmojiFlotante(tipo, event);
     }
 
     this.comentarioService.reaccionarRespuesta(respuestaId, tipo).subscribe({
@@ -493,7 +449,6 @@ export class PostDetailComponent implements OnInit {
 
     this.comentarioService.listarRespuestas(comentarioId).subscribe({
       next: (respuestas) => {
-        //  Asegurar que cada respuesta tenga userReactions
         const respuestasConUI = respuestas.map(r => ({
           ...r,
           userReactions: r.userReactions || { like: false, love: false }
@@ -809,18 +764,18 @@ export class PostDetailComponent implements OnInit {
   }
 
   // ============================================================
-  // ICONOS Y UTILIDADES DE ARCHIVO
+  // ICONOS Y UTILIDADES DE ARCHIVO (sin emojis)
   // ============================================================
   getIconoAdjunto(adjunto: Adjunto): string {
-    if (!adjunto) return '📎';
-    if (adjunto.tipo === 'link') return '🔗';
+    if (!adjunto) return 'Archivo';
+    if (adjunto.tipo === 'link') return 'Enlace';
     const nombre = adjunto.nombre?.toLowerCase() || '';
-    if (nombre.endsWith('.pdf')) return '📄';
-    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return '📝';
-    if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return '📦';
-    if (nombre.endsWith('.txt')) return '📃';
-    if (nombre.endsWith('.vtt') || nombre.endsWith('.srt')) return '💬';
-    return '📎';
+    if (nombre.endsWith('.pdf')) return 'PDF';
+    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return 'DOC';
+    if (nombre.endsWith('.zip') || nombre.endsWith('.rar')) return 'ZIP';
+    if (nombre.endsWith('.txt')) return 'TXT';
+    if (nombre.endsWith('.vtt') || nombre.endsWith('.srt')) return 'SUB';
+    return 'Archivo';
   }
 
   abrirImagen(url: string): void {

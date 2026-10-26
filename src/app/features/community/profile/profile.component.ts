@@ -8,7 +8,7 @@ import { PostService } from '../../../core/services/post.service';
 import { BloqueoService } from '../../../core/services/bloqueo.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
-import { UserService } from '../../../core/services/user.service'; // ✅ Importado
+import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
 
 @Component({
@@ -37,7 +37,7 @@ export class ProfileComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   exitoMsg = signal<string | null>(null);
 
-  // =====  ELIMINAR FOTO =====
+  // ===== ELIMINAR FOTO =====
   mostrarConfirmEliminarFoto = signal(false);
   eliminandoFoto = signal(false);
 
@@ -56,15 +56,13 @@ export class ProfileComponent implements OnInit {
   nombreCompleto = computed(() => this.usuario()?.nombreUsuario || 'Usuario');
   email = computed(() => this.usuario()?.email || 'Sin correo');
   fotoPerfil = computed(() => this.usuario()?.fotoPerfilUrl || null);
-  
-  //  Computed para la biografía
   bio = computed(() => this.usuario()?.bio || null);
 
-  // ===== FORMULARIO (Añadido campo bio) =====
+  // ===== FORMULARIO =====
   formEditar = this.fb.group({
     nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email]],
-    bio: ['', [Validators.maxLength(150)]], 
+    bio: ['', [Validators.maxLength(150)]],
   });
 
   constructor() {
@@ -110,7 +108,7 @@ export class ProfileComponent implements OnInit {
       this.formEditar.patchValue({
         nombreUsuario: user.nombreUsuario,
         email: user.email,
-        bio: user.bio || '', 
+        bio: user.bio || '',
       });
     }
   }
@@ -225,7 +223,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  //  Guardar cambios reales (incluye la bio)
   guardarCambios(): void {
     if (this.formEditar.invalid) {
       this.formEditar.markAllAsTouched();

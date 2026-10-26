@@ -13,9 +13,6 @@ $bg-surface: #1b232c;
 $bg-surface-alt: #1b232c;
 $border-color: #26313c;
 $border-light: #2a3a4a;
-$text-primary: #e6edf3;
-$text-secondary: #8b98a5;
-$text-muted: #5a6a7a;
 $danger: #f85149;
 $success: #2ea043;
 $primary-share: #1d9bf0;
@@ -34,7 +31,7 @@ $font-display: 'JetBrains Mono', monospace;
   border-radius: $radius;
   padding: 2.5rem 2rem;
   text-align: center;
-  color: $text-secondary;
+  color: var(--tema-text); /* ✅ Fuerza el color del tema */
 }
 
 .spinner {
@@ -44,25 +41,25 @@ $font-display: 'JetBrains Mono', monospace;
   border-top-color: $primary;
   border-radius: 50%;
   margin: 0 auto 1rem;
-  /* Animación eliminada */
 }
 
 .error-container {
   .error-icon {
     margin-bottom: 1rem;
-    color: $text-muted;
+    color: var(--tema-text);
 
     svg { stroke: currentColor; }
   }
 
   h2 {
-    color: $text-primary;
+    color: var(--tema-text);
     margin-bottom: 0.5rem;
     font-size: 1.3rem;
   }
 
   p {
-    color: $text-secondary;
+    color: var(--tema-text);
+    opacity: 0.8;
     margin-bottom: 1.5rem;
   }
 }
@@ -79,7 +76,6 @@ $font-display: 'JetBrains Mono', monospace;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  /* Transición eliminada */
 
   svg { stroke: $bg-primary; }
 
@@ -97,7 +93,7 @@ $font-display: 'JetBrains Mono', monospace;
   border-radius: $radius;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  /* Transición eliminada */
+  color: var(--tema-text); /* ✅ Forzado en el contenedor principal */
 
   &:hover {
     border-color: rgba(45, 212, 191, 0.2);
@@ -136,7 +132,6 @@ $font-display: 'JetBrains Mono', monospace;
     flex-shrink: 0;
     border: 2px solid transparent;
     cursor: pointer;
-    /* Transición eliminada */
 
     &:hover {
       border-color: $primary;
@@ -165,9 +160,8 @@ $font-display: 'JetBrains Mono', monospace;
   &__username {
     font-weight: 600;
     font-size: 0.95rem;
-    color: $text-primary;
+    color: var(--tema-text);
     cursor: pointer;
-    /* Transición eliminada */
 
     &:hover {
       color: $primary;
@@ -190,14 +184,15 @@ $font-display: 'JetBrains Mono', monospace;
 
   &__fecha {
     font-size: 0.7rem;
-    color: $text-muted;
+    color: var(--tema-text);
+    opacity: 0.6;
     white-space: nowrap;
   }
 
   &__titulo {
     font-size: 1.4rem;
     font-weight: 700;
-    color: $text-primary;
+    color: var(--tema-text); /* ✅ Fuerza color para que se lea en fondos claros */
     margin: 0.75rem 0;
     line-height: 1.3;
     font-family: $font-display;
@@ -207,7 +202,8 @@ $font-display: 'JetBrains Mono', monospace;
   &__desc {
     font-size: 0.95rem;
     line-height: 1.8;
-    color: $text-secondary;
+    color: var(--tema-text); /* ✅ Fuerza color para que se lea en fondos claros */
+    opacity: 0.85;
     margin-bottom: 1rem;
     overflow-wrap: anywhere;
   }
@@ -244,7 +240,6 @@ $font-display: 'JetBrains Mono', monospace;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      /* Transición eliminada */
     }
   }
 
@@ -255,7 +250,8 @@ $font-display: 'JetBrains Mono', monospace;
 
     h4 {
       font-size: 0.8rem;
-      color: $text-muted;
+      color: var(--tema-text);
+      opacity: 0.6;
       margin-bottom: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -274,17 +270,16 @@ $font-display: 'JetBrains Mono', monospace;
     align-items: center;
     gap: 0.4rem;
     padding: 0.4rem 0.8rem;
-    background: $bg-card;
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid $border-color;
     border-radius: $radius-sm;
     text-decoration: none;
-    color: $text-secondary;
+    color: var(--tema-text);
     font-size: 0.8rem;
-    /* Transición eliminada */
 
     &:hover {
       border-color: $primary;
-      color: $text-primary;
+      color: $primary;
       background: $primary-light;
       text-decoration: none;
     }
@@ -322,21 +317,23 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: 1px solid $border-color;
   border-radius: 50%;
-  color: $text-muted;
+  color: var(--tema-text);
+  opacity: 0.6;
   cursor: pointer;
   flex-shrink: 0;
-  /* Transición eliminada */
 
   svg { stroke: currentColor; }
 }
 
 .btn-compartir-header:hover {
+  opacity: 1;
   color: $primary-share;
   border-color: $primary-share;
   background: rgba(29, 155, 240, 0.1);
 }
 
 .btn-reportar:hover {
+  opacity: 1;
   color: $danger;
   border-color: $danger;
   background: rgba(248, 81, 73, 0.1);
@@ -357,15 +354,14 @@ $font-display: 'JetBrains Mono', monospace;
   align-items: center;
   gap: 6px;
   padding: 5px 12px 5px 6px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  color: $text-secondary;
+  color: var(--tema-text);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   user-select: none;
-  /* Transición y transformaciones eliminadas */
 
   svg {
     width: 22px;
@@ -381,8 +377,8 @@ $font-display: 'JetBrains Mono', monospace;
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   &.active {
@@ -468,7 +464,8 @@ $font-display: 'JetBrains Mono', monospace;
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  color: $text-secondary;
+  color: var(--tema-text);
+  opacity: 0.7;
 
   svg { stroke: currentColor; flex-shrink: 0; }
 }
@@ -481,6 +478,7 @@ $font-display: 'JetBrains Mono', monospace;
   border: 1px solid $border-color;
   border-radius: $radius;
   padding: 1.5rem;
+  color: var(--tema-text);
 
   &__header {
     display: flex;
@@ -490,15 +488,16 @@ $font-display: 'JetBrains Mono', monospace;
 
     h3 {
       font-size: 1.1rem;
-      color: $text-primary;
+      color: var(--tema-text);
       margin: 0;
       font-family: $font-display;
     }
 
     &__count {
       font-size: 0.75rem;
-      color: $text-secondary;
-      background: $bg-card;
+      color: var(--tema-text);
+      opacity: 0.7;
+      background: rgba(255, 255, 255, 0.05);
       padding: 0.15rem 0.6rem;
       border-radius: 20px;
     }
@@ -512,7 +511,7 @@ $font-display: 'JetBrains Mono', monospace;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: $bg-card;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: $radius;
     padding: 0.4rem;
     border: 1px solid $border-color;
@@ -522,39 +521,18 @@ $font-display: 'JetBrains Mono', monospace;
     }
   }
 
-  &__avatar-mini {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: linear-gradient(135deg, $primary, $primary-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-weight: 700;
-    font-size: 0.75rem;
-    color: $bg-primary;
-
-    .avatar-mini-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-
   &__input {
     flex: 1;
     background: transparent;
     border: none;
     padding: 0.4rem 0.2rem;
-    color: $text-primary;
+    color: var(--tema-text);
     font-size: 0.9rem;
     outline: none;
     font-family: inherit;
-    min-width: 0; /* Previene desborde en móvil */
+    min-width: 0;
 
-    &::placeholder { color: $text-muted; }
+    &::placeholder { color: var(--tema-text); opacity: 0.5; }
 
     &.disabled {
       opacity: 0.5;
@@ -599,17 +577,10 @@ $font-display: 'JetBrains Mono', monospace;
     align-items: center;
     gap: 8px;
     padding: 1.5rem;
-    color: $text-secondary;
+    color: var(--tema-text);
+    opacity: 0.5;
 
-    svg {
-      stroke: $text-secondary;
-      opacity: 0.3;
-    }
-
-    p {
-      margin: 0;
-      font-size: 0.9rem;
-    }
+    p { margin: 0; font-size: 0.9rem; }
   }
 }
 
@@ -621,9 +592,8 @@ $font-display: 'JetBrains Mono', monospace;
   gap: 0.75rem;
   padding: 0.75rem;
   border-radius: $radius-sm;
-  /* Transición eliminada */
 
-  &:hover { background: $bg-card; }
+  &:hover { background: rgba(255, 255, 255, 0.02); }
 
   &__avatar {
     width: 32px;
@@ -660,7 +630,7 @@ $font-display: 'JetBrains Mono', monospace;
   &__autor {
     font-weight: 600;
     font-size: 0.85rem;
-    color: $text-primary;
+    color: var(--tema-text);
     cursor: pointer;
 
     &:hover {
@@ -671,13 +641,15 @@ $font-display: 'JetBrains Mono', monospace;
 
   &__fecha {
     font-size: 0.65rem;
-    color: $text-muted;
+    color: var(--tema-text);
+    opacity: 0.5;
   }
 
   &__texto {
     font-size: 0.9rem;
     line-height: 1.6;
-    color: $text-secondary;
+    color: var(--tema-text);
+    opacity: 0.9;
     margin: 0;
     overflow-wrap: anywhere;
   }
@@ -694,9 +666,9 @@ $font-display: 'JetBrains Mono', monospace;
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: $text-secondary;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--tema-text);
     font-size: 0.72rem;
     font-weight: 600;
     cursor: pointer;
@@ -716,8 +688,8 @@ $font-display: 'JetBrains Mono', monospace;
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 0.07);
-      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     &.active[data-tipo="like"] {
@@ -738,8 +710,9 @@ $font-display: 'JetBrains Mono', monospace;
     align-items: center;
     gap: 4px;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: $text-muted;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--tema-text);
+    opacity: 0.7;
     font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
@@ -747,6 +720,7 @@ $font-display: 'JetBrains Mono', monospace;
     border-radius: 14px;
 
     &:hover {
+      opacity: 1;
       color: $primary;
       background: rgba(45, 212, 191, 0.08);
       border-color: rgba(45, 212, 191, 0.3);
@@ -757,7 +731,8 @@ $font-display: 'JetBrains Mono', monospace;
   &__reportar {
     background: none;
     border: none;
-    color: $text-muted;
+    color: var(--tema-text);
+    opacity: 0.5;
     cursor: pointer;
     padding: 0 4px;
     display: inline-flex;
@@ -766,6 +741,7 @@ $font-display: 'JetBrains Mono', monospace;
     svg { stroke: currentColor; }
 
     &:hover {
+      opacity: 1;
       color: $danger;
     }
   }
@@ -790,13 +766,13 @@ $font-display: 'JetBrains Mono', monospace;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid $border-color;
     border-radius: 6px;
-    color: $text-primary;
+    color: var(--tema-text);
     font-size: 0.85rem;
     outline: none;
     min-width: 0;
 
     &:focus { border-color: $primary; }
-    &::placeholder { color: $text-muted; }
+    &::placeholder { color: var(--tema-text); opacity: 0.5; }
   }
 
   &__btn {
@@ -880,7 +856,7 @@ $font-display: 'JetBrains Mono', monospace;
   &__autor {
     font-weight: 600;
     font-size: 0.75rem;
-    color: $text-primary;
+    color: var(--tema-text);
     cursor: pointer;
 
     &:hover {
@@ -889,13 +865,14 @@ $font-display: 'JetBrains Mono', monospace;
     }
   }
 
-  &__fecha { font-size: 0.6rem; color: $text-muted; }
+  &__fecha { font-size: 0.6rem; color: var(--tema-text); opacity: 0.5; }
 
   &__eliminar,
   &__reportar {
     background: none;
     border: none;
-    color: $text-muted;
+    color: var(--tema-text);
+    opacity: 0.5;
     cursor: pointer;
     padding: 0 2px;
     display: inline-flex;
@@ -903,12 +880,13 @@ $font-display: 'JetBrains Mono', monospace;
 
     svg { stroke: currentColor; }
 
-    &:hover { color: $danger; }
+    &:hover { opacity: 1; color: $danger; }
   }
 
   &__texto {
     font-size: 0.85rem;
-    color: $text-secondary;
+    color: var(--tema-text);
+    opacity: 0.9;
     margin: 0;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -925,9 +903,9 @@ $font-display: 'JetBrains Mono', monospace;
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: $text-muted;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--tema-text);
     font-size: 0.65rem;
     font-weight: 600;
     cursor: pointer;
@@ -947,8 +925,8 @@ $font-display: 'JetBrains Mono', monospace;
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 0.07);
-      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     &.active[data-tipo="like"] {
@@ -971,7 +949,8 @@ $font-display: 'JetBrains Mono', monospace;
   gap: 0.5rem;
   margin-top: 0.5rem;
   margin-left: 2.5rem;
-  color: $text-muted;
+  color: var(--tema-text);
+  opacity: 0.6;
   font-size: 0.75rem;
 
   .spinner-small {
@@ -1012,7 +991,7 @@ $font-display: 'JetBrains Mono', monospace;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: $bg-card;
+    background: rgba(255, 255, 255, 0.05);
     border-top: 1px solid $border-color;
     flex-wrap: wrap;
   }
@@ -1026,7 +1005,8 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: 1px solid $border-color;
   border-radius: 20px;
-  color: $text-secondary;
+  color: var(--tema-text);
+  opacity: 0.7;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -1034,6 +1014,7 @@ $font-display: 'JetBrains Mono', monospace;
   svg { stroke: currentColor; }
 
   &:hover {
+    opacity: 1;
     border-color: $primary;
     color: $primary;
     background: $primary-light;
@@ -1050,10 +1031,10 @@ $font-display: 'JetBrains Mono', monospace;
 
 .select-idioma {
   padding: 5px 10px;
-  background: $bg-secondary;
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid $border-color;
   border-radius: 6px;
-  color: $text-primary;
+  color: var(--tema-text);
   font-size: 0.75rem;
   cursor: pointer;
   outline: none;
@@ -1064,7 +1045,7 @@ $font-display: 'JetBrains Mono', monospace;
 
   option {
     background: $bg-secondary;
-    color: $text-primary;
+    color: #e6edf3;
   }
 }
 
@@ -1088,7 +1069,8 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: 1px dashed $border-light;
   border-radius: 20px;
-  color: $text-secondary;
+  color: var(--tema-text);
+  opacity: 0.7;
   font-size: 0.75rem;
   cursor: pointer;
   margin-left: auto;
@@ -1096,6 +1078,7 @@ $font-display: 'JetBrains Mono', monospace;
   svg { stroke: currentColor; }
 
   &:hover:not(.loading) {
+    opacity: 1;
     border-color: $primary;
     color: $primary;
     background: $primary-light;
@@ -1156,7 +1139,7 @@ $font-display: 'JetBrains Mono', monospace;
     border-radius: 0;
 
     &__input-wrapper { 
-      flex-wrap: nowrap; /* Mantiene el input y el botón juntos */
+      flex-wrap: nowrap; 
     }
 
     &__input {

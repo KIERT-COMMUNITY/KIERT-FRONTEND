@@ -1,5 +1,5 @@
 // ============================================================
-// POST CARD - CON SOPORTE PARA VIDEOS Y GIFS
+// POST CARD - ADAPTABLE A TEMAS
 // ============================================================
 
 .post-card {
@@ -8,14 +8,24 @@
   padding: 20px;
   margin-bottom: 16px;
   transition: all 0.25s ease;
-  border: 1px solid;
+  
+  // ✅ Fondo semitransparente para que se vea el degradado del feed
+  background: rgba(13, 17, 23, 0.4); 
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  
+  border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.08));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   overflow: hidden;
+  
+  // ✅ Color de texto dinámico según el tema
+  color: var(--tema-text, #e6edf3);
 
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    border-color: rgba(45, 212, 191, 0.3);
   }
 
   // HEADER
@@ -48,6 +58,7 @@
     text-overflow: ellipsis;
     cursor: pointer;
     transition: color 0.2s;
+    color: var(--tema-text, #e6edf3); // ✅ Variable dinámica
 
     &:hover {
       color: #2dd4bf !important;
@@ -70,6 +81,8 @@
     font-size: 0.65rem;
     white-space: nowrap;
     flex-shrink: 0;
+    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
+    opacity: 0.8;
   }
 
   &__titulo {
@@ -81,6 +94,7 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    color: var(--tema-text, #e6edf3); // ✅ Variable dinámica
   }
 
   &__desc {
@@ -91,6 +105,8 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
+    opacity: 0.9;
   }
 
   // ============================================================
@@ -101,7 +117,7 @@
     margin: 12px 0;
     border-radius: 8px;
     overflow: hidden;
-    background: #0d1117;
+    background: rgba(0, 0, 0, 0.3);
   }
 
   &__image-wrapper,
@@ -110,7 +126,7 @@
     position: relative;
     width: 100%;
     overflow: hidden;
-    background: #0d1117;
+    background: transparent;
   }
 
   &__image {
@@ -182,8 +198,8 @@
   &__video-error {
     padding: 20px;
     text-align: center;
-    color: #8b98a5;
-    background: #1b232c;
+    color: var(--tema-text-muted, #8b98a5);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
   }
 
@@ -213,7 +229,7 @@
     gap: 0.5rem;
     margin: 8px 0 12px;
     padding: 8px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
   }
 
   &__adjunto-link {
@@ -224,7 +240,7 @@
     background: rgba(45, 212, 191, 0.05);
     border: 1px solid rgba(45, 212, 191, 0.1);
     border-radius: 6px;
-    color: #8b98a5;
+    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
     font-size: 0.75rem;
     text-decoration: none;
     transition: all 0.2s;
@@ -239,7 +255,9 @@
   }
 
   &__adjunto-icono {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #2dd4bf;
   }
 
   &__adjunto-nombre {
@@ -251,7 +269,8 @@
 
   &__adjunto-peso {
     font-size: 0.6rem;
-    color: #5a6a7a;
+    color: var(--tema-text-muted, #5a6a7a);
+    opacity: 0.7;
   }
 
   // ============================================================
@@ -263,7 +282,7 @@
     align-items: center;
     margin-top: 14px;
     padding-top: 12px;
-    border-top: 1px solid;
+    border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
   }
 
   &__stats {
@@ -278,7 +297,7 @@
     align-items: center;
     gap: 4px;
     font-size: 0.8rem;
-    color: #8b98a5;
+    color: var(--tema-text-muted, #8b98a5); // ✅ Variable dinámica
 
     svg {
       stroke: currentColor;
@@ -289,23 +308,6 @@
     font-size: 0.9rem;
   }
 }
-
-// ============================================================
-// TEMAS DE COLOR
-// ============================================================
-
-.tema-default .post-card {
-  background: #131a22;
-  border-color: #26313c;
-  color: #e6edf3;
-}
-.tema-default .post-card__username { color: #e6edf3; }
-.tema-default .post-card__badge { color: #2dd4bf; background: rgba(45, 212, 191, 0.1); }
-.tema-default .post-card__fecha { color: #8b98a5; }
-.tema-default .post-card__titulo { color: #e6edf3; }
-.tema-default .post-card__desc { color: #8b98a5; }
-.tema-default .post-card__footer { border-color: #26313c; }
-.tema-default .post-card__stat { color: #8b98a5; }
 
 // ============================================================
 // RESPONSIVE
@@ -350,6 +352,4 @@
   .post-card__gif {
     max-height: 320px;
   }
-
 }
-

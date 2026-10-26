@@ -1818,3 +1818,183 @@ $text-muted: var(--tema-text-muted);
 
   svg { stroke: currentColor; flex-shrink: 0; }
 }
+
+// ============================================================
+// ✅ ZONA DE PELIGRO (ELIMINAR CUENTA)
+// ============================================================
+
+.danger-zone {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  border-radius: 12px;
+  background: rgba(248, 81, 73, 0.08);
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+
+    h3 {
+      color: #f85149;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: var(--tema-text-muted);
+    margin-bottom: 1.2rem;
+  }
+
+  .btn-eliminar-cuenta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f85149;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover:not(:disabled) {
+      background: #e03b33;
+      box-shadow: 0 4px 16px rgba(248, 81, 73, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================================
+// ✅ MODAL DE CONFIRMACIÓN DE ELIMINACIÓN
+// ============================================================
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeInUp 0.2s ease;
+}
+
+.modal-card {
+  background: var(--tema-card-bg);
+  border: 1px solid var(--tema-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .modal-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .modal-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--tema-text);
+    margin: 0 0 0.5rem;
+  }
+
+  .modal-desc {
+    font-size: 0.9rem;
+    color: var(--tema-text-muted);
+    margin: 0 0 1rem;
+    line-height: 1.5;
+  }
+
+  .modal-subdesc {
+    font-size: 0.8rem;
+    color: var(--tema-text-muted);
+    margin: 0 0 1rem;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(128, 128, 128, 0.08);
+    border: 1px solid var(--tema-border);
+    border-radius: 8px;
+    color: var(--tema-text);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: $transition;
+    margin-bottom: 1.5rem;
+
+    &:focus {
+      outline: none;
+      border-color: #f85149;
+      box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.15);
+    }
+
+    &::placeholder {
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: 400;
+      color: var(--tema-text-muted);
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+
+    button {
+      padding: 0.65rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: $transition;
+      border: none;
+    }
+
+    .btn-cancel {
+      background: rgba(128, 128, 128, 0.1);
+      color: var(--tema-text);
+      
+      &:hover:not(:disabled) {
+        background: rgba(128, 128, 128, 0.2);
+      }
+    }
+
+    .btn-confirm-delete {
+      background: #f85149;
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background: #e03b33;
+        box-shadow: 0 4px 16px rgba(248, 81, 73, 0.3);
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+    }
+  }
+}

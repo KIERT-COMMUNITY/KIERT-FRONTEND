@@ -9,42 +9,28 @@
   min-height: 100vh;
   transition: background 0.5s ease, color 0.5s ease;
   color: inherit;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 
-// ✅ TARJETA CON FONDO DE PERFIL DEL AUTOR
+// TARJETA CON EFECTO CRISTAL (Glassmorphism)
 .perfil-autor-card {
-  backdrop-filter: blur(10px);
+  width: 100%;
+  background: rgba(13, 17, 23, 0.4); // Fondo semitransparente oscuro
+  backdrop-filter: blur(16px); // Efecto cristal para ver el degradado de fondo
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  transition: background 0.5s ease, border-color 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   color: inherit;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
   &:hover {
-    border-color: rgba(45, 212, 191, 0.2);
-  }
-
-  // Botón volver del header
-  .btn-back {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    color: #e6edf3;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(45, 212, 191, 0.15);
-      border-color: #2dd4bf;
-      color: #2dd4bf;
-      transform: translateX(-2px);
-    }
+    border-color: rgba(45, 212, 191, 0.3);
+    box-shadow: 0 8px 32px rgba(45, 212, 191, 0.1);
   }
 
   .exito {
@@ -94,6 +80,27 @@
   position: relative;
   z-index: 10;
 
+  .btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: #e6edf3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.15);
+      border-color: #2dd4bf;
+      color: #2dd4bf;
+      transform: translateX(-2px);
+    }
+  }
+
   .perfil-titulo {
     margin: 0;
     font-size: 1.1rem;
@@ -103,7 +110,7 @@
 }
 
 // ============================================================
-// BANNER
+// BANNER (CORREGIDO: SIN FONDO NEGRO)
 // ============================================================
 .perfil-banner {
   width: 100%;
@@ -112,17 +119,11 @@
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
-
+  
+  // Cuando NO hay foto de portada, NO pintamos nada
+  // para que el fondo de la tarjeta (cristal) se vea a través.
   &--default {
-    background: linear-gradient(135deg, #1b232c 0%, #0d1117 100%);
-    
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(circle at 20% 50%, rgba(45, 212, 191, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
-    }
+    background: transparent;
   }
 }
 
@@ -133,11 +134,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: -50px;
-  padding: 0 1.5rem 1rem;
+  margin-top: -60px; // Sube el avatar para que pise el banner
+  padding: 0 1.5rem 1.5rem;
   position: relative;
   z-index: 5;
   text-align: center;
+
+  // Si no hay banner, evitamos que el avatar se corte con el header
+  &.sin-banner {
+    margin-top: 1.5rem;
+  }
 }
 
 .perfil-avatar-wrapper {
@@ -153,10 +159,10 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.6);
+  background: #0d1117; // Fondo oscuro detrás de la foto
   border-radius: 50%;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
   &:hover {
     transform: scale(1.05);
@@ -182,7 +188,7 @@
 }
 
 .perfil-nombre {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   margin: 0 0 0.25rem;
   color: inherit !important;
   font-weight: 700;
@@ -192,7 +198,7 @@
 .perfil-fecha {
   font-size: 0.85rem;
   color: #8b98a5;
-  margin: 0 0 1rem;
+  margin: 0 0 1.25rem;
 }
 
 // ============================================================
@@ -201,9 +207,9 @@
 .perfil-bio {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 0.85rem 1.15rem;
-  margin-bottom: 1rem;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
   text-align: left;
 
   &__texto {
@@ -238,7 +244,7 @@
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 500;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.25rem;
   width: fit-content;
 
   &--info {
@@ -261,7 +267,7 @@
 }
 
 // ============================================================
-// ACCIONES (CENTRADAS Y PERFECTAS)
+// ACCIONES (BOTONES)
 // ============================================================
 .perfil-acciones {
   display: flex;
@@ -273,14 +279,13 @@
   max-width: 100%;
   margin: 0 auto;
 
-  // === ESTILOS BASE PARA TODOS LOS BOTONES ===
   button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.7rem 1.4rem;
-    border-radius: 8px;
+    padding: 0.7rem 1.5rem;
+    border-radius: 10px;
     font-weight: 600;
     font-size: 0.9rem;
     font-family: inherit;
@@ -297,7 +302,6 @@
     }
   }
 
-  // === COLORES ESPECÍFICOS ===
   .btn-chat,
   .btn-solicitar,
   .btn-desbloquear {
@@ -305,7 +309,7 @@
     color: #0d1117 !important;
 
     &:hover:not(:disabled) {
-      opacity: 0.85;
+      opacity: 0.9;
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
     }
@@ -421,10 +425,10 @@
   .perfil-autor-card {
     background: rgba(255, 255, 255, 0.85) !important;
     color: #1a1a2e !important;
+    border-color: rgba(0, 0, 0, 0.1);
   }
 
   .perfil-nombre,
-  .perfil-email,
   .perfil-titulo {
     color: #1a1a2e !important;
   }
@@ -446,11 +450,14 @@
     color: #666666 !important;
   }
 
-  .btn-volver {
+  .btn-back {
     color: #555555 !important;
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
 
     &:hover {
       color: #2dd4bf !important;
+      background: rgba(45, 212, 191, 0.1);
     }
   }
 
@@ -463,13 +470,8 @@
     }
   }
 
-  .exito {
-    color: #2ea043 !important;
-  }
-
-  .error-msg {
-    color: #f85149 !important;
-  }
+  .exito { color: #2ea043 !important; }
+  .error-msg { color: #f85149 !important; }
 }
 
 // ============================================================
@@ -481,20 +483,18 @@
   }
 
   .perfil-autor-card {
-    border-radius: 14px;
+    border-radius: 16px;
   }
 
   .perfil-avatar {
     width: 96px;
     height: 96px;
 
-    &__inicial {
-      font-size: 2rem;
-    }
+    &__inicial { font-size: 2rem; }
   }
 
   .perfil-info-principal {
-    margin-top: -45px;
+    margin-top: -50px;
   }
 }
 
@@ -507,7 +507,7 @@
   }
 
   .perfil-autor-card {
-    border-radius: 12px;
+    border-radius: 14px;
   }
 
   .perfil-banner {
@@ -515,21 +515,19 @@
   }
 
   .perfil-info-principal {
-    margin-top: -40px;
-    padding: 0 1rem 0.75rem;
+    margin-top: -45px;
+    padding: 0 1rem 1rem;
   }
 
   .perfil-avatar {
     width: 80px;
     height: 80px;
 
-    &__inicial {
-      font-size: 1.6rem;
-    }
+    &__inicial { font-size: 1.6rem; }
   }
 
   .perfil-nombre {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 
   .perfil-fecha {
@@ -537,18 +535,17 @@
   }
 
   .perfil-bio {
-    padding: 0.7rem 0.9rem;
+    padding: 0.8rem 1rem;
 
     &__texto {
       font-size: 0.85rem;
     }
   }
 
-  // ✅ BOTONES EN MÓVIL (uno debajo del otro, centrados)
   .perfil-acciones {
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0 1rem 1rem;
+    padding: 0 1rem 1.25rem;
 
     button {
       width: 100%;
@@ -570,13 +567,11 @@
     width: 72px;
     height: 72px;
 
-    &__inicial {
-      font-size: 1.4rem;
-    }
+    &__inicial { font-size: 1.4rem; }
   }
 
   .perfil-nombre {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .perfil-acciones {

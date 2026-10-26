@@ -1,6 +1,6 @@
 <!-- src/app/features/anuncios/anuncios.component.html -->
 <div class="anuncios-page">
-  <h1 class="anuncios-title">Anuncios</h1>
+  <h1 class="anuncios-title">Anuncios de la comunidad</h1>
 
   @if (cargando()) {
     <div class="anuncios-loading">
@@ -8,25 +8,75 @@
       <p>Cargando anuncios...</p>
     </div>
   } @else if (anuncios().length === 0) {
-    <p class="anuncios-empty">No hay anuncios por ahora.</p>
+    <div class="anuncios-empty">
+      <p>No hay anuncios por ahora.</p>
+      <span>Vuelve más tarde para ver novedades.</span>
+    </div>
   } @else {
-    <div class="anuncios-grid">
-      @for (a of anuncios(); track a.id) {
-        <article class="anuncio-card">
-          @if (a.imagenUrl) {
-            <div class="anuncio-img-wrapper">
-              <img class="anuncio-img" [src]="a.imagenUrl" [alt]="a.titulo" loading="lazy" />
+    
+    <!-- ========================================================= -->
+    <!-- BANNER FLOTANTE (Usa el anuncio específico del endpoint)  -->
+    <!-- ========================================================= -->
+    @if (mostrarBanner() && anuncioFlotante()) {
+      @let banner = anuncioFlotante()!;
+      
+      <div class="floating-ad">
+        <button class="floating-ad__close" (click)="cerrarBanner()" aria-label="Cerrar anuncio">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        
+        <div class="floating-ad__content">
+          @if (banner.imagenUrl) {
+            <div class="floating-ad__img-wrapper">
+              <img [src]="banner.imagenUrl" alt="Anuncio" class="floating-ad__img">
             </div>
           }
-          <div class="anuncio-body">
-            <h2 class="anuncio-titulo">{{ a.titulo }}</h2>
-            <p class="anuncio-texto">{{ a.texto }}</p>
-            @if (a.enlaceUrl) {
-              <a class="anuncio-link" [href]="a.enlaceUrl" target="_blank" rel="noopener">
-                Ver más
-              </a>
-            }
+          <div class="floating-ad__text">
+            <h4>{{ banner.titulo }}</h4>
+            <p>{{ banner.texto }}</p>
           </div>
+          @if (banner.enlaceUrl) {
+            <a [href]="banner.enlaceUrl" target="_blank" rel="noopener" class="floating-ad__link">
+              Ver más
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ========================================================= -->
+    <!-- LISTA NORMAL DE ANUNCIOS                                  -->
+    <!-- ========================================================= -->
+    <div class="anuncios-list">
+      @for (a of anuncios(); track a.id) {
+        <article class="anuncio-banner">
+          
+          @if (a.imagenUrl) {
+            <div class="anuncio-banner__icon">
+              <img [src]="a.imagenUrl" [alt]="a.titulo" loading="lazy" />
+            </div>
+          }
+
+          <div class="anuncio-banner__content">
+            <h2 class="anuncio-banner__title">{{ a.titulo }}</h2>
+            <p class="anuncio-banner__text">{{ a.texto }}</p>
+          </div>
+
+          @if (a.enlaceUrl) {
+            <div class="anuncio-banner__action">
+              <a class="anuncio-banner__btn" [href]="a.enlaceUrl" target="_blank" rel="noopener">
+                Ver más
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </a>
+            </div>
+          }
+
         </article>
       }
     </div>

@@ -43,9 +43,10 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   mostrarAvisoEnlace = signal(false);
   enlaceAAbrir = signal<{ url: string; titulo: string } | null>(null);
 
-  // ===== MODAL DE AVISO DE SEGURIDAD (5s auto-cierre) =====
+  // ===== MODAL DE AVISO DE SEGURIDAD (CONTADOR) =====
   mostrarAvisoSeguridad = signal(true);
-  private avisoSeguridadTimer: ReturnType<typeof setTimeout> | null = null;
+  contadorSeguridad = signal(5);
+  private avisoSeguridadInterval: ReturnType<typeof setInterval> | null = null;
 
   // ===== LISTA BLANCA DE DOMINIOS CONFIABLES =====
   private readonly DOMINIOS_CONFIABLES = [
@@ -148,25 +149,32 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.avisoSeguridadTimer) clearTimeout(this.avisoSeguridadTimer);
+    if (this.avisoSeguridadInterval) clearInterval(this.avisoSeguridadInterval);
   }
 
   // ============================================================
-  // AVISO DE SEGURIDAD (auto-cierre 5s)
+  // AVISO DE SEGURIDAD CON CONTADOR (5, 4, 3, 2, 1)
   // ============================================================
   private iniciarAvisoSeguridad(): void {
     this.mostrarAvisoSeguridad.set(true);
-    if (this.avisoSeguridadTimer) clearTimeout(this.avisoSeguridadTimer);
-    this.avisoSeguridadTimer = setTimeout(() => {
-      this.mostrarAvisoSeguridad.set(false);
-    }, 5000);
+    this.contadorSeguridad.set(5);
+    
+    if (this.avisoSeguridadInterval) clearInterval(this.avisoSeguridadInterval);
+    
+    this.avisoSeguridadInterval = setInterval(() => {
+      this.contadorSeguridad.update(c => c - 1);
+      
+      if (this.contadorSeguridad() <= 0) {
+        this.cerrarAvisoSeguridad();
+      }
+    }, 1000);
   }
 
   cerrarAvisoSeguridad(): void {
     this.mostrarAvisoSeguridad.set(false);
-    if (this.avisoSeguridadTimer) {
-      clearTimeout(this.avisoSeguridadTimer);
-      this.avisoSeguridadTimer = null;
+    if (this.avisoSeguridadInterval) {
+      clearInterval(this.avisoSeguridadInterval);
+      this.avisoSeguridadInterval = null;
     }
   }
 
@@ -310,9 +318,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // VALIDACIÓN Y APERTURA DE ENLACES
   // ============================================================
 
-  /**
-   * Verifica si una URL pertenece a un dominio confiable.
-   */
   esDominioConfiable(url: string): boolean {
     if (!url) return false;
     try {
@@ -325,9 +330,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Obtiene el dominio de una URL (sin www).
-   */
   getDominio(url: string): string {
     if (!url) return '';
     try {
@@ -338,37 +340,23 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Abre un enlace con confirmación previa si no es confiable.
-   */
   abrirEnlace(url: string, titulo?: string): void {
     if (!url) return;
-
-    // Si es dominio confiable → abrir directo
     if (this.esDominioConfiable(url)) {
       window.open(url, '_blank', 'noopener,noreferrer');
       return;
     }
-
-    // Si no es confiable → mostrar modal
     this.enlaceAAbrir.set({ url, titulo: titulo || 'Recurso' });
     this.mostrarAvisoEnlace.set(true);
   }
 
-  /**
-   * Confirma la apertura del enlace no confiable.
-   */
   confirmarAbrirEnlace(): void {
     const enlace = this.enlaceAAbrir();
     if (!enlace) return;
-
     window.open(enlace.url, '_blank', 'noopener,noreferrer');
     this.cerrarAvisoEnlace();
   }
 
-  /**
-   * Cierra el modal de aviso.
-   */
   cerrarAvisoEnlace(): void {
     this.mostrarAvisoEnlace.set(false);
     this.enlaceAAbrir.set(null);
@@ -440,7 +428,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
     const urlLimpia = this.formUrl().trim();
 
-    // Validación frontend (rápida, antes de ir al backend)
     if (!urlLimpia.startsWith('https://')) {
       this.formError.set('La URL debe comenzar con https://');
       return;
@@ -453,7 +440,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Advertir si el dominio no está en la lista blanca
     if (!this.esDominioConfiable(urlLimpia)) {
       const dominio = this.getDominio(urlLimpia);
       const confirmar = confirm(

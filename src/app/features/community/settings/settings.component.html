@@ -74,7 +74,6 @@
         <span>Historial</span>
       </button>
 
-      <!-- ✅ NUEVO: Botón de atajos de teclado -->
       <button class="nav-btn" (click)="abrirAyudaAtajos()" title="Atajos de teclado (Shift + ?)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="6" width="20" height="12" rx="2"/>
@@ -142,7 +141,6 @@
                 </div>
                 <div class="result-actions">
 
-                  <!-- ✅ ES MI PROPIO PERFIL -->
                   @if (esMiPropioPerfil(user.id)) {
                     <span class="result-badge result-badge--yo">Tú</span>
                     <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
@@ -150,7 +148,6 @@
                     </button>
                   }
 
-                  <!-- ✅ YA ES CONTACTO -->
                   @else if (sonContactos(user.id)) {
                     <span class="result-badge result-badge--contacto">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -169,7 +166,6 @@
                     </button>
                   }
 
-                  <!-- ✅ YA ENVIÉ SOLICITUD -->
                   @else if (yaEnvieSolicitud(user.id)) {
                     <span class="result-badge result-badge--pendiente">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -183,7 +179,6 @@
                     </button>
                   }
 
-                  <!-- ✅ DESCONOCIDO: mostrar botón agregar -->
                   @else {
                     <button class="result-btn view-profile" (click)="verPerfilUsuario(user.id)">
                       Ver perfil
@@ -276,7 +271,6 @@
           <span>Tamaño de texto</span>
         </button>
 
-        <!-- ✅ NUEVO: Botón de atajos de teclado -->
         <button
           class="sidebar-item"
           (click)="abrirAyudaAtajos()"
@@ -487,6 +481,30 @@
             </div>
           }
         </div>
+
+        <!-- ✅ ZONA DE PELIGRO: Eliminar Cuenta -->
+        <div class="danger-zone">
+          <div class="danger-zone__title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <h3>Zona de peligro</h3>
+          </div>
+          <p>
+            Al eliminar tu cuenta, tus datos se marcarán como eliminados de forma permanente. 
+            No podrás volver a iniciar sesión con este correo.
+          </p>
+          <button class="btn-eliminar-cuenta" (click)="abrirModalEliminar()" [disabled]="cargando()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Eliminar mi cuenta
+          </button>
+        </div>
+
       </section>
 
       <!-- ===== BLOQUEADOS ===== -->
@@ -584,7 +602,6 @@
           </div>
         </div>
 
-        <!-- PREVIEW EN VIVO -->
         <div class="fuente-preview" [style.font-size.rem]="escalaFuente()">
           <span class="fuente-preview__label">Vista previa:</span>
           <p class="fuente-preview__texto">
@@ -593,7 +610,6 @@
           </p>
         </div>
 
-        <!-- TAMAÑOS PREDEFINIDOS -->
         <div class="fuente-presets">
           @for (tamano of tamanosPredefinidos; track tamano.id) {
             <button
@@ -612,7 +628,6 @@
           }
         </div>
 
-        <!-- SLIDER FINO -->
         <div class="fuente-slider-row">
           <button
             type="button"
@@ -657,7 +672,6 @@
           </button>
         </div>
 
-        <!-- ACCIONES -->
         <div class="fuente-actions">
           <button
             type="button"
@@ -724,6 +738,59 @@
 
     </main>
   </div>
+
+  <!-- ✅ MODAL DE CONFIRMACIÓN DE ELIMINACIÓN DE CUENTA -->
+  @if (mostrarModalEliminar()) {
+    <div class="modal-overlay" (click)="cerrarModalEliminar()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        
+        <div class="modal-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+
+        <h2 class="modal-title">Eliminar cuenta</h2>
+        
+        <p class="modal-desc">
+          Esta acción es <strong>permanente</strong> y no se puede deshacer. 
+          Todos tus datos, publicaciones y mensajes serán eliminados.
+        </p>
+
+        <p class="modal-subdesc">
+          Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo.
+        </p>
+
+        <input 
+          type="text" 
+          class="modal-input" 
+          placeholder="Escribe ELIMINAR"
+          [value]="confirmacionTexto()"
+          (input)="confirmacionTexto.set($any($event.target).value)"
+          [disabled]="cargando()"
+        >
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="cerrarModalEliminar()" [disabled]="cargando()">
+            Cancelar
+          </button>
+          <button 
+            class="btn-confirm-delete" 
+            (click)="confirmarEliminarCuenta()" 
+            [disabled]="confirmacionTexto().trim().toUpperCase() !== 'ELIMINAR' || cargando()">
+            @if (cargando()) {
+              <span class="spinner-mini-btn"></span> Eliminando...
+            } @else {
+              Sí, eliminar cuenta
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
 
   <!-- ✅ NUEVO: Modal de atajos de teclado (solo se renderiza dentro de Ajustes) -->
   <kiert-keyboard-help />

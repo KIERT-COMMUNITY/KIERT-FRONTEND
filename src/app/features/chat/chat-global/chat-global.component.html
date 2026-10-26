@@ -14,14 +14,32 @@
   <div class="chat-mensajes" #scrollContainer>
     @for (m of mensajes(); track m.id) {
       <div class="mensaje" [class.propio]="esPropio(m)">
-        <img
-          class="avatar"
-          [src]="m.autorFotoPerfilUrl || 'assets/default-avatar.png'"
-          [alt]="m.autorNombreUsuario"
-        />
+
+        <!-- AVATAR CLICKEABLE -->
+        <button
+          type="button"
+          class="avatar-btn"
+          (click)="irAlPerfil(m.autorId, $event)"
+          [attr.aria-label]="'Ver perfil de ' + m.autorNombreUsuario"
+          [title]="'Ver perfil de ' + m.autorNombreUsuario"
+        >
+          <img
+            class="avatar"
+            [src]="m.autorFotoPerfilUrl || 'assets/default-avatar.png'"
+            [alt]="m.autorNombreUsuario"
+          />
+        </button>
+
         <div class="burbuja">
           <div class="meta">
-            <strong>{{ m.autorNombreUsuario }}</strong>
+            <!-- NOMBRE CLICKEABLE -->
+            <strong
+              class="autor-link"
+              (click)="irAlPerfil(m.autorId, $event)"
+              [title]="'Ver perfil de ' + m.autorNombreUsuario"
+            >
+              {{ m.autorNombreUsuario }}
+            </strong>
             <span class="fecha">{{ m.fechaEnvio | date:'shortTime' }}</span>
           </div>
           <p class="contenido">{{ m.contenido }}</p>

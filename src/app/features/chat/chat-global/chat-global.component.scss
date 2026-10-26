@@ -105,13 +105,39 @@ $text-muted: #5a6a7a;
     }
   }
 
+  // ===== AVATAR CLICKEABLE =====
+  .avatar-btn {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.4);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 2px;
+    }
+  }
+
   .avatar {
     width: 36px;
     height: 36px;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0;
+    display: block;
     border: 1px solid $border;
+    pointer-events: none;
   }
 
   .burbuja {
@@ -127,10 +153,26 @@ $text-muted: #5a6a7a;
       align-items: baseline;
       margin-bottom: 0.2rem;
 
-      strong {
+      // ===== NOMBRE CLICKEABLE =====
+      .autor-link {
         font-size: 0.8rem;
         color: $primary;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+
+        &:hover {
+          opacity: 0.8;
+          text-decoration: underline;
+        }
+
+        &:focus-visible {
+          outline: 2px solid $primary;
+          outline-offset: 2px;
+          border-radius: 2px;
+        }
       }
+
       .fecha {
         font-size: 0.7rem;
         color: $text-muted;

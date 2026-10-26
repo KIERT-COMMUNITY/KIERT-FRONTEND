@@ -1,3 +1,4 @@
+<!-- src/app/features/admin/admin-anuncios/admin-anuncios.component.html -->
 <div class="admin-anuncios">
   <h1 class="admin-title">Gestión de anuncios</h1>
 
@@ -33,6 +34,14 @@
         <input type="url" formControlName="enlaceUrl" placeholder="https://..." />
       </label>
 
+      <!-- ✅ NUEVO CHECKBOX PARA BANNER FLOTANTE -->
+      <label class="field field--checkbox" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 20px;">
+        <input type="checkbox" formControlName="esFlotante" style="width: 18px; height: 18px; accent-color: #2dd4bf;" />
+        <span style="margin: 0; font-size: 0.85rem; text-transform: none; color: #e6edf3;">
+          Mostrar en el banner flotante de la página
+        </span>
+      </label>
+
       <label class="field">
         <span>Imagen (opcional)</span>
         <input type="file" accept="image/*" (change)="onArchivoChange($event)" />
@@ -66,14 +75,17 @@
         <p class="empty">No hay anuncios todavía.</p>
       } @else {
         @for (a of anuncios(); track a.id) {
-          <div class="anuncio-item">
+          <div class="anuncio-item" [style.border-left]="a.esFlotante ? '3px solid #2dd4bf' : 'none'">
             @if (a.imagenUrl) {
               <img class="anuncio-thumb" [src]="a.imagenUrl" [alt]="a.titulo" />
             } @else {
               <div class="anuncio-thumb anuncio-thumb--empty">Sin imagen</div>
             }
             <div class="anuncio-info">
-              <h3>{{ a.titulo }}</h3>
+              <h3>
+                {{ a.titulo }}
+                @if (a.esFlotante) { <span style="color: #2dd4bf; font-size: 0.7rem;">(Flotante)</span> }
+              </h3>
               <p>{{ a.texto }}</p>
               @if (a.enlaceUrl) {
                 <a [href]="a.enlaceUrl" target="_blank" rel="noopener">{{ a.enlaceUrl }}</a>

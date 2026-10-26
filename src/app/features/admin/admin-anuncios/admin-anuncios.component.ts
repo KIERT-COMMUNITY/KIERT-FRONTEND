@@ -30,7 +30,8 @@ export class AdminAnunciosComponent implements OnInit {
   form = this.fb.group({
     titulo: ['', [Validators.required, Validators.maxLength(200)]],
     texto: ['', [Validators.required]],
-    enlaceUrl: ['']
+    enlaceUrl: [''],
+    esFlotante: [false] // ✅ NUEVO CONTROL
   });
 
   ngOnInit(): void {
@@ -48,8 +49,7 @@ export class AdminAnunciosComponent implements OnInit {
         this.anuncios.set(data);
         this.cargando.set(false);
       },
-      error: (err) => {
-        console.error('[ADMIN ANUNCIOS] Error cargar:', err);
+      error: () => {
         this.cargando.set(false);
         this.errorMsg.set('No se pudieron cargar los anuncios');
       }
@@ -71,7 +71,7 @@ export class AdminAnunciosComponent implements OnInit {
   }
 
   limpiarFormulario(): void {
-    this.form.reset();
+    this.form.reset({ esFlotante: false });
     this.editandoId.set(null);
     this.archivoSeleccionado.set(null);
     this.previewUrl.set(null);
@@ -83,7 +83,8 @@ export class AdminAnunciosComponent implements OnInit {
     this.form.patchValue({
       titulo: a.titulo,
       texto: a.texto,
-      enlaceUrl: a.enlaceUrl ?? ''
+      enlaceUrl: a.enlaceUrl ?? '',
+      esFlotante: a.esFlotante ?? false // ✅ Cargar valor
     });
     this.previewUrl.set(a.imagenUrl ?? null);
     this.archivoSeleccionado.set(null);
@@ -99,28 +100,20 @@ export class AdminAnunciosComponent implements OnInit {
     this.guardando.set(true);
     this.errorMsg.set(null);
 
-    const { titulo, texto, enlaceUrl } = this.form.getRawValue();
+    const { titulo, texto, enlaceUrl, esFlotante } = this.form.getRawValue();
 
-    // FORMDATA correctamente armado
     const fd = new FormData();
     fd.append('titulo', titulo!.trim());
     fd.append('texto', texto!.trim());
     if (enlaceUrl?.trim()) {
       fd.append('enlaceUrl', enlaceUrl.trim());
     }
+    fd.append('esFlotante', String(esFlotante)); // ✅ Enviar al backend
+
     const file = this.archivoSeleccionado();
     if (file) {
       fd.append('imagen', file);
     }
-
-    console.log('[ADMIN ANUNCIOS] Enviando FormData:', {
-      titulo: titulo,
-      texto: texto,
-      enlaceUrl: enlaceUrl,
-      tieneImagen: !!file,
-      nombreArchivo: file?.name,
-      tamanoArchivo: file?.size
-    });
 
     const id = this.editandoId();
 
@@ -129,36 +122,20 @@ export class AdminAnunciosComponent implements OnInit {
       : this.anuncioService.crear(fd);
 
     op.subscribe({
-      next: (res) => {
-        console.log('[ADMIN ANUNCIOS] Guardado OK:', res);
+      next: () => {
         this.guardando.set(false);
         this.limpiarFormulario();
         this.cargar();
       },
       error: (err) => {
         this.guardando.set(false);
-        console.error('[ADMIN ANUNCIOS] Error:', err);
-        console.error('[ADMIN ANUNCIOS] Status:', err.status);
-        console.error('[ADMIN ANUNCIOS] Body del error:', err.error);
-        console.error('[ADMIN ANUNCIOS] Headers enviados:', err.headers);
-
-        // Diagnóstico del error
         let mensaje = 'No se pudo guardar';
 
-        if (err.status === 400) {
-          mensaje = err.error?.message
-            || err.error?.error
-            || 'Datos inválidos. Revisa todos los campos.';
-        } else if (err.status === 401) {
-          mensaje = 'Sesión expirada. Vuelve a iniciar sesión.';
-          this.adminAuth.logoutYNavegar();
-        } else if (err.status === 403) {
-          mensaje = 'No tienes permiso para crear anuncios.';
-        } else if (err.status === 413) {
-          mensaje = 'El archivo es demasiado grande (máx. 10MB).';
-        } else if (err.status === 415) {
-          mensaje = 'Tipo de archivo no permitido. Usa JPG, PNG o WEBP.';
-        }
+        if (err.status === 400) mensaje = err.error?.message || 'Datos inválidos.';
+        else if (err.status === 401) { mensaje = 'Sesión expirada.'; this.adminAuth.logoutYNavegar(); }
+        else if (err.status === 403) mensaje = 'No tienes permiso.';
+        else if (err.status === 413) mensaje = 'Archivo demasiado grande (máx. 10MB).';
+        else if (err.status === 415) mensaje = 'Tipo de archivo no permitido.';
 
         this.errorMsg.set(mensaje);
       }
@@ -171,10 +148,7 @@ export class AdminAnunciosComponent implements OnInit {
 
     this.anuncioService.eliminar(a.id).subscribe({
       next: () => this.cargar(),
-      error: (err) => {
-        console.error('[ADMIN ANUNCIOS] Error eliminar:', err);
-        this.errorMsg.set('No se pudo eliminar');
-      }
+      error: () => this.errorMsg.set('No se pudo eliminar')
     });
   }
 

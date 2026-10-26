@@ -1,4 +1,4 @@
- <!-- src/app/features/biblioteca/biblioteca.component.html -->
+<!-- src/app/features/biblioteca/biblioteca.component.html -->
 <div class="biblioteca-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
 
   <!-- HEADER -->
@@ -603,17 +603,11 @@
   }
 
   <!-- ============================================================ -->
-  <!-- MODAL DE AVISO DE SEGURIDAD (auto-cierre 5s) — CENTRADO     -->
-  <!-- Sin animaciones, profesional, responsive                     -->
+  <!-- MODAL DE AVISO DE SEGURIDAD (CONTADOR 5s)                    -->
   <!-- ============================================================ -->
   @if (mostrarAvisoSeguridad()) {
     <div class="modal-overlay modal-overlay--seguridad" (click)="cerrarAvisoSeguridad()">
       <div class="modal modal--seguridad" (click)="$event.stopPropagation()">
-
-        <!-- Barra de progreso de 5 segundos (estática, sin animación) -->
-        <div class="seguridad-progress" aria-hidden="true">
-          <div class="seguridad-progress__bar"></div>
-        </div>
 
         <button class="modal__close modal__close--seguridad"
                 (click)="cerrarAvisoSeguridad()"
@@ -635,53 +629,29 @@
           </div>
 
           <!-- Título -->
-          <h2 class="seguridad-title">Cuida tu seguridad</h2>
+          <h2 class="seguridad-title">Aviso de seguridad</h2>
 
-          <!-- Descripción -->
+          <!-- Descripción corta -->
           <p class="seguridad-desc">
-            En <strong>Kiert</strong> nos preocupamos por tu privacidad y tu seguridad.
+            Navega con cuidado. <strong>No abras enlaces sospechosos</strong> ni compartas datos personales.
           </p>
 
-          <!-- Alerta principal -->
+          <!-- Alerta principal (más simple) -->
           <div class="seguridad-alerta">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            <span>
-              <strong>Cuidado con enlaces maliciosos.</strong>
-              No abras links sospechosos ni compartas datos personales.
-            </span>
+            <span>Verifica siempre el dominio antes de hacer clic.</span>
           </div>
 
-          <!-- Lista de recomendaciones -->
-          <ul class="seguridad-lista">
-            <li>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              <span>Verifica siempre el dominio antes de hacer clic</span>
-            </li>
-            <li>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              <span>Desconfía de URLs acortadas o extrañas</span>
-            </li>
-            <li>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              <span>Nunca ingreses contraseñas en sitios no verificados</span>
-            </li>
-          </ul>
+          <!-- Contador dinámico -->
+          <div class="seguridad-auto">
+            <span class="seguridad-auto__number">{{ contadorSeguridad() }}</span>
+            <span class="seguridad-auto__text">segundos</span>
+          </div>
 
-          <p class="seguridad-footer">
-            <strong>La comunidad se cuida entre todos.</strong>
-          </p>
-
-          <span class="seguridad-auto">Este mensaje se cerrará en 5 segundos...</span>
         </div>
       </div>
     </div>

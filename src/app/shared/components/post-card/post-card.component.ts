@@ -1,3 +1,4 @@
+// src/app/features/community/post-card/post-card.component.ts
 import { Component, input, output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -28,7 +29,10 @@ export class PostCardComponent implements OnInit {
     return 'tema-' + this.personalizacionStore.temaId();
   }
 
-  // MÉTODO PARA OBTENER LA CATEGORÍA FORMATEADA
+  ngOnInit(): void {
+    // Sin logs
+  }
+
   getCategoriaFormateada(categoria: string): string {
     if (!categoria) return 'Sin categoría';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
@@ -38,7 +42,6 @@ export class PostCardComponent implements OnInit {
       .join(' ');
   }
 
-  // MÉTODO PARA OBTENER EL COLOR DE LA CATEGORÍA
   getColorCategoria(categoria: string): string {
     if (!categoria) return '#8b98a5';
     const categoriaLower = categoria.toLowerCase();
@@ -63,7 +66,6 @@ export class PostCardComponent implements OnInit {
     return '#2dd4bf';
   }
 
-  // OBTENER EL MARCO DEL AUTOR
   getMarcoDelAutor(): string {
     return this.post().autor?.marcoId || 'none';
   }
@@ -167,12 +169,12 @@ export class PostCardComponent implements OnInit {
 
   getIconoArchivo(adjunto: Adjunto): string {
     const nombre = adjunto.nombre?.toLowerCase() || '';
-    if (nombre.endsWith('.pdf')) return '📄';
-    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return '📝';
-    if (nombre.endsWith('.xls') || nombre.endsWith('.xlsx')) return '📊';
-    if (nombre.endsWith('.zip') || nombre.endsWith('.rar') || nombre.endsWith('.7z')) return '📦';
-    if (nombre.endsWith('.txt')) return '📃';
-    return '📎';
+    if (nombre.endsWith('.pdf')) return 'PDF';
+    if (nombre.endsWith('.doc') || nombre.endsWith('.docx')) return 'DOC';
+    if (nombre.endsWith('.xls') || nombre.endsWith('.xlsx')) return 'XLS';
+    if (nombre.endsWith('.zip') || nombre.endsWith('.rar') || nombre.endsWith('.7z')) return 'ZIP';
+    if (nombre.endsWith('.txt')) return 'TXT';
+    return 'FILE';
   }
 
   onImageError(event: Event): void {
@@ -198,9 +200,5 @@ export class PostCardComponent implements OnInit {
     if (postId && !isNaN(postId) && postId > 0) {
       this.postClick.emit(postId);
     }
-  }
-
-  ngOnInit(): void {
-    console.log('PostCard - Marco del autor:', this.getMarcoDelAutor());
   }
 }
