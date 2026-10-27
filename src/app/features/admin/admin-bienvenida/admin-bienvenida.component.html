@@ -1,0 +1,82 @@
+<!-- src/app/features/admin/admin-bienvenida/admin-bienvenida.component.html -->
+<div class="admin-bienvenida">
+  <header class="admin-bienvenida__head">
+    <h1>Chat de bienvenida</h1>
+    <p>Este mensaje aparece fijo arriba del sidebar para todos los usuarios (incluidos invitados).</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="admin-state">Cargando...</div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="guardar()" class="admin-bienvenida__form">
+      <label class="field">
+        <span class="field__label">Titulo</span>
+        <input
+          type="text"
+          formControlName="titulo"
+          maxlength="200"
+          placeholder="Ej. Bienvenido a Kiert Community"
+        >
+        @if (form.get('titulo')?.invalid && form.get('titulo')?.touched) {
+          <span class="field__error">El titulo es obligatorio</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field__label">Contenido</span>
+        <textarea
+          formControlName="contenido"
+          rows="12"
+          maxlength="4000"
+          placeholder="Escribe aqui el mensaje de bienvenida..."
+        ></textarea>
+        @if (form.get('contenido')?.invalid && form.get('contenido')?.touched) {
+          <span class="field__error">El contenido es obligatorio</span>
+        }
+        <span class="field__hint">
+          {{ form.get('contenido')?.value?.length || 0 }} / 4000 caracteres
+        </span>
+      </label>
+
+      <div class="admin-bienvenida__actions">
+        <button type="button" class="btn-secondary" (click)="restaurar()">
+          Restaurar original
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="guardando() || form.invalid">
+          @if (guardando()) { Guardando... } @else { Guardar cambios }
+        </button>
+      </div>
+
+      @if (mensajeExito()) {
+        <div class="alert alert--success">{{ mensajeExito() }}</div>
+      }
+      @if (mensajeError()) {
+        <div class="alert alert--error">{{ mensajeError() }}</div>
+      }
+
+      @if (fechaActualizacion()) {
+        <p class="admin-bienvenida__meta">
+          Ultima actualizacion: {{ fechaActualizacion() | date:'dd/MM/yyyy HH:mm' }}
+        </p>
+      }
+    </form>
+
+    <section class="admin-bienvenida__preview">
+      <h2>Vista previa</h2>
+      <div class="preview-card">
+        <div class="preview-avatar">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
+          </svg>
+        </div>
+        <div class="preview-body">
+          <span class="preview-author">Equipo de Kiert</span>
+          <div class="preview-bubble">
+            <strong>{{ previewTitulo() || '(sin titulo)' }}</strong>
+            <p style="white-space: pre-line;">{{ previewContenido() || '(sin contenido)' }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+</div>
