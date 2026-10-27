@@ -61,6 +61,13 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         data: { roles: ['CEO', 'ADMIN'] }
       },
+      // ✅ NUEVO: editar bienvenida
+      {
+        path: 'admin/bienvenida',
+        loadComponent: () => import('./features/admin/admin-bienvenida/admin-bienvenida.component').then(m => m.AdminBienvenidaComponent),
+        canActivate: [adminGuard],
+        data: { roles: ['CEO', 'ADMIN', 'MODERADOR'] }
+      },
       { path: 'admin', redirectTo: 'admin/reportes', pathMatch: 'full' },
 
       // ---------- PERFIL ----------
@@ -72,8 +79,10 @@ export const routes: Routes = [
       { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent) },
 
       // ---------- CHAT PRIVADO / GRUPOS (público, aviso al interactuar) ----------
-      // ⚠️ ORDEN IMPORTANTE: primero estáticas (chat/grupo/:id), luego dinámicas (chat/:usuarioId)
+      // ⚠️ ORDEN IMPORTANTE: primero estáticas (chat/bienvenida, chat/grupo/:id), luego dinámicas (chat/:usuarioId)
       { path: 'chat', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
+      // ✅ NUEVO: chat de bienvenida (ANTES de chat/:usuarioId)
+      { path: 'chat/bienvenida', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
       { path: 'chat/grupo/:id', loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent) },
       { path: 'chat/:usuarioId', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
 

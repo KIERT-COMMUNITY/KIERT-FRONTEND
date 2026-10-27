@@ -153,10 +153,25 @@
                 <span class="menu-label">Gestionar anuncios</span>
               </button>
             }
+
+            <!-- ✅ SOLO ADMIN: Editar bienvenida -->
+            <button
+              type="button"
+              class="menu-item menu-button menu-button--admin"
+              title="Editar mensaje de bienvenida"
+              (click)="irAEditarBienvenida()"
+            >
+              <span class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
+                </svg>
+              </span>
+              <span class="menu-label">Editar bienvenida</span>
+            </button>
           </div>
         }
 
-        <!-- COMUNICACIÓN -->
+        <!-- COMUNICACIÓN (sin "Chat de bienvenida", ya está en el sidebar del chat) -->
         <div class="menu-section">
           <span class="menu-section-title">Comunicacion</span>
 

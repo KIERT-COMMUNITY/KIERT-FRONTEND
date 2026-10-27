@@ -47,7 +47,7 @@ export interface Reacciones {
 }
 
 /**
- * ✅ NUEVO: Estado local de las reacciones del usuario.
+ *  NUEVO: Estado local de las reacciones del usuario.
  * Se usa en el frontend para saber si el usuario ya reaccionó
  * (a un post, comentario o respuesta).
  */
@@ -69,11 +69,7 @@ export interface Post {
   adjuntos: Adjunto[];
   totalComentarios: number;
   fechaCreacion: string;
-
-  // ✅ NUEVO: reacciones del post
   reacciones?: Reacciones;
-
-  // ✅ NUEVO: estado de reacciones del usuario actual
   userReactions?: UserReactions;
 }
 
@@ -84,7 +80,6 @@ export interface Comentario {
   fechaCreacion: string;
   reacciones?: Reacciones;
 
-  // ✅ NUEVO: estado de reacciones del usuario actual
   userReactions?: UserReactions;
 
   respuestas?: Respuesta[];
@@ -101,7 +96,6 @@ export interface Respuesta {
   fechaCreacion: string;
   reacciones?: Reacciones;
 
-  // ✅ NUEVO: estado de reacciones del usuario actual
   userReactions?: UserReactions;
 
   eliminado?: boolean;

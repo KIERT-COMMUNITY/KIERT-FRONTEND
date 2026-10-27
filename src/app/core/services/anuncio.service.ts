@@ -13,7 +13,7 @@ export interface Anuncio {
   enlaceUrl?: string;
   activo?: boolean;
   destacado?: boolean;
-  esFlotante?: boolean; // ✅ NUEVO CAMPO
+  esFlotante?: boolean; 
   fechaCreacion?: string;
   fechaPublicacion?: string;
 }
@@ -31,7 +31,7 @@ export class AnuncioService {
     return this.http.get<Anuncio[]>(`${this.API_PUBLICOS}/publicos`);
   }
 
-  // ✅ NUEVO: Obtener el anuncio para el banner flotante
+  // NUEVO: Obtener el anuncio para el banner flotante
   obtenerFlotante(): Observable<Anuncio> {
     return this.http.get<Anuncio>(`${this.API_PUBLICOS}/flotante`);
   }

@@ -77,7 +77,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.menuContraido.set(nuevo);
     this.estadoContraidoChange.emit(nuevo);
 
-    // Preferencia de UI compartida entre pestañas
     this.storage.setLocal('kiert-menu-contraido', String(nuevo));
   }
 
@@ -124,19 +123,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/anuncios']);
   }
 
-  /** ✅ Cerrar sesión: reset completo para que el siguiente NO herede el tema */
+  /** ✅ SOLO ADMIN: ir al panel de edición de bienvenida */
+  irAEditarBienvenida(): void {
+    this.cerrarMenu();
+    if (!this.adminAuth.estaLogueado()) {
+      this.router.navigate(['/admin/login']);
+      return;
+    }
+    this.router.navigate(['/admin/bienvenida']);
+  }
+
+  /** ✅ Cerrar sesión: reset completo */
   cerrarSesion(): void {
     this.cerrarMenu();
     this.adminAuth.logout();
     this.authService.logout();
 
-    // Reset de personalización → vuelve al tema por defecto (teal)
     this.personalizacionStore.resetear();
-
-    // Quitar preferencias guardadas en storage
     this.storage.resetearPreferencias();
-
-    // Quitar flag de invitado por si acaso
     this.storage.quitarInvitado();
 
     this.router.navigate(['/login']);

@@ -106,6 +106,18 @@ export class NavbarAdminComponent implements OnInit, OnDestroy {
     this.router.navigate(['/chat-global']);
   }
 
+  /** ✅ NUEVO: ir al chat de bienvenida */
+  irAlChatBienvenida(): void {
+    this.cerrarMenu();
+    this.router.navigate(['/chat/bienvenida']);
+  }
+
+  /** ✅ NUEVO: ir al panel admin de edición de bienvenida */
+  irAEditarBienvenida(): void {
+    this.cerrarMenu();
+    this.router.navigate(['/admin/bienvenida']);
+  }
+
   irAlPerfil(): void {
     this.cerrarMenu();
     this.router.navigate(['/perfil']);

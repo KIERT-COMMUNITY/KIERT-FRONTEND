@@ -175,6 +175,26 @@
     <!-- Contenido del sidebar -->
     <div class="sidebar-body">
 
+      <!-- ✅ CHAT DE BIENVENIDA (fijo, siempre visible para todos) -->
+      <button class="chat-row chat-row--bienvenida"
+              [class.chat-row--active]="bienvenidaAbierta()"
+              (click)="abrirBienvenida()">
+        <div class="chat-row__avatar chat-row__avatar--bienvenida">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
+          </svg>
+        </div>
+        <div class="chat-row__info">
+          <div class="chat-row__line">
+            <span class="chat-row__name">Bienvenida</span>
+            <span class="chat-row__badge chat-row__badge--sistema">SISTEMA</span>
+          </div>
+          <div class="chat-row__line">
+            <span class="chat-row__preview">{{ bienvenida().titulo }}</span>
+          </div>
+        </div>
+      </button>
+
       @if (tabActual() === 'chats') {
         @if (conversaciones().length === 0) {
           <div class="sidebar-empty">
@@ -327,7 +347,7 @@
       </svg>
     </button>
 
-    @if (!usuarioSeleccionado() && !grupoSeleccionado()) {
+    @if (!usuarioSeleccionado() && !grupoSeleccionado() && !bienvenidaAbierta()) {
       <div class="chat-blank">
         <div class="chat-blank__icon">
           <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -350,8 +370,62 @@
       </div>
     }
 
+    <!-- ===== CHAT DE BIENVENIDA ===== -->
+    @if (bienvenidaAbierta()) {
+      <header class="chat-top">
+        <button class="chat-top__back" (click)="cerrarBienvenida()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+
+        <div class="chat-top__user">
+          <div class="chat-top__avatar chat-top__avatar--bienvenida">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
+            </svg>
+          </div>
+          <div class="chat-top__info">
+            <span class="chat-top__name">Bienvenida</span>
+            <span class="chat-top__sub chat-top__sub--online">Mensaje del sistema</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="chat-stream">
+        <div class="msg">
+          <div class="msg__avatar msg__avatar--sistema">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
+            </svg>
+          </div>
+          <div class="msg__body">
+            <span class="msg__author">Equipo de Kiert</span>
+            <div class="msg__bubble">
+              <strong>{{ bienvenida().titulo }}</strong>
+              <p style="white-space: pre-line; margin: .5rem 0 0;">{{ bienvenida().contenido }}</p>
+            </div>
+            @if (bienvenida().fechaActualizacion) {
+              <span class="msg__time">
+                Actualizado {{ bienvenida().fechaActualizacion | date:'dd/MM/yyyy' }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input chat-input--guest" style="cursor: default;">
+        <input
+          type="text"
+          placeholder="Este chat es solo informativo"
+          readonly
+          class="chat-input__field input-guest"
+        >
+      </div>
+    }
+
     <!-- ===== CHAT PRIVADO ===== -->
-    @if (usuarioSeleccionado() && tabActual() === 'chats') {
+    @if (usuarioSeleccionado() && tabActual() === 'chats' && !bienvenidaAbierta()) {
       <header class="chat-top">
         <button class="chat-top__back" (click)="cerrarChat()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -480,7 +554,6 @@
         </div>
       }
 
-      <!-- ✅ AVISO REUTILIZABLE (PRIVADO) -->
       <kiert-aviso-login
         [visible]="mostrarAvisoLoginPrivado()"
         icono="🔒"
@@ -491,7 +564,6 @@
         (cerrar)="cerrarAvisoLoginPrivado()">
       </kiert-aviso-login>
 
-      <!-- ✅ INPUT PRIVADO -->
       @if (estaLogueado) {
         <form class="chat-input" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
           <label class="chat-input__file" title="Adjuntar archivo">
@@ -535,7 +607,6 @@
           </button>
         </form>
       } @else {
-        <!-- ✅ BLOQUE INVITADO (PRIVADO) -->
         <div class="chat-input chat-input--guest" (click)="mostrarAvisoLoginPrivado.set(true)">
           <input
             type="text"
@@ -680,7 +751,6 @@
         }
       </div>
 
-      <!-- ✅ AVISO REUTILIZABLE (GRUPO) -->
       <kiert-aviso-login
         [visible]="mostrarAvisoLoginGrupo()"
         icono="🔒"
@@ -691,7 +761,6 @@
         (cerrar)="cerrarAvisoLoginGrupo()">
       </kiert-aviso-login>
 
-      <!-- ✅ INPUT GRUPO -->
       @if (estaLogueado) {
         <form class="chat-input" [formGroup]="formMensajeGrupo" (ngSubmit)="enviarMensajeGrupo()">
           <label class="chat-input__file" title="Adjuntar">
@@ -735,7 +804,6 @@
           </button>
         </form>
       } @else {
-        <!-- ✅ BLOQUE INVITADO (GRUPO) -->
         <div class="chat-input chat-input--guest" (click)="mostrarAvisoLoginGrupo.set(true)">
           <input
             type="text"

@@ -18,7 +18,8 @@ import { Sticker } from '../../core/models/sticker.model';
 import { AvatarFrameComponent } from '../../shared/components/avatar-frame/avatar-frame.component';
 import { CrearGrupoModalComponent } from '../../shared/components/crear-grupo-modal/crear-grupo-modal.component';
 import { StickerPickerComponent } from '../../shared/components/sticker-picker/sticker-picker.component';
-import { AvisoLoginComponent } from '../../shared/components/aviso-login/aviso-login.component'; // ✅ NUEVO
+import { AvisoLoginComponent } from '../../shared/components/aviso-login/aviso-login.component';
+import { BienvenidaService, Bienvenida } from '../../core/services/bienvenida.service';
 
 type TabTipo = 'chats' | 'grupos';
 
@@ -28,7 +29,7 @@ type TabTipo = 'chats' | 'grupos';
   imports: [
     CommonModule, ReactiveFormsModule, AvatarFrameComponent,
     CrearGrupoModalComponent, StickerPickerComponent,
-    AvisoLoginComponent // ✅ NUEVO
+    AvisoLoginComponent
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
@@ -42,6 +43,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private ngZone = inject(NgZone);
+  private bienvenidaService = inject(BienvenidaService);
   public personalizacionStore = inject(PersonalizacionStore);
 
   @ViewChild('mensajesContainer') private mensajesContainer?: ElementRef;
@@ -82,9 +84,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   grupoAEliminar = signal<Grupo | null>(null);
   miembroAExpulsar = signal<MiembroGrupo | null>(null);
 
-  // ✅ NUEVO: aviso para invitados (privado + grupos)
+  // Avisos de login
   mostrarAvisoLoginPrivado = signal(false);
   mostrarAvisoLoginGrupo = signal(false);
+
+  // ============ CHAT DE BIENVENIDA (predeterminado) ============
+  bienvenidaAbierta = signal(false);
+  bienvenida = signal<Bienvenida>({
+    titulo: 'Bienvenido a Kiert Community',
+    contenido: 'Cargando mensaje de bienvenida...',
+    fechaActualizacion: null
+  });
 
   presencias = signal<Map<number, PresenciaUsuario>>(new Map());
   private presenciaInterval: ReturnType<typeof setInterval> | null = null;
@@ -105,7 +115,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.solicitudes().filter(s => s.estado === 'PENDIENTE');
   }
 
-  /** ✅ Getter para el template */
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
@@ -185,8 +194,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private readonly onVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
-      this.actualizarConversacionesYContadores();
-      this.actualizarPresencias();
+      if (this.estaLogueado) {
+        this.actualizarConversacionesYContadores();
+        this.actualizarPresencias();
+      }
     }
   };
 
@@ -205,13 +216,31 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.usuarioSeleccionado.set(null);
     this.grupoSeleccionado.set(null);
 
-    this.cargarDatos();
-    this.cargarGrupos();
+    // ✅ Solo cargamos datos protegidos si está logueado
+    if (this.estaLogueado) {
+      this.cargarDatos();
+      this.cargarGrupos();
+    }
+
+    // ✅ La bienvenida es pública → siempre se carga
+    this.cargarBienvenida();
+
     this.setupKeyboardListener();
 
     this.route.params.subscribe(params => {
       const usuarioId = params['usuarioId'];
       const grupoId = params['grupoId'];
+      const bienvenida = params['bienvenida'];
+
+      // ✅ RUTA CHAT DE BIENVENIDA
+      if (bienvenida === 'bienvenida') {
+        this.tabActual.set('chats');
+        this.usuarioSeleccionado.set(null);
+        this.grupoSeleccionado.set(null);
+        this.bienvenidaAbierta.set(true);
+        this.cerrarSidebarMovil();
+        return;
+      }
 
       if (usuarioId) {
         if (Number(usuarioId) === this.authService.usuario()?.id) {
@@ -219,30 +248,44 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           return;
         }
         this.tabActual.set('chats');
+        this.bienvenidaAbierta.set(false);
         const id = Number(usuarioId);
         this.usuarioSeleccionado.set(id);
-        this.marcarMensajesComoLeidos(id);
-        this.cargarMensajes(id);
+
+        // ✅ Solo marcamos leídos y cargamos si está logueado
+        if (this.estaLogueado) {
+          this.marcarMensajesComoLeidos(id);
+          this.cargarMensajes(id);
+        }
         this.cerrarSidebarMovil();
       }
 
       if (grupoId) {
         this.tabActual.set('grupos');
+        this.bienvenidaAbierta.set(false);
         const id = Number(grupoId);
         this.grupoSeleccionado.set(id);
-        this.cargarMensajesGrupo(id);
-        this.cargarMiembros(id);
+
+        // ✅ Solo cargamos si está logueado
+        if (this.estaLogueado) {
+          this.cargarMensajesGrupo(id);
+          this.cargarMiembros(id);
+        }
         this.cerrarSidebarMovil();
       }
     });
 
+    // ✅ Polling solo si está logueado
     this.pollingInterval = setInterval(() => {
-      this.actualizarConversacionesYContadores();
+      if (this.estaLogueado) {
+        this.actualizarConversacionesYContadores();
+      }
     }, 8000);
 
+    // ✅ Presencias solo si está logueado
     this.ngZone.runOutsideAngular(() => {
       this.presenciaInterval = setInterval(() => {
-        if (document.visibilityState === 'visible') {
+        if (document.visibilityState === 'visible' && this.estaLogueado) {
           this.ngZone.run(() => this.actualizarPresencias());
         }
       }, 15000);
@@ -266,8 +309,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       document.body.style.overflow = '';
     }
 
+    this.bienvenidaAbierta.set(false);
+
     const usuarioId = this.usuarioSeleccionado();
-    if (usuarioId) {
+    if (usuarioId && this.estaLogueado) {
       this.chatService.marcarComoLeidos(usuarioId).subscribe({
         next: () => this.chatService.resetearNoLeidos(usuarioId)
       });
@@ -275,9 +320,38 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ============================================================
-  // ACTUALIZAR PRESENCIAS
+  // CHAT DE BIENVENIDA
+  // ============================================================
+  cargarBienvenida(): void {
+    this.bienvenidaService.obtener().subscribe({
+      next: (data) => this.bienvenida.set(data),
+      error: () => {}
+    });
+  }
+
+  abrirBienvenida(): void {
+    this.tabActual.set('chats');
+    this.usuarioSeleccionado.set(null);
+    this.grupoSeleccionado.set(null);
+    this.mensajes.set([]);
+    this.mensajesGrupo.set([]);
+    this.bienvenidaAbierta.set(true);
+    this.cargarBienvenida();
+    this.cerrarSidebarMovil();
+    this.router.navigate(['/chat/bienvenida']);
+  }
+
+  cerrarBienvenida(): void {
+    this.bienvenidaAbierta.set(false);
+    this.router.navigate(['/chat']);
+  }
+
+  // ============================================================
+  // PRESENCIAS / TECLADO / TABS
   // ============================================================
   private actualizarPresencias(): void {
+    if (!this.estaLogueado) return;
+
     const ids = this.conversaciones().map(c => c.usuarioId);
     if (ids.length === 0) return;
 
@@ -291,54 +365,41 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // ============================================================
-  // LISTENER DE TECLADO MÓVIL
-  // ============================================================
   private setupKeyboardListener(): void {
     if (typeof window === 'undefined' || !window.visualViewport) return;
-
     const vv = window.visualViewport;
-
     const update = () => {
       const layoutH = window.innerHeight;
       const visibleH = vv.height;
       const offsetTop = vv.offsetTop;
       const bottomInset = Math.max(0, layoutH - visibleH - offsetTop);
-
       document.documentElement.style.setProperty('--kb-offset', `${bottomInset}px`);
       document.documentElement.style.setProperty('--vv-height', `${visibleH}px`);
     };
-
     this.kbListener = update;
-
     this.ngZone.runOutsideAngular(() => {
       vv.addEventListener('resize', update);
       vv.addEventListener('scroll', update);
       window.addEventListener('resize', update);
       window.addEventListener('orientationchange', update);
     });
-
     update();
   }
 
   private teardownKeyboardListener(): void {
     if (typeof window === 'undefined' || !this.kbListener) return;
-
     window.visualViewport?.removeEventListener('resize', this.kbListener);
     window.visualViewport?.removeEventListener('scroll', this.kbListener);
     window.removeEventListener('resize', this.kbListener);
     window.removeEventListener('orientationchange', this.kbListener);
-
     document.documentElement.style.setProperty('--kb-offset', '0px');
     document.documentElement.style.setProperty('--vv-height', '100dvh');
     this.kbListener = undefined;
   }
 
-  // ============================================================
-  // TABS
-  // ============================================================
   cambiarTab(tab: TabTipo): void {
     this.tabActual.set(tab);
+    this.bienvenidaAbierta.set(false);
     if (tab === 'chats') {
       this.grupoSeleccionado.set(null);
       this.mensajesGrupo.set([]);
@@ -354,7 +415,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   onBusquedaChange(valor: string): void {
     this.busqueda.set(valor);
     this.buscadorActivo.set(true);
-    if (valor.trim().length >= 1) this.cargarUsuariosDisponibles();
+    // ✅ Solo buscamos usuarios si está logueado
+    if (this.estaLogueado && valor.trim().length >= 1) {
+      this.cargarUsuariosDisponibles();
+    }
   }
 
   limpiarBusqueda(): void {
@@ -366,7 +430,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   cerrarBuscador(): void { this.buscadorActivo.set(false); }
 
   cargarUsuariosDisponibles(): void {
+    // ✅ Solo si está logueado
+    if (!this.estaLogueado) return;
     if (this.cargandoUsuarios()) return;
+
     this.cargandoUsuarios.set(true);
     this.chatService.listarUsuariosDisponibles().subscribe({
       next: (usuarios) => {
@@ -389,16 +456,30 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // CARGA DE DATOS
   // ============================================================
   cargarDatos(): void {
+    // ✅ No llamamos si no está logueado
+    if (!this.estaLogueado) {
+      this.conversaciones.set([]);
+      this.solicitudes.set([]);
+      return;
+    }
     this.cargarConversaciones();
     this.cargarSolicitudes();
   }
 
   recargarDatos(): void {
-    this.cargarDatos();
-    this.cargarGrupos();
+    if (this.estaLogueado) {
+      this.cargarDatos();
+      this.cargarGrupos();
+    }
+    // ✅ La bienvenida siempre es pública
+    this.cargarBienvenida();
   }
 
   cargarConversaciones(): void {
+    if (!this.estaLogueado) {
+      this.conversaciones.set([]);
+      return;
+    }
     this.chatService.listarConversaciones().subscribe({
       next: (data) => {
         this.conversaciones.set(data);
@@ -409,6 +490,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   actualizarConversacionesYContadores(): void {
+    if (!this.estaLogueado) return;
     this.chatService.listarConversaciones().subscribe({
       next: (data) => this.conversaciones.set(data),
       error: () => {}
@@ -416,6 +498,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   cargarMensajes(usuarioId: number): void {
+    if (!this.estaLogueado) return;
+
     this.cargando.set(true);
     this.chatService.listarMensajes(usuarioId).subscribe({
       next: (data) => {
@@ -432,6 +516,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   cargarSolicitudes(): void {
+    if (!this.estaLogueado) {
+      this.solicitudes.set([]);
+      return;
+    }
     this.chatService.listarSolicitudes().subscribe({
       next: (data) => this.solicitudes.set(data),
       error: () => {}
@@ -439,6 +527,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   marcarMensajesComoLeidos(usuarioId: number): void {
+    if (!this.estaLogueado) return;
+
     this.conversaciones.update(convs =>
       convs.map(conv =>
         conv.usuarioId === usuarioId ? { ...conv, noLeidos: 0 } : conv
@@ -455,13 +545,25 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // GRUPOS
   // ============================================================
   cargarGrupos(): void {
+    if (!this.estaLogueado) {
+      this.grupos.set([]);
+      return;
+    }
     this.grupoService.misGrupos().subscribe({
       next: (grupos) => this.grupos.set(grupos),
       error: () => {}
     });
   }
 
-  abrirModalGrupo(): void { this.mostrarModalGrupo.set(true); }
+  abrirModalGrupo(): void {
+    if (!this.estaLogueado) {
+      this.errorMsg.set('Debes iniciar sesión para crear un grupo');
+      setTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
+    this.mostrarModalGrupo.set(true);
+  }
+
   cerrarModalGrupo(): void { this.mostrarModalGrupo.set(false); }
 
   onGrupoCreado(grupo: Grupo): void {
@@ -471,6 +573,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     setTimeout(() => {
       this.tabActual.set('grupos');
+      this.bienvenidaAbierta.set(false);
       this.grupoSeleccionado.set(grupo.id);
       this.cargarMensajesGrupo(grupo.id);
       this.cargarMiembros(grupo.id);
@@ -478,11 +581,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   seleccionarGrupo(grupoId: number): void {
+    this.bienvenidaAbierta.set(false);
     this.grupoSeleccionado.set(grupoId);
     this.usuarioSeleccionado.set(null);
     this.mensajes.set([]);
-    this.cargarMensajesGrupo(grupoId);
-    this.cargarMiembros(grupoId);
+
+    if (this.estaLogueado) {
+      this.cargarMensajesGrupo(grupoId);
+      this.cargarMiembros(grupoId);
+    }
+
     this.cerrarSidebarMovil();
     this.router.navigate(['/chat/grupo', grupoId]);
   }
@@ -496,6 +604,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   cargarMensajesGrupo(grupoId: number): void {
+    if (!this.estaLogueado) return;
+
     this.cargandoGrupo.set(true);
     this.grupoService.obtenerMensajes(grupoId).subscribe({
       next: (msgs) => {
@@ -508,6 +618,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   cargarMiembros(grupoId: number): void {
+    if (!this.estaLogueado) return;
+
     this.grupoService.listarMiembros(grupoId).subscribe({
       next: (miembros) => this.miembros.set(miembros),
       error: () => {}
@@ -515,7 +627,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   enviarMensajeGrupo(): void {
-    // ✅ BLOQUEO PARA INVITADOS
     if (!this.estaLogueado) {
       this.mostrarAvisoLoginGrupo.set(true);
       return;
@@ -549,7 +660,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   toggleMiembros(): void {
     this.mostrarMiembros.update(v => !v);
     const grupoId = this.grupoSeleccionado();
-    if (grupoId && this.mostrarMiembros()) this.cargarMiembros(grupoId);
+    if (grupoId && this.mostrarMiembros() && this.estaLogueado) {
+      this.cargarMiembros(grupoId);
+    }
   }
 
   toggleOpcionesGrupo(): void { this.mostrarOpcionesGrupo.update(v => !v); }
@@ -666,6 +779,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   toggleSolicitudes(): void { this.solicitudesExpandidas.update(val => !val); }
 
   aceptarSolicitud(solicitudId: number): void {
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLoginPrivado.set(true);
+      return;
+    }
     this.chatService.aceptarSolicitud(solicitudId).subscribe({
       next: () => {
         this.exitoMsg.set('Solicitud aceptada');
@@ -682,6 +799,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   rechazarSolicitud(solicitudId: number): void {
+    if (!this.estaLogueado) {
+      this.mostrarAvisoLoginPrivado.set(true);
+      return;
+    }
     this.chatService.rechazarSolicitud(solicitudId).subscribe({
       next: () => {
         this.exitoMsg.set('Solicitud rechazada');
@@ -702,11 +823,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       return;
     }
 
+    this.bienvenidaAbierta.set(false);
     this.usuarioSeleccionado.set(usuarioId);
     this.grupoSeleccionado.set(null);
     this.mensajesGrupo.set([]);
-    this.marcarMensajesComoLeidos(usuarioId);
-    this.cargarMensajes(usuarioId);
+
+    if (this.estaLogueado) {
+      this.marcarMensajesComoLeidos(usuarioId);
+      this.cargarMensajes(usuarioId);
+    }
+
     this.cerrarSidebarMovil();
     this.router.navigate(['/chat', usuarioId]);
   }
@@ -736,7 +862,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ENVÍO PRIVADO
   // ============================================================
   enviarMensaje(): void {
-    // ✅ BLOQUEO PARA INVITADOS
     if (!this.estaLogueado) {
       this.mostrarAvisoLoginPrivado.set(true);
       return;
@@ -800,7 +925,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // ✅ Bloqueo de stickers para invitados
   toggleStickerPicker(): void {
     if (!this.estaLogueado) {
       this.mostrarAvisoLoginPrivado.set(true);
@@ -917,7 +1041,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.router.navigate(['/usuario', usuarioId]);
   }
 
-  /** ✅ Ir al login guardando URL */
   irALogin(): void {
     this.mostrarAvisoLoginPrivado.set(false);
     this.mostrarAvisoLoginGrupo.set(false);
@@ -963,22 +1086,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const presencia = this.presencias().get(usuarioId);
     if (presencia) {
       if (presencia.enLinea) return 'En línea';
-
       const fecha = this.parsearFechaUtc(presencia.ultimaConexion);
       if (!fecha) return 'Desconectado';
-
       const diffMs = Date.now() - fecha.getTime();
       if (diffMs < 0) return 'Últ. vez hace unos segundos';
-
       const diffMin = Math.floor(diffMs / 60000);
       const diffH = Math.floor(diffMin / 60);
       const diffD = Math.floor(diffH / 24);
-
       if (diffMin < 1) return 'Últ. vez hace unos segundos';
       if (diffMin < 60) return `Últ. vez hace ${diffMin} min`;
       if (diffH < 24) return `Últ. vez hace ${diffH} h`;
       if (diffD < 7) return `Últ. vez hace ${diffD} d`;
-
       return `Últ. vez ${fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`;
     }
 
