@@ -105,6 +105,7 @@ $text-muted: #5a6a7a;
     }
   }
 
+  // ✅ Wrapper limpio: el tamaño y el marco los pone <kiert-avatar-frame>
   .avatar-btn {
     padding: 0;
     margin: 0;
@@ -113,30 +114,19 @@ $text-muted: #5a6a7a;
     cursor: pointer;
     border-radius: 50%;
     flex-shrink: 0;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    line-height: 0;
 
     &:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.4);
+      filter: drop-shadow(0 0 4px rgba(45, 212, 191, 0.5));
     }
 
     &:focus-visible {
       outline: 2px solid $primary;
       outline-offset: 2px;
     }
-  }
-
-  .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: block;
-    border: 1px solid $border;
-    pointer-events: none;
   }
 
   .burbuja {
@@ -157,7 +147,6 @@ $text-muted: #5a6a7a;
         color: $primary;
         font-weight: 600;
         cursor: pointer;
-        transition: opacity 0.15s ease;
 
         &:hover {
           opacity: 0.8;
@@ -219,14 +208,12 @@ $text-muted: #5a6a7a;
     border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
-    transition: filter 0.2s ease;
 
     &:hover:not(:disabled) { filter: brightness(1.1); }
     &:disabled { opacity: 0.5; cursor: not-allowed; }
   }
 }
 
-/* ✅ Bloque invitado (input falso + botón "Registrarse") */
 .chat-input--guest {
   cursor: pointer;
 
@@ -238,7 +225,6 @@ $text-muted: #5a6a7a;
   .btn-guest {
     background: $primary;
     color: $bg-primary;
-
     &:hover { filter: brightness(1.1); }
   }
 }

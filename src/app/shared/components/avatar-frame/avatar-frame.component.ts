@@ -22,6 +22,15 @@ export class AvatarFrameComponent {
   @Input() navigateToProfile: boolean = false;
   @Input() usuarioId: number | null = null;
 
+  /** Alias de `fotoUrl` para permitir `[src]="..."` */
+  @Input()
+  set src(value: string | null | undefined) {
+    if (value !== undefined) this.fotoUrl = value;
+  }
+  get src(): string | null {
+    return this.fotoUrl;
+  }
+
   /**
    * Marco específico del usuario dueño del avatar.
    * - undefined => usa el marco del usuario logueado (avatar propio)
@@ -34,50 +43,67 @@ export class AvatarFrameComponent {
     return this.nombre?.charAt(0)?.toUpperCase() || '?';
   }
 
-  /** Marco a mostrar */
   private get marcoEfectivo(): string {
-    if (this.marcoId !== undefined) {
-      return this.marcoId || 'none';
-    }
-    return this.personalizacionStore.marcoId() || 'none';
+    const raw = this.marcoId !== undefined
+      ? this.marcoId
+      : (this.personalizacionStore.marcoId() || 'none');
+
+    const limpio = (raw || '').toString().trim().toLowerCase();
+    return limpio === '' ? 'none' : limpio;
   }
 
-  /** ¿Tiene marco? */
   get tieneMarco(): boolean {
-    return this.marcoEfectivo !== 'none';
+    const m = this.marcoEfectivo;
+    return m !== 'none' && m !== '' && m !== 'null' && m !== 'undefined';
   }
 
-  /** Clase del marco */
   get marcoClase(): string {
     if (!this.tieneMarco) return '';
     return `frame-${this.marcoEfectivo}`;
   }
 
-  /** Estilo del marco */
   get marcoEstilo(): any {
     if (!this.tieneMarco) return {};
 
     const marcoId = this.marcoEfectivo;
-    const gradientFrames = ['rainbow', 'pastel', 'ocean', 'sunset', 'galaxy', 'fire', 'ice', 'rose', 'crystal'];
+    const gradientFrames = [
+      'rainbow', 'pastel', 'ocean', 'sunset', 'galaxy',
+      'fire', 'ice', 'rose', 'crystal'
+    ];
 
     if (gradientFrames.includes(marcoId)) {
-      const marcoData = this.personalizacionStore.marcosData().find(m => m.id === marcoId);
       return {
-        'border': '4px solid transparent',
-        'background-image': marcoData?.gradient || 'none',
+        border: '4px solid transparent',
+        'background-image': this.getMarcoGradient(marcoId),
         'background-origin': 'border-box',
         'background-clip': 'padding-box, border-box',
-        'padding': '4px',
+        padding: '4px',
         'box-shadow': this.getMarcoShadow(marcoId),
         'border-radius': '50%',
       };
     }
 
     return {
-      'border': this.getMarcoBorder(marcoId),
+      border: this.getMarcoBorder(marcoId),
       'box-shadow': this.getMarcoShadow(marcoId),
       'border-radius': '50%',
     };
+  }
+
+  // ✅ Gradientes locales (ya no dependen del store)
+  getMarcoGradient(marcoId: string): string {
+    const map: Record<string, string> = {
+      'rainbow': 'linear-gradient(135deg, #ff6b6b, #feca57, #55efc4, #0984e3, #6c5ce7)',
+      'pastel':  'linear-gradient(135deg, #fd79a8, #fdcb6e, #a29bfe, #55efc4)',
+      'ocean':   'linear-gradient(135deg, #00b894, #00cec9, #0984e3)',
+      'sunset':  'linear-gradient(135deg, #ff6b6b, #feca57, #fd79a8)',
+      'galaxy':  'linear-gradient(135deg, #2d3436, #6c5ce7, #fd79a8)',
+      'fire':    'linear-gradient(135deg, #ff6b6b, #e17055, #d63031)',
+      'ice':     'linear-gradient(135deg, #74b9ff, #0984e3, #00cec9)',
+      'rose':    'linear-gradient(135deg, #fd79a8, #fdcb6e, #f9ca24)',
+      'crystal': 'linear-gradient(135deg, #dfe6e9, #b2bec3, #dfe6e9)',
+    };
+    return map[marcoId] || 'none';
   }
 
   getMarcoBorder(marcoId: string): string {
@@ -139,8 +165,8 @@ export class AvatarFrameComponent {
 
   get containerStyle(): any {
     return {
-      'width': this.size + 'px',
-      'height': this.size + 'px',
+      width: this.size + 'px',
+      height: this.size + 'px',
       'flex-shrink': '0',
     };
   }

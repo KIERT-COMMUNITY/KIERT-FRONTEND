@@ -2,23 +2,32 @@
 // PERFIL DE AUTOR - ESTILOS CON FONDO DE PERFIL
 // ============================================================
 
+// ============================================================
+// CONTENEDOR PRINCIPAL (centrado vertical y horizontal)
+// ============================================================
 .perfil-autor-container {
+  width: 100%;
   max-width: 500px;
   margin: 0 auto;
   padding: 1.5rem 1rem;
   min-height: 100vh;
-  transition: background 0.5s ease, color 0.5s ease;
-  color: inherit;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;      // ✅ apila aviso + tarjeta verticalmente
+  align-items: center;         // ✅ centra horizontalmente
+  justify-content: flex-start;
+  gap: 1rem;                   // espacio entre aviso y tarjeta
+  color: inherit;
+  transition: background 0.5s ease, color 0.5s ease;
+  box-sizing: border-box;
 }
 
+// ============================================================
 // TARJETA CON EFECTO CRISTAL (Glassmorphism)
+// ============================================================
 .perfil-autor-card {
   width: 100%;
-  background: rgba(13, 17, 23, 0.4); // Fondo semitransparente oscuro
-  backdrop-filter: blur(16px); // Efecto cristal para ver el degradado de fondo
+  background: rgba(13, 17, 23, 0.4);
+  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
@@ -27,44 +36,42 @@
   position: relative;
   color: inherit;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 
   &:hover {
     border-color: rgba(45, 212, 191, 0.3);
     box-shadow: 0 8px 32px rgba(45, 212, 191, 0.1);
   }
 
-  .exito {
-    color: #2ea043 !important;
-    background: rgba(46, 160, 67, 0.15) !important;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    margin: 0.5rem auto 1rem;
+  // Mensajes de éxito / error centrados
+  .exito,
+  .error-msg {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin: 0.75rem auto;
+    width: calc(100% - 2rem);
+    max-width: 100%;
+    border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 500;
+    text-align: center;
     animation: fadeIn 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .exito {
+    color: #2ea043 !important;
+    background: rgba(46, 160, 67, 0.15) !important;
     border: 1px solid rgba(46, 160, 67, 0.3);
-    max-width: 90%;
   }
 
   .error-msg {
     color: #f85149 !important;
     background: rgba(248, 81, 73, 0.15) !important;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    margin: 0.5rem auto 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    animation: fadeIn 0.3s ease;
     border: 1px solid rgba(248, 81, 73, 0.3);
-    max-width: 90%;
   }
 }
 
@@ -91,6 +98,7 @@
     border-radius: 50%;
     color: #e6edf3;
     cursor: pointer;
+    flex-shrink: 0;
     transition: all 0.2s ease;
 
     &:hover {
@@ -106,11 +114,13 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: inherit;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 }
 
 // ============================================================
-// BANNER (CORREGIDO: SIN FONDO NEGRO)
+// BANNER (sin fondo negro cuando no hay portada)
 // ============================================================
 .perfil-banner {
   width: 100%;
@@ -119,9 +129,7 @@
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
-  
-  // Cuando NO hay foto de portada, NO pintamos nada
-  // para que el fondo de la tarjeta (cristal) se vea a través.
+
   &--default {
     background: transparent;
   }
@@ -134,13 +142,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: -60px; // Sube el avatar para que pise el banner
+  margin-top: -60px;
   padding: 0 1.5rem 1.5rem;
   position: relative;
   z-index: 5;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 
-  // Si no hay banner, evitamos que el avatar se corte con el header
   &.sin-banner {
     margin-top: 1.5rem;
   }
@@ -148,7 +157,9 @@
 
 .perfil-avatar-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 1rem;
 }
 
@@ -159,7 +170,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #0d1117; // Fondo oscuro detrás de la foto
+  background: #0d1117;
   border-radius: 50%;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -173,18 +184,23 @@
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+    display: block;
   }
 
   &__inicial {
     font-size: 2.5rem;
     font-weight: 700;
     color: #e6edf3 !important;
+    line-height: 1;
   }
 }
 
 .perfil-datos {
   width: 100%;
   max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .perfil-nombre {
@@ -193,12 +209,16 @@
   color: inherit !important;
   font-weight: 700;
   letter-spacing: -0.02em;
+  text-align: center;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 .perfil-fecha {
   font-size: 0.85rem;
   color: #8b98a5;
   margin: 0 0 1.25rem;
+  text-align: center;
 }
 
 // ============================================================
@@ -211,6 +231,8 @@
   padding: 1rem 1.25rem;
   margin-bottom: 1.25rem;
   text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 
   &__texto {
     font-size: 0.9rem;
@@ -246,6 +268,8 @@
   font-weight: 500;
   margin: 0 auto 1.25rem;
   width: fit-content;
+  max-width: 100%;
+  text-align: center;
 
   &--info {
     color: #58a6ff;
@@ -267,17 +291,19 @@
 }
 
 // ============================================================
-// ACCIONES (BOTONES)
+// ACCIONES (BOTONES) — centrados y con ancho controlado
 // ============================================================
 .perfil-acciones {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   gap: 0.75rem;
   padding: 0 1.5rem 1.5rem;
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 
   button {
     display: inline-flex;
@@ -293,8 +319,12 @@
     border: none;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
+    min-height: 42px;
+    box-sizing: border-box;
 
-    svg { flex-shrink: 0; }
+    svg {
+      flex-shrink: 0;
+    }
 
     &:disabled {
       opacity: 0.5;
@@ -313,7 +343,9 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(45, 212, 191, 0.4);
     }
-    &:active:not(:disabled) { transform: scale(0.95); }
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+    }
   }
 
   .btn-aceptar {
@@ -325,7 +357,9 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(46, 160, 67, 0.4);
     }
-    &:active:not(:disabled) { transform: scale(0.95); }
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+    }
   }
 
   .btn-pendiente {
@@ -345,7 +379,9 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(248, 81, 73, 0.15);
     }
-    &:active { transform: scale(0.95); }
+    &:active {
+      transform: scale(0.95);
+    }
   }
 }
 
@@ -365,12 +401,23 @@
   font-size: 0.85rem;
   font-weight: 500;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-align: center;
 
-  svg { flex-shrink: 0; }
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.bloqueo-aviso--guest {
+  background: rgba(45, 212, 191, 0.1) !important;
+  border-color: rgba(45, 212, 191, 0.3) !important;
+  color: #2dd4bf !important;
 }
 
 // ============================================================
-// SPINNER / ANIMACIONES
+// SPINNER / LOADING / ERROR
 // ============================================================
 .spinner {
   width: 40px;
@@ -390,6 +437,8 @@
   justify-content: center;
   padding: 4rem 2rem;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 
   .error-icon {
     color: #f85149;
@@ -400,26 +449,237 @@
     font-size: 1.4rem;
     color: inherit;
     margin: 0 0 0.5rem;
+    text-align: center;
   }
 
   p {
     color: #8b98a5;
     margin: 0 0 1.5rem;
     font-size: 0.95rem;
+    text-align: center;
   }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 // ============================================================
-// CORRECCIÓN PARA TEMA LIGHT DEL AUTOR
+// AVISO DE LOGIN (invitados) — SOLO UNA VEZ, centrado
+// ============================================================
+.perfil-autor-container {
+  kiert-aviso-login {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+}
+
+// ============================================================
+// ESTADOS DE ERROR (cuenta eliminada / bloqueada / restringida)
+// ============================================================
+.perfil-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.25rem;
+  padding: 3rem 2rem;
+  width: 100%;
+  max-width: 480px;
+  margin: 2rem auto;
+  background: rgba(13, 17, 23, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    svg {
+      stroke: currentColor;
+      opacity: 0.9;
+    }
+  }
+
+  &__title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--tema-text, #e6edf3);
+    margin: 0;
+    letter-spacing: -0.02em;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  &__desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--tema-text-muted, #8b98a5);
+    margin: 0;
+    max-width: 380px;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+
+  &[data-tipo='eliminada'] {
+    .perfil-estado__icon {
+      background: rgba(139, 152, 165, 0.1);
+      color: #8b98a5;
+      border: 2px solid rgba(139, 152, 165, 0.25);
+    }
+  }
+
+  &[data-tipo='bloqueada'] {
+    .perfil-estado__icon {
+      background: rgba(248, 81, 73, 0.1);
+      color: #f85149;
+      border: 2px solid rgba(248, 81, 73, 0.3);
+    }
+
+    .perfil-estado__title {
+      color: #f85149;
+    }
+  }
+
+  &[data-tipo='restringida'] {
+    .perfil-estado__icon {
+      background: rgba(210, 153, 34, 0.1);
+      color: #d29922;
+      border: 2px solid rgba(210, 153, 34, 0.3);
+    }
+
+    .perfil-estado__title {
+      color: #d29922;
+    }
+  }
+
+  &[data-tipo='invalido'] {
+    .perfil-estado__icon {
+      background: rgba(139, 152, 165, 0.1);
+      color: #8b98a5;
+      border: 2px solid rgba(139, 152, 165, 0.25);
+    }
+  }
+
+  &[data-tipo='error'] {
+    .perfil-estado__icon {
+      background: rgba(45, 212, 191, 0.1);
+      color: #2dd4bf;
+      border: 2px solid rgba(45, 212, 191, 0.3);
+    }
+  }
+}
+
+// Botones del estado
+.perfil-estado__actions {
+  .btn-volver {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    background: rgba(128, 128, 128, 0.1);
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 8px;
+    color: var(--tema-text, #e6edf3);
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 42px;
+    box-sizing: border-box;
+
+    svg {
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: rgba(128, 128, 128, 0.18);
+      border-color: rgba(128, 128, 128, 0.35);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .btn-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    background: #2dd4bf;
+    border: none;
+    border-radius: 8px;
+    color: #0d1117;
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 42px;
+    box-sizing: border-box;
+
+    svg {
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: #17b6a4;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.35);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// ============================================================
+// TEMA LIGHT
 // ============================================================
 .tema-light {
   .perfil-autor-card {
@@ -436,11 +696,11 @@
   .perfil-bio {
     background: rgba(0, 0, 0, 0.03);
     border-color: rgba(0, 0, 0, 0.08);
-    
+
     &__texto {
       color: #333333 !important;
     }
-    
+
     &--vacia .perfil-bio__texto {
       color: #777777 !important;
     }
@@ -464,404 +724,25 @@
   .loading-container,
   .error-container {
     color: #555555 !important;
-    
+
     p {
       color: #555555 !important;
     }
   }
 
-  .exito { color: #2ea043 !important; }
-  .error-msg { color: #f85149 !important; }
-}
-
-// ============================================================
-// RESPONSIVE - TABLET (<= 768px)
-// ============================================================
-@media (max-width: 768px) {
-  .perfil-autor-container {
-    padding: 1rem 0.75rem;
+  .exito {
+    color: #2ea043 !important;
+  }
+  .error-msg {
+    color: #f85149 !important;
   }
 
-  .perfil-autor-card {
-    border-radius: 16px;
-  }
-
-  .perfil-avatar {
-    width: 96px;
-    height: 96px;
-
-    &__inicial { font-size: 2rem; }
-  }
-
-  .perfil-info-principal {
-    margin-top: -50px;
-  }
-}
-
-// ============================================================
-// RESPONSIVE - MÓVIL (<= 480px)
-// ============================================================
-@media (max-width: 480px) {
-  .perfil-autor-container {
-    padding: 0.5rem;
-  }
-
-  .perfil-autor-card {
-    border-radius: 14px;
-  }
-
-  .perfil-banner {
-    height: 110px;
-  }
-
-  .perfil-info-principal {
-    margin-top: -45px;
-    padding: 0 1rem 1rem;
-  }
-
-  .perfil-avatar {
-    width: 80px;
-    height: 80px;
-
-    &__inicial { font-size: 1.6rem; }
-  }
-
-  .perfil-nombre {
-    font-size: 1.2rem;
-  }
-
-  .perfil-fecha {
-    font-size: 0.75rem;
-  }
-
-  .perfil-bio {
-    padding: 0.8rem 1rem;
-
-    &__texto {
-      font-size: 0.85rem;
-    }
-  }
-
-  .perfil-acciones {
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0 1rem 1.25rem;
-
-    button {
-      width: 100%;
-      padding: 0.75rem 1rem;
-    }
-
-    .bloqueo-aviso {
-      padding: 0.6rem 1rem;
-      font-size: 0.8rem;
-    }
-  }
-}
-
-// ============================================================
-// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
-// ============================================================
-@media (max-width: 380px) {
-  .perfil-avatar {
-    width: 72px;
-    height: 72px;
-
-    &__inicial { font-size: 1.4rem; }
-  }
-
-  .perfil-nombre {
-    font-size: 1.1rem;
-  }
-
-  .perfil-acciones {
-    button {
-      padding: 0.65rem 0.8rem;
-      font-size: 0.8rem;
-    }
-  }
-}
-// ============================================================
-// ✅ AVISO DE LOGIN (invitados)
-// ============================================================
-
-.perfil-autor-container {
-  kiert-aviso-login {
-    display: block;
-    margin-bottom: 16px;
-    border-radius: 12px;
-    overflow: hidden;
-    width: 100%;
-    max-width: 500px;
-  }
-}
-
-// Bloque "invitado" en acciones
-.bloqueo-aviso--guest {
-  background: rgba(45, 212, 191, 0.1) !important;
-  border-color: rgba(45, 212, 191, 0.3) !important;
-  color: #2dd4bf !important;
-}
-
-.tema-light {
   kiert-aviso-login .aviso-login {
     background: #fff3cd;
     border-color: #ffeeba;
     color: #856404;
   }
-}
 
-@media (max-width: 768px) {
-  .perfil-autor-container kiert-aviso-login {
-    margin-bottom: 12px;
-  }
-}
-// ============================================================
-// AVISO DE LOGIN (invitados)
-// ============================================================
-.perfil-autor-container {
-  kiert-aviso-login {
-    display: block;
-    margin-bottom: 16px;
-    border-radius: 12px;
-    overflow: hidden;
-    width: 100%;
-    max-width: 500px;
-  }
-}
-
-.bloqueo-aviso--guest {
-  background: rgba(45, 212, 191, 0.1) !important;
-  border-color: rgba(45, 212, 191, 0.3) !important;
-  color: #2dd4bf !important;
-}
-
-.tema-light {
-  kiert-aviso-login .aviso-login {
-    background: #fff3cd;
-    border-color: #ffeeba;
-    color: #856404;
-  }
-}
-
-@media (max-width: 768px) {
-  .perfil-autor-container kiert-aviso-login {
-    margin-bottom: 12px;
-  }
-}
-// ============================================================
-// ESTADOS DE ERROR (cuenta eliminada / bloqueada / restringida)
-// ============================================================
-.perfil-estado {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 1.25rem;
-  padding: 3rem 2rem;
-  max-width: 480px;
-  margin: 2rem auto;
-
-  background: rgba(13, 17, 23, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    flex-shrink: 0;
-
-    svg {
-      stroke: currentColor;
-      opacity: 0.9;
-    }
-  }
-
-  &__title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--tema-text, #e6edf3);
-    margin: 0;
-    letter-spacing: -0.02em;
-  }
-
-  &__desc {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: var(--tema-text-muted, #8b98a5);
-    margin: 0;
-    max-width: 380px;
-  }
-
-  &__actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-
-  &[data-tipo="eliminada"] {
-    .perfil-estado__icon {
-      background: rgba(139, 152, 165, 0.1);
-      color: #8b98a5;
-      border: 2px solid rgba(139, 152, 165, 0.25);
-    }
-  }
-
-  &[data-tipo="bloqueada"] {
-    .perfil-estado__icon {
-      background: rgba(248, 81, 73, 0.1);
-      color: #f85149;
-      border: 2px solid rgba(248, 81, 73, 0.3);
-    }
-
-    .perfil-estado__title {
-      color: #f85149;
-    }
-  }
-
-  &[data-tipo="restringida"] {
-    .perfil-estado__icon {
-      background: rgba(210, 153, 34, 0.1);
-      color: #d29922;
-      border: 2px solid rgba(210, 153, 34, 0.3);
-    }
-
-    .perfil-estado__title {
-      color: #d29922;
-    }
-  }
-
-  &[data-tipo="invalido"] {
-    .perfil-estado__icon {
-      background: rgba(139, 152, 165, 0.1);
-      color: #8b98a5;
-      border: 2px solid rgba(139, 152, 165, 0.25);
-    }
-  }
-
-  &[data-tipo="error"] {
-    .perfil-estado__icon {
-      background: rgba(45, 212, 191, 0.1);
-      color: #2dd4bf;
-      border: 2px solid rgba(45, 212, 191, 0.3);
-    }
-  }
-}
-
-// Botones del estado
-.perfil-estado__actions {
-  .btn-volver {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.4rem;
-    background: rgba(128, 128, 128, 0.1);
-    border: 1px solid rgba(128, 128, 128, 0.2);
-    border-radius: 8px;
-    color: var(--tema-text, #e6edf3);
-    font-size: 0.85rem;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-height: 42px;
-
-    svg {
-      stroke: currentColor;
-      flex-shrink: 0;
-    }
-
-    &:hover {
-      background: rgba(128, 128, 128, 0.18);
-      border-color: rgba(128, 128, 128, 0.35);
-      transform: translateY(-1px);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-  }
-
-  .btn-login {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.4rem;
-    background: #2dd4bf;
-    border: none;
-    border-radius: 8px;
-    color: #0d1117;
-    font-size: 0.85rem;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-height: 42px;
-
-    svg {
-      stroke: currentColor;
-      flex-shrink: 0;
-    }
-
-    &:hover {
-      background: #17b6a4;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(45, 212, 191, 0.35);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-  }
-}
-
-// Responsive del estado
-@media (max-width: 480px) {
-  .perfil-estado {
-    padding: 2rem 1.25rem;
-    margin: 1rem;
-    border-radius: 16px;
-
-    &__icon {
-      width: 88px;
-      height: 88px;
-
-      svg { width: 48px; height: 48px; }
-    }
-
-    &__title {
-      font-size: 1.2rem;
-    }
-
-    &__desc {
-      font-size: 0.85rem;
-    }
-
-    &__actions {
-      width: 100%;
-      flex-direction: column;
-
-      .btn-volver,
-      .btn-login {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  }
-}
-
-// Tema light del estado
-.tema-light {
   .perfil-estado {
     background: rgba(255, 255, 255, 0.85);
     border-color: rgba(0, 0, 0, 0.08);
@@ -885,6 +766,157 @@
         background: rgba(0, 0, 0, 0.08);
         border-color: rgba(0, 0, 0, 0.2);
       }
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - TABLET (<= 768px)
+// ============================================================
+@media (max-width: 768px) {
+  .perfil-autor-container {
+    padding: 1rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .perfil-autor-card {
+    border-radius: 16px;
+  }
+
+  .perfil-avatar {
+    width: 96px;
+    height: 96px;
+
+    &__inicial {
+      font-size: 2rem;
+    }
+  }
+
+  .perfil-info-principal {
+    margin-top: -50px;
+  }
+
+  .perfil-autor-container kiert-aviso-login {
+    margin-bottom: 0;
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL (<= 480px)
+// ============================================================
+@media (max-width: 480px) {
+  .perfil-autor-container {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .perfil-autor-card {
+    border-radius: 14px;
+  }
+
+  .perfil-banner {
+    height: 110px;
+  }
+
+  .perfil-info-principal {
+    margin-top: -45px;
+    padding: 0 1rem 1rem;
+  }
+
+  .perfil-avatar {
+    width: 80px;
+    height: 80px;
+
+    &__inicial {
+      font-size: 1.6rem;
+    }
+  }
+
+  .perfil-nombre {
+    font-size: 1.2rem;
+  }
+
+  .perfil-fecha {
+    font-size: 0.75rem;
+  }
+
+  .perfil-bio {
+    padding: 0.8rem 1rem;
+
+    &__texto {
+      font-size: 0.85rem;
+    }
+  }
+
+  .perfil-acciones {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0 1rem 1.25rem;
+
+    button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+    }
+  }
+
+  .perfil-estado {
+    padding: 2rem 1.25rem;
+    margin: 1rem;
+    border-radius: 16px;
+
+    &__icon {
+      width: 88px;
+      height: 88px;
+
+      svg {
+        width: 48px;
+        height: 48px;
+      }
+    }
+
+    &__title {
+      font-size: 1.2rem;
+    }
+
+    &__desc {
+      font-size: 0.85rem;
+    }
+
+    &__actions {
+      width: 100%;
+      flex-direction: column;
+
+      .btn-volver,
+      .btn-login {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE - MÓVIL PEQUEÑO (<= 380px)
+// ============================================================
+@media (max-width: 380px) {
+  .perfil-avatar {
+    width: 72px;
+    height: 72px;
+
+    &__inicial {
+      font-size: 1.4rem;
+    }
+  }
+
+  .perfil-nombre {
+    font-size: 1.1rem;
+  }
+
+  .perfil-acciones {
+    button {
+      padding: 0.65rem 0.8rem;
+      font-size: 0.8rem;
     }
   }
 }

@@ -88,7 +88,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   mostrarAvisoLoginPrivado = signal(false);
   mostrarAvisoLoginGrupo = signal(false);
 
-  // ============ CHAT DE BIENVENIDA (predeterminado) ============
+  // ============ CHAT DE BIENVENIDA ============
   bienvenidaAbierta = signal(false);
   bienvenida = signal<Bienvenida>({
     titulo: 'Bienvenido a Kiert Community',
@@ -216,32 +216,37 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.usuarioSeleccionado.set(null);
     this.grupoSeleccionado.set(null);
 
-    // ✅ Solo cargamos datos protegidos si está logueado
     if (this.estaLogueado) {
       this.cargarDatos();
       this.cargarGrupos();
     }
 
-    // ✅ La bienvenida es pública → siempre se carga
     this.cargarBienvenida();
-
     this.setupKeyboardListener();
 
-    this.route.params.subscribe(params => {
-      const usuarioId = params['usuarioId'];
-      const grupoId = params['grupoId'];
-      const bienvenida = params['bienvenida'];
+    // ============================================================
+    // ✅ FIX: leer segmentos de URL correctamente
+    // La ruta /chat/bienvenida NO usa params, usa url segment
+    // ============================================================
+    this.route.url.subscribe(segments => {
+      const segs = segments.map(s => s.path);
+      const usuarioId = this.route.snapshot.params['usuarioId'];
+      const grupoId = this.route.snapshot.params['grupoId'] ?? this.route.snapshot.params['id'];
+      const esBienvenida = segs.includes('bienvenida');
 
-      // ✅ RUTA CHAT DE BIENVENIDA
-      if (bienvenida === 'bienvenida') {
+      // ✅ BIENVENIDA
+      if (esBienvenida) {
         this.tabActual.set('chats');
         this.usuarioSeleccionado.set(null);
         this.grupoSeleccionado.set(null);
+        this.mensajes.set([]);
+        this.mensajesGrupo.set([]);
         this.bienvenidaAbierta.set(true);
         this.cerrarSidebarMovil();
         return;
       }
 
+      // ✅ USUARIO
       if (usuarioId) {
         if (Number(usuarioId) === this.authService.usuario()?.id) {
           this.router.navigate(['/chat']);
@@ -252,37 +257,39 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         const id = Number(usuarioId);
         this.usuarioSeleccionado.set(id);
 
-        // ✅ Solo marcamos leídos y cargamos si está logueado
         if (this.estaLogueado) {
           this.marcarMensajesComoLeidos(id);
           this.cargarMensajes(id);
         }
         this.cerrarSidebarMovil();
+        return;
       }
 
+      // ✅ GRUPO
       if (grupoId) {
         this.tabActual.set('grupos');
         this.bienvenidaAbierta.set(false);
         const id = Number(grupoId);
         this.grupoSeleccionado.set(id);
 
-        // ✅ Solo cargamos si está logueado
         if (this.estaLogueado) {
           this.cargarMensajesGrupo(id);
           this.cargarMiembros(id);
         }
         this.cerrarSidebarMovil();
+        return;
       }
+
+      // ✅ NADA seleccionado (chat "vacío" por defecto)
+      // NO tocamos bienvenidaAbierta: si el usuario estaba en bienvenida, la respetamos
     });
 
-    // ✅ Polling solo si está logueado
-    this.pollingInterval = setInterval(() => {
-      if (this.estaLogueado) {
+    if (this.estaLogueado) {
+      this.pollingInterval = setInterval(() => {
         this.actualizarConversacionesYContadores();
-      }
-    }, 8000);
+      }, 8000);
+    }
 
-    // ✅ Presencias solo si está logueado
     this.ngZone.runOutsideAngular(() => {
       this.presenciaInterval = setInterval(() => {
         if (document.visibilityState === 'visible' && this.estaLogueado) {
@@ -309,7 +316,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       document.body.style.overflow = '';
     }
 
-    this.bienvenidaAbierta.set(false);
+    // ⚠️ NO reseteamos bienvenidaAbierta ni navegamos aquí
+    // El componente se destruye solo al cambiar de RUTA PADRE.
+    // Si la ruta es hija de /chat, este componente NO se destruye.
 
     const usuarioId = this.usuarioSeleccionado();
     if (usuarioId && this.estaLogueado) {
@@ -351,7 +360,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ============================================================
   private actualizarPresencias(): void {
     if (!this.estaLogueado) return;
-
     const ids = this.conversaciones().map(c => c.usuarioId);
     if (ids.length === 0) return;
 
@@ -415,7 +423,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   onBusquedaChange(valor: string): void {
     this.busqueda.set(valor);
     this.buscadorActivo.set(true);
-    // ✅ Solo buscamos usuarios si está logueado
     if (this.estaLogueado && valor.trim().length >= 1) {
       this.cargarUsuariosDisponibles();
     }
@@ -430,7 +437,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   cerrarBuscador(): void { this.buscadorActivo.set(false); }
 
   cargarUsuariosDisponibles(): void {
-    // ✅ Solo si está logueado
     if (!this.estaLogueado) return;
     if (this.cargandoUsuarios()) return;
 
@@ -456,7 +462,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // CARGA DE DATOS
   // ============================================================
   cargarDatos(): void {
-    // ✅ No llamamos si no está logueado
     if (!this.estaLogueado) {
       this.conversaciones.set([]);
       this.solicitudes.set([]);
@@ -471,7 +476,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.cargarDatos();
       this.cargarGrupos();
     }
-    // ✅ La bienvenida siempre es pública
     this.cargarBienvenida();
   }
 

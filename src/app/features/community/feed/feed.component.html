@@ -1,7 +1,6 @@
 <!-- src/app/features/feed/feed.component.html -->
 <div class="feed-container">
 
-  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
     icono="🔒"
@@ -39,7 +38,6 @@
         Actualizar
       </button>
 
-      <!-- ✅ BOTÓN "Publicar" con bloqueo para invitados -->
       <button type="button" class="btn btn--primary" (click)="irACrearPublicacion($event)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"/>
@@ -64,18 +62,29 @@
       <div class="spinner"></div>
       <p>Cargando publicaciones...</p>
     </div>
-  } @else if (posts().length === 0) {
+  } @else if (postsVisibles().length === 0) {
     <div class="feed-estado feed-estado--empty">
       <div class="empty-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
       </div>
-      <p>Todavía no hay publicaciones. Sé el primero en publicar.</p>
+      <p>
+        @if (totalOcultos() > 0) {
+          No hay publicaciones para mostrar. Tienes {{ totalOcultos() }} ocultas.
+        } @else {
+          Todavía no hay publicaciones. Sé el primero en publicar.
+        }
+      </p>
+      @if (totalOcultos() > 0) {
+        <button class="btn btn--secondary" style="margin-top: 12px;" (click)="mostrarTodosLosOcultos()">
+          Mostrar las {{ totalOcultos() }} publicaciones ocultas
+        </button>
+      }
     </div>
   } @else {
     <div class="feed-grid">
-      @for (post of posts(); track post.id) {
+      @for (post of postsVisibles(); track post.id) {
         <kiert-post-card [post]="post" (click)="irAlPost(post.id)"></kiert-post-card>
       }
     </div>

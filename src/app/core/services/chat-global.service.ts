@@ -12,6 +12,7 @@ export interface MensajeGlobal {
   autorId: number;
   autorNombreUsuario: string;
   autorFotoPerfilUrl: string | null;
+  marcoId?: string | null;      // ✅ NUEVO
   contenido: string;
   fechaEnvio: string;
 }
@@ -31,7 +32,6 @@ export class ChatGlobalService implements OnDestroy {
   private readonly apiUrl = `${environment.apiUrl}/chat-global`;
   private readonly wsUrl = environment.wsUrl;
 
-  // ✅ Getter para el componente
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }

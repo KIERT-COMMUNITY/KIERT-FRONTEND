@@ -14,6 +14,7 @@ import { UserService } from '../../../core/services/user.service';
 import { ChatService } from '../../../core/services/chat.service';
 import { BloqueoService, Bloqueo } from '../../../core/services/bloqueo.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
+import { PostsOcultosService } from '../../../core/services/posts-ocultos.service';
 import { User } from '../../../core/models/user.model';
 import { environment } from '../../../../environments/environment';
 
@@ -45,6 +46,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private bloqueoService = inject(BloqueoService);
   private imageSanitizer = inject(ImageSanitizerService);
   private http = inject(HttpClient);
+  private postsOcultos = inject(PostsOcultosService);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -79,8 +81,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   mostrarAvisoLogin = signal(false);
   mensajeAvisoLogin = signal('Debes registrarte para acceder a los ajustes.');
 
+  // ✅ ELIMINAR CUENTA
   mostrarModalEliminar = signal(false);
   confirmacionTexto = signal('');
+
+  // ✅ NUEVO: MODAL POSTS OCULTOS
+  mostrarModalOcultos = signal(false);
+  cantidadOcultos = computed(() => this.postsOcultos.total());
 
   bloqueadosFiltrados = computed(() => {
     const query = this.busquedaBloqueado().toLowerCase().trim();
@@ -213,6 +220,35 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // ============================================================
+  // MODAL POSTS OCULTOS
+  // ============================================================
+  abrirModalOcultos(): void {
+    if (this.cantidadOcultos() === 0) return;
+    this.mostrarModalOcultos.set(true);
+  }
+
+  cerrarModalOcultos(): void {
+    this.mostrarModalOcultos.set(false);
+  }
+
+  confirmarMostrarOcultos(): void {
+    if (this.cantidadOcultos() === 0) {
+      this.cerrarModalOcultos();
+      return;
+    }
+
+    this.postsOcultos.mostrarTodos();
+    this.cerrarModalOcultos();
+    this.exitoMsg.set('Posts ocultos restaurados correctamente');
+    setTimeout(() => this.exitoMsg.set(null), 3000);
+  }
+
+  /** Mantenido por compatibilidad: ahora abre el modal */
+  mostrarTodosLosOcultos(): void {
+    this.abrirModalOcultos();
   }
 
   // ============================================================

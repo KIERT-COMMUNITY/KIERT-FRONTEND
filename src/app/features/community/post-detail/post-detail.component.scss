@@ -1351,3 +1351,119 @@ $font-display: 'JetBrains Mono', monospace;
     text-decoration: none !important;
   }
 }
+// ============================================================
+// MENÚ DE OPCIONES (ocultar post)
+// ============================================================
+.post-detail__menu-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.btn-menu-opciones {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid $border-color;
+  border-radius: 50%;
+  color: var(--tema-text);
+  opacity: 0.6;
+  cursor: pointer;
+
+  svg { stroke: currentColor; }
+
+  &:hover {
+    opacity: 1;
+    color: $primary;
+    border-color: $primary;
+    background: rgba(45, 212, 191, 0.1);
+  }
+}
+
+.post-detail__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 230px;
+  background: var(--tema-bg-card, #1b232c);
+  border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.1));
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.post-detail__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--tema-text);
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+
+  svg {
+    flex-shrink: 0;
+    stroke: currentColor;
+    opacity: 0.7;
+  }
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.1);
+    color: $primary;
+
+    svg { opacity: 1; }
+  }
+}
+
+// Tema light
+.tema-light {
+  .btn-menu-opciones {
+    color: #666;
+    border-color: rgba(0, 0, 0, 0.15);
+
+    &:hover {
+      color: $primary;
+      border-color: $primary;
+      background: rgba(45, 212, 191, 0.1);
+    }
+  }
+
+  .post-detail__menu {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .post-detail__menu-item {
+    color: #1a1a2e;
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.1);
+      color: $primary;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .post-detail__menu {
+    min-width: 200px;
+    right: -8px;
+  }
+
+  .post-detail__menu-item {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+}

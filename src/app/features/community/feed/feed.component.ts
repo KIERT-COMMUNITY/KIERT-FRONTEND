@@ -1,9 +1,10 @@
 // src/app/features/feed/feed.component.ts
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { Router } from '@angular/router';                 // ✅ RouterLink eliminado
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PostsOcultosService } from '../../../core/services/posts-ocultos.service';
 import { Post } from '../../../core/models/post.model';
 import { PostCardComponent } from '../../../shared/components/post-card/post-card.component';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
@@ -11,20 +12,24 @@ import { AvisoLoginComponent } from '../../../shared/components/aviso-login/avis
 @Component({
   selector: 'kiert-feed',
   standalone: true,
-  imports: [PostCardComponent, CommonModule, AvisoLoginComponent], // ✅ RouterLink eliminado
+  imports: [PostCardComponent, CommonModule, AvisoLoginComponent],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })
 export class FeedComponent implements OnInit {
   private postService = inject(PostService);
   private authService = inject(AuthService);
+  private postsOcultos = inject(PostsOcultosService);
   private router = inject(Router);
 
   posts = signal<Post[]>([]);
   cargando = signal(true);
   errorMsg = signal<string | null>(null);
 
-  // ✅ AVISO LOGIN
+  // ✅ Posts visibles (excluye ocultos)
+  postsVisibles = computed(() => this.postsOcultos.filtrar(this.posts()));
+  totalOcultos = computed(() => this.postsOcultos.total());
+
   mostrarAvisoLogin = signal(false);
   mensajeAvisoLogin = signal('Debes registrarte para publicar en la comunidad.');
 
@@ -47,7 +52,6 @@ export class FeedComponent implements OnInit {
     this.mostrarAvisoLogin.set(false);
   }
 
-  /** ✅ Botón "Publicar" clic */
   irACrearPublicacion(event?: Event): void {
     event?.preventDefault();
     if (!this.estaLogueado) {
@@ -84,5 +88,14 @@ export class FeedComponent implements OnInit {
     if (postId && !isNaN(postId) && postId > 0) {
       this.router.navigate(['/comunidad', postId]);
     }
+  }
+
+  mostrarTodosLosOcultos(): void {
+    if (this.totalOcultos() === 0) return;
+    const confirmar = confirm(
+      `Hay ${this.totalOcultos()} posts ocultos. ¿Quieres restaurarlos todos en tu feed?`
+    );
+    if (!confirmar) return;
+    this.postsOcultos.mostrarTodos();
   }
 }

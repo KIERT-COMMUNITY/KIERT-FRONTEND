@@ -78,6 +78,7 @@
 
         <div class="post-detail__header-right">
           <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
+
           <button class="btn-compartir-header" (click)="abrirModalCompartir()" title="Compartir publicacion">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="18" cy="5" r="3"/>
@@ -87,12 +88,57 @@
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
             </svg>
           </button>
+
           <button class="btn-reportar" (click)="reportarPost()" title="Reportar publicacion">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
               <line x1="4" y1="22" x2="4" y2="15"/>
             </svg>
           </button>
+
+          <!-- MENÚ OCULTAR -->
+          <div class="post-detail__menu-wrapper">
+            <button
+              type="button"
+              class="btn-menu-opciones"
+              (click)="toggleMenuOcultar($event)"
+              [attr.aria-expanded]="mostrarMenuOcultar()"
+              title="Opciones">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="5" r="1.5"/>
+                <circle cx="12" cy="12" r="1.5"/>
+                <circle cx="12" cy="19" r="1.5"/>
+              </svg>
+            </button>
+
+            @if (mostrarMenuOcultar()) {
+              <div class="post-detail__menu" (click)="$event.stopPropagation()">
+                <button type="button" class="post-detail__menu-item" (click)="ocultarEstePost('sensible', $event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                  <span>Ocultar contenido sensible</span>
+                </button>
+
+                <button type="button" class="post-detail__menu-item" (click)="ocultarEstePost('no-interesa', $event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                  </svg>
+                  <span>No me interesa</span>
+                </button>
+
+                <button type="button" class="post-detail__menu-item" (click)="ocultarEstePost('otro', $event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                  <span>Ocultar post</span>
+                </button>
+              </div>
+            }
+          </div>
         </div>
       </div>
 

@@ -7,8 +7,8 @@ $primary: #2dd4bf;
 $primary-dark: #17b6a4;
 $radius: 12px;
 $radius-sm: 8px;
-$transition: all 0.25s ease;
 $font-display: 'JetBrains Mono', monospace;
+$danger: #f85149;
 
 // ============================================================
 // POST CARD BASE
@@ -18,7 +18,6 @@ $font-display: 'JetBrains Mono', monospace;
   border-radius: $radius;
   padding: 20px;
   margin-bottom: 16px;
-  transition: $transition;
 
   background: rgba(13, 17, 23, 0.4);
   backdrop-filter: blur(10px);
@@ -31,8 +30,6 @@ $font-display: 'JetBrains Mono', monospace;
   color: var(--tema-text, #e6edf3);
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
     border-color: rgba(45, 212, 191, 0.3);
   }
 }
@@ -42,10 +39,17 @@ $font-display: 'JetBrains Mono', monospace;
 // ============================================================
 .post-card__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 12px;
   gap: 12px;
+}
+
+.post-card__header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .post-card__user {
@@ -71,7 +75,6 @@ $font-display: 'JetBrains Mono', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  transition: color 0.2s;
   color: var(--tema-text, #e6edf3);
   text-decoration: none;
 
@@ -102,6 +105,92 @@ $font-display: 'JetBrains Mono', monospace;
 }
 
 // ============================================================
+// MENÚ DE OPCIONES
+// ============================================================
+.post-card__menu-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.post-card__menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: var(--tema-text-muted, #8b98a5);
+  cursor: pointer;
+  transition: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--tema-text, #e6edf3);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.post-card__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 220px;
+  background: var(--tema-bg-card, #1b232c);
+  border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.1));
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.post-card__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--tema-text, #e6edf3);
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: none;
+
+  svg {
+    flex-shrink: 0;
+    stroke: currentColor;
+    opacity: 0.7;
+  }
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.1);
+    color: $primary;
+
+    svg { opacity: 1; }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+  }
+}
+
+// ============================================================
 // AVATAR ANONIMO
 // ============================================================
 .post-card__avatar--anonimo {
@@ -126,9 +215,9 @@ $font-display: 'JetBrains Mono', monospace;
 .post-card__username--anonimo {
   cursor: default !important;
   opacity: 0.85;
-  font-style: normal;              // ← antes era italic
+  font-style: normal;
   color: var(--tema-text-muted, #8b98a5) !important;
-  font-weight: 600;                // ← opcional, se ve mejor en negrita
+  font-weight: 600;
   letter-spacing: 0.02em;
 
   &:hover {
@@ -190,11 +279,6 @@ $font-display: 'JetBrains Mono', monospace;
   max-height: 400px;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
-
-  &:hover {
-    transform: scale(1.02);
-  }
 }
 
 .post-card__video {
@@ -228,13 +312,6 @@ $font-display: 'JetBrains Mono', monospace;
   pointer-events: none;
 }
 
-.video-duracion {
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-}
-
 .video-badge {
   top: 10px;
   left: 10px;
@@ -247,14 +324,6 @@ $font-display: 'JetBrains Mono', monospace;
   left: 10px;
   background: rgba(0, 0, 0, 0.7);
   color: #fd79a8;
-}
-
-.post-card__video-error {
-  padding: 20px;
-  text-align: center;
-  color: var(--tema-text-muted, #8b98a5);
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: $radius-sm;
 }
 
 .post-card__media-overlay {
@@ -294,7 +363,6 @@ $font-display: 'JetBrains Mono', monospace;
   color: var(--tema-text-muted, #8b98a5);
   font-size: 0.75rem;
   text-decoration: none;
-  transition: all 0.2s;
   cursor: pointer;
 
   &:hover {
@@ -317,12 +385,6 @@ $font-display: 'JetBrains Mono', monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.post-card__adjunto-peso {
-  font-size: 0.6rem;
-  color: var(--tema-text-muted, #5a6a7a);
-  opacity: 0.7;
 }
 
 // ============================================================
@@ -384,15 +446,36 @@ $font-display: 'JetBrains Mono', monospace;
   .post-card__desc { color: #555; }
   .post-card__stat { color: #666; }
   .post-card__adjunto-link { color: #666; }
+
+  .post-card__menu-btn {
+    color: #666;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #1a1a2e;
+    }
+  }
+
+  .post-card__menu {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .post-card__menu-item {
+    color: #1a1a2e;
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.1);
+      color: $primary;
+    }
+  }
 }
 
 // ============================================================
 // RESPONSIVE
 // ============================================================
 @media (max-width: 768px) {
-  .post-card {
-    padding: 16px;
-  }
+  .post-card { padding: 16px; }
 
   .post-card__image { max-height: 320px; }
   .post-card__video { max-height: 350px; }
@@ -419,16 +502,23 @@ $font-display: 'JetBrains Mono', monospace;
 
     .avatar-inicial { font-size: 0.9rem; }
   }
+
+  .post-card__menu {
+    min-width: 200px;
+  }
+
+  .post-card__menu-item {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
 }
 
 // ============================================================
-// ACCESIBILIDAD
+// ACCESIBILIDAD (sin animaciones)
 // ============================================================
 @media (prefers-reduced-motion: reduce) {
-  .post-card,
-  .post-card__image {
+  * {
     transition: none !important;
-
-    &:hover { transform: none; }
+    animation: none !important;
   }
 }

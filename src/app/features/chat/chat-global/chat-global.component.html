@@ -14,18 +14,22 @@
   <div class="chat-mensajes" #scrollContainer>
     @for (m of mensajes(); track m.id) {
       <div class="mensaje" [class.propio]="esPropio(m)">
+
+        <!-- ✅ MARCO DE PERFIL APLICADO -->
         <button
           type="button"
           class="avatar-btn"
           (click)="irAlPerfil(m.autorId, $event)"
-          [attr.aria-label]="'Ver perfil de ' + m.autorNombreUsuario"
-          [title]="'Ver perfil de ' + m.autorNombreUsuario"
+          [attr.aria-label]="'Ver perfil de ' + getNombre(m)"
+          [title]="'Ver perfil de ' + getNombre(m)"
         >
-          <img
-            class="avatar"
-            [src]="m.autorFotoPerfilUrl || 'assets/default-avatar.png'"
-            [alt]="m.autorNombreUsuario"
-          />
+          <kiert-avatar-frame
+            [fotoUrl]="getFoto(m)"
+            [nombre]="getNombre(m)"
+            [marcoId]="getMarco(m)"
+            [size]="36"
+            [alt]="getNombre(m)">
+          </kiert-avatar-frame>
         </button>
 
         <div class="burbuja">
@@ -33,9 +37,9 @@
             <strong
               class="autor-link"
               (click)="irAlPerfil(m.autorId, $event)"
-              [title]="'Ver perfil de ' + m.autorNombreUsuario"
+              [title]="'Ver perfil de ' + getNombre(m)"
             >
-              {{ m.autorNombreUsuario }}
+              {{ getNombre(m) }}
             </strong>
             <span class="fecha">{{ m.fechaEnvio | date:'shortTime' }}</span>
           </div>
@@ -50,7 +54,6 @@
     }
   </div>
 
-  <!-- ✅ COMPONENTE REUTILIZABLE DE AVISO -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
     icono="🔒"
@@ -61,7 +64,6 @@
     (cerrar)="cerrarAviso()">
   </kiert-aviso-login>
 
-  <!-- ✅ FORMULARIO SOLO PARA LOGUEADOS -->
   @if (estaLogueado) {
     <form class="chat-input" (ngSubmit)="enviar()">
       <input
@@ -78,7 +80,6 @@
       </button>
     </form>
   } @else {
-    <!-- ✅ BLOQUE INVITADO: input falso + botón -->
     <div class="chat-input chat-input--guest" (click)="mostrarAvisoLogin.set(true)">
       <input
         type="text"

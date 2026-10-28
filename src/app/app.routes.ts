@@ -33,7 +33,6 @@ export const routes: Routes = [
       { path: '', redirectTo: 'comunidad', pathMatch: 'full' },
 
       // ---------- COMUNIDAD ----------
-      // ⚠️ ORDEN IMPORTANTE: primero estáticas, luego dinámicas
       { path: 'comunidad', loadComponent: () => import('./features/community/feed/feed.component').then(m => m.FeedComponent) },
       { path: 'comunidad/nueva-publicacion', loadComponent: () => import('./features/community/create-post/create-post.component').then(m => m.CreatePostComponent) },
       { path: 'comunidad/:id', loadComponent: () => import('./features/community/post-detail/post-detail.component').then(m => m.PostDetailComponent) },
@@ -42,10 +41,10 @@ export const routes: Routes = [
       // ---------- BIBLIOTECA (pública) ----------
       { path: 'biblioteca', loadComponent: () => import('./features/community/biblioteca/biblioteca.component').then(m => m.BibliotecaComponent) },
 
-      // ---------- ANUNCIOS (invitado puede ver, pero no interactuar) ----------
+      // ---------- ANUNCIOS ----------
       { path: 'anuncios', loadComponent: () => import('./features/community/anuncios/anuncios.component').then(m => m.AnunciosComponent) },
 
-      // ---------- NOTIFICACIONES (invitado puede ver, pero no interactuar) ----------
+      // ---------- NOTIFICACIONES ----------
       { path: 'notificaciones', loadComponent: () => import('./features/community/notificacion-page/notificaciones-page.component').then(m => m.NotificacionesPageComponent) },
 
       // ---------- ADMIN ----------
@@ -61,7 +60,6 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         data: { roles: ['CEO', 'ADMIN'] }
       },
-      // ✅ NUEVO: editar bienvenida
       {
         path: 'admin/bienvenida',
         loadComponent: () => import('./features/admin/admin-bienvenida/admin-bienvenida.component').then(m => m.AdminBienvenidaComponent),
@@ -75,21 +73,35 @@ export const routes: Routes = [
       { path: 'perfil-autor/:id', loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent) },
       { path: 'usuario/:id', loadComponent: () => import('./features/community/perfil-autor/perfil-autor.component').then(m => m.PerfilAutorComponent) },
 
-      // ---------- CHAT GLOBAL (público) ----------
+      // ---------- CHAT GLOBAL ----------
       { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent) },
 
-      // ---------- CHAT PRIVADO / GRUPOS (público, aviso al interactuar) ----------
-      // ⚠️ ORDEN IMPORTANTE: primero estáticas (chat/bienvenida, chat/grupo/:id), luego dinámicas (chat/:usuarioId)
-      { path: 'chat', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
-      // ✅ NUEVO: chat de bienvenida (ANTES de chat/:usuarioId)
-      { path: 'chat/bienvenida', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
-      { path: 'chat/grupo/:id', loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent) },
-      { path: 'chat/:usuarioId', loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent) },
+      // ============================================================
+      // ✅ CHAT (UNA SOLA RUTA PADRE — no se destruye al navegar)
+      // ============================================================
+      // Orden IMPORTANTE: primero las rutas estáticas, luego dinámicas.
+      // Todas apuntan al MISMO ChatComponent, así no se recrea al cambiar.
+      {
+        path: 'chat',
+        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
+      },
+      {
+        path: 'chat/bienvenida',
+        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
+      },
+      {
+        path: 'chat/grupo/:grupoId',
+        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
+      },
+      {
+        path: 'chat/:usuarioId',
+        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
+      },
 
-      // ---------- AJUSTES (invitado puede ver, pero no interactuar) ----------
+      // ---------- AJUSTES ----------
       { path: 'ajustes', loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent) },
 
-      // ---------- LEGALES (públicas) ----------
+      // ---------- LEGALES ----------
       {
         path: 'legal/privacidad',
         loadComponent: () => import('./features/legal/privacidad/privacidad.component').then(m => m.PrivacidadComponent),

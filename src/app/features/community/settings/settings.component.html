@@ -1,7 +1,6 @@
 <!-- src/app/features/settings/settings.component.html -->
 <div class="settings-container">
 
-  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
     icono="🔒"
@@ -12,7 +11,7 @@
     (cerrar)="cerrarAvisoLogin()">
   </kiert-aviso-login>
 
-  <!-- ===== HEADER TIPO STEAM ===== -->
+  <!-- ===== HEADER ===== -->
   <header class="settings-header">
     <div class="header-left">
       <div class="header-icon">
@@ -226,7 +225,7 @@
     </div>
   }
 
-  <!-- LAYOUT TIPO STEAM -->
+  <!-- LAYOUT -->
   <div class="settings-layout">
 
     <aside class="settings-sidebar">
@@ -483,6 +482,27 @@
               }
             </div>
           }
+        </div>
+
+        <!-- POSTS OCULTOS -->
+        <div class="inline-selector">
+          <div class="inline-selector__header">
+            <div class="section-title">
+              <h3>Posts ocultos</h3>
+              <p class="section-desc">
+                Tienes <strong>{{ cantidadOcultos() }}</strong> publicaciones ocultas en tu feed.
+                Se guardan solo en este navegador.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-edit"
+              [disabled]="cantidadOcultos() === 0"
+              (click)="abrirModalOcultos()"
+            >
+              Mostrar todos
+            </button>
+          </div>
         </div>
 
         <!-- ZONA DE PELIGRO -->
@@ -788,6 +808,54 @@
             } @else {
               Sí, eliminar cuenta
             }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- MODAL MOSTRAR POSTS OCULTOS -->
+  @if (mostrarModalOcultos()) {
+    <div class="modal-overlay" (click)="cerrarModalOcultos()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+
+        <div class="modal-icon modal-icon--info">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+
+        <h2 class="modal-title">Mostrar posts ocultos</h2>
+
+        <p class="modal-desc">
+          Tienes <strong>{{ cantidadOcultos() }}</strong>
+          publicación{{ cantidadOcultos() === 1 ? '' : 'es' }} oculta{{ cantidadOcultos() === 1 ? '' : 's' }}
+          en tu feed.
+        </p>
+
+        <p class="modal-subdesc">
+          Si las restauras, volverán a aparecer en tu feed.
+          Puedes ocultarlas de nuevo desde cada tarjeta.
+        </p>
+
+        <div class="modal-actions">
+          <button
+            class="btn-cancel"
+            (click)="cerrarModalOcultos()"
+            [disabled]="cargando()">
+            Cancelar
+          </button>
+          <button
+            class="btn-confirm-show"
+            (click)="confirmarMostrarOcultos()"
+            [disabled]="cargando()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Mostrar {{ cantidadOcultos() }}
           </button>
         </div>
 

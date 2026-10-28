@@ -9,6 +9,7 @@ import { ReaccionService } from '../../../core/services/reaccion.service';
 import { ComentarioService } from '../../../core/services/comentario.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { CompartidoService } from '../../../core/services/compartido.service';
+import { PostsOcultosService } from '../../../core/services/posts-ocultos.service';
 import { Post, Comentario, Respuesta, Adjunto, Autor, Subtitulo } from '../../../core/models/post.model';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
@@ -35,6 +36,7 @@ export class PostDetailComponent implements OnInit {
   private reaccionService = inject(ReaccionService);
   private comentarioService = inject(ComentarioService);
   private compartidoService = inject(CompartidoService);
+  private postsOcultos = inject(PostsOcultosService);
   public authService = inject(AuthService);
   public personalizacionStore = inject(PersonalizacionStore);
   private fb = inject(FormBuilder);
@@ -53,6 +55,9 @@ export class PostDetailComponent implements OnInit {
   enviandoRespuesta = signal<number | null>(null);
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
+
+  // ===== NUEVO: menú de ocultar =====
+  mostrarMenuOcultar = signal(false);
 
   mostrarAvisoLogin = signal(false);
   mensajeAvisoLogin = signal<string>('Debes registrarte para interactuar con esta publicacion.');
@@ -103,6 +108,29 @@ export class PostDetailComponent implements OnInit {
     this.cargarCompartidos(postId);
   }
 
+  // ===== OCULTAR POST =====
+  toggleMenuOcultar(event: Event): void {
+    event.stopPropagation();
+    this.mostrarMenuOcultar.update(v => !v);
+  }
+
+  cerrarMenuOcultar(): void {
+    this.mostrarMenuOcultar.set(false);
+  }
+
+  ocultarEstePost(motivo: 'sensible' | 'no-interesa' | 'otro', event: Event): void {
+    event.stopPropagation();
+    const postId = Number(this.id());
+    if (!postId) return;
+
+    this.postsOcultos.ocultar(postId, motivo);
+    this.cerrarMenuOcultar();
+
+    // Volver al feed después de ocultar
+    this.router.navigate(['/comunidad']);
+  }
+
+  // ===== RESTO DE MÉTODOS (igual que antes) =====
   abrirAviso(mensaje: string): void {
     this.mensajeAvisoLogin.set(mensaje);
     this.mostrarAvisoLogin.set(true);

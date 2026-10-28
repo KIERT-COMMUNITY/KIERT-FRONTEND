@@ -161,7 +161,7 @@
       </div>
     </div>
 
-    <!-- DROPDOWN CATEGORÍA -->
+    <!-- ✅ DROPDOWN CATEGORÍA (restaurado, solo con categorías con recursos) -->
     <div class="filtros-categorias">
       <label>Categoría</label>
       <div class="dropdown-categoria" [class.dropdown-categoria--open]="dropdownCategoriaAbierto()">
@@ -197,35 +197,50 @@
           <div class="dropdown-menu" (click)="$event.stopPropagation()">
             <div class="dropdown-menu__header">
               <span>Seleccionar categoría</span>
-              <span class="dropdown-menu__count">{{ categorias().length - 1 }} opciones</span>
+              <span class="dropdown-menu__count">{{ totalCategorias() + 1 }} opciones</span>
             </div>
 
             <div class="dropdown-menu__list">
-              @for (cat of categorias(); track cat) {
+              <!-- Chip "Todas" (siempre visible) -->
+              <button
+                type="button"
+                class="dropdown-item"
+                [class.dropdown-item--active]="categoriaSeleccionada() === 'todas'"
+                (click)="seleccionarCategoria('todas')"
+              >
+                <span class="dropdown-item__icon" style="color:#2dd4bf">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                  </svg>
+                </span>
+                <span class="dropdown-item__label">Todas</span>
+                <span class="dropdown-item__count">{{ totalRecursos() }}</span>
+                @if (categoriaSeleccionada() === 'todas') {
+                  <span class="dropdown-item__check">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </span>
+                }
+              </button>
+
+              <!-- Categorías dinámicas (solo con recursos) -->
+              @for (cat of categoriasDisponibles(); track cat.id) {
                 <button
                   type="button"
                   class="dropdown-item"
-                  [class.dropdown-item--active]="categoriaSeleccionada() === cat"
-                  (click)="seleccionarCategoria(cat)"
+                  [class.dropdown-item--active]="categoriaSeleccionada() === cat.id"
+                  (click)="seleccionarCategoria(cat.id)"
                 >
-                  <span class="dropdown-item__icon"
-                        [style.color]="cat === 'todas' ? '#2dd4bf' : getColorCategoria(cat)">
-                    @if (cat === 'todas') {
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="7" height="7"/>
-                        <rect x="14" y="3" width="7" height="7"/>
-                        <rect x="3" y="14" width="7" height="7"/>
-                        <rect x="14" y="14" width="7" height="7"/>
-                      </svg>
-                    } @else {
-                      <span [innerHTML]="getIconoCategoria(cat)"></span>
-                    }
+                  <span class="dropdown-item__icon" [style.color]="cat.color">
+                    <span [innerHTML]="getIconoCategoria(cat.id)"></span>
                   </span>
-                  <span class="dropdown-item__label">{{ formatearCategoria(cat) }}</span>
-                  <span class="dropdown-item__count">
-                    {{ cat === 'todas' ? totalRecursos() : contarPorCategoria(cat) }}
-                  </span>
-                  @if (categoriaSeleccionada() === cat) {
+                  <span class="dropdown-item__label">{{ cat.label }}</span>
+                  <span class="dropdown-item__count">{{ cat.count }}</span>
+                  @if (categoriaSeleccionada() === cat.id) {
                     <span class="dropdown-item__check">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"/>

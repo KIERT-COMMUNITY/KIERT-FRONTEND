@@ -10,6 +10,13 @@ import { PersonalizacionStore } from '../../../core/services/personalizacion-sto
 import { AuthService } from '../../../core/services/auth.service';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 
+interface CategoriaInfo {
+  id: string;
+  label: string;
+  count: number;
+  color: string;
+}
+
 @Component({
   selector: 'kiert-biblioteca',
   standalone: true,
@@ -26,7 +33,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   // ===== DATOS =====
   recursos = signal<RecursoBiblioteca[]>([]);
-  categorias = signal<string[]>([]);
 
   // ===== FILTROS =====
   categoriaSeleccionada = signal<string>('todas');
@@ -90,6 +96,37 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     return this.authService.estaLogueado();
   }
 
+  // ============================================================
+  // ✅ CATEGORÍAS DINÁMICAS (solo las que tienen recursos)
+  // Ordenadas por cantidad desc, luego alfabético
+  // ============================================================
+  categoriasDisponibles = computed<CategoriaInfo[]>(() => {
+    const recursos = this.recursos();
+    if (recursos.length === 0) return [];
+
+    const conteo = new Map<string, number>();
+    for (const r of recursos) {
+      const cat = (r.categoria || 'otro').toLowerCase();
+      conteo.set(cat, (conteo.get(cat) || 0) + 1);
+    }
+
+    return Array.from(conteo.entries())
+      .map(([id, count]) => ({
+        id,
+        label: this.formatearCategoria(id),
+        count,
+        color: this.getColorCategoria(id)
+      }))
+      .sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return a.label.localeCompare(b.label);
+      });
+  });
+
+  /** Total de categorías disponibles (sin "Todas") */
+  totalCategorias = computed(() => this.categoriasDisponibles().length);
+
+  // ===== DESTACADOS =====
   destacadosMostrados = computed(() => {
     const todos = this.recursos().filter(r => r.destacado);
     if (this.destacadosExpandidos()) return todos;
@@ -109,6 +146,28 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ===== PAGINACIÓN =====
   recursosExpandidos = signal(false);
   recursosPorPagina = 8;
+
+  recursosFiltradosComputed = computed(() => {
+    let resultado = this.recursos();
+    const categoria = this.categoriaSeleccionada();
+    const query = this.busqueda().toLowerCase().trim();
+
+    if (categoria !== 'todas') {
+      resultado = resultado.filter(r => r.categoria === categoria);
+    }
+    if (query) {
+      resultado = resultado.filter(r =>
+        r.titulo?.toLowerCase().includes(query) ||
+        r.descripcion?.toLowerCase().includes(query) ||
+        r.tags?.some(tag => tag.toLowerCase().includes(query)) ||
+        r.subcategoria?.toLowerCase().includes(query) ||
+        r.autor?.toLowerCase().includes(query) ||
+        r.plataforma?.toLowerCase().includes(query) ||
+        r.usuarioNombre?.toLowerCase().includes(query)
+      );
+    }
+    return resultado;
+  });
 
   recursosMostrados = computed(() => {
     const filtrados = this.recursosFiltradosComputed();
@@ -147,7 +206,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   recursoAEliminar = signal<RecursoBiblioteca | null>(null);
 
   ngOnInit(): void {
-    this.cargarCategorias();
     this.cargarRecursos();
     this.iniciarAvisoSeguridad();
   }
@@ -182,26 +240,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ===== CARGA =====
-  cargarCategorias(): void {
-    this.bibliotecaService.obtenerCategorias().subscribe({
-      next: (data) => {
-        const base = [
-          'certificacion', 'curso', 'video', 'articulo', 'herramienta',
-          'libro', 'idiomas', 'otro', 'entretenimiento', 'juego', 'recurso'
-        ];
-        const unicas = Array.from(new Set([...base, ...(data || [])]));
-        this.categorias.set(['todas', ...unicas]);
-      },
-      error: () => {
-        this.categorias.set([
-          'todas', 'certificacion', 'curso', 'video', 'articulo',
-          'herramienta', 'libro', 'idiomas', 'otro', 'entretenimiento',
-          'juego', 'recurso'
-        ]);
-      }
-    });
-  }
-
   cargarRecursos(): void {
     this.cargando.set(true);
     this.errorMsg.set(null);
@@ -220,29 +258,9 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ===== COMPUTED =====
-  recursosFiltradosComputed = computed(() => {
-    let resultado = this.recursos();
-    const categoria = this.categoriaSeleccionada();
-    const query = this.busqueda().toLowerCase().trim();
-
-    if (categoria !== 'todas') {
-      resultado = resultado.filter(r => r.categoria === categoria);
-    }
-    if (query) {
-      resultado = resultado.filter(r =>
-        r.titulo?.toLowerCase().includes(query) ||
-        r.descripcion?.toLowerCase().includes(query) ||
-        r.tags?.some(tag => tag.toLowerCase().includes(query)) ||
-        r.subcategoria?.toLowerCase().includes(query) ||
-        r.autor?.toLowerCase().includes(query) ||
-        r.plataforma?.toLowerCase().includes(query) ||
-        r.usuarioNombre?.toLowerCase().includes(query)
-      );
-    }
-    return resultado;
-  });
-
+  // ============================================================
+  // COMPUTED
+  // ============================================================
   totalRecursos = computed(() => this.recursos().length);
   totalCertificaciones = computed(() =>
     this.recursos().filter(r => r.categoria === 'certificacion').length
@@ -290,12 +308,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ===== ACCIONES =====
-  filtrarPorCategoria(categoria: string): void {
-    this.categoriaSeleccionada.set(categoria);
-    this.dropdownCategoriaAbierto.set(false);
-    this.recursosExpandidos.set(false);
-  }
-
   buscarRecursos(): void {
     this.recursosExpandidos.set(false);
   }
@@ -313,7 +325,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ✅ AVISO LOGIN
+  // AVISO LOGIN
   // ============================================================
   irALogin(): void {
     this.mostrarAvisoLogin.set(false);
@@ -379,7 +391,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   // ===== MODAL CREAR/EDITAR =====
   abrirModalAgregar(): void {
-    // ✅ Bloqueo invitado
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
       return;
@@ -392,7 +403,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   abrirModalEditar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
-    // ✅ Bloqueo invitado
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
       return;
@@ -438,7 +448,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   // ===== GUARDAR =====
   guardarRecurso(): void {
-    // ✅ Bloqueo extra de seguridad
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
       this.cerrarModal();
@@ -520,7 +529,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ===== ELIMINAR =====
   confirmarEliminar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
-    // ✅ Bloqueo invitado
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
       return;

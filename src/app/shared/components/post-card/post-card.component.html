@@ -13,39 +13,98 @@
           <span class="post-card__username post-card__username--anonimo">
             Anonimo
           </span>
-          <span class="post-card__badge" [style.background]="getColorCategoria(post().categoria)" [style.color]="'#0d1117'">
-            {{ getCategoriaFormateada(post().categoria) }}
+          <span class="post-card__badge" [style.background]="getColorCategoria(post.categoria)" [style.color]="'#0d1117'">
+            {{ getCategoriaFormateada(post.categoria) }}
           </span>
         </div>
       } @else {
         <kiert-avatar-frame
-          [fotoUrl]="post().autor.fotoPerfilUrl || null"
-          [nombre]="post().autor.nombreUsuario"
+          [fotoUrl]="post.autor.fotoPerfilUrl || null"
+          [nombre]="post.autor.nombreUsuario"
           [size]="40"
-          [alt]="post().autor.nombreUsuario"
+          [alt]="post.autor.nombreUsuario"
           [navigateToProfile]="true"
-          [usuarioId]="post().autor.id"
+          [usuarioId]="post.autor.id"
           [marcoId]="getMarcoDelAutor()"
         />
         <div class="post-card__user-info">
-          <span class="post-card__username" [routerLink]="['/usuario', post().autor.id]" (click)="$event.stopPropagation()">
-            &#64;{{ post().autor.nombreUsuario }}
+          <span class="post-card__username" [routerLink]="['/usuario', post.autor.id]" (click)="$event.stopPropagation()">
+            &#64;{{ post.autor.nombreUsuario }}
           </span>
-          <span class="post-card__badge" [style.background]="getColorCategoria(post().categoria)" [style.color]="'#0d1117'">
-            {{ getCategoriaFormateada(post().categoria) }}
+          <span class="post-card__badge" [style.background]="getColorCategoria(post.categoria)" [style.color]="'#0d1117'">
+            {{ getCategoriaFormateada(post.categoria) }}
           </span>
         </div>
       }
     </div>
 
-    <span class="post-card__fecha">{{ formatearFecha(post().fechaCreacion) }}</span>
+    <div class="post-card__header-right">
+      <span class="post-card__fecha">{{ formatearFecha(post.fechaCreacion) }}</span>
+
+      <!-- MENÚ DE OPCIONES -->
+      <div class="post-card__menu-wrapper">
+        <button
+          type="button"
+          class="post-card__menu-btn"
+          (click)="toggleMenu($event)"
+          [attr.aria-label]="'Opciones del post'"
+          [attr.aria-expanded]="mostrarMenu()"
+          title="Opciones">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="5" r="1.5"/>
+            <circle cx="12" cy="12" r="1.5"/>
+            <circle cx="12" cy="19" r="1.5"/>
+          </svg>
+        </button>
+
+        @if (mostrarMenu()) {
+          <div class="post-card__menu" (click)="$event.stopPropagation()">
+            <button
+              type="button"
+              class="post-card__menu-item"
+              (click)="ocultarPost('sensible', $event)"
+              title="Ocultar porque el contenido es sensible">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+              <span>Ocultar contenido sensible</span>
+            </button>
+
+            <button
+              type="button"
+              class="post-card__menu-item"
+              (click)="ocultarPost('no-interesa', $event)"
+              title="No me interesa">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+              <span>No me interesa</span>
+            </button>
+
+            <button
+              type="button"
+              class="post-card__menu-item"
+              (click)="ocultarPost('otro', $event)"
+              title="Ocultar este post">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+              <span>Ocultar post</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
   </div>
 
   <!-- TITULO -->
-  <h3 class="post-card__titulo">{{ post().titulo }}</h3>
+  <h3 class="post-card__titulo">{{ post.titulo }}</h3>
 
   <!-- DESCRIPCION -->
-  <p class="post-card__desc">{{ post().descripcion }}</p>
+  <p class="post-card__desc">{{ post.descripcion }}</p>
 
   <!-- CONTENIDO VISUAL -->
   @if (tieneVisuales()) {
@@ -62,16 +121,9 @@
               playsinline
               preload="metadata"
               class="post-card__video"
-              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%231b232c'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='20' fill='%232dd4bf' text-anchor='middle' dy='.3em'%3EVideo%3C/text%3E%3C/svg%3E"
-              (error)="onVideoError($event)"
-            >
+              (error)="onVideoError($event)">
               Tu navegador no soporta videos.
             </video>
-            @if (visual.duracionSegundos) {
-              <div class="post-card__media-badge video-duracion">
-                {{ visual.duracionSegundos | formatDuration }}
-              </div>
-            }
             <div class="post-card__media-badge video-badge">Video</div>
           </div>
         }
@@ -79,11 +131,10 @@
           <div class="post-card__gif-wrapper">
             <img
               [src]="visual.url"
-              [alt]="post().titulo"
+              [alt]="post.titulo"
               loading="lazy"
               class="post-card__gif"
-              (error)="onImageError($event)"
-            >
+              (error)="onImageError($event)">
             <div class="post-card__media-badge gif-badge">GIF</div>
           </div>
         }
@@ -91,11 +142,10 @@
           <div class="post-card__image-wrapper">
             <img
               [src]="visual.url"
-              [alt]="post().titulo"
+              [alt]="post.titulo"
               loading="lazy"
               class="post-card__image"
-              (error)="onImageError($event)"
-            >
+              (error)="onImageError($event)">
           </div>
         }
 
@@ -111,14 +161,11 @@
   <!-- OTROS ADJUNTOS -->
   @if (tieneOtrosAdjuntos()) {
     <div class="post-card__otros-adjuntos">
-      @for (adjunto of post().adjuntos; track adjunto.id) {
+      @for (adjunto of post.adjuntos; track adjunto.id) {
         @if (esArchivo(adjunto)) {
           <a [href]="adjunto.url" target="_blank" rel="noopener" class="post-card__adjunto-link" (click)="$event.stopPropagation()">
             <span class="post-card__adjunto-icono">{{ getIconoArchivo(adjunto) }}</span>
             <span class="post-card__adjunto-nombre">{{ adjunto.nombre }}</span>
-            @if (adjunto.pesoKb) {
-              <span class="post-card__adjunto-peso">({{ (adjunto.pesoKb / 1024).toFixed(1) }} MB)</span>
-            }
           </a>
         }
       }
@@ -132,7 +179,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
-        {{ post().totalComentarios || 0 }}
+        {{ post.totalComentarios || 0 }}
       </span>
       @if (tieneAdjuntos()) {
         <span class="post-card__stat">
@@ -140,7 +187,7 @@
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
           </svg>
-          {{ post().adjuntos.length }}
+          {{ post.adjuntos.length }}
         </span>
       }
     </div>

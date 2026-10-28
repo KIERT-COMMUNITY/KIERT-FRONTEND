@@ -14,11 +14,12 @@ import { Router } from '@angular/router';
 import { ChatGlobalService, MensajeGlobal } from '../../../core/services/chat-global.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
+import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 
 @Component({
   selector: 'kiert-chat-global',
   standalone: true,
-  imports: [CommonModule, FormsModule, AvisoLoginComponent],
+  imports: [CommonModule, FormsModule, AvisoLoginComponent, AvatarFrameComponent],
   templateUrl: './chat-global.component.html',
   styleUrl: './chat-global.component.scss'
 })
@@ -35,7 +36,6 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
 
   texto = '';
 
-  /** ✅ Getter usado por el template para decidir si muestra el form o el bloque invitado */
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
@@ -63,7 +63,6 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.chatService.desconectar();
   }
 
-  /** ✅ Solo los logueados pueden enviar */
   enviar(): void {
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
@@ -75,14 +74,12 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.texto = '';
   }
 
-  /** ✅ Al hacer clic en el input "falso" o enfocarlo */
   onFocusInput(): void {
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
     }
   }
 
-  /** ✅ Redirige al login guardando la URL actual para volver después */
   irALogin(): void {
     this.mostrarAvisoLogin.set(false);
     this.router.navigate(['/login'], {
@@ -110,10 +107,23 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.router.navigate(['/usuario', usuarioId]);
   }
 
+  // ✅ Helpers para el template
+  getMarco(m: MensajeGlobal): string {
+    return (m.marcoId || 'none').toString().trim().toLowerCase() || 'none';
+  }
+
+  getFoto(m: MensajeGlobal): string {
+    return m.autorFotoPerfilUrl || 'assets/default-avatar.png';
+  }
+
+  getNombre(m: MensajeGlobal): string {
+    return m.autorNombreUsuario || 'Usuario';
+  }
+
   private scrollAbajo(): void {
     setTimeout(() => {
       const el = this.scrollContainer?.nativeElement;
       if (el) el.scrollTop = el.scrollHeight;
-    }, 50);
+    }, 0);
   }
 }

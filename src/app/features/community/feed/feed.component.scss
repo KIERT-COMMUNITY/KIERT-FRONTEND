@@ -341,3 +341,27 @@ $transition: all 0.2s ease;
     margin-bottom: 12px;
   }
 }
+// ============================================================
+// BOTÓN "MOSTRAR OCULTOS" (estado vacío)
+// ============================================================
+.feed-estado--empty {
+  .btn--secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid rgba(45, 212, 191, 0.25);
+    border-radius: 8px;
+    color: var(--tema-accent, #2dd4bf);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.18);
+      border-color: rgba(45, 212, 191, 0.4);
+    }
+  }
+}
