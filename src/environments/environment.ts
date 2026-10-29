@@ -4,7 +4,7 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:8081/api',
   wsUrl: 'http://localhost:8081',
-  // URL pública del bucket de Supabase donde se sirven los archivos subidos
+  // URL publica del bucket de Supabase donde se sirven los archivos subidos
   // supabaseUrl: 'LINK SUPABASE.ICO',
   // supabaseBucket: 'kiert-files',
 };

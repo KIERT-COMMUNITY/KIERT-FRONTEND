@@ -1,5 +1,5 @@
 // src/app/core/services/chat-global.service.ts
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import { Injectable, OnDestroy, inject, isDevMode } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { HttpClient } from '@angular/common/http';
@@ -32,6 +32,8 @@ export class ChatGlobalService implements OnDestroy {
   private readonly apiUrl = `${environment.apiUrl}/chat-global`;
   private readonly wsUrl = environment.wsUrl;
 
+  private pendientes: string[] = [];
+
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
@@ -55,14 +57,25 @@ export class ChatGlobalService implements OnDestroy {
     const token = this.authService.getToken();
 
     if (!usuario || !token) {
-      console.warn('[CHAT-GLOBAL] Invitado: no se conecta al STOMP');
+      if (isDevMode()) console.warn('[CHAT-GLOBAL] Invitado: no se conecta al STOMP');
       return;
     }
 
-    const socket = new SockJS(`${this.wsUrl}/ws`);
+    // Normalizar URL: SockJS requiere http(s), NO ws(s).
+    const baseUrl = this.wsUrl
+      .replace(/^wss:\/\//i, 'https://')
+      .replace(/^ws:\/\//i, 'http://');
+
+    let socket: any;
+    try {
+      socket = new SockJS(`${baseUrl}/ws`);
+    } catch (e) {
+      if (isDevMode()) console.error('[CHAT-GLOBAL] Error creando SockJS con URL', baseUrl, e);
+      return;
+    }
 
     this.stompClient = new Client({
-      webSocketFactory: () => socket as any,
+      webSocketFactory: () => socket,
       connectHeaders: {
         Authorization: `Bearer ${token}`,
         usuarioId: String(usuario.id)
@@ -72,22 +85,22 @@ export class ChatGlobalService implements OnDestroy {
       onConnect: () => {
         this.conectadoSubject.next(true);
 
-        // Suscripcion al topic
         this.stompClient?.subscribe('/topic/chat-global', (msg: IMessage) => {
           try {
             const mensaje: MensajeGlobal = JSON.parse(msg.body);
             this.mensajesSubject.next(mensaje);
           } catch (e) {
-            console.error('[CHAT-GLOBAL] Error parseando mensaje', e);
+            if (isDevMode()) console.error('[CHAT-GLOBAL] Error parseando mensaje', e);
           }
         });
 
-        // Reenviar mensajes pendientes (si implementas una cola)
         this.flushPendientes();
       },
       onDisconnect: () => this.conectadoSubject.next(false),
       onStompError: (frame) => {
-        console.error('[CHAT-GLOBAL] STOMP error', frame.headers['message'], frame.body);
+        if (isDevMode()) {
+          console.error('[CHAT-GLOBAL] STOMP error', frame.headers['message'], frame.body);
+        }
         this.conectadoSubject.next(false);
       },
       onWebSocketClose: () => this.conectadoSubject.next(false)
@@ -95,9 +108,6 @@ export class ChatGlobalService implements OnDestroy {
 
     this.stompClient.activate();
   }
-
-  // Cola simple de mensajes pendientes (por si el usuario envia antes de conectar)
-  private pendientes: string[] = [];
 
   private flushPendientes(): void {
     if (!this.stompClient?.connected) return;
@@ -109,13 +119,12 @@ export class ChatGlobalService implements OnDestroy {
 
   enviarMensaje(contenido: string): void {
     if (!this.estaLogueado) {
-      console.warn('[CHAT-GLOBAL] Invitado: no puede enviar');
+      if (isDevMode()) console.warn('[CHAT-GLOBAL] Invitado: no puede enviar');
       return;
     }
     if (!this.stompClient?.connected) {
-      console.warn('[CHAT-GLOBAL] No conectado aun, encolando mensaje');
+      if (isDevMode()) console.warn('[CHAT-GLOBAL] No conectado aun, encolando mensaje');
       this.pendientes.push(contenido);
-      // Intentar reconectar
       if (!this.stompClient?.active) this.conectar();
       return;
     }
@@ -124,7 +133,7 @@ export class ChatGlobalService implements OnDestroy {
 
   private publishMensaje(contenido: string): void {
     this.stompClient?.publish({
-      destination: '/app/chat-global/enviar',   // ⚠️ con SLASH, verifica tu @MessageMapping
+      destination: '/app/chat-global/enviar',
       body: JSON.stringify({ contenido })
     });
   }
