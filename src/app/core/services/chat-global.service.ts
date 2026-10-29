@@ -12,7 +12,7 @@ export interface MensajeGlobal {
   autorId: number;
   autorNombreUsuario: string;
   autorFotoPerfilUrl: string | null;
-  marcoId?: string | null;      // ✅ NUEVO
+  marcoId?: string | null;     
   contenido: string;
   fechaEnvio: string;
 }

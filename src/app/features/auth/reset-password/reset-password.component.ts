@@ -1,14 +1,15 @@
-// reset-password.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+// src/app/features/auth/reset-password/reset-password.component.ts
+import { Component, OnInit, signal, inject, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 
-function contraseñasIgualesValidator(grupo: AbstractControl): ValidationErrors | null {
+function contrasenasIgualesValidator(grupo: AbstractControl): ValidationErrors | null {
   const password = grupo.get('password')?.value;
   const confirmar = grupo.get('confirmarPassword')?.value;
-  return password === confirmar ? null : { contraseñasDistintas: true };
+  return password === confirmar ? null : { contrasenasDistintas: true };
 }
 
 @Component({
@@ -18,11 +19,18 @@ function contraseñasIgualesValidator(grupo: AbstractControl): ValidationErrors 
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   cargando = signal(false);
   exito = signal(false);
   errorMsg = signal<string | null>(null);
   token = signal<string>('');
+
+  private redirectTimer: ReturnType<typeof setTimeout> | null = null;
 
   form = this.fb.group(
     {
@@ -33,26 +41,21 @@ export class ResetPasswordComponent implements OnInit {
       ]],
       confirmarPassword: ['', [Validators.required]],
     },
-    { validators: contraseñasIgualesValidator }
+    { validators: contrasenasIgualesValidator }
   );
-
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
 
   get password() { return this.form.controls.password; }
   get confirmarPassword() { return this.form.controls.confirmarPassword; }
 
   ngOnInit(): void {
     const tokenParam = this.route.snapshot.queryParamMap.get('token') ?? '';
-    this.token.set(tokenParam);
-    
-    if (!tokenParam) {
-      this.errorMsg.set('El enlace no es válido o expiró.');
+    // SEGURIDAD: validar formato del token antes de usarlo
+    if (!this.tokenConFormatoValido(tokenParam)) {
+      this.token.set('');
+      this.errorMsg.set('El enlace no es valido o expiro.');
+      return;
     }
+    this.token.set(tokenParam);
   }
 
   enviar(): void {
@@ -63,34 +66,29 @@ export class ResetPasswordComponent implements OnInit {
 
     const tokenValue = this.token();
     if (!tokenValue) {
-      this.errorMsg.set('El enlace no es válido o expiró.');
-      return;
-    }
-
-    const password = this.form.getRawValue().password;
-    const confirmar = this.form.getRawValue().confirmarPassword;
-    if (password !== confirmar) {
-      this.errorMsg.set('Las contraseñas no coinciden.');
+      this.errorMsg.set('El enlace no es valido o expiro.');
       return;
     }
 
     this.cargando.set(true);
     this.errorMsg.set(null);
 
-    this.auth.restablecerContrasena(tokenValue, password!).subscribe({
+    this.auth.restablecerContrasena(tokenValue, this.password.value!).subscribe({
       next: () => {
         this.exito.set(true);
         this.cargando.set(false);
-        setTimeout(() => this.irAlLogin(), 3000);
+        this.redirectTimer = setTimeout(() => this.irAlLogin(), 3000);
       },
-      error: (error) => {
-        let mensaje = 'El enlace expiró o ya fue usado. Solicita uno nuevo.';
-        if (error.status === 400) {
-          mensaje = error.error?.mensaje || 'El enlace no es válido.';
-        } else if (error.status === 404) {
+      error: (err: HttpErrorResponse) => {
+        let mensaje = 'El enlace expiro o ya fue usado. Solicita uno nuevo.';
+        if (err.status === 400) {
+          mensaje = err.error?.error || err.error?.mensaje || 'El enlace no es valido.';
+        } else if (err.status === 404) {
           mensaje = 'Token no encontrado. Solicita un nuevo enlace.';
-        } else if (error.error?.mensaje) {
-          mensaje = error.error.mensaje;
+        } else if (err.error?.error) {
+          mensaje = err.error.error;
+        } else if (err.error?.mensaje) {
+          mensaje = err.error.mensaje;
         }
         this.errorMsg.set(mensaje);
         this.cargando.set(false);
@@ -108,5 +106,23 @@ export class ResetPasswordComponent implements OnInit {
 
   irAlLoginAhora(): void {
     this.router.navigate(['/login']);
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+      this.redirectTimer = null;
+    }
+  }
+
+  /**
+   * SEGURIDAD: valida que el token tenga un formato aceptable.
+   * Ajusta la regex si tu backend usa otro esquema (por ejemplo, JWT con puntos).
+   * Este ejemplo acepta tokens alfanumericos de 32 a 128 caracteres con - y _.
+   */
+  private tokenConFormatoValido(token: string): boolean {
+    if (!token) return false;
+    if (token.length < 32 || token.length > 128) return false;
+    return /^[A-Za-z0-9_-]+$/.test(token);
   }
 }

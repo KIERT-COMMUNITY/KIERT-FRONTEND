@@ -12,18 +12,16 @@ export const adminGuard: CanActivateFn = async (route, state) => {
   await auth.whenReady();
 
   if (!adminAuth.estaLogueado()) {
-    router.navigate(['/admin/login'], {
+    return router.createUrlTree(['/admin/login'], {
       queryParams: { redirect: state.url }
     });
-    return false;
   }
 
   const roles = route.data?.['roles'] as string[] | undefined;
   if (roles && roles.length > 0) {
     const rol = adminAuth.admin()?.rol;
     if (!rol || !roles.includes(rol)) {
-      router.navigate(['/admin/login']);
-      return false;
+      return router.createUrlTree(['/admin/login']);
     }
   }
 

@@ -1,8 +1,12 @@
 // src/app/features/community/post-detail/post-detail.component.ts
-import { Component, OnInit, input, signal, computed, inject } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, input, signal, computed, inject, isDevMode
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+
 import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ReaccionService } from '../../../core/services/reaccion.service';
@@ -10,11 +14,14 @@ import { ComentarioService } from '../../../core/services/comentario.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { CompartidoService } from '../../../core/services/compartido.service';
 import { PostsOcultosService } from '../../../core/services/posts-ocultos.service';
-import { Post, Comentario, Respuesta, Adjunto, Autor, Subtitulo } from '../../../core/models/post.model';
+import { Post, Comentario, Adjunto, Autor, Subtitulo } from '../../../core/models/post.model';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 import { CompartirModalComponent } from '../../../shared/components/compartir-modal/compartir-modal.component';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
+import {
+  safeUrl, safeCssGradient, safeClassToken, openExternalSafe
+} from '../../../shared/utils/url-sanitizer';
 
 @Component({
   selector: 'kiert-post-detail',
@@ -31,7 +38,7 @@ import { AvisoLoginComponent } from '../../../shared/components/aviso-login/avis
   templateUrl: './post-detail.component.html',
   styleUrl: './post-detail.component.scss',
 })
-export class PostDetailComponent implements OnInit {
+export class PostDetailComponent implements OnInit, OnDestroy {
   private postService = inject(PostService);
   private reaccionService = inject(ReaccionService);
   private comentarioService = inject(ComentarioService);
@@ -48,6 +55,10 @@ export class PostDetailComponent implements OnInit {
     return Number(this.id());
   }
 
+  // ===== CICLO DE VIDA =====
+  private readonly destroy$ = new Subject<void>();
+  private timeouts = new Set<ReturnType<typeof setTimeout>>();
+
   post = signal<Post | undefined>(undefined);
   comentarios = signal<Comentario[]>([]);
   cargando = signal(true);
@@ -56,8 +67,15 @@ export class PostDetailComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
 
-  // ===== NUEVO: menú de ocultar =====
+  // ===== MENU OCULTAR =====
   mostrarMenuOcultar = signal(false);
+
+  // ===== CONFIRMAR ELIMINAR =====
+  mostrarConfirmEliminarComentario = signal(false);
+  comentarioAEliminar = signal<number | null>(null);
+  mostrarConfirmEliminarRespuesta = signal(false);
+  respuestaAEliminar = signal<{ comentarioId: number; respuestaId: number } | null>(null);
+  eliminandoComentario = signal(false);
 
   mostrarAvisoLogin = signal(false);
   mensajeAvisoLogin = signal<string>('Debes registrarte para interactuar con esta publicacion.');
@@ -87,17 +105,37 @@ export class PostDetailComponent implements OnInit {
   });
 
   formComentario = this.fb.group({
-    contenido: ['', [Validators.required, Validators.minLength(2)]],
+    contenido: ['', [
+      Validators.required,
+      Validators.minLength(2),
+      Validators.maxLength(2000)
+    ]],
   });
 
   formRespuesta = this.fb.group({
-    contenido: ['', [Validators.required, Validators.minLength(2)]],
+    contenido: ['', [
+      Validators.required,
+      Validators.minLength(2),
+      Validators.maxLength(2000)
+    ]],
   });
+
+  // ===== COMPUTED SEGUROS PARA EL TEMPLATE =====
+
+  /** Clase de tema saneada. */
+  temaClaseSeguro = computed<string>(() =>
+    'tema-' + safeClassToken(this.personalizacionStore.temaId(), 'default')
+  );
+
+  /** Fondo degradado saneado. */
+  fondoSeguro = computed<string>(() =>
+    safeCssGradient(this.personalizacionStore.fondoGradiente())
+  );
 
   ngOnInit(): void {
     this.estaLogueado.set(this.authService.isAuthenticated());
     const postId = Number(this.id());
-    if (!postId || isNaN(postId)) {
+    if (!postId || !Number.isFinite(postId) || !Number.isInteger(postId) || postId <= 0) {
       this.errorMsg.set('ID de publicacion invalido');
       this.cargando.set(false);
       return;
@@ -106,6 +144,18 @@ export class PostDetailComponent implements OnInit {
     this.cargarComentarios(postId);
     this.cargarReacciones(postId);
     this.cargarCompartidos(postId);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.timeouts.forEach(t => clearTimeout(t));
+    this.timeouts.clear();
+  }
+
+  private safeTimeout(fn: () => void, ms: number): void {
+    const id = setTimeout(() => { this.timeouts.delete(id); fn(); }, ms);
+    this.timeouts.add(id);
   }
 
   // ===== OCULTAR POST =====
@@ -125,12 +175,10 @@ export class PostDetailComponent implements OnInit {
 
     this.postsOcultos.ocultar(postId, motivo);
     this.cerrarMenuOcultar();
-
-    // Volver al feed después de ocultar
     this.router.navigate(['/comunidad']);
   }
 
-  // ===== RESTO DE MÉTODOS (igual que antes) =====
+  // ===== AVISO LOGIN =====
   abrirAviso(mensaje: string): void {
     this.mensajeAvisoLogin.set(mensaje);
     this.mostrarAvisoLogin.set(true);
@@ -138,15 +186,14 @@ export class PostDetailComponent implements OnInit {
 
   irALogin(): void {
     this.mostrarAvisoLogin.set(false);
-    this.router.navigate(['/login'], {
-      queryParams: { returnUrl: this.router.url }
-    });
+    this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
   }
 
   cerrarAvisoLogin(): void {
     this.mostrarAvisoLogin.set(false);
   }
 
+  // ===== HELPERS DE CATEGORIA =====
   getCategoriaFormateada(categoria: string): string {
     if (!categoria) return 'Sin categoria';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
@@ -157,19 +204,20 @@ export class PostDetailComponent implements OnInit {
   }
 
   getColorCategoria(categoria: string): string {
+    // Colores fijos del codigo: no hay riesgo, pero se devuelve siempre un hex valido.
     if (!categoria) return '#8b98a5';
-    const categoriaLower = categoria.toLowerCase();
-    if (categoriaLower.includes('hacking') || categoriaLower.includes('seguridad') || categoriaLower.includes('ciber')) return '#ff6b6b';
-    if (categoriaLower.includes('ayuda') || categoriaLower.includes('emergencia') || categoriaLower.includes('socorro')) return '#feca57';
-    if (categoriaLower.includes('historia') || categoriaLower.includes('experiencia') || categoriaLower.includes('caso')) return '#55efc4';
-    if (categoriaLower.includes('programacion') || categoriaLower.includes('codigo') || categoriaLower.includes('desarrollo')) return '#0984e3';
-    if (categoriaLower.includes('redes') || categoriaLower.includes('network') || categoriaLower.includes('infraestructura')) return '#6c5ce7';
-    if (categoriaLower.includes('ia') || categoriaLower.includes('inteligencia') || categoriaLower.includes('machine')) return '#fd79a8';
+    const c = categoria.toLowerCase();
+    if (c.includes('hacking') || c.includes('seguridad') || c.includes('ciber')) return '#ff6b6b';
+    if (c.includes('ayuda') || c.includes('emergencia') || c.includes('socorro')) return '#feca57';
+    if (c.includes('historia') || c.includes('experiencia') || c.includes('caso')) return '#55efc4';
+    if (c.includes('programacion') || c.includes('codigo') || c.includes('desarrollo')) return '#0984e3';
+    if (c.includes('redes') || c.includes('network') || c.includes('infraestructura')) return '#6c5ce7';
+    if (c.includes('ia') || c.includes('inteligencia') || c.includes('machine')) return '#fd79a8';
     return '#2dd4bf';
   }
 
   getMarcoDelAutor(): string {
-    return this.post()?.autor?.marcoId || 'none';
+    return safeClassToken(this.post()?.autor?.marcoId, 'none');
   }
 
   esAutor(autor: Autor | null | undefined): boolean {
@@ -179,20 +227,48 @@ export class PostDetailComponent implements OnInit {
     return usuario.id === autor.id;
   }
 
+  // ===== HELPERS DE URL PARA EL TEMPLATE =====
+  getFotoAutor(url: string | null | undefined): string | null {
+    return safeUrl(url);
+  }
+
+  getAdjuntoUrl(url: string | null | undefined): string | null {
+    return safeUrl(url);
+  }
+
+  getAdjuntoPoster(url: string | null | undefined): string | null {
+    return safeUrl(url);
+  }
+
+  getSubtituloUrl(url: string | null | undefined): string | null {
+    return safeUrl(url);
+  }
+
+  getFotoComentario(url: string | null | undefined): string | null {
+    return safeUrl(url);
+  }
+
+  getFotoRespuesta(url: string | null | undefined): string | null {
+    return safeUrl(url);
+  }
+
+  // ===== CARGA =====
   cargarPost(postId: number): void {
     this.cargando.set(true);
-    this.postService.obtenerPorId(postId).subscribe({
-      next: (data) => {
-        this.post.set(data);
-        this.inicializarSubtitulos(data);
-        this.cargando.set(false);
-      },
-      error: (error) => {
-        console.error('Error al cargar post:', error);
-        this.cargando.set(false);
-        this.errorMsg.set('Error al cargar la publicacion');
-      }
-    });
+    this.postService.obtenerPorId(postId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.post.set(data);
+          this.inicializarSubtitulos(data);
+          this.cargando.set(false);
+        },
+        error: (error) => {
+          if (isDevMode()) console.error('Error al cargar post:', error);
+          this.cargando.set(false);
+          this.errorMsg.set('Error al cargar la publicacion');
+        }
+      });
   }
 
   private inicializarSubtitulos(post: Post): void {
@@ -212,54 +288,65 @@ export class PostDetailComponent implements OnInit {
   }
 
   cargarComentarios(postId: number): void {
-    this.comentarioService.listarPorPost(postId).subscribe({
-      next: (data) => {
-        const comentariosConUI = data.map(c => ({
-          ...c,
-          respuestas: [],
-          totalRespuestas: 0,
-          mostrandoRespuestas: false,
-          mostrandoFormularioRespuesta: false,
-          cargandoRespuestas: false,
-          userReactions: c.userReactions || { like: false, love: false }
-        }));
-        this.comentarios.set(comentariosConUI);
-      },
-      error: () => {}
-    });
+    this.comentarioService.listarPorPost(postId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          const comentariosConUI = data.map(c => ({
+            ...c,
+            respuestas: [],
+            totalRespuestas: 0,
+            mostrandoRespuestas: false,
+            mostrandoFormularioRespuesta: false,
+            cargandoRespuestas: false,
+            userReactions: c.userReactions || { like: false, love: false }
+          }));
+          this.comentarios.set(comentariosConUI);
+        },
+        error: () => {}
+      });
   }
 
   cargarReacciones(postId: number): void {
-    this.reaccionService.obtenerReaccionesPost(postId).subscribe({
-      next: (data) => this.reacciones.set(data),
-      error: () => {}
-    });
+    this.reaccionService.obtenerReaccionesPost(postId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => this.reacciones.set(data),
+        error: () => {}
+      });
   }
 
   cargarCompartidos(postId: number): void {
-    this.compartidoService.contarCompartidos(postId).subscribe({
-      next: (res) => this.totalCompartidos.set(res.total || 0),
-      error: () => {}
-    });
+    this.compartidoService.contarCompartidos(postId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => this.totalCompartidos.set(res.total || 0),
+        error: () => {}
+      });
   }
 
+  // ===== REACCIONES =====
   reaccionar(tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para reaccionar a las publicaciones.');
       return;
     }
     const postId = Number(this.id());
-    this.reaccionService.reaccionarPost(postId, tipo).subscribe({
-      next: (data) => {
-        this.reacciones.set(data);
-        const userKey = this.getUserKey(tipo);
-        this.userReactions.update(prev => ({ ...prev, [userKey]: !prev[userKey] }));
-      },
-      error: () => {
-        this.errorMsg.set('Error al procesar la reaccion');
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+    if (!postId) return;
+
+    this.reaccionService.reaccionarPost(postId, tipo)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.reacciones.set(data);
+          const userKey = this.getUserKey(tipo);
+          this.userReactions.update(prev => ({ ...prev, [userKey]: !prev[userKey] }));
+        },
+        error: () => {
+          this.errorMsg.set('Error al procesar la reaccion');
+          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
   }
 
   reaccionarComentario(comentarioId: number, tipo: string, event?: MouseEvent): void {
@@ -267,25 +354,27 @@ export class PostDetailComponent implements OnInit {
       this.abrirAviso('Debes registrarte para reaccionar a los comentarios.');
       return;
     }
-    this.comentarioService.reaccionarComentario(comentarioId, tipo).subscribe({
-      next: (data) => {
-        this.comentarios.update(lista =>
-          lista.map(c => {
-            if (c.id === comentarioId) {
-              const userReactions = c.userReactions || { like: false, love: false };
-              const key = tipo as 'like' | 'love';
-              return {
-                ...c,
-                reacciones: data,
-                userReactions: { ...userReactions, [key]: !userReactions[key] }
-              };
-            }
-            return c;
-          })
-        );
-      },
-      error: () => {}
-    });
+    this.comentarioService.reaccionarComentario(comentarioId, tipo)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.comentarios.update(lista =>
+            lista.map(c => {
+              if (c.id === comentarioId) {
+                const userReactions = c.userReactions || { like: false, love: false };
+                const key = tipo as 'like' | 'love';
+                return {
+                  ...c,
+                  reacciones: data,
+                  userReactions: { ...userReactions, [key]: !userReactions[key] }
+                };
+              }
+              return c;
+            })
+          );
+        },
+        error: () => {}
+      });
   }
 
   reaccionarRespuesta(comentarioId: number, respuestaId: number, tipo: string, event?: MouseEvent): void {
@@ -293,33 +382,36 @@ export class PostDetailComponent implements OnInit {
       this.abrirAviso('Debes registrarte para reaccionar a las respuestas.');
       return;
     }
-    this.comentarioService.reaccionarRespuesta(respuestaId, tipo).subscribe({
-      next: (data) => {
-        this.comentarios.update(lista =>
-          lista.map(c => {
-            if (c.id === comentarioId && c.respuestas) {
-              return {
-                ...c,
-                respuestas: c.respuestas.map(r => {
-                  if (r.id !== respuestaId) return r;
-                  const userReactions = r.userReactions || { like: false, love: false };
-                  const key = tipo as 'like' | 'love';
-                  return {
-                    ...r,
-                    reacciones: data,
-                    userReactions: { ...userReactions, [key]: !userReactions[key] }
-                  };
-                })
-              };
-            }
-            return c;
-          })
-        );
-      },
-      error: () => {}
-    });
+    this.comentarioService.reaccionarRespuesta(respuestaId, tipo)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.comentarios.update(lista =>
+            lista.map(c => {
+              if (c.id === comentarioId && c.respuestas) {
+                return {
+                  ...c,
+                  respuestas: c.respuestas.map(r => {
+                    if (r.id !== respuestaId) return r;
+                    const userReactions = r.userReactions || { like: false, love: false };
+                    const key = tipo as 'like' | 'love';
+                    return {
+                      ...r,
+                      reacciones: data,
+                      userReactions: { ...userReactions, [key]: !userReactions[key] }
+                    };
+                  })
+                };
+              }
+              return c;
+            })
+          );
+        },
+        error: () => {}
+      });
   }
 
+  // ===== COMENTARIOS =====
   enviarComentario(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para comentar.');
@@ -329,30 +421,33 @@ export class PostDetailComponent implements OnInit {
       this.formComentario.markAllAsTouched();
       return;
     }
-    this.enviandoComentario.set(true);
-    const contenido = this.formComentario.getRawValue().contenido!;
+    const contenido = (this.formComentario.getRawValue().contenido || '').trim();
+    if (!contenido) return;
 
-    this.comentarioService.crear(Number(this.id()), contenido).subscribe({
-      next: (nuevo) => {
-        this.comentarios.update((lista) => [...lista, {
-          ...nuevo,
-          reacciones: { likes: 0, loves: 0 },
-          respuestas: [],
-          totalRespuestas: 0,
-          mostrandoRespuestas: false,
-          mostrandoFormularioRespuesta: false,
-          cargandoRespuestas: false,
-          userReactions: { like: false, love: false }
-        }]);
-        this.formComentario.reset();
-        this.enviandoComentario.set(false);
-      },
-      error: () => {
-        this.errorMsg.set('Error al enviar comentario');
-        this.enviandoComentario.set(false);
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      },
-    });
+    this.enviandoComentario.set(true);
+    this.comentarioService.crear(Number(this.id()), contenido)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (nuevo) => {
+          this.comentarios.update((lista) => [...lista, {
+            ...nuevo,
+            reacciones: { likes: 0, loves: 0 },
+            respuestas: [],
+            totalRespuestas: 0,
+            mostrandoRespuestas: false,
+            mostrandoFormularioRespuesta: false,
+            cargandoRespuestas: false,
+            userReactions: { like: false, love: false }
+          }]);
+          this.formComentario.reset();
+          this.enviandoComentario.set(false);
+        },
+        error: () => {
+          this.errorMsg.set('Error al enviar comentario');
+          this.enviandoComentario.set(false);
+          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+        },
+      });
   }
 
   enviarRespuesta(comentarioId: number): void {
@@ -364,40 +459,43 @@ export class PostDetailComponent implements OnInit {
       this.formRespuesta.markAllAsTouched();
       return;
     }
-    this.enviandoRespuesta.set(comentarioId);
-    const contenido = this.formRespuesta.getRawValue().contenido!;
+    const contenido = (this.formRespuesta.getRawValue().contenido || '').trim();
+    if (!contenido) return;
 
-    this.comentarioService.crearRespuesta(comentarioId, contenido).subscribe({
-      next: (nueva) => {
-        const respuestaConUI = {
-          ...nueva,
-          reacciones: nueva.reacciones || { likes: 0, loves: 0 },
-          userReactions: nueva.userReactions || { like: false, love: false }
-        };
-        this.comentarios.update(lista =>
-          lista.map(c => {
-            if (c.id === comentarioId) {
-              const respuestas = c.respuestas || [];
-              return {
-                ...c,
-                respuestas: [...respuestas, respuestaConUI],
-                totalRespuestas: (c.totalRespuestas || 0) + 1,
-                mostrandoFormularioRespuesta: false,
-                mostrandoRespuestas: true
-              };
-            }
-            return c;
-          })
-        );
-        this.formRespuesta.reset();
-        this.enviandoRespuesta.set(null);
-      },
-      error: () => {
-        this.errorMsg.set('Error al enviar respuesta');
-        this.enviandoRespuesta.set(null);
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+    this.enviandoRespuesta.set(comentarioId);
+    this.comentarioService.crearRespuesta(comentarioId, contenido)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (nueva) => {
+          const respuestaConUI = {
+            ...nueva,
+            reacciones: nueva.reacciones || { likes: 0, loves: 0 },
+            userReactions: nueva.userReactions || { like: false, love: false }
+          };
+          this.comentarios.update(lista =>
+            lista.map(c => {
+              if (c.id === comentarioId) {
+                const respuestas = c.respuestas || [];
+                return {
+                  ...c,
+                  respuestas: [...respuestas, respuestaConUI],
+                  totalRespuestas: (c.totalRespuestas || 0) + 1,
+                  mostrandoFormularioRespuesta: false,
+                  mostrandoRespuestas: true
+                };
+              }
+              return c;
+            })
+          );
+          this.formRespuesta.reset();
+          this.enviandoRespuesta.set(null);
+        },
+        error: () => {
+          this.errorMsg.set('Error al enviar respuesta');
+          this.enviandoRespuesta.set(null);
+          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
   }
 
   toggleResponder(comentarioId: number): void {
@@ -406,12 +504,10 @@ export class PostDetailComponent implements OnInit {
       return;
     }
     this.comentarios.update(lista =>
-      lista.map(c => {
-        if (c.id === comentarioId) {
-          return { ...c, mostrandoFormularioRespuesta: !c.mostrandoFormularioRespuesta };
-        }
-        return c;
-      })
+      lista.map(c => c.id === comentarioId
+        ? { ...c, mostrandoFormularioRespuesta: !c.mostrandoFormularioRespuesta }
+        : c
+      )
     );
   }
 
@@ -434,72 +530,120 @@ export class PostDetailComponent implements OnInit {
     this.comentarios.update(lista =>
       lista.map(c => c.id === comentarioId ? { ...c, cargandoRespuestas: true } : c)
     );
-    this.comentarioService.listarRespuestas(comentarioId).subscribe({
-      next: (respuestas) => {
-        const respuestasConUI = respuestas.map(r => ({
-          ...r,
-          userReactions: r.userReactions || { like: false, love: false }
-        }));
-        this.comentarios.update(lista =>
-          lista.map(c => c.id === comentarioId
-            ? { ...c, respuestas: respuestasConUI, totalRespuestas: respuestasConUI.length, cargandoRespuestas: false }
-            : c
-          )
-        );
-      },
-      error: () => {
-        this.comentarios.update(lista =>
-          lista.map(c => c.id === comentarioId ? { ...c, cargandoRespuestas: false } : c)
-        );
-      }
-    });
+    this.comentarioService.listarRespuestas(comentarioId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (respuestas) => {
+          const respuestasConUI = respuestas.map(r => ({
+            ...r,
+            userReactions: r.userReactions || { like: false, love: false }
+          }));
+          this.comentarios.update(lista =>
+            lista.map(c => c.id === comentarioId
+              ? { ...c, respuestas: respuestasConUI, totalRespuestas: respuestasConUI.length, cargandoRespuestas: false }
+              : c
+            )
+          );
+        },
+        error: () => {
+          this.comentarios.update(lista =>
+            lista.map(c => c.id === comentarioId ? { ...c, cargandoRespuestas: false } : c)
+          );
+        }
+      });
   }
 
-  eliminarComentario(comentarioId: number): void {
+  // ===== ELIMINAR (con modal propio) =====
+  abrirConfirmEliminarComentario(comentarioId: number): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para eliminar comentarios.');
       return;
     }
-    if (!confirm('Seguro que quieres eliminar este comentario?')) return;
-    this.comentarioService.eliminar(comentarioId).subscribe({
-      next: () => {
-        this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
-      },
-      error: () => {
-        this.errorMsg.set('Error al eliminar comentario');
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+    this.comentarioAEliminar.set(comentarioId);
+    this.mostrarConfirmEliminarComentario.set(true);
   }
 
-  eliminarRespuesta(comentarioId: number, respuestaId: number): void {
+  cerrarConfirmEliminarComentario(): void {
+    if (this.eliminandoComentario()) return;
+    this.mostrarConfirmEliminarComentario.set(false);
+    this.comentarioAEliminar.set(null);
+  }
+
+  confirmarEliminarComentario(): void {
+    const comentarioId = this.comentarioAEliminar();
+    if (!comentarioId) return;
+
+    this.eliminandoComentario.set(true);
+    this.comentarioService.eliminar(comentarioId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
+          this.eliminandoComentario.set(false);
+          this.mostrarConfirmEliminarComentario.set(false);
+          this.comentarioAEliminar.set(null);
+        },
+        error: () => {
+          this.eliminandoComentario.set(false);
+          this.mostrarConfirmEliminarComentario.set(false);
+          this.comentarioAEliminar.set(null);
+          this.errorMsg.set('Error al eliminar comentario');
+          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
+  }
+
+  abrirConfirmEliminarRespuesta(comentarioId: number, respuestaId: number): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para eliminar respuestas.');
       return;
     }
-    if (!confirm('Seguro que quieres eliminar esta respuesta?')) return;
-    this.comentarioService.eliminarRespuesta(respuestaId).subscribe({
-      next: () => {
-        this.comentarios.update(lista =>
-          lista.map(c => {
-            if (c.id === comentarioId && c.respuestas) {
-              return {
-                ...c,
-                respuestas: c.respuestas.filter(r => r.id !== respuestaId),
-                totalRespuestas: (c.totalRespuestas || 0) - 1
-              };
-            }
-            return c;
-          })
-        );
-      },
-      error: () => {
-        this.errorMsg.set('Error al eliminar respuesta');
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+    this.respuestaAEliminar.set({ comentarioId, respuestaId });
+    this.mostrarConfirmEliminarRespuesta.set(true);
   }
 
+  cerrarConfirmEliminarRespuesta(): void {
+    if (this.eliminandoComentario()) return;
+    this.mostrarConfirmEliminarRespuesta.set(false);
+    this.respuestaAEliminar.set(null);
+  }
+
+  confirmarEliminarRespuesta(): void {
+    const objetivo = this.respuestaAEliminar();
+    if (!objetivo) return;
+
+    this.eliminandoComentario.set(true);
+    this.comentarioService.eliminarRespuesta(objetivo.respuestaId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.comentarios.update(lista =>
+            lista.map(c => {
+              if (c.id === objetivo.comentarioId && c.respuestas) {
+                return {
+                  ...c,
+                  respuestas: c.respuestas.filter(r => r.id !== objetivo.respuestaId),
+                  totalRespuestas: Math.max(0, (c.totalRespuestas || 0) - 1)
+                };
+              }
+              return c;
+            })
+          );
+          this.eliminandoComentario.set(false);
+          this.mostrarConfirmEliminarRespuesta.set(false);
+          this.respuestaAEliminar.set(null);
+        },
+        error: () => {
+          this.eliminandoComentario.set(false);
+          this.mostrarConfirmEliminarRespuesta.set(false);
+          this.respuestaAEliminar.set(null);
+          this.errorMsg.set('Error al eliminar respuesta');
+          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
+  }
+
+  // ===== REPORTES =====
   reportarPost(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para reportar publicaciones.');
@@ -544,6 +688,7 @@ export class PostDetailComponent implements OnInit {
     this.mostrarModalReporte.set(false);
   }
 
+  // ===== COMPARTIR =====
   abrirModalCompartir(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para compartir publicaciones.');
@@ -557,6 +702,7 @@ export class PostDetailComponent implements OnInit {
     this.cargarCompartidos(Number(this.id()));
   }
 
+  // ===== SUBTITULOS =====
   tieneSubtitulos(adjunto: Adjunto): boolean {
     return !!(adjunto.subtitulos && adjunto.subtitulos.length > 0);
   }
@@ -578,60 +724,88 @@ export class PostDetailComponent implements OnInit {
   }
 
   onSubtituloSeleccionado(event: Event, adjuntoId: number): void {
+    const input = event.target as HTMLInputElement | null;
+    if (!input) return;
+
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para subir subtitulos.');
-      (event.target as HTMLInputElement).value = '';
-      return;
-    }
-
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    if (!file.name.toLowerCase().endsWith('.vtt')) {
-      this.errorMsg.set('Solo se permiten archivos .vtt para subtitulos');
-      setTimeout(() => this.errorMsg.set(null), 3000);
       input.value = '';
       return;
     }
 
-    const idioma = prompt('Codigo de idioma (ej: es, en, pt):', 'es');
-    if (!idioma) { input.value = ''; return; }
+    const file = input.files?.[0];
+    if (!file) { input.value = ''; return; }
 
-    const etiqueta = prompt('Nombre visible del idioma (ej: Espanol):', 'Espanol');
-    if (!etiqueta) { input.value = ''; return; }
+    // Validacion de extension
+    if (!file.name.toLowerCase().endsWith('.vtt')) {
+      this.errorMsg.set('Solo se permiten archivos .vtt para subtitulos');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    // Validacion de tamano (max 2 MB)
+    if (file.size > 2 * 1024 * 1024) {
+      this.errorMsg.set('El archivo .vtt no debe superar los 2MB');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    // Idioma: solo letras y guion, 2-10 chars (ISO 639-1 o BCP-47 simple)
+    const idiomaRaw = prompt('Codigo de idioma (ej: es, en, pt):', 'es');
+    const idioma = (idiomaRaw || '').trim().toLowerCase();
+    if (!/^[a-z]{2}(-[a-z]{2})?$/.test(idioma)) {
+      this.errorMsg.set('Codigo de idioma invalido (ej: es, en, pt)');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
+
+    // Etiqueta: texto plano, 1-40 chars, sin caracteres de control
+    const etiquetaRaw = prompt('Nombre visible del idioma (ej: Espanol):', 'Espanol');
+    const etiqueta = (etiquetaRaw || '').trim();
+    if (!etiqueta || etiqueta.length > 40 || /[\u0000-\u001f\u007f<>]/.test(etiqueta)) {
+      this.errorMsg.set('Nombre de idioma invalido');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      input.value = '';
+      return;
+    }
 
     this.subiendoSubtitulo.set(adjuntoId);
 
-    this.postService.subirSubtitulo(adjuntoId, file, idioma, etiqueta, true).subscribe({
-      next: (nuevoSub) => {
-        this.post.update(p => {
-          if (!p) return p;
-          return {
-            ...p,
-            adjuntos: p.adjuntos.map(a => {
-              if (a.id !== adjuntoId) return a;
-              const subtitulos = [...(a.subtitulos || []), nuevoSub];
-              return { ...a, subtitulos };
-            })
-          };
-        });
-        this.idiomaSeleccionado.update(prev => ({ ...prev, [adjuntoId]: nuevoSub.idioma }));
-        this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
-        this.subiendoSubtitulo.set(null);
-        input.value = '';
-      },
-      error: () => {
-        this.errorMsg.set('Error al subir subtitulos');
-        this.subiendoSubtitulo.set(null);
-        input.value = '';
-        setTimeout(() => this.errorMsg.set(null), 3000);
-      }
-    });
+    this.postService.subirSubtitulo(adjuntoId, file, idioma, etiqueta, true)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (nuevoSub) => {
+          this.post.update(p => {
+            if (!p) return p;
+            return {
+              ...p,
+              adjuntos: p.adjuntos.map(a => {
+                if (a.id !== adjuntoId) return a;
+                const subtitulos = [...(a.subtitulos || []), nuevoSub];
+                return { ...a, subtitulos };
+              })
+            };
+          });
+          this.idiomaSeleccionado.update(prev => ({ ...prev, [adjuntoId]: nuevoSub.idioma }));
+          this.subtitulosActivos.update(prev => ({ ...prev, [adjuntoId]: true }));
+          this.subiendoSubtitulo.set(null);
+          input.value = '';
+        },
+        error: () => {
+          this.errorMsg.set('Error al subir subtitulos');
+          this.subiendoSubtitulo.set(null);
+          input.value = '';
+          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
   }
 
+  // ===== HELPERS =====
   getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
-    switch(tipo) {
+    switch (tipo) {
       case 'like': return 'like';
       case 'love': return 'love';
       case 'haha': return 'haha';
@@ -652,8 +826,8 @@ export class PostDetailComponent implements OnInit {
     const nombre = adjunto.nombre?.toLowerCase() || '';
     if (tipo === 'imagen' || tipo === 'image' || tipo === 'gif') return true;
     if (tipo === 'archivo' || tipo === 'file') {
-      const extensiones = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.tiff', '.ico'];
-      return extensiones.some(ext => nombre.endsWith(ext));
+      const ext = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.tiff', '.ico'];
+      return ext.some(e => nombre.endsWith(e));
     }
     return false;
   }
@@ -665,22 +839,19 @@ export class PostDetailComponent implements OnInit {
     const mime = adjunto.mimeType?.toLowerCase() || '';
     if (tipo === 'video') return true;
     if (mime.startsWith('video/')) return true;
-    const extensiones = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
-    return extensiones.some(ext => nombre.endsWith(ext));
+    const ext = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
+    return ext.some(e => nombre.endsWith(e));
   }
 
   obtenerImagenes(): Adjunto[] {
     return (this.post()?.adjuntos || []).filter(a => this.esImagen(a));
   }
-
   obtenerVideos(): Adjunto[] {
     return (this.post()?.adjuntos || []).filter(a => this.esVideo(a));
   }
-
   obtenerOtrosAdjuntos(): Adjunto[] {
     return (this.post()?.adjuntos || []).filter(a => !this.esImagen(a) && !this.esVideo(a));
   }
-
   cantidadImagenes(): number { return this.obtenerImagenes().length; }
   tieneImagenes(): boolean { return this.cantidadImagenes() > 0; }
   tieneVideos(): boolean { return this.obtenerVideos().length > 0; }
@@ -699,8 +870,9 @@ export class PostDetailComponent implements OnInit {
     return 'Archivo';
   }
 
+  // ===== ABRIR IMAGEN (seguro) =====
   abrirImagen(url: string): void {
-    window.open(url, '_blank');
+    openExternalSafe(safeUrl(url));
   }
 
   onImageError(event: Event): void {

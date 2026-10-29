@@ -7,16 +7,16 @@
     <div class="sidebar-head">
       <h1 class="sidebar-head__title">Chats</h1>
       <div class="sidebar-head__actions">
-        <button class="icon-btn" (click)="abrirModalGrupo()" title="Nuevo grupo">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="icon-btn" (click)="abrirModalGrupo()" title="Nuevo grupo" aria-label="Crear nuevo grupo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
             <line x1="19" y1="8" x2="19" y2="14"/>
             <line x1="22" y1="11" x2="16" y2="11"/>
           </svg>
         </button>
-        <button class="icon-btn" (click)="recargarDatos()" title="Recargar">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="icon-btn" (click)="recargarDatos()" title="Recargar" aria-label="Recargar datos">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="23 4 23 10 17 10"/>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
           </svg>
@@ -27,7 +27,7 @@
     <!-- Búsqueda -->
     <div class="sidebar-search-wrapper">
       <div class="sidebar-search" [class.sidebar-search--active]="buscadorActivo()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
@@ -38,10 +38,14 @@
           (input)="onBusquedaChange($any($event.target).value)"
           (focus)="buscadorActivo.set(true)"
           autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          maxlength="80"
+          aria-label="Buscar usuarios, chats o grupos"
         >
         @if (busqueda()) {
-          <button class="btn-clear-search" (click)="limpiarBusqueda()" title="Limpiar">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button type="button" class="btn-clear-search" (click)="limpiarBusqueda()" title="Limpiar" aria-label="Limpiar búsqueda">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -54,16 +58,16 @@
           @if (conversacionesFiltradas().length > 0) {
             <div class="search-section">
               <span class="search-section__title">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
                 Chats ({{ conversacionesFiltradas().length }})
               </span>
               @for (conv of conversacionesFiltradas(); track conv.usuarioId) {
-                <button class="search-result" (click)="seleccionarConversacion(conv.usuarioId); limpiarBusqueda()">
+                <button type="button" class="search-result" (click)="seleccionarConversacion(conv.usuarioId); limpiarBusqueda()">
                   <div class="search-result__avatar">
-                    @if (conv.fotoPerfilUrl) {
-                      <img [src]="conv.fotoPerfilUrl" [alt]="conv.nombreUsuario">
+                    @if (getFotoConversacion(conv.fotoPerfilUrl); as foto) {
+                      <img [src]="foto" [alt]="conv.nombreUsuario" loading="lazy">
                     } @else {
                       <span>{{ conv.nombreUsuario.charAt(0).toUpperCase() }}</span>
                     }
@@ -80,17 +84,17 @@
           @if (gruposFiltrados().length > 0) {
             <div class="search-section">
               <span class="search-section__title">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                   <circle cx="9" cy="7" r="4"/>
                 </svg>
                 Grupos ({{ gruposFiltrados().length }})
               </span>
               @for (g of gruposFiltrados(); track g.id) {
-                <button class="search-result" (click)="seleccionarGrupo(g.id); limpiarBusqueda()">
+                <button type="button" class="search-result" (click)="seleccionarGrupo(g.id); limpiarBusqueda()">
                   <div class="search-result__avatar search-result__avatar--grupo">
-                    @if (g.fotoUrl) {
-                      <img [src]="g.fotoUrl" [alt]="g.nombre">
+                    @if (getFotoGrupo(g.fotoUrl); as foto) {
+                      <img [src]="foto" [alt]="g.nombre" loading="lazy">
                     } @else {
                       <span>{{ g.nombre.charAt(0).toUpperCase() }}</span>
                     }
@@ -107,7 +111,7 @@
           @if (usuariosFiltrados().length > 0) {
             <div class="search-section">
               <span class="search-section__title">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="12" y1="8" x2="12" y2="16"/>
                   <line x1="8" y1="12" x2="16" y2="12"/>
@@ -115,10 +119,10 @@
                 Nuevos usuarios ({{ usuariosFiltrados().length }})
               </span>
               @for (usuario of usuariosFiltrados(); track usuario.id) {
-                <button class="search-result" (click)="seleccionarUsuarioNuevo(usuario.id)">
+                <button type="button" class="search-result" (click)="seleccionarUsuarioNuevo(usuario.id)">
                   <div class="search-result__avatar">
-                    @if (usuario.fotoPerfilUrl) {
-                      <img [src]="usuario.fotoPerfilUrl" [alt]="usuario.nombreUsuario">
+                    @if (getFotoUsuarioDisponible(usuario.fotoPerfilUrl); as foto) {
+                      <img [src]="foto" [alt]="usuario.nombreUsuario" loading="lazy">
                     } @else {
                       <span>{{ usuario.nombreUsuario.charAt(0).toUpperCase() }}</span>
                     }
@@ -135,7 +139,7 @@
 
           @if (!hayResultados() && busqueda().length > 0) {
             <div class="search-empty">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
@@ -149,8 +153,8 @@
 
     <!-- Tabs -->
     <div class="sidebar-tabs">
-      <button class="tab-btn" [class.tab-btn--active]="tabActual() === 'chats'" (click)="cambiarTab('chats')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="tab-btn" [class.tab-btn--active]="tabActual() === 'chats'" (click)="cambiarTab('chats')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
         <span>Chats</span>
@@ -158,8 +162,8 @@
           <span class="tab-count">{{ conversaciones().length }}</span>
         }
       </button>
-      <button class="tab-btn" [class.tab-btn--active]="tabActual() === 'grupos'" (click)="cambiarTab('grupos')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="tab-btn" [class.tab-btn--active]="tabActual() === 'grupos'" (click)="cambiarTab('grupos')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -176,11 +180,11 @@
     <div class="sidebar-body">
 
       <!-- ✅ CHAT DE BIENVENIDA (fijo, siempre visible para todos) -->
-      <button class="chat-row chat-row--bienvenida"
+      <button type="button" class="chat-row chat-row--bienvenida"
               [class.chat-row--active]="bienvenidaAbierta()"
               (click)="abrirBienvenida()">
         <div class="chat-row__avatar chat-row__avatar--bienvenida">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
           </svg>
         </div>
@@ -199,7 +203,7 @@
         @if (conversaciones().length === 0) {
           <div class="sidebar-empty">
             <div class="sidebar-empty__icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
             </div>
@@ -208,17 +212,17 @@
           </div>
         } @else {
           @for (conv of conversaciones(); track conv.usuarioId) {
-            <button class="chat-row"
+            <button type="button" class="chat-row"
                     [class.chat-row--active]="usuarioSeleccionado() === conv.usuarioId && tabActual() === 'chats'"
                     (click)="seleccionarConversacion(conv.usuarioId)">
               <div class="chat-row__avatar">
                 <kiert-avatar-frame
-                  [fotoUrl]="conv.fotoPerfilUrl || null"
+                  [fotoUrl]="getFotoConversacion(conv.fotoPerfilUrl)"
                   [nombre]="conv.nombreUsuario"
                   [size]="56"
                   [alt]="conv.nombreUsuario"
                   [navigateToProfile]="false"
-                  [marcoId]="conv.marcoId || 'none'"
+                  [marcoId]="getMarcoUsuario(conv.usuarioId)"
                 />
                 <span class="chat-row__status" [class.chat-row__status--online]="conv.online"></span>
               </div>
@@ -245,15 +249,15 @@
         @if (grupos().length === 0) {
           <div class="sidebar-empty">
             <div class="sidebar-empty__icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
               </svg>
             </div>
             <p class="sidebar-empty__title">Sin grupos</p>
             <span class="sidebar-empty__sub">Crea uno para empezar</span>
-            <button class="btn-crear-empty" (click)="abrirModalGrupo()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button type="button" class="btn-crear-empty" (click)="abrirModalGrupo()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
@@ -262,12 +266,12 @@
           </div>
         } @else {
           @for (grupo of grupos(); track grupo.id) {
-            <button class="chat-row"
+            <button type="button" class="chat-row"
                     [class.chat-row--active]="grupoSeleccionado() === grupo.id && tabActual() === 'grupos'"
                     (click)="seleccionarGrupo(grupo.id)">
               <div class="chat-row__avatar chat-row__avatar--grupo">
-                @if (grupo.fotoUrl) {
-                  <img [src]="grupo.fotoUrl" [alt]="grupo.nombre">
+                @if (getFotoGrupo(grupo.fotoUrl); as foto) {
+                  <img [src]="foto" [alt]="grupo.nombre" loading="lazy">
                 } @else {
                   <span>{{ grupo.nombre.charAt(0).toUpperCase() }}</span>
                 }
@@ -287,13 +291,13 @@
 
       @if (solicitudesPendientes.length > 0) {
         <div class="sidebar-solicitudes">
-          <button class="solicitudes-head" (click)="toggleSolicitudes()">
+          <button type="button" class="solicitudes-head" (click)="toggleSolicitudes()">
             <div class="solicitudes-head__left">
               <span class="solicitudes-head__badge">{{ solicitudesPendientes.length }}</span>
               <span>Solicitudes de contacto</span>
             </div>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 [class.rotated]="solicitudesExpandidas()">
+                 [class.rotated]="solicitudesExpandidas()" aria-hidden="true">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </button>
@@ -303,8 +307,8 @@
               @for (s of solicitudesPendientes; track s.id) {
                 <div class="solicitud-row">
                   <div class="solicitud-row__avatar">
-                    @if (s.fotoPerfilUrl) {
-                      <img [src]="s.fotoPerfilUrl" [alt]="s.nombreUsuario">
+                    @if (getFotoSolicitud(s.fotoPerfilUrl); as foto) {
+                      <img [src]="foto" [alt]="s.nombreUsuario" loading="lazy">
                     } @else {
                       <span>{{ s.nombreUsuario.charAt(0).toUpperCase() }}</span>
                     }
@@ -314,13 +318,13 @@
                     <span class="solicitud-row__sub">Quiere conectar</span>
                   </div>
                   <div class="solicitud-row__actions">
-                    <button class="btn-ok" (click)="aceptarSolicitud(s.id)" title="Aceptar">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <button type="button" class="btn-ok" (click)="aceptarSolicitud(s.id)" title="Aceptar" aria-label="Aceptar solicitud">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     </button>
-                    <button class="btn-no" (click)="rechazarSolicitud(s.id)" title="Rechazar">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <button type="button" class="btn-no" (click)="rechazarSolicitud(s.id)" title="Rechazar" aria-label="Rechazar solicitud">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                       </svg>
@@ -339,8 +343,8 @@
   <!-- VENTANA DE CONVERSACIÓN -->
   <main class="messenger-chat">
 
-    <button class="btn-toggle-sidebar" (click)="toggleMobileMenu()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <button type="button" class="btn-toggle-sidebar" (click)="toggleMobileMenu()" aria-label="Abrir menú de chats">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <line x1="3" y1="6" x2="21" y2="6"/>
         <line x1="3" y1="12" x2="21" y2="12"/>
         <line x1="3" y1="18" x2="21" y2="18"/>
@@ -350,7 +354,7 @@
     @if (!usuarioSeleccionado() && !grupoSeleccionado() && !bienvenidaAbierta()) {
       <div class="chat-blank">
         <div class="chat-blank__icon">
-          <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             <line x1="8" y1="10" x2="16" y2="10"/>
             <line x1="8" y1="14" x2="13" y2="14"/>
@@ -358,8 +362,8 @@
         </div>
         <h2 class="chat-blank__title">Tus mensajes</h2>
         <p class="chat-blank__sub">Selecciona un chat o crea un grupo para empezar</p>
-        <button class="chat-blank__btn" (click)="abrirModalGrupo()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <button type="button" class="chat-blank__btn" (click)="abrirModalGrupo()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
             <line x1="19" y1="8" x2="19" y2="14"/>
@@ -373,15 +377,15 @@
     <!-- ===== CHAT DE BIENVENIDA ===== -->
     @if (bienvenidaAbierta()) {
       <header class="chat-top">
-        <button class="chat-top__back" (click)="cerrarBienvenida()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <button type="button" class="chat-top__back" (click)="cerrarBienvenida()" aria-label="Volver">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
 
         <div class="chat-top__user">
           <div class="chat-top__avatar chat-top__avatar--bienvenida">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
             </svg>
           </div>
@@ -395,7 +399,7 @@
       <div class="chat-stream">
         <div class="msg">
           <div class="msg__avatar msg__avatar--sistema">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.91l-5-3.64 5.91-1.01z"/>
             </svg>
           </div>
@@ -420,6 +424,7 @@
           placeholder="Este chat es solo informativo"
           readonly
           class="chat-input__field input-guest"
+          aria-label="Chat informativo, no editable"
         >
       </div>
     }
@@ -427,8 +432,8 @@
     <!-- ===== CHAT PRIVADO ===== -->
     @if (usuarioSeleccionado() && tabActual() === 'chats' && !bienvenidaAbierta()) {
       <header class="chat-top">
-        <button class="chat-top__back" (click)="cerrarChat()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <button type="button" class="chat-top__back" (click)="cerrarChat()" aria-label="Volver">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
@@ -457,8 +462,8 @@
           </div>
         </div>
 
-        <button class="chat-top__action" (click)="irAlPerfil(usuarioSeleccionado()!)" title="Ver perfil">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="chat-top__action" (click)="irAlPerfil(usuarioSeleccionado()!)" title="Ver perfil" aria-label="Ver perfil">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
@@ -474,7 +479,7 @@
         } @else if (mensajes().length === 0) {
           <div class="chat-state">
             <div class="chat-state__icon">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
             </div>
@@ -491,8 +496,8 @@
               <div class="msg" [class.msg--mine]="msg.propio">
                 @if (!msg.propio) {
                   <div class="msg__avatar" (click)="irAlPerfil(usuarioSeleccionado()!)">
-                    @if (getFotoUsuario(usuarioSeleccionado()!)) {
-                      <img [src]="getFotoUsuario(usuarioSeleccionado()!)!" [alt]="getNombreUsuario(usuarioSeleccionado()!)">
+                    @if (getFotoUsuario(usuarioSeleccionado()!); as foto) {
+                      <img [src]="foto" [alt]="getNombreUsuario(usuarioSeleccionado()!)" loading="lazy">
                     } @else {
                       <span>{{ getNombreUsuario(usuarioSeleccionado()!).charAt(0).toUpperCase() }}</span>
                     }
@@ -500,27 +505,29 @@
                 }
 
                 <div class="msg__body">
-                  @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
-                    <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
-                      <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
+                  @if (msg.tipoMensaje === 'STICKER' && getStickerUrl(msg.stickerUrl); as stickerUrl) {
+                    <div class="msg__sticker" (click)="abrirArchivo(stickerUrl)">
+                      <img [src]="stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
                     </div>
                   }
 
                   @if (msg.archivos && msg.archivos.length > 0) {
                     <div class="msg__files">
                       @for (archivo of msg.archivos; track $index) {
-                        @if (esImagen(archivo)) {
-                          <div class="msg__img" (click)="abrirArchivo(archivo.url)">
-                            <img [src]="archivo.url" [alt]="archivo.nombre" loading="lazy">
-                          </div>
-                        } @else {
-                          <button class="msg__file" (click)="abrirArchivo(archivo.url)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                              <polyline points="14 2 14 8 20 8"/>
-                            </svg>
-                            <span>{{ archivo.nombre }}</span>
-                          </button>
+                        @if (getArchivoUrl(archivo.url); as archivoUrl) {
+                          @if (esImagen(archivo)) {
+                            <div class="msg__img" (click)="abrirArchivo(archivoUrl)">
+                              <img [src]="archivoUrl" [alt]="archivo.nombre" loading="lazy">
+                            </div>
+                          } @else {
+                            <button type="button" class="msg__file" (click)="abrirArchivo(archivoUrl)">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                              </svg>
+                              <span>{{ archivo.nombre }}</span>
+                            </button>
+                          }
                         }
                       }
                     </div>
@@ -542,13 +549,13 @@
         <div class="files-preview">
           @for (archivo of archivosSeleccionados(); track $index) {
             <div class="files-preview__item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
               </svg>
               <span class="files-preview__name">{{ archivo.name }}</span>
               <span class="files-preview__size">{{ (archivo.size / 1024).toFixed(1) }} KB</span>
-              <button type="button" (click)="quitarArchivo($index)">×</button>
+              <button type="button" (click)="quitarArchivo($index)" aria-label="Quitar archivo">×</button>
             </div>
           }
         </div>
@@ -567,17 +574,18 @@
       @if (estaLogueado) {
         <form class="chat-input" [formGroup]="formMensaje" (ngSubmit)="enviarMensaje()">
           <label class="chat-input__file" title="Adjuntar archivo">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
             </svg>
-            <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden>
+            <input type="file" multiple (change)="onArchivosSeleccionados($event)" hidden aria-label="Adjuntar archivos">
           </label>
 
           <button type="button"
                   class="chat-input__sticker"
                   (click)="toggleStickerPicker()"
-                  title="Stickers">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  title="Stickers"
+                  aria-label="Abrir stickers">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
               <path d="M15 3v6h6"/>
               <circle cx="9" cy="13" r="1.2"/>
@@ -592,15 +600,18 @@
             placeholder="Aa"
             class="chat-input__field"
             autocomplete="off"
+            maxlength="2000"
+            aria-label="Escribe un mensaje"
           >
 
           <button type="submit"
                   class="chat-input__send"
-                  [disabled]="enviando() || (!formMensaje.valid && archivosSeleccionados().length === 0)">
+                  [disabled]="enviando() || (!formMensaje.valid && archivosSeleccionados().length === 0)"
+                  aria-label="Enviar mensaje">
             @if (enviando()) {
               <div class="spinner-mini"></div>
             } @else {
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
               </svg>
             }
@@ -613,6 +624,7 @@
             placeholder="Inicia sesión para chatear en privado..."
             readonly
             class="chat-input__field input-guest"
+            aria-label="Inicia sesión para chatear"
           >
           <button type="button" class="btn-guest" (click)="irALogin(); $event.stopPropagation()">
             Registrarse
@@ -631,16 +643,16 @@
     <!-- ===== CHAT DE GRUPO ===== -->
     @if (grupoSeleccionado() && tabActual() === 'grupos') {
       <header class="chat-top">
-        <button class="chat-top__back" (click)="cerrarGrupo()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <button type="button" class="chat-top__back" (click)="cerrarGrupo()" aria-label="Volver">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
 
         <div class="chat-top__user" (click)="toggleMiembros()">
           <div class="chat-top__avatar chat-top__avatar--grupo">
-            @if (getGrupoActual()?.fotoUrl) {
-              <img [src]="getGrupoActual()!.fotoUrl!" [alt]="getGrupoActual()!.nombre">
+            @if (getFotoGrupo(getGrupoActual()?.fotoUrl); as foto) {
+              <img [src]="foto" [alt]="getGrupoActual()!.nombre" loading="lazy">
             } @else {
               <span>{{ getGrupoActual()?.nombre?.charAt(0)?.toUpperCase() }}</span>
             }
@@ -652,8 +664,8 @@
         </div>
 
         <div class="chat-top__menu-wrapper">
-          <button class="chat-top__action" (click)="toggleOpcionesGrupo()" title="Opciones">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="chat-top__action" (click)="toggleOpcionesGrupo()" title="Opciones" aria-label="Opciones del grupo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="1"/>
               <circle cx="19" cy="12" r="1"/>
               <circle cx="5" cy="12" r="1"/>
@@ -662,8 +674,8 @@
 
           @if (mostrarOpcionesGrupo()) {
             <div class="dropdown-menu">
-              <button class="dropdown-item" (click)="toggleMiembros(); mostrarOpcionesGrupo.set(false)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button type="button" class="dropdown-item" (click)="toggleMiembros(); mostrarOpcionesGrupo.set(false)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                   <circle cx="9" cy="7" r="4"/>
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -673,8 +685,8 @@
               </button>
 
               @if (puedeEliminarGrupo()) {
-                <button class="dropdown-item dropdown-item--danger" (click)="abrirConfirmEliminar()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button type="button" class="dropdown-item dropdown-item--danger" (click)="abrirConfirmEliminar()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                   </svg>
@@ -682,8 +694,8 @@
                 </button>
               }
 
-              <button class="dropdown-item dropdown-item--danger" (click)="abrirConfirmSalir()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button type="button" class="dropdown-item dropdown-item--danger" (click)="abrirConfirmSalir()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                   <polyline points="16 17 21 12 16 7"/>
                   <line x1="21" y1="12" x2="9" y2="12"/>
@@ -704,7 +716,7 @@
         } @else if (mensajesGrupo().length === 0) {
           <div class="chat-state">
             <div class="chat-state__icon">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
             </div>
@@ -721,8 +733,8 @@
               <div class="msg" [class.msg--mine]="msg.propio">
                 @if (!msg.propio) {
                   <div class="msg__avatar" (click)="irAlPerfil(msg.emisorId)">
-                    @if (msg.emisorFoto) {
-                      <img [src]="msg.emisorFoto" [alt]="msg.emisorNombre">
+                    @if (getFotoUsuario(msg.emisorId); as foto) {
+                      <img [src]="foto" [alt]="msg.emisorNombre" loading="lazy">
                     } @else {
                       <span>{{ msg.emisorNombre.charAt(0).toUpperCase() }}</span>
                     }
@@ -733,9 +745,9 @@
                     <span class="msg__author">{{ msg.emisorNombre }}</span>
                   }
 
-                  @if (msg.tipoMensaje === 'STICKER' && msg.stickerUrl) {
-                    <div class="msg__sticker" (click)="abrirArchivo(msg.stickerUrl!)">
-                      <img [src]="msg.stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
+                  @if (msg.tipoMensaje === 'STICKER' && getStickerUrl(msg.stickerUrl); as stickerUrl) {
+                    <div class="msg__sticker" (click)="abrirArchivo(stickerUrl)">
+                      <img [src]="stickerUrl" [alt]="msg.contenido || 'sticker'" loading="lazy">
                     </div>
                   }
 
@@ -764,17 +776,18 @@
       @if (estaLogueado) {
         <form class="chat-input" [formGroup]="formMensajeGrupo" (ngSubmit)="enviarMensajeGrupo()">
           <label class="chat-input__file" title="Adjuntar">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
             </svg>
-            <input type="file" multiple hidden>
+            <input type="file" multiple hidden aria-label="Adjuntar archivos">
           </label>
 
           <button type="button"
                   class="chat-input__sticker"
                   (click)="toggleStickerPickerGrupo()"
-                  title="Stickers">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  title="Stickers"
+                  aria-label="Abrir stickers">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/>
               <path d="M15 3v6h6"/>
               <circle cx="9" cy="13" r="1.2"/>
@@ -789,15 +802,18 @@
             placeholder="Aa"
             class="chat-input__field"
             autocomplete="off"
+            maxlength="2000"
+            aria-label="Escribe un mensaje en el grupo"
           >
 
           <button type="submit"
                   class="chat-input__send"
-                  [disabled]="enviandoGrupo() || !formMensajeGrupo.valid">
+                  [disabled]="enviandoGrupo() || !formMensajeGrupo.valid"
+                  aria-label="Enviar mensaje al grupo">
             @if (enviandoGrupo()) {
               <div class="spinner-mini"></div>
             } @else {
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
               </svg>
             }
@@ -810,6 +826,7 @@
             placeholder="Inicia sesión para escribir en el grupo..."
             readonly
             class="chat-input__field input-guest"
+            aria-label="Inicia sesión para escribir en el grupo"
           >
           <button type="button" class="btn-guest" (click)="irALogin(); $event.stopPropagation()">
             Registrarse
@@ -831,7 +848,7 @@
 
 <!-- OVERLAY MÓVIL -->
 @if (mobileMenuOpen()) {
-  <div class="messenger-overlay" (click)="toggleMobileMenu()"></div>
+  <div class="messenger-overlay" (click)="toggleMobileMenu()" aria-hidden="true"></div>
 }
 
 <!-- MODAL CREAR GRUPO -->
@@ -848,8 +865,8 @@
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Miembros ({{ miembros().length }})</h3>
-        <button class="modal-close" (click)="toggleMiembros()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button type="button" class="modal-close" (click)="toggleMiembros()" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -859,8 +876,8 @@
         @for (m of miembros(); track m.usuarioId) {
           <div class="miembro-row">
             <div class="miembro-avatar">
-              @if (m.fotoPerfilUrl) {
-                <img [src]="m.fotoPerfilUrl" [alt]="m.nombreUsuario">
+              @if (getFotoMiembro(m.fotoPerfilUrl); as foto) {
+                <img [src]="foto" [alt]="m.nombreUsuario" loading="lazy">
               } @else {
                 <span>{{ m.nombreUsuario.charAt(0).toUpperCase() }}</span>
               }
@@ -881,8 +898,8 @@
               }
             </div>
             @if (esAdmin() && m.rol !== 'ADMIN' && m.usuarioId !== grupoActualId()) {
-              <button class="btn-expulsar" (click)="abrirConfirmExpulsar(m)" title="Expulsar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <button type="button" class="btn-expulsar" (click)="abrirConfirmExpulsar(m)" title="Expulsar" aria-label="Expulsar miembro">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <line x1="18" y1="6" x2="6" y2="18"/>
                   <line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
@@ -907,8 +924,8 @@
         <p class="modal-warn">Esta acción no se puede deshacer. Todos los mensajes se perderán.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" (click)="cerrarConfirmEliminar()">Cancelar</button>
-        <button class="btn-danger" (click)="confirmarEliminarGrupo()">Eliminar</button>
+        <button type="button" class="btn-secondary" (click)="cerrarConfirmEliminar()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="confirmarEliminarGrupo()">Eliminar</button>
       </div>
     </div>
   </div>
@@ -926,8 +943,8 @@
         <p class="modal-warn">Dejarás de recibir mensajes del grupo.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" (click)="cerrarConfirmSalir()">Cancelar</button>
-        <button class="btn-danger" (click)="confirmarSalirGrupo()">Salir</button>
+        <button type="button" class="btn-secondary" (click)="cerrarConfirmSalir()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="confirmarSalirGrupo()">Salir</button>
       </div>
     </div>
   </div>
@@ -945,8 +962,8 @@
         <p class="modal-warn">Ya no podrá acceder al grupo ni enviar mensajes.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" (click)="cerrarConfirmExpulsar()">Cancelar</button>
-        <button class="btn-danger" (click)="confirmarExpulsarMiembro()">Expulsar</button>
+        <button type="button" class="btn-secondary" (click)="cerrarConfirmExpulsar()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="confirmarExpulsarMiembro()">Expulsar</button>
       </div>
     </div>
   </div>

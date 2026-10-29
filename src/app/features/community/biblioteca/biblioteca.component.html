@@ -1,12 +1,10 @@
 <!-- src/app/features/biblioteca/biblioteca.component.html -->
-<div class="biblioteca-container" [ngClass]="'tema-' + personalizacionStore.temaId()">
+<div class="biblioteca-container" [ngClass]="'tema-' + temaClaseSeguro">
 
-  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
-    icono="🔒"
     titulo="Debes registrarte para agregar recursos"
-    mensaje="Como invitado solo puedes explorar la biblioteca. Inicia sesión para agregar, editar o eliminar recursos."
+    mensaje="Como invitado solo puedes explorar la biblioteca. Inicia sesion para agregar, editar o eliminar recursos."
     textoBoton="Ir al login"
     (irAlLogin)="irALogin()"
     (cerrar)="cerrarAvisoLogin()">
@@ -16,7 +14,7 @@
   <div class="biblioteca-header">
     <div class="biblioteca-header__info">
       <h1>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           <line x1="8" y1="7" x2="16" y2="7"/>
@@ -25,15 +23,16 @@
         </svg>
         <span>Biblioteca de Recursos</span>
       </h1>
-      <p>Certificaciones, cursos, herramientas y más para tu desarrollo profesional</p>
+      <p>Certificaciones, cursos, herramientas y mas para tu desarrollo profesional</p>
     </div>
 
     <button
+      type="button"
       class="btn-agregar"
       [class.btn-agregar--disabled]="!estaLogueado"
-      [attr.title]="!estaLogueado ? 'Inicia sesión para agregar recursos' : 'Agregar recurso'"
+      [attr.title]="!estaLogueado ? 'Inicia sesion para agregar recursos' : 'Agregar recurso'"
       (click)="abrirModalAgregar()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="12" y1="5" x2="12" y2="19"/>
         <line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
@@ -41,7 +40,7 @@
     </button>
   </div>
 
-  <!-- ESTADÍSTICAS -->
+  <!-- ESTADISTICAS -->
   <div class="biblioteca-stats">
     <div class="stat-item">
       <span class="stat-number">{{ totalRecursos() }}</span>
@@ -62,7 +61,7 @@
     <div class="biblioteca-destacados">
       <div class="biblioteca-destacados__header">
         <h2>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f9ca24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f9ca24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           <span>Destacados</span>
@@ -79,8 +78,8 @@
               <p>{{ recurso.descripcion | slice:0:60 }}...</p>
               <span class="destacado-card__categoria">{{ formatearCategoria(recurso.categoria) }}</span>
             </div>
-            <button class="destacado-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url, recurso.titulo)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" class="destacado-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url, recurso.titulo)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="5" y1="12" x2="19" y2="12"/>
                 <polyline points="12 5 19 12 12 19"/>
               </svg>
@@ -91,14 +90,14 @@
       </div>
 
       @if (destacadosOcultos() > 0 || destacadosExpandidos()) {
-        <button class="btn-ver-mas" (click)="toggleDestacados()">
+        <button type="button" class="btn-ver-mas" (click)="toggleDestacados()">
           @if (!destacadosExpandidos()) {
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
-            <span>Ver más destacados ({{ destacadosOcultos() }})</span>
+            <span>Ver mas destacados ({{ destacadosOcultos() }})</span>
           } @else {
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="18 15 12 9 6 15"/>
             </svg>
             <span>Ver menos</span>
@@ -112,7 +111,7 @@
   <div class="biblioteca-filtros">
     <div class="filtros-busqueda">
       <div class="buscador">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
@@ -121,10 +120,13 @@
           placeholder="Buscar recursos..."
           [(ngModel)]="busqueda"
           (input)="buscarRecursos()"
+          maxlength="100"
+          autocomplete="off"
+          aria-label="Buscar recursos"
         />
         @if (busqueda()) {
-          <button class="btn-clear-input" (click)="busqueda.set('')" title="Limpiar búsqueda">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="btn-clear-input" (click)="busqueda.set('')" title="Limpiar busqueda" aria-label="Limpiar busqueda">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -133,16 +135,16 @@
       </div>
 
       <div class="filtros-acciones">
-        <button class="btn-vista" [class.active]="vista() === 'grid'" (click)="cambiarVista('grid')" title="Vista cuadrícula">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="btn-vista" [class.active]="vista() === 'grid'" (click)="cambiarVista('grid')" title="Vista cuadricula" aria-label="Vista cuadricula">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="3" y="3" width="7" height="7"/>
             <rect x="14" y="3" width="7" height="7"/>
             <rect x="3" y="14" width="7" height="7"/>
             <rect x="14" y="14" width="7" height="7"/>
           </svg>
         </button>
-        <button class="btn-vista" [class.active]="vista() === 'lista'" (click)="cambiarVista('lista')" title="Vista lista">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="btn-vista" [class.active]="vista() === 'lista'" (click)="cambiarVista('lista')" title="Vista lista" aria-label="Vista lista">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="8" y1="6" x2="21" y2="6"/>
             <line x1="8" y1="12" x2="21" y2="12"/>
             <line x1="8" y1="18" x2="21" y2="18"/>
@@ -151,8 +153,8 @@
             <line x1="3" y1="18" x2="3.01" y2="18"/>
           </svg>
         </button>
-        <button class="btn-limpiar" (click)="limpiarFiltros()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
           </svg>
@@ -161,16 +163,16 @@
       </div>
     </div>
 
-    <!-- ✅ DROPDOWN CATEGORÍA (restaurado, solo con categorías con recursos) -->
+    <!-- DROPDOWN CATEGORIA -->
     <div class="filtros-categorias">
-      <label>Categoría</label>
+      <label>Categoria</label>
       <div class="dropdown-categoria" [class.dropdown-categoria--open]="dropdownCategoriaAbierto()">
 
         <button type="button" class="dropdown-trigger" (click)="toggleDropdownCategoria($event)">
           <span class="dropdown-trigger__icon"
                 [style.color]="categoriaSeleccionada() === 'todas' ? '#2dd4bf' : getColorCategoria(categoriaSeleccionada())">
             @if (categoriaSeleccionada() === 'todas') {
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="3" y="3" width="7" height="7"/>
                 <rect x="14" y="3" width="7" height="7"/>
                 <rect x="3" y="14" width="7" height="7"/>
@@ -188,7 +190,7 @@
               {{ contarPorCategoria(categoriaSeleccionada()) }}
             </span>
           }
-          <svg class="dropdown-trigger__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="dropdown-trigger__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
@@ -196,12 +198,11 @@
         @if (dropdownCategoriaAbierto()) {
           <div class="dropdown-menu" (click)="$event.stopPropagation()">
             <div class="dropdown-menu__header">
-              <span>Seleccionar categoría</span>
+              <span>Seleccionar categoria</span>
               <span class="dropdown-menu__count">{{ totalCategorias() + 1 }} opciones</span>
             </div>
 
             <div class="dropdown-menu__list">
-              <!-- Chip "Todas" (siempre visible) -->
               <button
                 type="button"
                 class="dropdown-item"
@@ -209,7 +210,7 @@
                 (click)="seleccionarCategoria('todas')"
               >
                 <span class="dropdown-item__icon" style="color:#2dd4bf">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="3" width="7" height="7"/>
                     <rect x="14" y="3" width="7" height="7"/>
                     <rect x="3" y="14" width="7" height="7"/>
@@ -220,14 +221,13 @@
                 <span class="dropdown-item__count">{{ totalRecursos() }}</span>
                 @if (categoriaSeleccionada() === 'todas') {
                   <span class="dropdown-item__check">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
                   </span>
                 }
               </button>
 
-              <!-- Categorías dinámicas (solo con recursos) -->
               @for (cat of categoriasDisponibles(); track cat.id) {
                 <button
                   type="button"
@@ -242,7 +242,7 @@
                   <span class="dropdown-item__count">{{ cat.count }}</span>
                   @if (categoriaSeleccionada() === cat.id) {
                     <span class="dropdown-item__check">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     </span>
@@ -264,7 +264,7 @@
     </div>
   } @else if (recursosFiltradosComputed().length === 0) {
     <div class="estado-vacio">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         <line x1="8" y1="7" x2="16" y2="7"/>
@@ -272,8 +272,8 @@
       </svg>
       <p>No se encontraron recursos</p>
       <span>Prueba con otros filtros o busca algo diferente</span>
-      <button class="btn-limpiar" (click)="limpiarFiltros()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
@@ -287,18 +287,20 @@
 
           @if (recurso.esUsuario) {
             <div class="recurso-card__acciones-usuario">
-              <button class="btn-accion btn-editar"
+              <button type="button" class="btn-accion btn-editar"
                       (click)="abrirModalEditar(recurso, $event)"
-                      title="Editar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      title="Editar"
+                      aria-label="Editar recurso">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
               </button>
-              <button class="btn-accion btn-eliminar"
+              <button type="button" class="btn-accion btn-eliminar"
                       (click)="confirmarEliminar(recurso, $event)"
-                      title="Eliminar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      title="Eliminar"
+                      aria-label="Eliminar recurso">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <polyline points="3 6 5 6 21 6"/>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                 </svg>
@@ -319,12 +321,12 @@
                     [class.recurso-card__dominio--confiable]="esDominioConfiable(recurso.url)"
                     [title]="recurso.url">
                 @if (esDominioConfiable(recurso.url)) {
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     <polyline points="9 12 11 14 15 10"/>
                   </svg>
                 } @else {
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="12"/>
                     <line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -345,7 +347,7 @@
             <div class="recurso-card__meta">
               @if (recurso.autor) {
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                   </svg>
@@ -354,7 +356,7 @@
               }
               @if (recurso.plataforma) {
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                   </svg>
@@ -363,7 +365,7 @@
               }
               @if (recurso.duracion) {
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                   </svg>
@@ -372,7 +374,7 @@
               }
               @if (recurso.nivel) {
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                   </svg>
                   <span>{{ formatearCategoria(recurso.nivel) }}</span>
@@ -382,15 +384,15 @@
 
             @if (recurso.tags && recurso.tags.length > 0) {
               <div class="recurso-card__tags">
-                @for (tag of recurso.tags.slice(0, 5); track tag) {
+                @for (tag of recurso.tags.slice(0, 5); track $index) {
                   <span class="tag">{{ tag }}</span>
                 }
               </div>
             }
           </div>
 
-          <button class="recurso-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url, recurso.titulo)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="recurso-card__btn" (click)="$event.stopPropagation(); abrirEnlace(recurso.url, recurso.titulo)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="5" y1="12" x2="19" y2="12"/>
               <polyline points="12 5 19 12 12 19"/>
             </svg>
@@ -401,14 +403,14 @@
 
       @if (recursosOcultos() > 0 || recursosExpandidos()) {
         <div class="recursos-ver-mas-wrapper">
-          <button class="btn-ver-mas-recursos" (click)="toggleRecursos()">
+          <button type="button" class="btn-ver-mas-recursos" (click)="toggleRecursos()">
             @if (!recursosExpandidos()) {
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
-              <span>Ver más recursos ({{ recursosOcultos() }})</span>
+              <span>Ver mas recursos ({{ recursosOcultos() }})</span>
             } @else {
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="18 15 12 9 6 15"/>
               </svg>
               <span>Ver menos</span>
@@ -416,8 +418,8 @@
           </button>
 
           @if (recursosExpandidos()) {
-            <button class="btn-volver-arriba" (click)="scrollToTop()" title="Volver arriba">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" class="btn-volver-arriba" (click)="scrollToTop()" title="Volver arriba" aria-label="Volver arriba">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="12" y1="19" x2="12" y2="5"/>
                 <polyline points="5 12 12 5 19 12"/>
               </svg>
@@ -434,8 +436,8 @@
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal__header">
           <h2>{{ modoEdicion() ? 'Editar recurso' : 'Agregar recurso' }}</h2>
-          <button class="modal__close" (click)="cerrarModal()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="modal__close" (click)="cerrarModal()" aria-label="Cerrar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -444,33 +446,33 @@
 
         <div class="modal__body">
           @if (formError()) {
-            <div class="form-error">{{ formError() }}</div>
+            <div class="form-error" role="alert">{{ formError() }}</div>
           }
 
           <div class="form-group">
-            <label>Título *</label>
-            <input type="text" [(ngModel)]="formTitulo" placeholder="Ej: Curso de Angular Avanzado" />
+            <label for="bib-titulo">Titulo *</label>
+            <input id="bib-titulo" type="text" [(ngModel)]="formTitulo" placeholder="Ej: Curso de Angular Avanzado" maxlength="200" autocomplete="off" />
           </div>
 
           <div class="form-group">
-            <label>URL *</label>
-            <input type="url" [(ngModel)]="formUrl" placeholder="https://..." />
-            <small class="form-hint">Solo se permiten sitios verificados (https://)</small>
+            <label for="bib-url">URL *</label>
+            <input id="bib-url" type="url" [(ngModel)]="formUrl" placeholder="https://..." maxlength="2048" autocomplete="off" spellcheck="false" />
+            <small class="form-hint">Solo se permiten URLs https://</small>
           </div>
 
           <div class="form-group">
-            <label>Descripción</label>
-            <textarea [(ngModel)]="formDescripcion" rows="3" placeholder="Breve descripción..."></textarea>
+            <label for="bib-desc">Descripcion</label>
+            <textarea id="bib-desc" [(ngModel)]="formDescripcion" rows="3" placeholder="Breve descripcion..." maxlength="1000"></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Categoría *</label>
-              <select [(ngModel)]="formCategoria">
-                <option value="certificacion">Certificación</option>
+              <label for="bib-cat">Categoria *</label>
+              <select id="bib-cat" [(ngModel)]="formCategoria">
+                <option value="certificacion">Certificacion</option>
                 <option value="curso">Curso</option>
                 <option value="video">Video</option>
-                <option value="articulo">Artículo</option>
+                <option value="articulo">Articulo</option>
                 <option value="herramienta">Herramienta</option>
                 <option value="libro">Libro</option>
                 <option value="idiomas">Idiomas</option>
@@ -482,32 +484,32 @@
             </div>
 
             <div class="form-group">
-              <label>Subcategoría</label>
-              <input type="text" [(ngModel)]="formSubcategoria" placeholder="Ej: Frontend" />
+              <label for="bib-subcat">Subcategoria</label>
+              <input id="bib-subcat" type="text" [(ngModel)]="formSubcategoria" placeholder="Ej: Frontend" maxlength="100" autocomplete="off" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Autor / Instructor</label>
-              <input type="text" [(ngModel)]="formAutor" placeholder="Ej: John Doe" />
+              <label for="bib-autor">Autor / Instructor</label>
+              <input id="bib-autor" type="text" [(ngModel)]="formAutor" placeholder="Ej: John Doe" maxlength="100" autocomplete="off" />
             </div>
 
             <div class="form-group">
-              <label>Plataforma</label>
-              <input type="text" [(ngModel)]="formPlataforma" placeholder="Ej: Udemy, Coursera" />
+              <label for="bib-plat">Plataforma</label>
+              <input id="bib-plat" type="text" [(ngModel)]="formPlataforma" placeholder="Ej: Udemy, Coursera" maxlength="100" autocomplete="off" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Duración</label>
-              <input type="text" [(ngModel)]="formDuracion" placeholder="Ej: 10h" />
+              <label for="bib-dur">Duracion</label>
+              <input id="bib-dur" type="text" [(ngModel)]="formDuracion" placeholder="Ej: 10h" maxlength="50" autocomplete="off" />
             </div>
 
             <div class="form-group">
-              <label>Nivel</label>
-              <select [(ngModel)]="formNivel">
+              <label for="bib-nivel">Nivel</label>
+              <select id="bib-nivel" [(ngModel)]="formNivel">
                 <option value="">-- Sin especificar --</option>
                 <option value="principiante">Principiante</option>
                 <option value="intermedio">Intermedio</option>
@@ -517,21 +519,22 @@
           </div>
 
           <div class="form-group">
-            <label>Tags (separados por coma)</label>
-            <input type="text" [(ngModel)]="formTags" placeholder="angular, typescript, frontend" />
+            <label for="bib-tags">Tags (separados por coma)</label>
+            <input id="bib-tags" type="text" [(ngModel)]="formTags" placeholder="angular, typescript, frontend" maxlength="300" autocomplete="off" />
+            <small class="form-hint">Max 10 tags, 30 caracteres cada uno</small>
           </div>
 
           <div class="form-group form-check">
-            <label>
-              <input type="checkbox" [(ngModel)]="formDestacado" />
+            <label for="bib-dest">
+              <input id="bib-dest" type="checkbox" [(ngModel)]="formDestacado" />
               <span>Marcar como destacado</span>
             </label>
           </div>
         </div>
 
         <div class="modal__footer">
-          <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-          <button class="btn-guardar" (click)="guardarRecurso()">
+          <button type="button" class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+          <button type="button" class="btn-guardar" (click)="guardarRecurso()">
             {{ modoEdicion() ? 'Guardar cambios' : 'Agregar recurso' }}
           </button>
         </div>
@@ -539,7 +542,7 @@
     </div>
   }
 
-  <!-- CONFIRMAR ELIMINACIÓN -->
+  <!-- CONFIRMAR ELIMINACION -->
   @if (recursoAEliminar()) {
     <div class="modal-overlay" (click)="cancelarEliminar()">
       <div class="modal modal--small" (click)="$event.stopPropagation()">
@@ -547,12 +550,54 @@
           <h2>Eliminar recurso</h2>
         </div>
         <div class="modal__body">
-          <p>¿Seguro que quieres eliminar <strong>{{ recursoAEliminar()?.titulo }}</strong>?</p>
-          <p class="text-muted">Esta acción no se puede deshacer.</p>
+          <p>Seguro que quieres eliminar <strong>{{ recursoAEliminar()?.titulo }}</strong>?</p>
+          <p class="text-muted">Esta accion no se puede deshacer.</p>
         </div>
         <div class="modal__footer">
-          <button class="btn-cancelar" (click)="cancelarEliminar()">Cancelar</button>
-          <button class="btn-eliminar-confirm" (click)="eliminarRecurso()">Eliminar</button>
+          <button type="button" class="btn-cancelar" (click)="cancelarEliminar()" [disabled]="eliminandoRecurso()">Cancelar</button>
+          <button type="button" class="btn-eliminar-confirm" (click)="eliminarRecurso()" [disabled]="eliminandoRecurso()">
+            @if (eliminandoRecurso()) {
+              <div class="spinner-mini"></div>
+              Eliminando...
+            } @else {
+              Eliminar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- CONFIRMAR DOMINIO NO CONFIABLE (reemplaza confirm nativo) -->
+  @if (mostrarConfirmDominio()) {
+    <div class="modal-overlay" (click)="cancelarConfirmDominio()">
+      <div class="modal modal--aviso" (click)="$event.stopPropagation()">
+        <div class="modal__header modal__header--warning">
+          <div class="aviso-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h2>Dominio no verificado</h2>
+        </div>
+
+        <div class="modal__body modal__body--aviso">
+          <p>El dominio <strong>{{ dominioAConfirmar() }}</strong> no esta en la lista de sitios verificados.</p>
+          <p class="aviso-warning">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>El servidor podria rechazarlo o contener contenido malicioso. Continua bajo tu responsabilidad.</span>
+          </p>
+        </div>
+
+        <div class="modal__footer modal__footer--aviso">
+          <button type="button" class="btn-cancelar" (click)="cancelarConfirmDominio()">Cancelar</button>
+          <button type="button" class="btn-continuar" (click)="confirmarGuardadoDominio()">Continuar de todos modos</button>
         </div>
       </div>
     </div>
@@ -565,7 +610,7 @@
 
         <div class="modal__header modal__header--warning">
           <div class="aviso-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -576,7 +621,7 @@
 
         <div class="modal__body modal__body--aviso">
           <p>
-            Estás a punto de abrir un enlace que no pertenece a la lista de
+            Estas a punto de abrir un enlace que no pertenece a la lista de
             sitios verificados:
           </p>
 
@@ -590,14 +635,14 @@
           </div>
 
           <p class="aviso-warning">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
             <span>
-              Asegúrate de confiar en este sitio antes de continuar.
-              Podría contener malware o intentar robar tu información.
+              Asegurate de confiar en este sitio antes de continuar.
+              Podria contener malware o intentar robar tu informacion.
             </span>
           </p>
 
@@ -607,15 +652,15 @@
         </div>
 
         <div class="modal__footer modal__footer--aviso">
-          <button class="btn-cancelar" (click)="cerrarAvisoEnlace()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button type="button" class="btn-cancelar" (click)="cerrarAvisoEnlace()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
             Cancelar
           </button>
-          <button class="btn-continuar" (click)="confirmarAbrirEnlace()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button type="button" class="btn-continuar" (click)="confirmarAbrirEnlace()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
               <polyline points="15 3 21 3 21 9"/>
               <line x1="10" y1="14" x2="21" y2="3"/>
@@ -628,15 +673,15 @@
     </div>
   }
 
-  <!-- MODAL AVISO DE SEGURIDAD -->
+  <!-- MODAL AVISO SEGURIDAD -->
   @if (mostrarAvisoSeguridad()) {
     <div class="modal-overlay modal-overlay--seguridad" (click)="cerrarAvisoSeguridad()">
       <div class="modal modal--seguridad" (click)="$event.stopPropagation()">
 
-        <button class="modal__close modal__close--seguridad"
+        <button type="button" class="modal__close modal__close--seguridad"
                 (click)="cerrarAvisoSeguridad()"
                 aria-label="Cerrar aviso">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -645,7 +690,7 @@
         <div class="modal__body modal__body--seguridad">
 
           <div class="seguridad-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               <polyline points="9 12 11 14 15 10"/>
             </svg>
@@ -658,7 +703,7 @@
           </p>
 
           <div class="seguridad-alerta">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>

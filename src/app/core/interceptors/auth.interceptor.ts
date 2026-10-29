@@ -1,68 +1,81 @@
 // src/app/core/interceptors/auth.interceptor.ts
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { AdminAuthService } from '../services/admin-auth.service';
+import { environment } from '../../../environments/environment';
+
+const API_BASE = environment.apiUrl.replace(/\/$/, '');
+
+function esUrlDeLaApi(url: string): boolean {
+  return url.startsWith(API_BASE + '/') || url === API_BASE;
+}
+
+function esRutaAdmin(url: string): boolean {
+  return esUrlDeLaApi(url) && url.startsWith(API_BASE + '/admin/');
+}
+
+function esRutaPresencia(url: string): boolean {
+  return esUrlDeLaApi(url) && url.startsWith(API_BASE + '/presencia/');
+}
+
+const RUTAS_PUBLICAS = [
+  '/auth/login',
+  '/auth/registro',
+  '/auth/verificar-cuenta',
+  '/auth/reenviar-codigo',
+  '/auth/recuperar',
+  '/auth/reset-password',
+  '/admin/auth/login',
+  '/grupos/invitacion/'
+];
+
+function esRutaPublica(url: string): boolean {
+  if (!esUrlDeLaApi(url)) return true; // no tocar peticiones a terceros
+  return RUTAS_PUBLICAS.some(r => url.startsWith(API_BASE + r));
+}
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const adminAuth = inject(AdminAuthService);
   const router = inject(Router);
 
-  const esPublico =
-    req.url.includes('/auth/login') ||
-    req.url.includes('/auth/registro') ||
-    req.url.includes('/auth/verificar-cuenta') ||
-    req.url.includes('/auth/reenviar-codigo') ||
-    req.url.includes('/auth/recuperar') ||
-    req.url.includes('/auth/reset-password') ||
-    req.url.includes('/admin/auth/login') ||
-    req.url.includes('/grupos/invitacion/');
-
-  if (esPublico) {
+  // No inyectar tokens en peticiones a dominios externos
+  if (!esUrlDeLaApi(req.url)) {
     return next(req);
   }
 
-  const esRutaAdminExplicita = req.url.includes('/api/admin/');
-  const esRutaPresencia = req.url.includes('/api/presencia/');
+  if (esRutaPublica(req.url)) {
+    return next(req);
+  }
+
+  const rutaAdmin = esRutaAdmin(req.url);
+  const rutaPresencia = esRutaPresencia(req.url);
 
   let token: string | null = null;
 
-  if (esRutaAdminExplicita) {
+  if (rutaAdmin) {
     token = adminAuth.getToken();
-  } else if (esRutaPresencia) {
-    // Presencia usa el token del usuario normal (no admin)
+  } else if (rutaPresencia) {
     token = auth.obtenerTokenUsuario();
   } else {
-    if (adminAuth.estaLogueado()) {
-      token = adminAuth.getToken();
-    }
-    if (!token) {
-      token = auth.obtenerToken();
-    }
+    token = adminAuth.getToken() ?? auth.obtenerToken();
   }
 
-  let cloned = req;
-  if (token) {
-    cloned = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` }
-    });
-  }
+  const cloned = token
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
 
   return next(cloned).pipe(
     catchError((error) => {
-      // NUNCA desloguear por 401 en /presencia/
-      if (error.status === 401 && token && !esRutaPresencia) {
-        if (esRutaAdminExplicita) {
-          console.warn('[INTERCEPTOR] Sesión admin expirada');
+      if (error.status === 401 && token && !rutaPresencia) {
+        if (rutaAdmin) {
           adminAuth.logout();
         } else if (adminAuth.estaLogueado()) {
-          console.warn('[INTERCEPTOR] Token admin inválido en ruta de usuario');
           adminAuth.logout();
         } else {
-          console.warn('[INTERCEPTOR] Sesión de usuario expirada');
           auth.logout();
         }
       }

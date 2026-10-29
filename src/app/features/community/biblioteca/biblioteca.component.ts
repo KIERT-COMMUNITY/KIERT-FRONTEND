@@ -1,14 +1,20 @@
 // src/app/features/biblioteca/biblioteca.component.ts
-import { Component, signal, computed, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import {
+  Component, signal, computed, inject, OnInit, OnDestroy, HostListener, isDevMode
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Subject, takeUntil } from 'rxjs';
+
 import { BibliotecaService } from '../../../core/services/biblioteca.service';
 import { RecursoBiblioteca } from '../../../core/models/biblioteca.model';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
+import {
+  safeUrl, isSafeExternalUrl, openExternalSafe, safeClassToken
+} from '../../../shared/utils/url-sanitizer';
 
 interface CategoriaInfo {
   id: string;
@@ -26,10 +32,13 @@ interface CategoriaInfo {
 })
 export class BibliotecaComponent implements OnInit, OnDestroy {
   private bibliotecaService = inject(BibliotecaService);
-  private sanitizer = inject(DomSanitizer);
   public personalizacionStore = inject(PersonalizacionStore);
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  // ===== CICLO DE VIDA =====
+  private readonly destroy$ = new Subject<void>();
+  private timeouts = new Set<ReturnType<typeof setTimeout>>();
 
   // ===== DATOS =====
   recursos = signal<RecursoBiblioteca[]>([]);
@@ -46,21 +55,26 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ===== AVISO LOGIN =====
   mostrarAvisoLogin = signal(false);
 
-  // ===== DROPDOWN CATEGORÍA =====
+  // ===== DROPDOWN CATEGORIA =====
   dropdownCategoriaAbierto = signal(false);
 
-  // ===== DESTACADOS EXPANDIBLES =====
+  // ===== DESTACADOS =====
   destacadosExpandidos = signal(false);
   destacadosPorPagina = 4;
 
-  // ===== MODAL DE AVISO DE ENLACE =====
+  // ===== MODAL AVISO ENLACE =====
   mostrarAvisoEnlace = signal(false);
   enlaceAAbrir = signal<{ url: string; titulo: string } | null>(null);
 
-  // ===== MODAL DE AVISO DE SEGURIDAD =====
+  // ===== MODAL AVISO SEGURIDAD =====
   mostrarAvisoSeguridad = signal(true);
   contadorSeguridad = signal(5);
   private avisoSeguridadInterval: ReturnType<typeof setInterval> | null = null;
+
+  // ===== CONFIRM DOMINIO NO CONFIABLE =====
+  mostrarConfirmDominio = signal(false);
+  dominioAConfirmar = signal<string>('');
+  private datosPendientesGuardado: any = null;
 
   // ===== LISTA BLANCA =====
   private readonly DOMINIOS_CONFIABLES = [
@@ -91,14 +105,17 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     'futbollibrefullhd.org', 'capacitacionlaboral.trabajo.gob.pe'
   ];
 
-  /** ✅ Getter para el template */
+  /** Clase de tema saneada. */
+  get temaClaseSeguro(): string {
+    return safeClassToken(this.personalizacionStore.temaId(), 'default');
+  }
+
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
 
   // ============================================================
-  // ✅ CATEGORÍAS DINÁMICAS (solo las que tienen recursos)
-  // Ordenadas por cantidad desc, luego alfabético
+  // CATEGORIAS DINAMICAS
   // ============================================================
   categoriasDisponibles = computed<CategoriaInfo[]>(() => {
     const recursos = this.recursos();
@@ -106,7 +123,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
     const conteo = new Map<string, number>();
     for (const r of recursos) {
-      const cat = (r.categoria || 'otro').toLowerCase();
+      const cat = safeClassToken(r.categoria, 'otro');
       conteo.set(cat, (conteo.get(cat) || 0) + 1);
     }
 
@@ -123,7 +140,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       });
   });
 
-  /** Total de categorías disponibles (sin "Todas") */
   totalCategorias = computed(() => this.categoriasDisponibles().length);
 
   // ===== DESTACADOS =====
@@ -135,15 +151,14 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   destacadosOcultos = computed(() => {
     const total = this.recursos().filter(r => r.destacado).length;
-    const mostrados = this.destacadosMostrados().length;
-    return Math.max(0, total - mostrados);
+    return Math.max(0, total - this.destacadosMostrados().length);
   });
 
   toggleDestacados(): void {
     this.destacadosExpandidos.update(v => !v);
   }
 
-  // ===== PAGINACIÓN =====
+  // ===== PAGINACION =====
   recursosExpandidos = signal(false);
   recursosPorPagina = 8;
 
@@ -153,7 +168,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     const query = this.busqueda().toLowerCase().trim();
 
     if (categoria !== 'todas') {
-      resultado = resultado.filter(r => r.categoria === categoria);
+      resultado = resultado.filter(r => safeClassToken(r.categoria, 'otro') === categoria);
     }
     if (query) {
       resultado = resultado.filter(r =>
@@ -177,8 +192,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   recursosOcultos = computed(() => {
     const total = this.recursosFiltradosComputed().length;
-    const mostrados = this.recursosMostrados().length;
-    return Math.max(0, total - mostrados);
+    return Math.max(0, total - this.recursosMostrados().length);
   });
 
   toggleRecursos(): void {
@@ -204,6 +218,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   formError = signal<string | null>(null);
 
   recursoAEliminar = signal<RecursoBiblioteca | null>(null);
+  eliminandoRecurso = signal(false);
 
   ngOnInit(): void {
     this.cargarRecursos();
@@ -211,11 +226,23 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.avisoSeguridadInterval) clearInterval(this.avisoSeguridadInterval);
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.timeouts.forEach(t => clearTimeout(t));
+    this.timeouts.clear();
+    if (this.avisoSeguridadInterval) {
+      clearInterval(this.avisoSeguridadInterval);
+      this.avisoSeguridadInterval = null;
+    }
+  }
+
+  private safeTimeout(fn: () => void, ms: number): void {
+    const id = setTimeout(() => { this.timeouts.delete(id); fn(); }, ms);
+    this.timeouts.add(id);
   }
 
   // ============================================================
-  // AVISO DE SEGURIDAD
+  // AVISO SEGURIDAD
   // ============================================================
   private iniciarAvisoSeguridad(): void {
     this.mostrarAvisoSeguridad.set(true);
@@ -244,18 +271,20 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.cargando.set(true);
     this.errorMsg.set(null);
 
-    this.bibliotecaService.obtenerTodos().subscribe({
-      next: (data) => {
-        this.recursos.set(data || []);
-        this.cargando.set(false);
-      },
-      error: (err) => {
-        console.error('Error al cargar recursos:', err);
-        this.errorMsg.set('Error al cargar los recursos');
-        this.recursos.set([]);
-        this.cargando.set(false);
-      }
-    });
+    this.bibliotecaService.obtenerTodos()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.recursos.set(Array.isArray(data) ? data : []);
+          this.cargando.set(false);
+        },
+        error: (err) => {
+          if (isDevMode()) console.error('Error al cargar recursos:', err);
+          this.errorMsg.set('Error al cargar los recursos');
+          this.recursos.set([]);
+          this.cargando.set(false);
+        }
+      });
   }
 
   // ============================================================
@@ -263,10 +292,10 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ============================================================
   totalRecursos = computed(() => this.recursos().length);
   totalCertificaciones = computed(() =>
-    this.recursos().filter(r => r.categoria === 'certificacion').length
+    this.recursos().filter(r => safeClassToken(r.categoria, 'otro') === 'certificacion').length
   );
   totalCursos = computed(() =>
-    this.recursos().filter(r => r.categoria === 'curso').length
+    this.recursos().filter(r => safeClassToken(r.categoria, 'otro') === 'curso').length
   );
   totalDeUsuarios = computed(() =>
     this.recursos().filter(r => r.esUsuario).length
@@ -275,7 +304,8 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ===== DROPDOWN =====
   contarPorCategoria(categoria: string): number {
     if (categoria === 'todas') return this.recursos().length;
-    return this.recursos().filter(r => r.categoria === categoria).length;
+    const safeCat = safeClassToken(categoria, 'otro');
+    return this.recursos().filter(r => safeClassToken(r.categoria, 'otro') === safeCat).length;
   }
 
   toggleDropdownCategoria(event: Event): void {
@@ -284,7 +314,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   seleccionarCategoria(categoria: string): void {
-    this.categoriaSeleccionada.set(categoria);
+    this.categoriaSeleccionada.set(safeClassToken(categoria, 'todas'));
     this.dropdownCategoriaAbierto.set(false);
     this.recursosExpandidos.set(false);
   }
@@ -292,7 +322,8 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.dropdownCategoriaAbierto()) return;
-    const target = event.target as HTMLElement;
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
     const clickedInside = target.closest('.dropdown-categoria');
     if (!clickedInside) {
       this.dropdownCategoriaAbierto.set(false);
@@ -305,6 +336,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     if (this.mostrarAvisoEnlace()) this.cerrarAvisoEnlace();
     if (this.mostrarAvisoSeguridad()) this.cerrarAvisoSeguridad();
     if (this.mostrarAvisoLogin()) this.cerrarAvisoLogin();
+    if (this.mostrarConfirmDominio()) this.cancelarConfirmDominio();
   }
 
   // ===== ACCIONES =====
@@ -329,9 +361,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ============================================================
   irALogin(): void {
     this.mostrarAvisoLogin.set(false);
-    this.router.navigate(['/login'], {
-      queryParams: { returnUrl: '/biblioteca' }
-    });
+    this.router.navigate(['/login'], { queryParams: { returnUrl: '/biblioteca' } });
   }
 
   cerrarAvisoLogin(): void {
@@ -339,12 +369,17 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // VALIDACIÓN Y APERTURA DE ENLACES
+  // VALIDACION Y APERTURA DE ENLACES
   // ============================================================
   esDominioConfiable(url: string): boolean {
     if (!url) return false;
+    const safe = safeUrl(url);
+    if (!safe) return false;
     try {
-      const host = new URL(url).hostname.toLowerCase();
+      const parsed = new URL(safe);
+      // Solo http(s)
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+      const host = parsed.hostname.toLowerCase();
       return this.DOMINIOS_CONFIABLES.some(
         d => host === d || host.endsWith('.' + d)
       );
@@ -355,28 +390,42 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   getDominio(url: string): string {
     if (!url) return '';
+    const safe = safeUrl(url);
+    if (!safe) return '';
     try {
-      const host = new URL(url).hostname;
+      const host = new URL(safe).hostname;
       return host.replace(/^www\./, '');
     } catch {
-      return url;
+      return '';
     }
   }
 
   abrirEnlace(url: string, titulo?: string): void {
-    if (!url) return;
-    if (this.esDominioConfiable(url)) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+    const safe = safeUrl(url);
+    if (!safe) {
+      this.errorMsg.set('Enlace no valido');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-    this.enlaceAAbrir.set({ url, titulo: titulo || 'Recurso' });
+    if (this.esDominioConfiable(safe)) {
+      openExternalSafe(safe);
+      return;
+    }
+    this.enlaceAAbrir.set({ url: safe, titulo: titulo || 'Recurso' });
     this.mostrarAvisoEnlace.set(true);
   }
 
   confirmarAbrirEnlace(): void {
     const enlace = this.enlaceAAbrir();
     if (!enlace) return;
-    window.open(enlace.url, '_blank', 'noopener,noreferrer');
+    // Revalidar antes de abrir
+    if (!isSafeExternalUrl(enlace.url)) {
+      this.errorMsg.set('Enlace no permitido');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      this.cerrarAvisoEnlace();
+      return;
+    }
+    openExternalSafe(enlace.url);
     this.cerrarAvisoEnlace();
   }
 
@@ -414,7 +463,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.formTitulo.set(recurso.titulo || '');
     this.formDescripcion.set(recurso.descripcion || '');
     this.formUrl.set(recurso.url || '');
-    this.formCategoria.set(recurso.categoria || 'curso');
+    this.formCategoria.set(safeClassToken(recurso.categoria, 'curso'));
     this.formSubcategoria.set(recurso.subcategoria || '');
     this.formAutor.set(recurso.autor || '');
     this.formPlataforma.set(recurso.plataforma || '');
@@ -446,7 +495,9 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.formError.set(null);
   }
 
-  // ===== GUARDAR =====
+  // ============================================================
+  // GUARDAR (con modal propio para dominio no confiable)
+  // ============================================================
   guardarRecurso(): void {
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
@@ -454,79 +505,114 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.formTitulo().trim()) {
-      this.formError.set('El título es obligatorio');
+    const titulo = this.formTitulo().trim();
+    const urlRaw = this.formUrl().trim();
+    const descripcion = this.formDescripcion().trim();
+
+    if (!titulo) {
+      this.formError.set('El titulo es obligatorio');
       return;
     }
-    if (!this.formUrl().trim()) {
+    if (titulo.length > 200) {
+      this.formError.set('El titulo no puede superar 200 caracteres');
+      return;
+    }
+    if (!urlRaw) {
       this.formError.set('La URL es obligatoria');
       return;
     }
-
-    const urlLimpia = this.formUrl().trim();
-
-    if (!urlLimpia.startsWith('https://')) {
+    if (urlRaw.length > 2048) {
+      this.formError.set('La URL no puede superar 2048 caracteres');
+      return;
+    }
+    if (!urlRaw.startsWith('https://')) {
       this.formError.set('La URL debe comenzar con https://');
       return;
     }
-
-    try {
-      new URL(urlLimpia);
-    } catch {
-      this.formError.set('La URL no es válida');
+    if (!isSafeExternalUrl(urlRaw)) {
+      this.formError.set('La URL no es valida (solo http/https)');
+      return;
+    }
+    if (descripcion.length > 1000) {
+      this.formError.set('La descripcion no puede superar 1000 caracteres');
       return;
     }
 
-    if (!this.esDominioConfiable(urlLimpia)) {
-      const dominio = this.getDominio(urlLimpia);
-      const confirmar = confirm(
-        `ADVERTENCIA\n\n` +
-        `El dominio "${dominio}" no está en la lista de sitios verificados.\n\n` +
-        `El servidor podría rechazarlo. ¿Deseas continuar?`
-      );
-      if (!confirmar) return;
-    }
+    // Nivel: whitelist
+    const nivelRaw = this.formNivel();
+    const nivelesPermitidos = ['', 'principiante', 'intermedio', 'avanzado'];
+    const nivel = nivelesPermitidos.includes(nivelRaw) ? nivelRaw : '';
 
+    // Tags: max 10, max 30 chars cada uno
     const tagsArray = this.formTags()
       .split(',')
-      .map(t => t.trim())
-      .filter(t => t.length > 0);
+      .map(t => t.trim().slice(0, 30))
+      .filter(t => t.length > 0)
+      .slice(0, 10);
 
     const datos = {
-      titulo: this.formTitulo().trim(),
-      descripcion: this.formDescripcion().trim(),
-      url: urlLimpia,
-      categoria: this.formCategoria(),
-      subcategoria: this.formSubcategoria().trim() || undefined,
-      autor: this.formAutor().trim() || undefined,
-      plataforma: this.formPlataforma().trim() || undefined,
-      duracion: this.formDuracion().trim() || undefined,
-      nivel: this.formNivel() || undefined,
+      titulo,
+      descripcion,
+      url: urlRaw,
+      categoria: safeClassToken(this.formCategoria(), 'otro'),
+      subcategoria: this.formSubcategoria().trim().slice(0, 100) || undefined,
+      autor: this.formAutor().trim().slice(0, 100) || undefined,
+      plataforma: this.formPlataforma().trim().slice(0, 100) || undefined,
+      duracion: this.formDuracion().trim().slice(0, 50) || undefined,
+      nivel: nivel || undefined,
       tags: tagsArray.length > 0 ? tagsArray : undefined,
       destacado: this.formDestacado(),
     };
 
-    const op$ = (this.modoEdicion() && this.recursoEditandoId() !== null)
-      ? this.bibliotecaService.actualizarRecursoUsuario(this.recursoEditandoId()!, datos as any)
-      : this.bibliotecaService.agregarRecursoUsuario(datos as any);
+    // Si el dominio no es confiable, pedir confirmacion con modal propio
+    if (!this.esDominioConfiable(urlRaw)) {
+      this.dominioAConfirmar.set(this.getDominio(urlRaw));
+      this.datosPendientesGuardado = datos;
+      this.mostrarConfirmDominio.set(true);
+      return;
+    }
 
-    op$.subscribe({
+    this.ejecutarGuardado(datos);
+  }
+
+  confirmarGuardadoDominio(): void {
+    const datos = this.datosPendientesGuardado;
+    this.mostrarConfirmDominio.set(false);
+    this.dominioAConfirmar.set('');
+    this.datosPendientesGuardado = null;
+    if (datos) this.ejecutarGuardado(datos);
+  }
+
+  cancelarConfirmDominio(): void {
+    this.mostrarConfirmDominio.set(false);
+    this.dominioAConfirmar.set('');
+    this.datosPendientesGuardado = null;
+  }
+
+  private ejecutarGuardado(datos: any): void {
+    const op$ = (this.modoEdicion() && this.recursoEditandoId() !== null)
+      ? this.bibliotecaService.actualizarRecursoUsuario(this.recursoEditandoId()!, datos)
+      : this.bibliotecaService.agregarRecursoUsuario(datos);
+
+    op$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.cerrarModal();
         this.cargarRecursos();
       },
       error: (err) => {
-        console.error('Error al guardar:', err);
-        this.formError.set(
-          err?.error?.message ||
-          err?.error?.error ||
-          'No se pudo guardar el recurso'
-        );
+        if (isDevMode()) console.error('Error al guardar:', err);
+        let mensaje = 'No se pudo guardar el recurso';
+        if (err?.error?.message) mensaje = String(err.error.message);
+        else if (err?.error?.error) mensaje = String(err.error.error);
+        if (mensaje.length > 300) mensaje = mensaje.slice(0, 300) + '...';
+        this.formError.set(mensaje);
       }
     });
   }
 
-  // ===== ELIMINAR =====
+  // ============================================================
+  // ELIMINAR
+  // ============================================================
   confirmarEliminar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
     if (!this.estaLogueado) {
@@ -538,6 +624,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   cancelarEliminar(): void {
+    if (this.eliminandoRecurso()) return;
     this.recursoAEliminar.set(null);
   }
 
@@ -545,37 +632,51 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     const recurso = this.recursoAEliminar();
     if (!recurso) return;
 
-    this.bibliotecaService.eliminarRecursoUsuario(recurso.id).subscribe({
-      next: () => {
-        this.recursoAEliminar.set(null);
-        this.cargarRecursos();
-      },
-      error: (err) => {
-        console.error('Error al eliminar:', err);
-      }
-    });
+    this.eliminandoRecurso.set(true);
+    this.bibliotecaService.eliminarRecursoUsuario(recurso.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.eliminandoRecurso.set(false);
+          this.recursoAEliminar.set(null);
+          this.cargarRecursos();
+        },
+        error: (err) => {
+          if (isDevMode()) console.error('Error al eliminar:', err);
+          this.eliminandoRecurso.set(false);
+          this.recursoAEliminar.set(null);
+          this.errorMsg.set('No se pudo eliminar el recurso');
+          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+        }
+      });
   }
 
-  // ===== ICONOS =====
-  getIconoCategoria(categoria: string): SafeHtml {
+  // ============================================================
+  // ICONOS Y COLORES
+  // NOTA: getIconoCategoria ahora devuelve el SVG como string.
+  // En el HTML se usara [innerHTML] SIN bypassSecurityTrustHtml
+  // (Angular sanitiza el string automaticamente).
+  // ============================================================
+  getIconoCategoria(categoria: string): string {
+    const key = safeClassToken(categoria, 'libro');
     const iconos: Record<string, string> = {
-      'certificacion': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`,
-      'curso': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/></svg>`,
-      'video': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
-      'articulo': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
-      'herramienta': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
-      'libro': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>`,
-      'idiomas': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
-      'entretenimiento': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8"/><path d="M2 8l3-5h14l3 5"/><path d="M6 12h.01"/><path d="M10 12h.01"/><path d="M14 12h.01"/><path d="M18 12h.01"/><path d="M6 16h.01"/><path d="M10 16h.01"/><path d="M14 16h.01"/><path d="M18 16h.01"/></svg>`,
-      'juego': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.152A4 4 0 0 0 17.32 5z"/></svg>`,
-      'recurso': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
-      'otro': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`
+      'certificacion': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
+      'curso': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/></svg>',
+      'video': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
+      'articulo': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+      'herramienta': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+      'libro': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>',
+      'idiomas': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+      'entretenimiento': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8"/><path d="M2 8l3-5h14l3 5"/><path d="M6 12h.01"/><path d="M10 12h.01"/><path d="M14 12h.01"/><path d="M18 12h.01"/><path d="M6 16h.01"/><path d="M10 16h.01"/><path d="M14 16h.01"/><path d="M18 16h.01"/></svg>',
+      'juego': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.152A4 4 0 0 0 17.32 5z"/></svg>',
+      'recurso': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+      'otro': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>'
     };
-    const svg = iconos[categoria?.toLowerCase()] || iconos['libro'];
-    return this.sanitizer.bypassSecurityTrustHtml(svg);
+    return iconos[key] || iconos['libro'];
   }
 
   getColorCategoria(categoria: string): string {
+    const key = safeClassToken(categoria, 'otro');
     const colores: Record<string, string> = {
       'certificacion': '#f9ca24',
       'curso': '#2dd4bf',
@@ -589,13 +690,15 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       'recurso': '#55efc4',
       'otro': '#8b98a5'
     };
-    return colores[categoria?.toLowerCase()] || '#8b98a5';
+    return colores[key] || '#8b98a5';
   }
 
   formatearCategoria(categoria: string): string {
     if (!categoria) return '';
     if (categoria === 'todas') return 'Todas';
-    return categoria.charAt(0).toUpperCase() + categoria.slice(1);
+    const safe = safeClassToken(categoria, '');
+    if (!safe) return '';
+    return safe.charAt(0).toUpperCase() + safe.slice(1);
   }
 
   esRecursoDeUsuario(recurso: RecursoBiblioteca): boolean {
@@ -603,6 +706,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   getNombreAutor(recurso: RecursoBiblioteca): string {
-    return recurso.usuarioNombre || 'Usuario anónimo';
+    return recurso.usuarioNombre || 'Usuario anonimo';
   }
 }

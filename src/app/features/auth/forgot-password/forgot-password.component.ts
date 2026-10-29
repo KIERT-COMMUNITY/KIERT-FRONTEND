@@ -1,6 +1,7 @@
-// forgot-password.component.ts
-import { Component, signal, inject } from '@angular/core';
+// src/app/features/auth/forgot-password/forgot-password.component.ts
+import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,7 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements OnDestroy {
   private auth = inject(AuthService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -21,6 +22,9 @@ export class ForgotPasswordComponent {
   cargando = signal(false);
   errorMsg = signal<string | null>(null);
   emailEnviado = signal<string>('');
+  codigoVerificado = signal<string>('');
+
+  private redirectTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Paso 1: email
   formEmail = this.fb.group({
@@ -64,21 +68,36 @@ export class ForgotPasswordComponent {
         this.paso.set('codigo');
         this.cargando.set(false);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.errorMsg.set(err.error?.error || 'No se pudo enviar el codigo. Intenta de nuevo.');
         this.cargando.set(false);
       },
     });
   }
 
-  // ===== PASO 2: avanzar =====
+  // ===== PASO 2: verificar codigo contra el servidor =====
   verificarCodigo(): void {
     if (this.formCodigo.invalid) {
       this.formCodigo.markAllAsTouched();
       return;
     }
-    this.paso.set('password');
+
+    this.cargando.set(true);
     this.errorMsg.set(null);
+
+    const codigoIngresado = this.codigo.value!;
+
+    this.auth.verificarCodigoRecuperacion(this.emailEnviado(), codigoIngresado).subscribe({
+      next: () => {
+        this.codigoVerificado.set(codigoIngresado);
+        this.paso.set('password');
+        this.cargando.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.errorMsg.set(err.error?.error || 'Codigo incorrecto o expirado');
+        this.cargando.set(false);
+      },
+    });
   }
 
   // ===== PASO 3: cambiar contrasena =====
@@ -93,20 +112,26 @@ export class ForgotPasswordComponent {
       return;
     }
 
+    // Seguridad: no permitir el reset si el codigo no fue verificado por el servidor
+    if (!this.codigoVerificado()) {
+      this.errorMsg.set('Debes verificar el codigo antes de cambiar la contrasena');
+      return;
+    }
+
     this.cargando.set(true);
     this.errorMsg.set(null);
 
     this.auth.resetPasswordConCodigo(
       this.emailEnviado(),
-      this.codigo.value!,
+      this.codigoVerificado(),
       this.password.value!
     ).subscribe({
       next: () => {
         this.paso.set('exito');
         this.cargando.set(false);
-        setTimeout(() => this.router.navigate(['/login']), 5000);
+        this.redirectTimer = setTimeout(() => this.router.navigate(['/login']), 5000);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.errorMsg.set(err.error?.error || 'Codigo incorrecto o expirado');
         this.cargando.set(false);
       },
@@ -117,16 +142,25 @@ export class ForgotPasswordComponent {
     this.paso.set('email');
     this.formCodigo.reset();
     this.formPassword.reset();
+    this.codigoVerificado.set('');
     this.errorMsg.set(null);
   }
 
   volverAlCodigo(): void {
     this.paso.set('codigo');
     this.formPassword.reset();
+    this.codigoVerificado.set('');
     this.errorMsg.set(null);
   }
 
   irAlLogin(): void {
     this.router.navigate(['/login']);
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+      this.redirectTimer = null;
+    }
   }
 }

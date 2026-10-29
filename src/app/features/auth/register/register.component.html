@@ -1,7 +1,6 @@
 <!-- register.component.html -->
 <div class="register-page">
 
-  <!-- HEADER -->
   <div class="register-header">
     <img src="assets/logokiert.png" alt="Kiert" class="register-logo">
     <div class="register-header-text">
@@ -78,7 +77,10 @@
       </div>
 
       @if (errorMsg()) {
-        <p class="form-alert">{{ errorMsg() }}</p>
+        <div class="alert alert-error">
+          <span>{{ errorMsg() }}</span>
+          <button type="button" (click)="errorMsg.set(null)">x</button>
+        </div>
       }
 
       <button type="submit" class="register-btn" [disabled]="cargando()">
@@ -131,7 +133,10 @@
         </div>
 
         @if (errorMsg()) {
-          <p class="form-alert">{{ errorMsg() }}</p>
+          <div class="alert alert-error">
+            <span>{{ errorMsg() }}</span>
+            <button type="button" (click)="errorMsg.set(null)">x</button>
+          </div>
         }
 
         @if (codigoReenviado()) {

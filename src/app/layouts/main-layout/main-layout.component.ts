@@ -6,10 +6,11 @@ import {
   effect,
   inject,
   signal,
-  NgZone
+  NgZone,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Subject, filter, takeUntil } from 'rxjs';
 
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
@@ -17,6 +18,7 @@ import { FloatingSocialComponent } from '../../shared/components/floating-social
 
 import { PersonalizacionStore } from '../../core/services/personalizacion-store.service';
 import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts.service';
+import { safeClassToken } from '../../shared/utils/url-sanitizer';
 
 @Component({
   selector: 'kiert-main-layout',
@@ -29,7 +31,8 @@ import { KeyboardShortcutsService } from '../../core/services/keyboard-shortcuts
     FloatingSocialComponent,
   ],
   templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.scss'
+  styleUrl: './main-layout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
   public readonly personalizacionStore = inject(PersonalizacionStore);
@@ -42,16 +45,20 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
 
-  // ✅ Listener para --app-height / --kb-offset
+  private readonly destroy$ = new Subject<void>();
   private appHeightListener?: () => void;
 
   constructor() {
     this.actualizarModoRuta(this.router.url);
+
     this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
       .subscribe(event => this.actualizarModoRuta(event.urlAfterRedirects));
 
-    // Aplicar tema global cada vez que cambie
+    // Tema global reactivo (safe: themeId saneado)
     effect(() => {
       const themeId = this.personalizacionStore.temaId();
       this.aplicarTemaGlobal(themeId);
@@ -59,13 +66,14 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const themeId = this.personalizacionStore.temaId();
-    this.aplicarTemaGlobal(themeId);
+    this.aplicarTemaGlobal(this.personalizacionStore.temaId());
     this.restaurarEstadoMenu();
     this.setupAppHeight();
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.teardownAppHeight();
   }
 
@@ -79,6 +87,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   onBannerError(event: Event): void {
     const img = event.target as HTMLImageElement;
+    if (!img) return;
 
     img.src = `data:image/svg+xml,${encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200">
@@ -122,10 +131,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ✅ ACTUALIZAR --app-height y --kb-offset EN TIEMPO REAL
-  // En iOS Safari / Chrome móvil, 100vh es MÁS ALTO que el
-  // viewport visible (barra de direcciones + teclado).
-  // Usamos visualViewport.height y visualViewport.offsetTop.
+  // --app-height y --kb-offset EN TIEMPO REAL
   // ============================================================
   private setupAppHeight(): void {
     if (typeof window === 'undefined') return;
@@ -135,19 +141,11 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       const h = vv?.height ?? window.innerHeight;
       const offsetTop = vv?.offsetTop ?? 0;
 
-      // Altura visible real
       document.documentElement.style.setProperty('--app-height', `${h}px`);
       document.documentElement.style.setProperty('--vv-height', `${h}px`);
 
-      // Espacio inferior real (teclado + barra navegador)
-      const bottomInset = Math.max(
-        0,
-        window.innerHeight - h - offsetTop
-      );
-      document.documentElement.style.setProperty(
-        '--kb-offset',
-        `${bottomInset}px`
-      );
+      const bottomInset = Math.max(0, window.innerHeight - h - offsetTop);
+      document.documentElement.style.setProperty('--kb-offset', `${bottomInset}px`);
     };
 
     this.ngZone.runOutsideAngular(() => {
@@ -169,10 +167,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     window.removeEventListener('resize', this.appHeightListener);
     window.removeEventListener('orientationchange', this.appHeightListener);
 
+    document.documentElement.style.removeProperty('--app-height');
+    document.documentElement.style.removeProperty('--vv-height');
+    document.documentElement.style.removeProperty('--kb-offset');
+
     this.appHeightListener = undefined;
   }
 
   private aplicarTemaGlobal(themeId: string): void {
+    if (typeof document === 'undefined') return;
+
     const html = document.documentElement;
     const body = document.body;
 
@@ -186,7 +190,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     limpiar(html);
     limpiar(body);
 
-    const tema = themeId && themeId !== 'default' ? themeId : 'default';
+    // Saneado: solo [a-z0-9-]
+    const tema = safeClassToken(themeId, 'default');
 
     html.setAttribute('data-theme', tema);
     html.classList.add(`tema-${tema}`);

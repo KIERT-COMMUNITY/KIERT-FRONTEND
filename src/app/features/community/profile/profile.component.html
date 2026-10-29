@@ -1,10 +1,10 @@
 <!-- src/app/features/profile/profile.component.html -->
 <div class="profile-container">
 
-  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <!-- AVISO REUTILIZABLE PARA INVITADOS -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
-    icono="🔒"
+    icono="lock"
     titulo="Debes registrarte"
     [mensaje]="mensajeAvisoLogin()"
     textoBoton="Ir al login"
@@ -16,11 +16,11 @@
   <header class="profile-header">
     <div class="profile-header__left">
       <h1 class="page-title">Mi Perfil</h1>
-      <p class="page-sub">Gestiona tu información y personalización</p>
+      <p class="page-sub">Gestiona tu informacion y personalizacion</p>
     </div>
     <div class="profile-header__actions">
-      <button class="btn-secondary" (click)="toggleEditar()" [disabled]="subiendoFoto()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-secondary" (click)="toggleEditar()" [disabled]="subiendoFoto()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           @if (editando()) {
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
@@ -36,40 +36,40 @@
 
   <!-- ===== ALERTAS ===== -->
   @if (errorMsg()) {
-    <div class="alert alert-error">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="alert alert-error" role="alert">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="8" x2="12" y2="12"/>
         <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
       <span>{{ errorMsg() }}</span>
-      <button (click)="errorMsg.set(null)" aria-label="Cerrar">×</button>
+      <button type="button" (click)="errorMsg.set(null)" aria-label="Cerrar">x</button>
     </div>
   }
   @if (exitoMsg()) {
-    <div class="alert alert-success">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="alert alert-success" role="status">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="12" cy="12" r="10"/>
         <polyline points="8 12 11 15 16 9"/>
       </svg>
       <span>{{ exitoMsg() }}</span>
-      <button (click)="exitoMsg.set(null)" aria-label="Cerrar">×</button>
+      <button type="button" (click)="exitoMsg.set(null)" aria-label="Cerrar">x</button>
     </div>
   }
 
   <!-- ===== TARJETA PRINCIPAL ===== -->
-  <div class="profile-card" [class]="'fondo-' + personalizacionStore.fondoId()">
+  <div class="profile-card" [class]="fondoSeguro()">
 
-    <!-- SECCIÓN AVATAR -->
+    <!-- SECCION AVATAR -->
     <section class="profile-avatar-section">
       <div class="profile-avatar-wrapper">
         <div class="profile-avatar"
              [class]="personalizacionStore.marcoClase()"
              [style]="personalizacionStore.marcoEstilo()">
-          @if (previsualizacion()) {
-            <img [src]="previsualizacion()" alt="Vista previa">
-          } @else if (fotoPerfil()) {
-            <img [src]="fotoPerfil()!" alt="Foto de perfil">
+          @if (previsualizacion(); as preview) {
+            <img [src]="preview" alt="Vista previa">
+          } @else if (fotoPerfil(); as foto) {
+            <img [src]="foto" alt="Foto de perfil">
           } @else {
             <span class="profile-avatar__inicial">{{ inicial() }}</span>
           }
@@ -82,7 +82,7 @@
 
         @if (personalizacionStore.marcoId() !== 'none') {
           <div class="marco-indicator">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
             <span>{{ personalizacionStore.marcoId() }}</span>
@@ -93,20 +93,21 @@
       <!-- BOTONES DE FOTO -->
       <div class="profile-avatar-buttons">
         <label class="btn-upload" [class.disabled]="subiendoFoto()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
             <circle cx="12" cy="13" r="4"/>
           </svg>
           <span>{{ subiendoFoto() ? 'Subiendo...' : (fotoPerfil() ? 'Cambiar foto' : 'Subir foto') }}</span>
-          <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden [disabled]="subiendoFoto()">
+          <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onFotoSeleccionada($event)" hidden [disabled]="subiendoFoto()" aria-label="Seleccionar foto de perfil">
         </label>
 
         @if (fotoPerfil() && !subiendoFoto()) {
           <button type="button"
                   class="btn-delete-photo"
                   (click)="abrirConfirmEliminarFoto()"
-                  title="Eliminar foto de perfil">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  title="Eliminar foto de perfil"
+                  aria-label="Eliminar foto de perfil">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <polyline points="3 6 5 6 21 6"/>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
             </svg>
@@ -116,19 +117,22 @@
       </div>
     </section>
 
-    <!-- SECCIÓN INFO -->
+    <!-- SECCION INFO -->
     <section class="profile-info" [formGroup]="formEditar">
       <div class="profile-info__item">
         <div class="profile-info__icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
         </div>
         <div class="profile-info__content">
-          <span class="profile-info__label">Usuario</span>
+          <label class="profile-info__label" for="perfil-usuario">Usuario</label>
           @if (editando()) {
-            <input type="text" class="profile-info__input" formControlName="nombreUsuario">
+            <input id="perfil-usuario" type="text" class="profile-info__input" formControlName="nombreUsuario" autocomplete="username" maxlength="20">
+            @if (formEditar.get('nombreUsuario')?.invalid && formEditar.get('nombreUsuario')?.touched) {
+              <span class="profile-info__error">Solo letras, numeros, punto, guion y guion bajo (3-20)</span>
+            }
           } @else {
             <span class="profile-info__value">&#64;{{ nombreCompleto() }}</span>
           }
@@ -137,15 +141,18 @@
 
       <div class="profile-info__item">
         <div class="profile-info__icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
             <polyline points="22,6 12,13 2,6"/>
           </svg>
         </div>
         <div class="profile-info__content">
-          <span class="profile-info__label">Correo electrónico</span>
+          <label class="profile-info__label" for="perfil-email">Correo electronico</label>
           @if (editando()) {
-            <input type="email" class="profile-info__input" formControlName="email">
+            <input id="perfil-email" type="email" class="profile-info__input" formControlName="email" autocomplete="email" maxlength="120">
+            @if (formEditar.get('email')?.invalid && formEditar.get('email')?.touched) {
+              <span class="profile-info__error">Introduce un correo valido</span>
+            }
           } @else {
             <span class="profile-info__value">{{ email() }}</span>
           }
@@ -154,7 +161,7 @@
 
       <div class="profile-info__item">
         <div class="profile-info__icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
             <line x1="16" y1="13" x2="8" y2="13"/>
@@ -163,18 +170,20 @@
           </svg>
         </div>
         <div class="profile-info__content">
-          <span class="profile-info__label">Biografía</span>
+          <label class="profile-info__label" for="perfil-bio">Biografia</label>
           @if (editando()) {
             <textarea
+              id="perfil-bio"
               class="profile-info__input"
               formControlName="bio"
               rows="3"
-              placeholder="Cuéntanos sobre ti..."></textarea>
+              maxlength="150"
+              placeholder="Cuentanos sobre ti..."></textarea>
           } @else {
             @if (bio()) {
               <span class="profile-info__value" style="white-space: pre-wrap;">{{ bio() }}</span>
             } @else {
-              <span class="profile-info__value" style="opacity: 0.5; font-style: italic;">Sin biografía</span>
+              <span class="profile-info__value" style="opacity: 0.5; font-style: italic;">Sin biografia</span>
             }
           }
         </div>
@@ -182,24 +191,24 @@
 
       @if (editando()) {
         <div class="profile-info__actions">
-          <button class="btn-save" (click)="guardarCambios()" [disabled]="cargando()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="btn-save" (click)="guardarCambios()" [disabled]="cargando()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
             <span>{{ cargando() ? 'Guardando...' : 'Guardar cambios' }}</span>
           </button>
-          <button class="btn-cancel" (click)="toggleEditar()" [disabled]="cargando()">
+          <button type="button" class="btn-cancel" (click)="toggleEditar()" [disabled]="cargando()">
             Cancelar
           </button>
         </div>
       }
     </section>
 
-    <!-- SECCIÓN STATS -->
+    <!-- SECCION STATS -->
     <section class="profile-stats">
       <div class="profile-stats__item">
         <div class="profile-stats__icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
           </svg>
@@ -209,25 +218,25 @@
       </div>
     </section>
 
-    <!-- SECCIÓN ACCIONES -->
+    <!-- SECCION ACCIONES -->
     <section class="profile-actions">
-      <button class="btn-action" (click)="irHistorialPublicaciones()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-action" (click)="irHistorialPublicaciones()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
         <span>Historial</span>
       </button>
 
-      <button class="btn-action" (click)="irAlChat()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-action" (click)="irAlChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
         <span>Mensajes</span>
       </button>
 
-      <button class="btn-action" (click)="irABloqueados()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-action" (click)="irABloqueados()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10"/>
           <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
         </svg>
@@ -237,21 +246,21 @@
         }
       </button>
 
-      <button class="btn-action" (click)="irAjustes()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-action" (click)="irAjustes()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
         <span>Ajustes</span>
       </button>
 
-      <button class="btn-action btn-danger" (click)="logout()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-action btn-danger" (click)="abrirConfirmLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
-        <span>Cerrar sesión</span>
+        <span>Cerrar sesion</span>
       </button>
     </section>
 
@@ -262,31 +271,30 @@
 @if (mostrarConfirmEliminarFoto()) {
   <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminarFoto()">
     <div class="confirm-delete-card" (click)="$event.stopPropagation()">
-
       <div class="confirm-delete-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
       </div>
 
-      <h3>¿Eliminar foto de perfil?</h3>
-      <p>Tu foto se eliminará permanentemente de Cloudinary.</p>
-      <p class="confirm-delete-warn">
-        Esta acción no se puede deshacer.
-      </p>
+      <h3>Eliminar foto de perfil</h3>
+      <p>Tu foto se eliminara permanentemente del almacenamiento remoto.</p>
+      <p class="confirm-delete-warn">Esta accion no se puede deshacer.</p>
 
-      <div class="confirm-delete-preview">
-        <img [src]="fotoPerfil()!" alt="Foto actual">
-      </div>
+      @if (fotoPerfil(); as foto) {
+        <div class="confirm-delete-preview">
+          <img [src]="foto" alt="Foto actual">
+        </div>
+      }
 
       <div class="confirm-delete-actions">
-        <button class="btn-secondary"
+        <button type="button" class="btn-secondary"
                 (click)="cerrarConfirmEliminarFoto()"
                 [disabled]="eliminandoFoto()">
           Cancelar
         </button>
-        <button class="btn-danger"
+        <button type="button" class="btn-danger"
                 (click)="confirmarEliminarFoto()"
                 [disabled]="eliminandoFoto()">
           @if (eliminandoFoto()) {
@@ -297,7 +305,29 @@
           }
         </button>
       </div>
+    </div>
+  </div>
+}
 
+<!-- MODAL CONFIRMAR LOGOUT -->
+@if (mostrarConfirmLogout()) {
+  <div class="confirm-delete-overlay" (click)="cerrarConfirmLogout()">
+    <div class="confirm-delete-card" (click)="$event.stopPropagation()">
+      <div class="confirm-delete-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </div>
+
+      <h3>Cerrar sesion</h3>
+      <p>Se cerrara tu sesion en este dispositivo.</p>
+
+      <div class="confirm-delete-actions">
+        <button type="button" class="btn-secondary" (click)="cerrarConfirmLogout()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="confirmarLogout()">Cerrar sesion</button>
+      </div>
     </div>
   </div>
 }

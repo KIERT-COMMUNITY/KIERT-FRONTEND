@@ -1,5 +1,5 @@
 <!-- src/app/features/community/post-detail/post-detail.component.html -->
-<div [ngClass]="'tema-' + personalizacionStore.temaId()" class="post-detail-wrapper" style="min-height: 100vh;">
+<div [ngClass]="temaClaseSeguro()" class="post-detail-wrapper" style="min-height: 100vh;">
 
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
@@ -18,7 +18,7 @@
   } @else if (errorMsg() && !post()) {
     <div class="error-container">
       <div class="error-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <circle cx="12" cy="12" r="10"/>
           <line x1="12" y1="8" x2="12" y2="12"/>
           <line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -26,8 +26,8 @@
       </div>
       <h2>{{ errorMsg() }}</h2>
       <p>La publicacion que buscas no esta disponible o ha sido eliminada.</p>
-      <button class="btn-volver" (click)="volverAlFeed()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button type="button" class="btn-volver" (click)="volverAlFeed()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
         Volver
@@ -36,14 +36,14 @@
   } @else {
     @let postActual = post()!;
 
-    <article class="post-detail" [style.background]="personalizacionStore.fondoGradiente()">
+    <article class="post-detail" [ngStyle]="{ background: fondoSeguro() }">
 
       <!-- HEADER -->
       <div class="post-detail__header">
         <div class="post-detail__user">
           @if (postActual.autor && postActual.autor.id) {
             <kiert-avatar-frame
-              [fotoUrl]="postActual.autor.fotoPerfilUrl || null"
+              [fotoUrl]="getFotoAutor(postActual.autor.fotoPerfilUrl)"
               [nombre]="postActual.autor.nombreUsuario"
               [size]="48"
               [alt]="postActual.autor.nombreUsuario"
@@ -79,8 +79,8 @@
         <div class="post-detail__header-right">
           <span class="post-detail__fecha">{{ postActual.fechaCreacion | date:'dd MMM yyyy, HH:mm' }}</span>
 
-          <button class="btn-compartir-header" (click)="abrirModalCompartir()" title="Compartir publicacion">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button type="button" class="btn-compartir-header" (click)="abrirModalCompartir()" title="Compartir publicacion" aria-label="Compartir publicacion">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="18" cy="5" r="3"/>
               <circle cx="6" cy="12" r="3"/>
               <circle cx="18" cy="19" r="3"/>
@@ -89,22 +89,23 @@
             </svg>
           </button>
 
-          <button class="btn-reportar" (click)="reportarPost()" title="Reportar publicacion">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button type="button" class="btn-reportar" (click)="reportarPost()" title="Reportar publicacion" aria-label="Reportar publicacion">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
               <line x1="4" y1="22" x2="4" y2="15"/>
             </svg>
           </button>
 
-          <!-- MENÚ OCULTAR -->
+          <!-- MENU OCULTAR -->
           <div class="post-detail__menu-wrapper">
             <button
               type="button"
               class="btn-menu-opciones"
               (click)="toggleMenuOcultar($event)"
               [attr.aria-expanded]="mostrarMenuOcultar()"
-              title="Opciones">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              title="Opciones"
+              aria-label="Opciones">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <circle cx="12" cy="5" r="1.5"/>
                 <circle cx="12" cy="12" r="1.5"/>
                 <circle cx="12" cy="19" r="1.5"/>
@@ -114,7 +115,7 @@
             @if (mostrarMenuOcultar()) {
               <div class="post-detail__menu" (click)="$event.stopPropagation()">
                 <button type="button" class="post-detail__menu-item" (click)="ocultarEstePost('sensible', $event)">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
                     <line x1="1" y1="1" x2="23" y2="23"/>
                   </svg>
@@ -122,7 +123,7 @@
                 </button>
 
                 <button type="button" class="post-detail__menu-item" (click)="ocultarEstePost('no-interesa', $event)">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
                   </svg>
@@ -130,7 +131,7 @@
                 </button>
 
                 <button type="button" class="post-detail__menu-item" (click)="ocultarEstePost('otro', $event)">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
                     <line x1="1" y1="1" x2="23" y2="23"/>
                   </svg>
@@ -148,15 +149,17 @@
       @if (tieneImagenes()) {
         <div class="post-detail__galeria" [class.galeria-multiple]="cantidadImagenes() > 1">
           @for (img of obtenerImagenes(); track img.id) {
-            <div class="post-detail__imagen" (click)="abrirImagen(img.url)">
-              <img [src]="img.url" [alt]="img.nombre" loading="lazy" (error)="onImageError($event)">
-              <div class="post-detail__imagen-overlay">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"/>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
+            @if (getAdjuntoUrl(img.url); as url) {
+              <div class="post-detail__imagen" (click)="abrirImagen(url)">
+                <img [src]="url" [alt]="img.nombre" loading="lazy" (error)="onImageError($event)">
+                <div class="post-detail__imagen-overlay">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                </div>
               </div>
-            </div>
+            }
           }
         </div>
       }
@@ -164,87 +167,95 @@
       @if (tieneVideos()) {
         <div class="post-detail__videos">
           @for (video of obtenerVideos(); track video.id) {
-            <div class="video-player">
-              <video
-                [src]="video.url"
-                [poster]="video.miniaturaUrl || ''"
-                controls
-                preload="metadata"
-                class="video-player__el"
-                crossorigin="anonymous"
-              >
-                @if (tieneSubtitulos(video)) {
-                  @for (sub of video.subtitulos; track sub.id) {
-                    <track
-                      kind="subtitles"
-                      [src]="sub.url"
-                      [srclang]="sub.idioma"
-                      [label]="sub.etiqueta"
-                      [default]="subtitulosActivos()[video.id] && obtenerSubtituloActivo(video)?.id === sub.id"
-                    >
-                  }
-                }
-                Tu navegador no soporta video HTML5.
-              </video>
-
-              <div class="video-player__controles">
-                @if (tieneSubtitulos(video)) {
-                  <button
-                    class="btn-subtitulos"
-                    [class.active]="subtitulosActivos()[video.id]"
-                    (click)="toggleSubtitulos(video.id)"
-                    title="Activar/desactivar subtitulos"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="5" width="18" height="14" rx="2"/>
-                      <line x1="7" y1="12" x2="10" y2="12"/>
-                      <line x1="13" y1="12" x2="17" y2="12"/>
-                      <line x1="7" y1="16" x2="11" y2="16"/>
-                      <line x1="14" y1="16" x2="17" y2="16"/>
-                    </svg>
-                    <span>CC</span>
-                  </button>
-
-                  <select
-                    class="select-idioma"
-                    [value]="idiomaSeleccionado()[video.id] || ''"
-                    (change)="cambiarIdiomaSubtitulos(video.id, $any($event.target).value)"
-                    title="Idioma de subtitulos"
-                  >
+            @if (getAdjuntoUrl(video.url); as videoUrl) {
+              <div class="video-player">
+                <video
+                  [src]="videoUrl"
+                  [attr.poster]="getAdjuntoPoster(video.miniaturaUrl) || null"
+                  controls
+                  preload="metadata"
+                  class="video-player__el"
+                  crossorigin="anonymous"
+                >
+                  @if (tieneSubtitulos(video)) {
                     @for (sub of video.subtitulos; track sub.id) {
-                      <option [value]="sub.idioma">{{ sub.etiqueta }}</option>
+                      @if (getSubtituloUrl(sub.url); as subUrl) {
+                        <track
+                          kind="subtitles"
+                          [src]="subUrl"
+                          [srclang]="sub.idioma"
+                          [label]="sub.etiqueta"
+                          [default]="subtitulosActivos()[video.id] && obtenerSubtituloActivo(video)?.id === sub.id"
+                        >
+                      }
                     }
-                  </select>
-
-                  @if (obtenerSubtituloActivo(video)?.esAutoGenerado) {
-                    <span class="badge-auto" title="Generado automaticamente">Auto</span>
                   }
-                }
+                  Tu navegador no soporta video HTML5.
+                </video>
 
-                @if (esAutor(postActual.autor)) {
-                  <label class="btn-subir-subtitulo" [class.loading]="subiendoSubtitulo() === video.id">
-                    @if (subiendoSubtitulo() === video.id) {
-                      <div class="spinner-small"></div>
-                      <span>Subiendo...</span>
-                    } @else {
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                      </svg>
-                      <span>{{ tieneSubtitulos(video) ? 'Anadir subtitulo' : 'Anadir subtitulos (.vtt)' }}</span>
-                    }
-                    <input
-                      type="file"
-                      accept=".vtt"
-                      hidden
-                      [disabled]="subiendoSubtitulo() === video.id"
-                      (change)="onSubtituloSeleccionado($event, video.id)"
+                <div class="video-player__controles">
+                  @if (tieneSubtitulos(video)) {
+                    <button
+                      type="button"
+                      class="btn-subtitulos"
+                      [class.active]="subtitulosActivos()[video.id]"
+                      (click)="toggleSubtitulos(video.id)"
+                      title="Activar/desactivar subtitulos"
+                      aria-label="Activar subtitulos"
                     >
-                  </label>
-                }
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <rect x="3" y="5" width="18" height="14" rx="2"/>
+                        <line x1="7" y1="12" x2="10" y2="12"/>
+                        <line x1="13" y1="12" x2="17" y2="12"/>
+                        <line x1="7" y1="16" x2="11" y2="16"/>
+                        <line x1="14" y1="16" x2="17" y2="16"/>
+                      </svg>
+                      <span>CC</span>
+                    </button>
+
+                    <select
+                      class="select-idioma"
+                      [value]="idiomaSeleccionado()[video.id] || ''"
+                      (change)="cambiarIdiomaSubtitulos(video.id, $any($event.target).value)"
+                      title="Idioma de subtitulos"
+                      aria-label="Idioma de subtitulos"
+                    >
+                      @for (sub of video.subtitulos; track sub.id) {
+                        <option [value]="sub.idioma">{{ sub.etiqueta }}</option>
+                      }
+                    </select>
+
+                    @if (obtenerSubtituloActivo(video)?.esAutoGenerado) {
+                      <span class="badge-auto" title="Generado automaticamente">Auto</span>
+                    }
+                  }
+
+                  @if (esAutor(postActual.autor)) {
+                    <label class="btn-subir-subtitulo" [class.loading]="subiendoSubtitulo() === video.id">
+                      @if (subiendoSubtitulo() === video.id) {
+                        <div class="spinner-small"></div>
+                        <span>Subiendo...</span>
+                      } @else {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                          <polyline points="17 8 12 3 7 8"/>
+                          <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <span>{{ tieneSubtitulos(video) ? 'Anadir subtitulo' : 'Anadir subtitulos (.vtt)' }}</span>
+                      }
+                      <input
+                        type="file"
+                        accept=".vtt"
+                        hidden
+                        [disabled]="subiendoSubtitulo() === video.id"
+                        (change)="onSubtituloSeleccionado($event, video.id)"
+                        aria-label="Seleccionar archivo de subtitulos"
+                      >
+                    </label>
+                  }
+                </div>
               </div>
-            </div>
+            }
           }
         </div>
       }
@@ -254,16 +265,18 @@
           <h4>Archivos adjuntos</h4>
           <div class="adjuntos-grid">
             @for (a of obtenerOtrosAdjuntos(); track a.id) {
-              <a [href]="a.url" target="_blank" rel="noopener" class="adjunto-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <polyline points="10 9 9 9 8 9"/>
-                </svg>
-                <span class="adjunto-nombre">{{ a.nombre }}</span>
-              </a>
+              @if (getAdjuntoUrl(a.url); as adjuntoUrl) {
+                <a [href]="adjuntoUrl" target="_blank" rel="noopener noreferrer" class="adjunto-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                  </svg>
+                  <span class="adjunto-nombre">{{ a.nombre }}</span>
+                </a>
+              }
             }
           </div>
         </div>
@@ -272,12 +285,13 @@
       <div class="post-detail__interactions">
         <div class="reactions">
 
-          <button class="reaction-btn"
+          <button type="button" class="reaction-btn"
                   data-tipo="like"
                   [class.active]="userReactions().like"
                   (click)="reaccionar('like', $event)"
-                  title="Me gusta">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  title="Me gusta"
+                  aria-label="Me gusta">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="likeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#60a5fa"/>
@@ -291,12 +305,13 @@
             <span class="reaction-count">{{ reacciones().likes }}</span>
           </button>
 
-          <button class="reaction-btn"
+          <button type="button" class="reaction-btn"
                   data-tipo="love"
                   [class.active]="userReactions().love"
                   (click)="reaccionar('love', $event)"
-                  title="Me encanta">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  title="Me encanta"
+                  aria-label="Me encanta">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="loveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#ff6b81"/>
@@ -309,12 +324,13 @@
             <span class="reaction-count">{{ reacciones().loves }}</span>
           </button>
 
-          <button class="reaction-btn"
+          <button type="button" class="reaction-btn"
                   data-tipo="haha"
                   [class.active]="userReactions().haha"
                   (click)="reaccionar('haha', $event)"
-                  title="Me divierte">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  title="Me divierte"
+                  aria-label="Me divierte">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="hahaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#fde047"/>
@@ -329,12 +345,13 @@
             <span class="reaction-count">{{ reacciones().hahas }}</span>
           </button>
 
-          <button class="reaction-btn"
+          <button type="button" class="reaction-btn"
                   data-tipo="wow"
                   [class.active]="userReactions().wow"
                   (click)="reaccionar('wow', $event)"
-                  title="Me asombra">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  title="Me asombra"
+                  aria-label="Me asombra">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="wowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#fbbf24"/>
@@ -349,12 +366,13 @@
             <span class="reaction-count">{{ reacciones().wows }}</span>
           </button>
 
-          <button class="reaction-btn"
+          <button type="button" class="reaction-btn"
                   data-tipo="sad"
                   [class.active]="userReactions().sad"
                   (click)="reaccionar('sad', $event)"
-                  title="Me entristece">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  title="Me entristece"
+                  aria-label="Me entristece">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="sadGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#93c5fd"/>
@@ -370,12 +388,13 @@
             <span class="reaction-count">{{ reacciones().sads }}</span>
           </button>
 
-          <button class="reaction-btn"
+          <button type="button" class="reaction-btn"
                   data-tipo="angry"
                   [class.active]="userReactions().angry"
                   (click)="reaccionar('angry', $event)"
-                  title="Me enoja">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  title="Me enoja"
+                  aria-label="Me enoja">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="angryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#f87171"/>
@@ -392,8 +411,8 @@
             <span class="reaction-count">{{ reacciones().angrys }}</span>
           </button>
 
-          <button class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicacion">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicacion" aria-label="Compartir publicacion">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="18" cy="5" r="3"/>
               <circle cx="6" cy="12" r="3"/>
               <circle cx="18" cy="19" r="3"/>
@@ -406,13 +425,13 @@
 
         <div class="post-stats">
           <span class="post-stat">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
             {{ postActual.totalComentarios || 0 }} comentarios
           </span>
           <span class="post-stat">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="18" cy="5" r="3"/>
               <circle cx="6" cy="12" r="3"/>
               <circle cx="18" cy="19" r="3"/>
@@ -423,7 +442,7 @@
           </span>
           @if (tieneAdjuntos()) {
             <span class="post-stat">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
               </svg>
@@ -434,7 +453,7 @@
       </div>
     </article>
 
-    <section class="comentarios" [style.background]="personalizacionStore.fondoGradiente()">
+    <section class="comentarios" [ngStyle]="{ background: fondoSeguro() }">
       <div class="comentarios__header">
         <h3>Comentarios</h3>
         <span class="comentarios__count">{{ comentarios().length }}</span>
@@ -448,9 +467,12 @@
               type="text"
               placeholder="Escribe un comentario..."
               class="comentarios__input"
+              maxlength="2000"
+              autocomplete="off"
+              aria-label="Escribe un comentario"
             >
-            <button type="submit" class="comentarios__btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button type="submit" class="comentarios__btn" aria-label="Enviar comentario">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <polyline points="22 2 11 13"/>
                 <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
               </svg>
@@ -466,6 +488,7 @@
               placeholder="Inicia sesion para comentar..."
               class="comentarios__input"
               readonly
+              aria-label="Inicia sesion para comentar"
             >
             <button type="button" class="comentarios__btn btn-guest-small" (click)="abrirAviso('Debes registrarte para comentar esta publicacion.'); $event.stopPropagation()">
               Registrarse
@@ -478,8 +501,8 @@
         @for (c of comentarios(); track c.id) {
           <div class="comentario">
             <div class="comentario__avatar" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
-              @if (c.autor.fotoPerfilUrl) {
-                <img [src]="c.autor.fotoPerfilUrl" [alt]="c.autor.nombreUsuario" (error)="onAvatarError($event)">
+              @if (getFotoComentario(c.autor.fotoPerfilUrl); as foto) {
+                <img [src]="foto" [alt]="c.autor.nombreUsuario" loading="lazy" (error)="onAvatarError($event)">
               } @else {
                 {{ c.autor.nombreUsuario.charAt(0).toUpperCase() }}
               }
@@ -492,15 +515,15 @@
                 <span class="comentario__fecha">{{ c.fechaCreacion | date:'dd MMM yyyy' }}</span>
 
                 @if (esAutor(c.autor)) {
-                  <button class="comentario__eliminar" (click)="eliminarComentario(c.id)" title="Eliminar comentario">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <button type="button" class="comentario__eliminar" (click)="abrirConfirmEliminarComentario(c.id)" title="Eliminar comentario" aria-label="Eliminar comentario">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                       <polyline points="3 6 5 6 21 6"/>
                       <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                     </svg>
                   </button>
                 } @else {
-                  <button class="comentario__reportar" (click)="reportarComentario(c.id)" title="Reportar comentario">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <button type="button" class="comentario__reportar" (click)="reportarComentario(c.id)" title="Reportar comentario" aria-label="Reportar comentario">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
                       <line x1="4" y1="22" x2="4" y2="15"/>
                     </svg>
@@ -510,12 +533,13 @@
               <p class="comentario__texto">{{ c.contenido }}</p>
 
               <div class="comentario__actions">
-                <button class="comentario__reaction"
+                <button type="button" class="comentario__reaction"
                         data-tipo="like"
                         [class.active]="c.userReactions?.like"
                         (click)="reaccionarComentario(c.id, 'like', $event)"
-                        title="Me gusta">
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        title="Me gusta"
+                        aria-label="Me gusta">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <defs>
                       <linearGradient [attr.id]="'likeGradC' + c.id" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stop-color="#60a5fa"/>
@@ -529,12 +553,13 @@
                   <span>{{ c.reacciones?.likes || 0 }}</span>
                 </button>
 
-                <button class="comentario__reaction"
+                <button type="button" class="comentario__reaction"
                         data-tipo="love"
                         [class.active]="c.userReactions?.love"
                         (click)="reaccionarComentario(c.id, 'love', $event)"
-                        title="Me encanta">
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        title="Me encanta"
+                        aria-label="Me encanta">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <defs>
                       <linearGradient [attr.id]="'loveGradC' + c.id" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stop-color="#ff6b81"/>
@@ -547,7 +572,7 @@
                   <span>{{ c.reacciones?.loves || 0 }}</span>
                 </button>
 
-                <button class="comentario__responder" (click)="toggleResponder(c.id)">
+                <button type="button" class="comentario__responder" (click)="toggleResponder(c.id)">
                   Responder
                 </button>
               </div>
@@ -561,6 +586,9 @@
                         type="text"
                         placeholder="Escribe una respuesta..."
                         class="respuesta-form__input"
+                        maxlength="2000"
+                        autocomplete="off"
+                        aria-label="Escribe una respuesta"
                       >
                       <button type="submit" class="respuesta-form__btn" [disabled]="enviandoRespuesta() === c.id">
                         {{ enviandoRespuesta() === c.id ? '...' : 'Responder' }}
@@ -572,7 +600,7 @@
 
               @if (c.respuestas && c.respuestas.length > 0) {
                 <div class="respuestas-toggle">
-                  <button class="respuestas-toggle__btn" (click)="toggleVerRespuestas(c.id)">
+                  <button type="button" class="respuestas-toggle__btn" (click)="toggleVerRespuestas(c.id)">
                     @if (c.mostrandoRespuestas) {
                       Ocultar respuestas ({{ c.respuestas.length }})
                     } @else {
@@ -587,8 +615,8 @@
                   @for (r of c.respuestas; track r.id) {
                     <div class="respuesta">
                       <div class="respuesta__avatar" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
-                        @if (r.autor.fotoPerfilUrl) {
-                          <img [src]="r.autor.fotoPerfilUrl" [alt]="r.autor.nombreUsuario" (error)="onAvatarError($event)">
+                        @if (getFotoRespuesta(r.autor.fotoPerfilUrl); as foto) {
+                          <img [src]="foto" [alt]="r.autor.nombreUsuario" loading="lazy" (error)="onAvatarError($event)">
                         } @else {
                           {{ r.autor.nombreUsuario.charAt(0).toUpperCase() }}
                         }
@@ -601,15 +629,15 @@
                           <span class="respuesta__fecha">{{ r.fechaCreacion | date:'dd MMM yyyy' }}</span>
 
                           @if (esAutor(r.autor)) {
-                            <button class="respuesta__eliminar" (click)="eliminarRespuesta(c.id, r.id)" title="Eliminar respuesta">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <button type="button" class="respuesta__eliminar" (click)="abrirConfirmEliminarRespuesta(c.id, r.id)" title="Eliminar respuesta" aria-label="Eliminar respuesta">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <polyline points="3 6 5 6 21 6"/>
                                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                               </svg>
                             </button>
                           } @else {
-                            <button class="respuesta__reportar" (click)="reportarRespuesta(r.id)" title="Reportar respuesta">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <button type="button" class="respuesta__reportar" (click)="reportarRespuesta(r.id)" title="Reportar respuesta" aria-label="Reportar respuesta">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
                                 <line x1="4" y1="22" x2="4" y2="15"/>
                               </svg>
@@ -619,12 +647,13 @@
                         <p class="respuesta__texto">{{ r.contenido }}</p>
 
                         <div class="respuesta__actions">
-                          <button class="respuesta__reaction"
+                          <button type="button" class="respuesta__reaction"
                                   data-tipo="like"
                                   [class.active]="r.userReactions?.like"
                                   (click)="reaccionarRespuesta(c.id, r.id, 'like', $event)"
-                                  title="Me gusta">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  title="Me gusta"
+                                  aria-label="Me gusta">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <defs>
                                 <linearGradient [attr.id]="'likeGradR' + r.id" x1="0%" y1="0%" x2="100%" y2="100%">
                                   <stop offset="0%" stop-color="#60a5fa"/>
@@ -638,12 +667,13 @@
                             <span>{{ r.reacciones?.likes || 0 }}</span>
                           </button>
 
-                          <button class="respuesta__reaction"
+                          <button type="button" class="respuesta__reaction"
                                   data-tipo="love"
                                   [class.active]="r.userReactions?.love"
                                   (click)="reaccionarRespuesta(c.id, r.id, 'love', $event)"
-                                  title="Me encanta">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  title="Me encanta"
+                                  aria-label="Me encanta">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <defs>
                                 <linearGradient [attr.id]="'loveGradR' + r.id" x1="0%" y1="0%" x2="100%" y2="100%">
                                   <stop offset="0%" stop-color="#ff6b81"/>
@@ -672,7 +702,7 @@
           </div>
         } @empty {
           <div class="comentarios__empty">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
             <p>No hay comentarios aun. Se el primero en comentar.</p>
@@ -699,5 +729,67 @@
       [postTitulo]="post()?.titulo || ''"
       (cerrar)="cerrarModalCompartir()">
     </kiert-compartir-modal>
+  }
+
+  <!-- MODAL CONFIRMAR ELIMINAR COMENTARIO -->
+  @if (mostrarConfirmEliminarComentario()) {
+    <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminarComentario()">
+      <div class="confirm-delete-card" (click)="$event.stopPropagation()">
+        <div class="confirm-delete-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </div>
+
+        <h3>Eliminar comentario</h3>
+        <p>Esta accion no se puede deshacer.</p>
+
+        <div class="confirm-delete-actions">
+          <button type="button" class="btn-secondary" (click)="cerrarConfirmEliminarComentario()" [disabled]="eliminandoComentario()">
+            Cancelar
+          </button>
+          <button type="button" class="btn-danger" (click)="confirmarEliminarComentario()" [disabled]="eliminandoComentario()">
+            @if (eliminandoComentario()) {
+              <div class="spinner-mini"></div>
+              Eliminando...
+            } @else {
+              Eliminar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL CONFIRMAR ELIMINAR RESPUESTA -->
+  @if (mostrarConfirmEliminarRespuesta()) {
+    <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminarRespuesta()">
+      <div class="confirm-delete-card" (click)="$event.stopPropagation()">
+        <div class="confirm-delete-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </div>
+
+        <h3>Eliminar respuesta</h3>
+        <p>Esta accion no se puede deshacer.</p>
+
+        <div class="confirm-delete-actions">
+          <button type="button" class="btn-secondary" (click)="cerrarConfirmEliminarRespuesta()" [disabled]="eliminandoComentario()">
+            Cancelar
+          </button>
+          <button type="button" class="btn-danger" (click)="confirmarEliminarRespuesta()" [disabled]="eliminandoComentario()">
+            @if (eliminandoComentario()) {
+              <div class="spinner-mini"></div>
+              Eliminando...
+            } @else {
+              Eliminar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
   }
 </div>

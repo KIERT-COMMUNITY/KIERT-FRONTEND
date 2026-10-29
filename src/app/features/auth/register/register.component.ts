@@ -1,6 +1,7 @@
-// register.component.ts
-import { Component, signal } from '@angular/core';
+// src/app/features/auth/register/register.component.ts
+import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -18,13 +19,20 @@ function contrasenasIgualesValidator(grupo: AbstractControl): ValidationErrors |
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
   cargando = signal(false);
   errorMsg = signal<string | null>(null);
   paso = signal<'form' | 'verificar' | 'exito'>('form');
   emailRegistrado = signal<string>('');
   reenviando = signal(false);
   codigoReenviado = signal(false);
+
+  private redirectTimer: ReturnType<typeof setTimeout> | null = null;
+  private reenvioTimer: ReturnType<typeof setTimeout> | null = null;
 
   form = this.fb.group(
     {
@@ -39,8 +47,6 @@ export class RegisterComponent {
   formCodigo = this.fb.group({
     codigo: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
   });
-
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {}
 
   get nombreUsuario() { return this.form.controls.nombreUsuario; }
   get email() { return this.form.controls.email; }
@@ -70,7 +76,7 @@ export class RegisterComponent {
         this.paso.set('verificar');
         this.cargando.set(false);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         const mensaje = err.error?.error
           || (err.status === 409 ? 'Ese correo o usuario ya esta registrado.' : 'No se pudo crear la cuenta.');
         this.errorMsg.set(mensaje);
@@ -93,9 +99,9 @@ export class RegisterComponent {
       next: () => {
         this.paso.set('exito');
         this.cargando.set(false);
-        setTimeout(() => this.router.navigate(['/login']), 5000);
+        this.redirectTimer = setTimeout(() => this.router.navigate(['/login']), 5000);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.errorMsg.set(err.error?.error || 'Codigo incorrecto o expirado');
         this.cargando.set(false);
       },
@@ -106,16 +112,17 @@ export class RegisterComponent {
   reenviarCodigo(): void {
     this.reenviando.set(true);
     this.errorMsg.set(null);
+    this.codigoReenviado.set(false);
 
     this.auth.reenviarCodigoVerificacion(this.emailRegistrado()).subscribe({
       next: () => {
         this.reenviando.set(false);
         this.codigoReenviado.set(true);
-        setTimeout(() => this.codigoReenviado.set(false), 5000);
+        this.reenvioTimer = setTimeout(() => this.codigoReenviado.set(false), 5000);
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.reenviando.set(false);
-        this.errorMsg.set('No se pudo reenviar el codigo');
+        this.errorMsg.set(err.error?.error || 'No se pudo reenviar el codigo');
       },
     });
   }
@@ -124,9 +131,21 @@ export class RegisterComponent {
     this.paso.set('form');
     this.formCodigo.reset();
     this.errorMsg.set(null);
+    this.codigoReenviado.set(false);
   }
 
   irAlLogin(): void {
     this.router.navigate(['/login']);
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+      this.redirectTimer = null;
+    }
+    if (this.reenvioTimer) {
+      clearTimeout(this.reenvioTimer);
+      this.reenvioTimer = null;
+    }
   }
 }

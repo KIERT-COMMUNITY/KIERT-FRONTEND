@@ -1,24 +1,11 @@
 <!-- src/app/layouts/main-layout/main-layout.component.html -->
 <div class="app-container" [class.chat-route]="esRutaChat()">
 
-  <!-- ===== SKIP LINK (accesibilidad teclado) ===== -->
+  <!-- SKIP LINK (accesibilidad teclado) -->
   <a
     href="#main-content"
     class="skip-link"
-    style="
-      position: absolute;
-      left: -9999px;
-      top: 8px;
-      z-index: 99999;
-      padding: 8px 16px;
-      background: #2dd4bf;
-      color: #0d1117;
-      border-radius: 8px;
-      font-weight: 600;
-      text-decoration: none;
-    "
-    onfocus="this.style.left='8px'"
-    onblur="this.style.left='-9999px'"
+    aria-label="Saltar al contenido principal"
   >
     Saltar al contenido principal
   </a>
@@ -32,32 +19,35 @@
 
     <div class="app-main" [class.app-main--chat]="esRutaChat()">
       @if (!esRutaChat()) {
-      <div class="main-banner">
-        <div class="main-banner__content">
-          <div class="main-banner__image">
-            <img
-              src="assets/images/anuncio/bannergoodlimpio.png"
-              alt="Kiert Banner"
-              loading="lazy"
-              (error)="onBannerError($event)"
-            >
-          </div>
+        <div class="main-banner">
+          <div class="main-banner__content">
+            <div class="main-banner__image">
+              <img
+                src="assets/images/anuncio/bannergoodlimpio.png"
+                alt="Kiert Banner"
+                loading="lazy"
+                (error)="onBannerError($event)"
+              >
+            </div>
 
-          <div class="main-banner__overlay">
-            <h2>Únete a la comunidad</h2>
-            <p>Comparte tus proyectos, aprende de otros y crece profesionalmente y ayudanos a mejorar la pagina dando sus opiniones,
-              eso nos ayudaria y seguir mejorando la comunidad
-            </p>
-            <a routerLink="/comunidad" class="main-banner__btn">
-              Explorar ahora
-            </a>
+            <div class="main-banner__overlay">
+              <h2>Unete a la comunidad</h2>
+              <p>Comparte tus proyectos, aprende de otros y crece profesionalmente.
+                Ayudanos a mejorar la pagina dando tus opiniones, eso nos ayudara a seguir mejorando la comunidad.
+              </p>
+              <a routerLink="/comunidad" class="main-banner__btn">
+                Explorar ahora
+              </a>
+            </div>
           </div>
         </div>
-      </div>
       }
 
       <main class="main-content"
-            [class.main-content--chat]="esRutaChat()" id="main-content" role="main" tabindex="-1">
+            [class.main-content--chat]="esRutaChat()"
+            id="main-content"
+            role="main"
+            tabindex="-1">
         <router-outlet></router-outlet>
       </main>
 
@@ -68,6 +58,5 @@
     </div>
   </div>
 
-  <!-- ===== MODAL DE AYUDA DE ATAJOS ===== -->
-  <!-- (lo que tengas aquí) -->
+  <!-- MODAL DE AYUDA DE ATAJOS (si lo tienes, va aqui) -->
 </div>

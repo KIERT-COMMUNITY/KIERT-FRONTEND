@@ -49,7 +49,10 @@ export class AdminLoginComponent {
       next: () => {
         this.cargando.set(false);
         const redirect = this.route.snapshot.queryParams['redirect'] || '/admin/reportes';
-        this.router.navigate([redirect]);
+        // SEGURIDAD: Solo permitir rutas internas que comiencen con "/"
+        // y que no sean URLs absolutas (http://, https://, //)
+        const rutaSegura = this.validarRutaInterna(redirect);
+        this.router.navigate([rutaSegura]);
       },
       error: (err) => {
         const mensaje =
@@ -62,5 +65,17 @@ export class AdminLoginComponent {
         this.cargando.set(false);
       }
     });
+  }
+
+  private validarRutaInterna(ruta: string): string {
+    // Si no empieza con "/", es externa o inválida -> usar ruta por defecto
+    if (!ruta.startsWith('/')) {
+      return '/admin/reportes';
+    }
+    // Si empieza con "//", es una URL protocol-relative (peligrosa)
+    if (ruta.startsWith('//')) {
+      return '/admin/reportes';
+    }
+    return ruta;
   }
 }

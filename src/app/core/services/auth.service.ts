@@ -86,7 +86,7 @@ export class AuthService {
     }
   }
 
-  // ✅ PRIORIDAD 1: signal en memoria (más fresco, justo tras login)
+  // PRIORIDAD 1: signal en memoria (mas fresco, justo tras login)
   // PRIORIDAD 2: storage admin
   // PRIORIDAD 3: storage user
   getToken(): string | null {
@@ -108,7 +108,7 @@ export class AuthService {
     return null;
   }
 
-  // ✅ NUEVO: Token del usuario NORMAL (ignora admin, para /presencia/*)
+  // Token del usuario NORMAL (ignora admin, para /presencia/*)
   obtenerTokenUsuario(): string | null {
     const tokenMemoria = this.token();
     if (tokenMemoria && !this.tokenExpirado(tokenMemoria)) {
@@ -231,6 +231,14 @@ export class AuthService {
     return this.http.post(`${this.API_URL}/auth/recuperar`, { email });
   }
 
+  // NUEVO: verificar el codigo de recuperacion contra el servidor antes de permitir el reset
+  verificarCodigoRecuperacion(email: string, codigo: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/verificar-codigo-recuperacion`, {
+      email,
+      codigo
+    });
+  }
+
   resetPasswordConCodigo(email: string, codigo: string, nuevaPassword: string): Observable<any> {
     return this.http.post(`${this.API_URL}/auth/reset-password`, {
       email, codigo, nuevaPassword
@@ -259,4 +267,10 @@ export class AuthService {
   public limpiarSesionPublica(): void {
     this.limpiarSesion();
   }
+  restablecerContrasena(token: string, nuevaPassword: string): Observable<any> {
+  return this.http.post(`${this.API_URL}/auth/reset-password-token`, {
+    token,
+    nuevaPassword
+  });
+}
 }

@@ -3,7 +3,6 @@
 
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
-    icono="🔒"
     titulo="Debes registrarte"
     [mensaje]="mensajeAvisoLogin()"
     textoBoton="Ir al login"
@@ -30,8 +29,8 @@
       <p class="feed-sub">Casos, dudas e historias reales para ayudarse entre todos.</p>
     </div>
     <div class="feed-head__actions">
-      <button class="btn btn--secondary" (click)="recargar()" title="Actualizar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button type="button" class="btn btn--secondary" (click)="recargar()" title="Actualizar" aria-label="Actualizar publicaciones">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <polyline points="23 4 23 10 17 10"/>
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
         </svg>
@@ -39,7 +38,7 @@
       </button>
 
       <button type="button" class="btn btn--primary" (click)="irACrearPublicacion($event)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <line x1="12" y1="5" x2="12" y2="19"/>
           <line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
@@ -50,9 +49,9 @@
 
   <!-- ERROR -->
   @if (errorMsg()) {
-    <div class="feed-error">
+    <div class="feed-error" role="alert">
       {{ errorMsg() }}
-      <button (click)="errorMsg.set(null)">×</button>
+      <button type="button" (click)="errorMsg.set(null)" aria-label="Cerrar mensaje de error">x</button>
     </div>
   }
 
@@ -65,7 +64,7 @@
   } @else if (postsVisibles().length === 0) {
     <div class="feed-estado feed-estado--empty">
       <div class="empty-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
       </div>
@@ -73,11 +72,11 @@
         @if (totalOcultos() > 0) {
           No hay publicaciones para mostrar. Tienes {{ totalOcultos() }} ocultas.
         } @else {
-          Todavía no hay publicaciones. Sé el primero en publicar.
+          Todavia no hay publicaciones. Se el primero en publicar.
         }
       </p>
       @if (totalOcultos() > 0) {
-        <button class="btn btn--secondary" style="margin-top: 12px;" (click)="mostrarTodosLosOcultos()">
+        <button type="button" class="btn btn--secondary" style="margin-top: 12px;" (click)="abrirConfirmRestaurar()">
           Mostrar las {{ totalOcultos() }} publicaciones ocultas
         </button>
       }
@@ -87,6 +86,35 @@
       @for (post of postsVisibles(); track post.id) {
         <kiert-post-card [post]="post" (click)="irAlPost(post.id)"></kiert-post-card>
       }
+    </div>
+  }
+
+  <!-- MODAL CONFIRMAR RESTAURAR OCULTOS -->
+  @if (mostrarConfirmRestaurar()) {
+    <div class="confirm-delete-overlay" (click)="cerrarConfirmRestaurar()">
+      <div class="confirm-delete-card" (click)="$event.stopPropagation()">
+        <div class="confirm-delete-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+
+        <h3>Mostrar publicaciones ocultas</h3>
+        <p>
+          Hay {{ totalOcultos() }} publicaciones ocultas en tu feed.
+          Quieres restaurarlas todas?
+        </p>
+
+        <div class="confirm-delete-actions">
+          <button type="button" class="btn-secondary" (click)="cerrarConfirmRestaurar()">
+            Cancelar
+          </button>
+          <button type="button" class="btn-danger" (click)="confirmarRestaurarTodos()">
+            Restaurar todas
+          </button>
+        </div>
+      </div>
     </div>
   }
 </div>

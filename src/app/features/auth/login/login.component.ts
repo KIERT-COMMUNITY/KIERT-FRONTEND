@@ -1,6 +1,7 @@
 // src/app/features/auth/login/login.component.ts
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
@@ -48,7 +49,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     const url = this.route.snapshot.queryParamMap.get('returnUrl');
-    if (url) this.returnUrl = url;
+    // SEGURIDAD: solo aceptar rutas internas
+    this.returnUrl = this.validarRutaInterna(url) ?? '/comunidad';
   }
 
   get email() { return this.form.controls.email; }
@@ -68,9 +70,10 @@ export class LoginComponent implements OnInit {
       next: () => {
         this.storage.quitarInvitado();
         this.cargando.set(false);
-        this.router.navigateByUrl(this.returnUrl || '/comunidad');
+        // SEGURIDAD: el returnUrl ya fue validado en ngOnInit
+        this.router.navigateByUrl(this.returnUrl);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         const mensaje = err.error?.error || err.error?.mensaje || '';
 
         const esAdmin = mensaje.toLowerCase().includes('administrador') ||
@@ -90,13 +93,12 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  /** ✅ Entrar como invitado: reset total para NO heredar del usuario anterior */
+  /** Entrar como invitado: reset total para NO heredar del usuario anterior */
   entrarComoInvitado(): void {
     // 1. Limpiar cualquier sesión previa
     this.auth.limpiarSesionPublica();
 
-    // 2. Resetear personalización al tema por defecto (evita que el invitado
-    //    herede el tema/marco/fondo del usuario anterior)
+    // 2. Resetear personalización al tema por defecto
     this.personalizacionStore.resetear();
 
     // 3. Limpiar claves de preferencias guardadas en storage
@@ -106,9 +108,25 @@ export class LoginComponent implements OnInit {
     this.storage.setInvitado();
 
     // 5. Si el returnUrl es ruta privada, mandamos al invitado a /comunidad
-    const esRutaPrivada = this.RUTAS_PRIVADAS.some(r => this.returnUrl.startsWith(r));
-    const destino = esRutaPrivada ? '/comunidad' : (this.returnUrl || '/comunidad');
+    const esRutaPrivada = this.RUTAS_PRIVADAS.some(r =>
+      this.returnUrl === r || this.returnUrl.startsWith(r + '/')
+    );
+    const destino = esRutaPrivada ? '/comunidad' : this.returnUrl;
 
     this.router.navigateByUrl(destino);
+  }
+
+  /**
+   * SEGURIDAD: valida que el returnUrl sea una ruta interna.
+   * Rechaza URLs absolutas (http://, https://), protocol-relative (//)
+   * y cualquier cosa que no empiece por "/".
+   */
+  private validarRutaInterna(url: string | null): string | null {
+    if (!url) return null;
+    if (!url.startsWith('/')) return null;
+    if (url.startsWith('//')) return null;
+    // Rechazar backslashes que Windows/IE interpretan como separadores
+    if (url.includes('\\')) return null;
+    return url;
   }
 }
