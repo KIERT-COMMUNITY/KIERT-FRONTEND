@@ -1,6 +1,6 @@
 // src/app/features/chat/chat-global/chat-global.component.ts
 import {
-  Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal
+  Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal, NgZone, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +24,8 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
   private readonly chatService = inject(ChatGlobalService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('scrollContainer') scrollContainer?: ElementRef<HTMLDivElement>;
 
@@ -33,13 +35,13 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
 
   texto = '';
 
-  // ✅ SECURITY: ciclo de vida
   private readonly destroy$ = new Subject<void>();
   private timeouts = new Set<ReturnType<typeof setTimeout>>();
 
   get estaLogueado(): boolean { return this.authService.estaLogueado(); }
 
   ngOnInit(): void {
+    // 1. Cargar historial
     this.chatService.obtenerHistorial(0, 50)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -50,13 +52,27 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
         error: err => console.error('[CHAT-GLOBAL] Error historial', err)
       });
 
-    this.chatService.mensajes$.pipe(takeUntil(this.destroy$)).subscribe(m => {
-      this.mensajes.update(lista => [...lista, m]);
-      this.scrollAbajo();
-    });
+    // 2. Escuchar mensajes en tiempo real
+    // IMPORTANTE: el callback viene del WebSocket, FUERA de la NgZone.
+    // Hay que envolverlo en ngZone.run() para que Angular detecte cambios.
+    this.chatService.mensajes$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(m => {
+        this.ngZone.run(() => {
+          this.mensajes.update(lista => [...lista, m]);
+          this.scrollAbajo();
+          this.cdr.detectChanges();
+        });
+      });
 
-    this.chatService.conectado$.pipe(takeUntil(this.destroy$)).subscribe(estado => this.conectado.set(estado));
+    // 3. Escuchar estado de conexion
+    this.chatService.conectado$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(estado => {
+        this.ngZone.run(() => this.conectado.set(estado));
+      });
 
+    // 4. Conectar al STOMP
     this.chatService.conectar();
   }
 
@@ -65,15 +81,14 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.timeouts.forEach(t => clearTimeout(t));
     this.timeouts.clear();
-    this.chatService.desconectar();
+    // NO llamar a this.chatService.desconectar() aqui:
+    // el servicio es singleton y debe mantenerse mientras la app viva.
   }
 
   enviar(): void {
     if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
     const contenido = this.texto.trim();
     if (!contenido) return;
-
-    // ✅ SECURITY: defensa en cliente (el backend valida igual)
     if (contenido.length > 500) return;
 
     this.chatService.enviarMensaje(contenido);
@@ -106,7 +121,6 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.router.navigate(['/usuario', usuarioId]);
   }
 
-  // ✅ SECURITY: helpers saneados
   getMarco(m: MensajeGlobal): string {
     return (m.marcoId || 'none').toString().trim().toLowerCase() || 'none';
   }

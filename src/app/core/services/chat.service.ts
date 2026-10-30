@@ -1,7 +1,7 @@
 // src/app/core/services/chat.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
@@ -22,15 +22,17 @@ export class ChatService {
   private readonly conversacionesSubject = new BehaviorSubject<Conversacion[]>([]);
   readonly conversaciones$ = this.conversacionesSubject.asObservable();
 
+  // ✅ NUEVO: emite cuando llega un mensaje nuevo de un usuario (via polling)
+  private readonly mensajeNuevoSubject = new Subject<{ usuarioId: number; mensaje: Mensaje }>();
+  readonly mensajeNuevo$ = this.mensajeNuevoSubject.asObservable();
+
   private readonly mensajesCache = new Map<number, Mensaje[]>();
 
   listarConversaciones(): Observable<Conversacion[]> {
     return this.http
       .get<Conversacion[]>(`${this.baseUrl}/conversaciones`)
       .pipe(
-        tap((conversaciones) =>
-          this.conversacionesSubject.next(conversaciones)
-        )
+        tap((conversaciones) => this.conversacionesSubject.next(conversaciones))
       );
   }
 
@@ -55,6 +57,27 @@ export class ChatService {
 
   getMensajes(usuarioId: number): Mensaje[] {
     return this.mensajesCache.get(usuarioId) ?? [];
+  }
+
+  // ✅ NUEVO: hace polling de mensajes y emite los NUEVOS al Subject
+  // Compara con la cache para no re-emitir los que ya se tienen.
+  pollMensajes(usuarioId: number): void {
+    this.listarMensajes(usuarioId).subscribe({
+      next: (mensajesDelServidor) => {
+        const yaTengo = this.mensajesCache.get(usuarioId) ?? [];
+        const idsYaTengo = new Set(yaTengo.map(m => m.id));
+        const nuevos = mensajesDelServidor.filter(m => !idsYaTengo.has(m.id));
+
+        // Actualizar cache con la lista completa del servidor
+        this.mensajesCache.set(usuarioId, mensajesDelServidor);
+
+        // Emitir solo los nuevos
+        nuevos.forEach(mensaje => {
+          this.mensajeNuevoSubject.next({ usuarioId, mensaje });
+        });
+      },
+      error: () => {}
+    });
   }
 
   enviarMensaje(usuarioId: number, contenido: string): Observable<Mensaje> {
@@ -101,15 +124,11 @@ export class ChatService {
   }
 
   listarSolicitudes(): Observable<SolicitudContacto[]> {
-    return this.http.get<SolicitudContacto[]>(
-      `${this.baseUrl}/solicitudes`
-    );
+    return this.http.get<SolicitudContacto[]>(`${this.baseUrl}/solicitudes`);
   }
 
   listarSolicitudesEnviadas(): Observable<SolicitudContacto[]> {
-    return this.http.get<SolicitudContacto[]>(
-      `${this.baseUrl}/solicitudes/enviadas`
-    );
+    return this.http.get<SolicitudContacto[]>(`${this.baseUrl}/solicitudes/enviadas`);
   }
 
   enviarSolicitud(usuarioId: number): Observable<SolicitudContactoDTO> {
@@ -146,9 +165,7 @@ export class ChatService {
   }
 
   eliminarContacto(usuarioId: number): Observable<void> {
-    return this.http.delete<void>(
-      `${this.baseUrl}/contactos/${usuarioId}`
-    );
+    return this.http.delete<void>(`${this.baseUrl}/contactos/${usuarioId}`);
   }
 
   actualizarConversacion(
@@ -160,14 +177,9 @@ export class ChatService {
       (conversacion) => conversacion.usuarioId === usuarioId
     );
 
-    if (index === -1) {
-      return;
-    }
+    if (index === -1) return;
 
-    conversaciones[index] = {
-      ...conversaciones[index],
-      ...cambios
-    };
+    conversaciones[index] = { ...conversaciones[index], ...cambios };
     this.conversacionesSubject.next(conversaciones);
   }
 
@@ -176,9 +188,7 @@ export class ChatService {
       .getValue()
       .find((item) => item.usuarioId === usuarioId);
 
-    if (!conversacion) {
-      return;
-    }
+    if (!conversacion) return;
 
     this.actualizarConversacion(usuarioId, {
       noLeidos: conversacion.noLeidos + 1
@@ -198,7 +208,6 @@ export class ChatService {
       this.mensajesCache.clear();
       return;
     }
-
     this.mensajesCache.delete(usuarioId);
   }
 
@@ -219,10 +228,11 @@ export class ChatService {
 
     return formData;
   }
+
   enviarSticker(receptorId: number, stickerId: number): Observable<Mensaje> {
-  return this.http.post<Mensaje>(
-    `${environment.apiUrl}/chat/${receptorId}/sticker`,
-    { stickerId }
-  );
-}
+    return this.http.post<Mensaje>(
+      `${environment.apiUrl}/chat/${receptorId}/sticker`,
+      { stickerId }
+    );
+  }
 }

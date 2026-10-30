@@ -33,6 +33,7 @@ export class ChatGlobalService implements OnDestroy {
   private readonly wsUrl = environment.wsUrl;
 
   private pendientes: string[] = [];
+  private suscripcionTopic: { unsubscribe: () => void } | null = null;
 
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
@@ -83,27 +84,42 @@ export class ChatGlobalService implements OnDestroy {
       debug: () => {},
       reconnectDelay: 5000,
       onConnect: () => {
+        if (isDevMode()) console.log('[CHAT-GLOBAL] STOMP conectado, suscribiendo a /topic/chat-global');
         this.conectadoSubject.next(true);
 
-        this.stompClient?.subscribe('/topic/chat-global', (msg: IMessage) => {
-          try {
-            const mensaje: MensajeGlobal = JSON.parse(msg.body);
-            this.mensajesSubject.next(mensaje);
-          } catch (e) {
-            if (isDevMode()) console.error('[CHAT-GLOBAL] Error parseando mensaje', e);
+        // Cancelar suscripcion previa si la hubiera (evita duplicados en reconexion)
+        this.suscripcionTopic?.unsubscribe();
+
+        this.suscripcionTopic = this.stompClient!.subscribe(
+          '/topic/chat-global',
+          (msg: IMessage) => {
+            if (isDevMode()) console.log('[CHAT-GLOBAL] Mensaje recibido del topic:', msg.body);
+            try {
+              const mensaje: MensajeGlobal = JSON.parse(msg.body);
+              this.mensajesSubject.next(mensaje);
+            } catch (e) {
+              if (isDevMode()) console.error('[CHAT-GLOBAL] Error parseando mensaje', e, msg.body);
+            }
           }
-        });
+        );
 
         this.flushPendientes();
       },
-      onDisconnect: () => this.conectadoSubject.next(false),
+      onDisconnect: () => {
+        this.suscripcionTopic = null;
+        this.conectadoSubject.next(false);
+      },
       onStompError: (frame) => {
         if (isDevMode()) {
           console.error('[CHAT-GLOBAL] STOMP error', frame.headers['message'], frame.body);
         }
+        this.suscripcionTopic = null;
         this.conectadoSubject.next(false);
       },
-      onWebSocketClose: () => this.conectadoSubject.next(false)
+      onWebSocketClose: () => {
+        this.suscripcionTopic = null;
+        this.conectadoSubject.next(false);
+      }
     });
 
     this.stompClient.activate();
@@ -132,6 +148,7 @@ export class ChatGlobalService implements OnDestroy {
   }
 
   private publishMensaje(contenido: string): void {
+    if (isDevMode()) console.log('[CHAT-GLOBAL] Publicando a /app/chat-global/enviar:', contenido);
     this.stompClient?.publish({
       destination: '/app/chat-global/enviar',
       body: JSON.stringify({ contenido })
@@ -139,6 +156,8 @@ export class ChatGlobalService implements OnDestroy {
   }
 
   desconectar(): void {
+    this.suscripcionTopic?.unsubscribe();
+    this.suscripcionTopic = null;
     this.stompClient?.deactivate();
     this.stompClient = null;
     this.pendientes = [];
