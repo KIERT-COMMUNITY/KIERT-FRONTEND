@@ -757,6 +757,8 @@
 // HEADER CONVERSACIÓN
 // ============================================================
 .chat-top {
+  position: relative;
+  z-index: 30;              // ✅ el header y su menú quedan por encima del stream
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1538,10 +1540,18 @@
 }
 
 // ============================================================
-// MENÚ DE OPCIONES DEL GRUPO
+// MENÚ DE OPCIONES DEL GRUPO (3 puntitos)
 // ============================================================
 .chat-top__menu-wrapper {
   position: relative;
+}
+
+// ✅ Capa invisible: cierra el menú al hacer click fuera
+.dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: transparent;
 }
 
 .dropdown-menu {
@@ -1554,7 +1564,7 @@
   border-radius: 12px;
   padding: 6px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-  z-index: 100;
+  z-index: 200;             // ✅ antes 100
   animation: fadeInDown 0.15s ease;
 }
 
@@ -1697,7 +1707,7 @@
 }
 
 // ============================================================
-// ✅ BOTÓN STICKERS EN EL INPUT
+// BOTÓN STICKERS EN EL INPUT
 // ============================================================
 .chat-input__sticker {
   display: flex;
@@ -1723,7 +1733,7 @@
 }
 
 // ============================================================
-// ✅ STICKER DENTRO DEL MENSAJE
+// STICKER DENTRO DEL MENSAJE
 // ============================================================
 .msg__sticker {
   max-width: 160px;
@@ -1746,7 +1756,7 @@
 .msg:not(.msg--mine) .msg__sticker { margin-right: auto; }
 
 // ============================================================
-// ✅ STICKER PICKER — DISEÑO MEJORADO
+// STICKER PICKER — DISEÑO MEJORADO
 // ============================================================
 kiert-sticker-picker {
   position: absolute !important;
@@ -1757,7 +1767,6 @@ kiert-sticker-picker {
   max-width: calc(100vw - 32px);
   z-index: 50;
 
-  // El panel interno del sticker picker
   .sticker-picker {
     width: 100%;
     max-width: 380px;
@@ -1774,7 +1783,6 @@ kiert-sticker-picker {
     overflow: hidden;
     animation: stickerPop 0.18s ease;
 
-    // Header
     .sticker-picker__header {
       display: flex;
       align-items: center;
@@ -1808,7 +1816,6 @@ kiert-sticker-picker {
       }
     }
 
-    // Buscador
     .sticker-picker__search {
       display: flex;
       align-items: center;
@@ -1844,7 +1851,6 @@ kiert-sticker-picker {
       }
     }
 
-    // Body
     .sticker-picker__body {
       flex: 1;
       overflow-y: auto;
@@ -1872,7 +1878,6 @@ kiert-sticker-picker {
       p { margin: 0; font-size: 0.85rem; }
     }
 
-    // Footer
     .sticker-picker__footer {
       padding: 10px 12px;
       border-top: 1px solid var(--border, #26313c);
@@ -1880,7 +1885,6 @@ kiert-sticker-picker {
       background: rgba(255, 255, 255, 0.02);
     }
 
-    // Tabs de stickers
     .sticker-tab {
       padding: 6px 14px;
       background: transparent;
@@ -1903,7 +1907,6 @@ kiert-sticker-picker {
       }
     }
 
-    // Grid
     .sticker-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -1938,7 +1941,6 @@ kiert-sticker-picker {
       &:active { transform: scale(0.96); }
     }
 
-    // Botón crear sticker
     .sticker-btn-crear {
       display: flex;
       align-items: center;
@@ -1965,7 +1967,6 @@ kiert-sticker-picker {
   }
 }
 
-// Animación de entrada del panel
 @keyframes stickerPop {
   from {
     opacity: 0;
@@ -1993,8 +1994,9 @@ kiert-sticker-picker {
     }
   }
 }
+
 // ============================================================
-// ✅ BLOQUE INVITADO (input falso + botón "Registrarse")
+// BLOQUE INVITADO (input falso + botón "Registrarse")
 // ============================================================
 .chat-input--guest {
   cursor: pointer;

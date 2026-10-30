@@ -405,6 +405,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mensajes.set([]);
     this.miembros.set([]);
     this.mostrarMiembros.set(false);
+    this.mostrarOpcionesGrupo.set(false);
     this.router.navigate(['/chat']);
   }
 
@@ -433,7 +434,11 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ============================================================
   // INFO DEL GRUPO
   // ============================================================
-  abrirInfoGrupo(): void { this.mostrarInfoGrupo.set(true); }
+  abrirInfoGrupo(): void {
+    this.mostrarOpcionesGrupo.set(false);
+    this.mostrarInfoGrupo.set(true);
+  }
+
   cerrarInfoGrupo(): void { this.mostrarInfoGrupo.set(false); }
 
   onGrupoActualizado(g: Grupo): void {
@@ -450,6 +455,10 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   toggleOpcionesGrupo(): void {
     this.mostrarOpcionesGrupo.update(v => !v);
+  }
+
+  cerrarOpcionesGrupo(): void {
+    this.mostrarOpcionesGrupo.set(false);
   }
 
   esAdmin(): boolean {
