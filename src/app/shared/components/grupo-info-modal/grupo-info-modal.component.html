@@ -1,55 +1,79 @@
-<!-- src/app/shared/components/grupo-info-modal/grupo-info-modal.component.html -->
-<div class="gim-overlay" (mousedown)="onOverlayMouseDown($event)" (click)="onOverlayClick($event)">
-  <div class="gim-modal" role="dialog" aria-modal="true" aria-labelledby="gim-title"
-       (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
 
-    <!-- HEADER -->
+<!-- src/app/shared/components/grupo-info-modal/grupo-info-modal.component.html -->
+<div
+  class="gim-overlay"
+  (mousedown)="onOverlayMouseDown($event)"
+  (click)="onOverlayClick($event)"
+>
+  <div
+    class="gim-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="gim-title"
+    (mousedown)="$event.stopPropagation()"
+    (click)="$event.stopPropagation()"
+  >
+
+    <!-- ============================================================ -->
+    <!-- HEADER                                                        -->
+    <!-- ============================================================ -->
     <header class="gim-header">
       @if (agregandoMiembros()) {
-        <button class="gim-header__close" type="button" (click)="cerrarAgregarMiembros()" aria-label="Volver">
+        <button
+          class="gim-header__close"
+          type="button"
+          (click)="cerrarAgregarMiembros()"
+          aria-label="Volver"
+        >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h2 id="gim-title">Anadir miembros</h2>
+        <h2 id="gim-title">Añadir miembros</h2>
       } @else {
-        <button class="gim-header__close" type="button" (click)="onCerrar()" aria-label="Cerrar">
+        <button
+          class="gim-header__close"
+          type="button"
+          (click)="onCerrar()"
+          aria-label="Cerrar"
+        >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
-        <h2 id="gim-title">Informacion del grupo</h2>
+        <h2 id="gim-title">Información del grupo</h2>
       }
     </header>
 
-    <!-- LOADING -->
+    <!-- ============================================================ -->
+    <!-- LOADING                                                        -->
+    <!-- ============================================================ -->
     @if (cargando()) {
       <div class="gim-loading">
         <div class="gim-spinner"></div>
-        <span>Cargando informacion...</span>
+        <span>Cargando información...</span>
       </div>
     }
 
-    <!-- SIN DATOS (error al cargar) -->
-    @if (!cargando() && !grupo()) {
-      <div class="gim-loading">
-        <span>No se pudo cargar la informacion del grupo.</span>
-        <button class="gim-btn gim-btn--ghost" type="button" (click)="onCerrar()">Cerrar</button>
-      </div>
-    }
-
-    <!-- BODY: INFO -->
+    <!-- ============================================================ -->
+    <!-- BODY: INFO DEL GRUPO                                          -->
+    <!-- ============================================================ -->
     @if (!cargando() && grupo() && !agregandoMiembros()) {
       <div class="gim-body">
 
+        <!-- PROFILE -->
         <section class="gim-profile">
           <div class="gim-avatar-wrap">
-            @if (foto(grupo()!.fotoUrl); as fotoGrupo) {
-              <img [src]="fotoGrupo" [alt]="grupo()!.nombre" class="gim-avatar" />
+            @if (grupo()!.fotoUrl) {
+              <img
+                [src]="grupo()!.fotoUrl"
+                [alt]="grupo()!.nombre"
+                class="gim-avatar"
+              />
             } @else {
               <div class="gim-avatar gim-avatar--placeholder">
-                <span>{{ inicial(grupo()!.nombre) }}</span>
+                <span>{{ grupo()!.nombre.charAt(0).toUpperCase() }}</span>
               </div>
             }
 
@@ -63,11 +87,21 @@
                     <circle cx="12" cy="13" r="4" />
                   </svg>
                 }
-                <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden />
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onFotoSeleccionada($event)"
+                  hidden
+                />
               </label>
               @if (grupo()!.fotoUrl) {
-                <button class="gim-avatar__delete" type="button" (click)="eliminarFoto()"
-                        title="Eliminar foto" aria-label="Eliminar foto">x</button>
+                <button
+                  class="gim-avatar__delete"
+                  type="button"
+                  (click)="eliminarFoto()"
+                  title="Eliminar foto"
+                  aria-label="Eliminar foto"
+                >×</button>
               }
             }
           </div>
@@ -75,7 +109,8 @@
           @if (!editando()) {
             <h1 class="gim-profile__name">{{ grupo()!.nombre }}</h1>
             <p class="gim-profile__members">
-              {{ miembros().length }} {{ miembros().length === 1 ? "miembro" : "miembros" }}
+              {{ miembros().length }}
+              {{ miembros().length === 1 ? "miembro" : "miembros" }}
             </p>
             @if (grupo()!.descripcion) {
               <p class="gim-profile__description">{{ grupo()!.descripcion }}</p>
@@ -93,7 +128,7 @@
                 <input type="text" [(ngModel)]="editNombre" maxlength="100" class="gim-edit-input" />
               </label>
               <label>
-                <span>Descripcion</span>
+                <span>Descripción</span>
                 <textarea [(ngModel)]="editDescripcion" rows="3" maxlength="500" class="gim-edit-textarea"></textarea>
               </label>
               <div class="gim-edit-actions">
@@ -104,7 +139,7 @@
           }
         </section>
 
-        <!-- ACCIONES -->
+        <!-- ACTIONS -->
         @if (!editando()) {
           <section class="gim-actions" aria-label="Acciones del grupo">
             @if (esAdmin()) {
@@ -117,7 +152,7 @@
                     <line x1="23" y1="11" x2="17" y2="11" />
                   </svg>
                 </span>
-                <span>Anadir miembros</span>
+                <span>Añadir miembros</span>
               </button>
             }
             <button class="gim-action" type="button" (click)="invitarConLink()">
@@ -145,54 +180,86 @@
 
         <!-- TABS -->
         <nav class="gim-tabs" role="tablist">
-          <button class="gim-tab" type="button" [class.gim-tab--active]="tabActivo === 'miembros'"
-                  (click)="cambiarTab('miembros')" role="tab">
+          <button
+            class="gim-tab"
+            type="button"
+            [class.gim-tab--active]="tabActivo === 'miembros'"
+            (click)="cambiarTab('miembros')"
+            role="tab"
+          >
             Miembros <span>{{ miembros().length }}</span>
           </button>
-          <button class="gim-tab" type="button" [class.gim-tab--active]="tabActivo === 'historial'"
-                  (click)="cambiarTab('historial')" role="tab">
+          <button
+            class="gim-tab"
+            type="button"
+            [class.gim-tab--active]="tabActivo === 'historial'"
+            (click)="cambiarTab('historial')"
+            role="tab"
+          >
             Historial <span>{{ historial().length }}</span>
           </button>
         </nav>
 
-        <!-- TAB MIEMBROS -->
-        @if (tabActivo === 'miembros') {
+        <!-- TAB: MIEMBROS -->
+        @if (tabActivo === "miembros") {
           <section class="gim-panel">
             <h3 class="gim-section-title">
-              {{ miembros().length }} {{ miembros().length === 1 ? "participante" : "participantes" }}
+              {{ miembros().length }}
+              {{ miembros().length === 1 ? "participante" : "participantes" }}
             </h3>
 
             @if (miembros().length === 0) {
-              <div class="gim-empty"><p>Sin miembros</p></div>
+              <div class="gim-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                </svg>
+                <p>Sin miembros</p>
+              </div>
             } @else {
               <ul class="gim-members">
                 @for (m of miembros(); track m.usuarioId) {
                   <li>
-                    <button class="gim-member" type="button" (click)="abrirPerfil(m.usuarioId)"
-                            [class.gim-member--admin]="m.rol === 'ADMIN'">
+                    <button
+                      class="gim-member"
+                      type="button"
+                      (click)="abrirPerfil(m.usuarioId)"
+                      [class.gim-member--admin]="m.rol === 'ADMIN'"
+                    >
+                      <!-- ============================================ -->
+                      <!-- ✅ AVATAR CON MARCO DE PERFIL                -->
+                      <!-- ============================================ -->
                       <span class="gim-member__avatar">
-                        <span class="gim-member__avatar-img">
-                          @if (foto(m.fotoPerfilUrl); as fotoM) {
-                            <img [src]="fotoM" [alt]="m.nombreUsuario" loading="lazy" />
-                          } @else {
-                            <span class="gim-member__initial">{{ inicial(m.nombreUsuario) }}</span>
-                          }
-                        </span>
-                        <span class="gim-member__status" [class.gim-member__status--online]="m.enLinea"></span>
+                        <kiert-avatar-frame
+                          [fotoUrl]="m.fotoPerfilUrl || null"
+                          [nombre]="m.nombreUsuario"
+                          [size]="44"
+                          [marcoId]="getMarcoMiembro(m)"
+                          [usuarioId]="m.usuarioId"
+                        ></kiert-avatar-frame>
+                        <span
+                          class="gim-member__status"
+                          [class.gim-member__status--online]="m.enLinea"
+                        ></span>
                       </span>
 
+                      <!-- Info -->
                       <span class="gim-member__info">
                         <span class="gim-member__name-row">
                           <span class="gim-member__name">{{ m.nombreUsuario }}</span>
-                          @if (m.rol === 'ADMIN') {
+                          @if (m.rol === "ADMIN") {
                             <span class="gim-member__badge">Admin</span>
                           }
                         </span>
-                        <span class="gim-member__state" [class.gim-member__state--online]="m.enLinea">
+                        <span
+                          class="gim-member__state"
+                          [class.gim-member__state--online]="m.enLinea"
+                        >
                           {{ getEstadoMiembro(m) }}
                         </span>
                       </span>
 
+                      <!-- Flecha -->
                       <span class="gim-member__arrow">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                           <polyline points="9 18 15 12 9 6" />
@@ -206,12 +273,14 @@
           </section>
         }
 
-        <!-- TAB HISTORIAL -->
-        @if (tabActivo === 'historial') {
+        <!-- TAB: HISTORIAL -->
+        @if (tabActivo === "historial") {
           <section class="gim-panel">
             <h3 class="gim-section-title">Actividad del grupo</h3>
             @if (historial().length === 0) {
-              <div class="gim-empty"><p>Sin actividad todavia</p></div>
+              <div class="gim-empty">
+                <p>Sin actividad todavía</p>
+              </div>
             } @else {
               <ol class="gim-timeline">
                 @for (h of historial(); track h.id) {
@@ -220,13 +289,15 @@
                     <div class="gim-event__content">
                       <div class="gim-event__heading">
                         <strong>&#64;{{ h.usuarioNombre }}</strong>
-                        <time [title]="formatearFechaHora(h.fecha)">{{ formatearRelativo(h.fecha) }}</time>
+                        <time [title]="formatearFechaHora(h.fecha)">
+                          {{ formatearRelativo(h.fecha) }}
+                        </time>
                       </div>
                       <p>{{ getAccionTexto(h.accion) }}</p>
                       @if (h.valorAnterior && h.valorNuevo) {
                         <div class="gim-event__change">
                           <span class="gim-event__old">{{ h.valorAnterior }}</span>
-                          <span>&#8594;</span>
+                          <span>→</span>
                           <span class="gim-event__new">{{ h.valorNuevo }}</span>
                         </div>
                       } @else if (h.valorNuevo) {
@@ -246,11 +317,13 @@
       </div>
     }
 
-    <!-- BODY: ANADIR MIEMBROS -->
+    <!-- ============================================================ -->
+    <!-- BODY: AÑADIR MIEMBROS                                          -->
+    <!-- ============================================================ -->
     @if (!cargando() && grupo() && agregandoMiembros()) {
       <div class="gim-add-body">
         <p class="gim-add-hint">
-          Busca usuarios existentes. Los usuarios seleccionados recibiran una invitacion que deberan aceptar.
+          Busca usuarios existentes. Los usuarios seleccionados recibirán una invitación que deberán aceptar.
         </p>
 
         <div class="gim-search">
@@ -258,8 +331,13 @@
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <input type="text" [ngModel]="busquedaUsuario()" (ngModelChange)="onBusquedaUsuarioChange($event)"
-                 placeholder="Buscar usuarios..." autocomplete="off" />
+          <input
+            type="text"
+            [ngModel]="busquedaUsuario()"
+            (ngModelChange)="onBusquedaUsuarioChange($event)"
+            placeholder="Buscar usuarios..."
+            autocomplete="off"
+          />
         </div>
 
         @if (usuariosSeleccionados().size > 0) {
@@ -277,17 +355,21 @@
             </div>
           } @else if (resultadosUsuarios().length > 0) {
             @for (user of resultadosUsuarios(); track user.id) {
-              <button class="gim-user" type="button"
-                      [class.gim-user--selected]="estaSeleccionado(user.id)"
-                      (click)="toggleUsuario(user.id)">
+              <button
+                class="gim-user"
+                type="button"
+                [class.gim-user--selected]="estaSeleccionado(user.id)"
+                (click)="toggleUsuario(user.id)"
+              >
+                <!-- ✅ AVATAR con marco -->
                 <span class="gim-user__avatar">
-                  <span class="gim-user__avatar-img">
-                    @if (foto(user.fotoPerfilUrl); as fotoU) {
-                      <img [src]="fotoU" [alt]="user.nombreUsuario" loading="lazy" />
-                    } @else {
-                      <span>{{ inicial(user.nombreUsuario) }}</span>
-                    }
-                  </span>
+                  <kiert-avatar-frame
+                    [fotoUrl]="user.fotoPerfilUrl || null"
+                    [nombre]="user.nombreUsuario"
+                    [size]="40"
+                    [marcoId]="getMarcoUsuario(user.id)"
+                    [usuarioId]="user.id"
+                  ></kiert-avatar-frame>
                 </span>
 
                 <span class="gim-user__info">
@@ -305,9 +387,13 @@
               </button>
             }
           } @else if (busquedaUsuario().trim().length >= 2) {
-            <div class="gim-empty"><p>No se encontraron usuarios disponibles.</p></div>
+            <div class="gim-empty">
+              <p>No se encontraron usuarios disponibles.</p>
+            </div>
           } @else {
-            <div class="gim-empty"><p>Escribe al menos 2 caracteres para buscar.</p></div>
+            <div class="gim-empty">
+              <p>Escribe al menos 2 caracteres para buscar.</p>
+            </div>
           }
         </div>
 
@@ -323,8 +409,7 @@
         <button class="gim-btn gim-btn--ghost" type="button" (click)="cerrarAgregarMiembros()" [disabled]="enviandoInvitaciones()">
           Cancelar
         </button>
-        <button class="gim-btn gim-btn--primary" type="button" (click)="enviarInvitaciones()"
-                [disabled]="usuariosSeleccionados().size === 0 || enviandoInvitaciones()">
+        <button class="gim-btn gim-btn--primary" type="button" (click)="enviarInvitaciones()" [disabled]="usuariosSeleccionados().size === 0 || enviandoInvitaciones()">
           {{ enviandoInvitaciones() ? "Enviando..." : "Enviar invitaciones" }}
         </button>
       </footer>
@@ -332,3 +417,4 @@
 
   </div>
 </div>
+
