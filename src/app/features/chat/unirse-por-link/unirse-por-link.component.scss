@@ -1,0 +1,100 @@
+// src/app/features/chat/unirse-por-link/unirse-por-link.component.scss
+.unirse-container {
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  min-height: 100vh; 
+  background: #0f172a; 
+  padding: 20px;
+}
+
+.card {
+  background: #1e293b; 
+  color: white; 
+  padding: 40px;
+  border-radius: 16px; 
+  text-align: center; 
+  max-width: 400px; 
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.grupo-foto { 
+  width: 100px; 
+  height: 100px; 
+  border-radius: 50%; 
+  object-fit: cover; 
+  margin-bottom: 20px; 
+}
+
+.grupo-foto-placeholder {
+  width: 100px; 
+  height: 100px; 
+  border-radius: 50%; 
+  background: #3b82f6;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  font-size: 40px; 
+  font-weight: bold; 
+  margin: 0 auto 20px;
+}
+
+h1 { 
+  margin: 0 0 10px; 
+  font-size: 24px; 
+}
+
+.desc { 
+  color: #94a3b8; 
+  margin-bottom: 20px; 
+}
+
+.meta { 
+  color: #64748b; 
+  font-size: 14px; 
+  margin-bottom: 30px; 
+}
+
+.aviso { 
+  background: #f59e0b; 
+  color: #000; 
+  padding: 10px; 
+  border-radius: 8px; 
+  margin-bottom: 20px; 
+}
+
+.btn-primary {
+  background: #3b82f6; 
+  color: white; 
+  border: none; 
+  padding: 14px 24px;
+  border-radius: 8px; 
+  font-size: 16px; 
+  cursor: pointer; 
+  width: 100%; 
+  font-weight: bold;
+}
+
+.btn-primary:hover { 
+  background: #2563eb; 
+}
+
+.btn-secondary {
+  background: transparent; 
+  color: #94a3b8; 
+  border: 1px solid #475569; 
+  padding: 12px;
+  border-radius: 8px; 
+  width: 100%; 
+  cursor: pointer;
+}
+
+.error h2 { 
+  color: #ef4444; 
+}
+
+.spinner { 
+  color: white; 
+  font-size: 20px; 
+}

@@ -1,6 +1,4 @@
-
-
-
+// src/app/shared/components/invitacion-modal/invitar-link-modal.component.ts
 import { Component, EventEmitter, Input, Output, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +26,9 @@ export class InvitarLinkModalComponent implements OnInit {
   errorMsg = signal<string | null>(null);
   copiado = signal<string | null>(null);
   mostrarQR = signal<string | null>(null);
+  
+  // NUEVO: Controla el ID del link a desactivar (para el modal de confirmación)
+  linkAConfirmar = signal<number | null>(null);
 
   // ===== CONFIGURACIÓN =====
   usosMaximos = signal<number>(0);       // 0 = ilimitado
@@ -132,14 +133,31 @@ export class InvitarLinkModalComponent implements OnInit {
     this.mostrarQR.set(null);
   }
 
+  // ===== DESACTIVAR LINK (con modal propio) =====
   desactivarLink(linkId: number): void {
-    if (!confirm('¿Desactivar este link? Ya no podrá usarse para unirse.')) return;
+    // En lugar de usar confirm(), abrimos el modal guardando el ID
+    this.linkAConfirmar.set(linkId);
+  }
+
+  cancelarDesactivar(): void {
+    this.linkAConfirmar.set(null);
+  }
+
+  confirmarDesactivar(): void {
+    const linkId = this.linkAConfirmar();
+    if (!linkId) return;
 
     this.grupoService.desactivarLink(linkId).subscribe({
       next: () => {
         this.links.update(lista =>
           lista.map(l => l.id === linkId ? { ...l, activo: false } : l)
         );
+        this.linkAConfirmar.set(null); // Cerrar modal tras éxito
+      },
+      error: (err) => {
+        this.errorMsg.set(err?.error?.error || 'Error al desactivar link');
+        setTimeout(() => this.errorMsg.set(null), 3000);
+        this.linkAConfirmar.set(null);
       }
     });
   }
@@ -169,13 +187,3 @@ export class InvitarLinkModalComponent implements OnInit {
     return `${link.usosActuales}/${link.usosMaximos} usos`;
   }
 }
-
-
-
-
-
-
-
-
-
-

@@ -4,7 +4,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  // ===== AUTENTICACIÓN =====
+  // ===== AUTENTICACIÓN Y RUTAS PÚBLICAS =====
   {
     path: '',
     loadComponent: () =>
@@ -14,6 +14,12 @@ export const routes: Routes = [
       { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
       { path: 'registro', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
       { path: 'recuperar-contrasena', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
+      
+      // Ruta pública para procesar el link de invitación
+      { 
+        path: 'invitacion/:token', 
+        loadComponent: () => import('./features/chat/unirse-por-link/unirse-por-link.component').then(m => m.UnirsePorLinkComponent) 
+      },
     ],
   },
 
@@ -76,15 +82,13 @@ export const routes: Routes = [
       // ---------- CHAT GLOBAL ----------
       { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent) },
 
-      // ============================================================
-      // ✅ CHAT (Estructura de develop11 para que funcione el HMR)
-      // ============================================================
+      // ---------- CHAT (Estructura corregida para HMR) ----------
       {
         path: 'chat',
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
       },
       {
-        path: 'chat/grupo/:id', // 👈 ANTES ERA :grupoId y cargaba a ChatComponent. AHORA carga a GrupoChatComponent.
+        path: 'chat/grupo/:id',
         loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent)
       },
       {

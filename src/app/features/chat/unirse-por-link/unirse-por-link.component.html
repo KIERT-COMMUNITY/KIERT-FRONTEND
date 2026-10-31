@@ -1,0 +1,39 @@
+<!-- src/app/features/chat/unirse-por-link/unirse-por-link.component.html -->
+<div class="unirse-container">
+  @if (cargando()) {
+    <div class="spinner">Cargando invitación...</div>
+  } @else {
+    @if (info()?.valida) {
+      <div class="card">
+        @if (info()?.grupoFoto) {
+          <img [src]="info()?.grupoFoto" alt="Foto del grupo" class="grupo-foto">
+        } @else {
+          <div class="grupo-foto-placeholder">
+            {{ info()?.grupoNombre?.charAt(0) }}
+          </div>
+        }
+        
+        <h1>{{ info()?.grupoNombre }}</h1>
+        <p class="desc">{{ info()?.grupoDescripcion }}</p>
+        <p class="meta">Creado por <strong>{{ info()?.creadorNombre }}</strong> · {{ info()?.totalMiembros }} miembros</p>
+
+        @if (!estaLogueado()) {
+          <div class="aviso">
+            Debes iniciar sesión para unirte a este grupo.
+          </div>
+          <button class="btn-primary" (click)="irALogin()">Iniciar Sesión</button>
+        } @else {
+          <button class="btn-primary" (click)="unirse()" [disabled]="uniendose()">
+            {{ uniendose() ? 'Uniéndose...' : 'Unirse al grupo' }}
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="card error">
+        <h2>Invitación no válida</h2>
+        <p>{{ info()?.mensaje || 'Este link ha expirado o ya no es válido.' }}</p>
+        <button class="btn-secondary" (click)="irAlInicio()">Ir al inicio</button>
+      </div>
+    }
+  }
+</div>
