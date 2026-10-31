@@ -15,16 +15,16 @@
             "outputPath": "dist/kiert-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
             ],
-            "styles": [
-              "src/styles.scss"
-            ],
+            "styles": ["src/styles.scss"],
             "scripts": []
           },
           "configurations": {
@@ -32,16 +32,19 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "35kb",
-                  "maximumError": "50kb"
+                  "maximumWarning": "35kB",
+                  "maximumError": "50kB"
                 }
               ],
               "outputHashing": "all",
+              "optimization": true,
+              "sourceMap": false,
+              "extractLicenses": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -60,14 +63,22 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "hmr": true,
+            "liveReload": true,
+            "poll": 500,
+            "open": false
           },
           "configurations": {
             "production": {
-              "buildTarget": "kiert-frontend:build:production"
+              "buildTarget": "kiert-frontend:build:production",
+              "hmr": false,
+              "liveReload": false
             },
             "development": {
-              "buildTarget": "kiert-frontend:build:development"
+              "buildTarget": "kiert-frontend:build:development",
+              "hmr": true,
+              "liveReload": true
             }
           },
           "defaultConfiguration": "development"
@@ -84,6 +95,7 @@
     }
   },
   "cli": {
-    "analytics": "50f32b1f-c437-428f-a483-c77007a47f98"
+    "analytics": "50f32b1f-c437-428f-a483-c77007a47f98",
+    "packageManager": "npm"
   }
 }

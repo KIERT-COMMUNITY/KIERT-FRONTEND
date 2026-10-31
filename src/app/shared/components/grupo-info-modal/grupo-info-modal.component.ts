@@ -1,44 +1,28 @@
-
 // src/app/shared/components/grupo-info-modal/grupo-info-modal.component.ts
 import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  OnDestroy,
-  Output,
-  inject,
-  signal,
+  Component, EventEmitter, Input, OnInit, OnDestroy, Output,
+  inject, signal, OnChanges, SimpleChanges
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
-  GrupoService,
-  Grupo,
-  MiembroGrupo,
-  GrupoHistorial,
+  GrupoService, Grupo, MiembroGrupo, GrupoHistorial,
 } from "../../../core/services/grupo.service";
 import { UserService } from "../../../core/services/user.service";
 import { User } from "../../../core/models/user.model";
 import { AuthService } from "../../../core/services/auth.service";
 import { PersonalizacionStore } from "../../../core/services/personalizacion-store.service";
-
-// ✅ AÑADIR:
 import { AvatarFrameComponent } from "../../components/avatar-frame/avatar-frame.component";
 
 @Component({
   selector: "kiert-grupo-info-modal",
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    AvatarFrameComponent,      // ✅ AÑADIR
-  ],
+  imports: [CommonModule, FormsModule, AvatarFrameComponent],
   templateUrl: "./grupo-info-modal.component.html",
   styleUrl: "./grupo-info-modal.component.scss",
 })
-export class GrupoInfoModalComponent implements OnInit, OnDestroy {
+export class GrupoInfoModalComponent implements OnInit, OnDestroy, OnChanges {
   private grupoService = inject(GrupoService);
   private userService = inject(UserService);
   private router = inject(Router);
@@ -46,6 +30,7 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
   public personalizacionStore = inject(PersonalizacionStore);
 
   @Input() grupoId!: number;
+                       // ✅ NUEVO
   @Output() cerrar = new EventEmitter<void>();
   @Output() grupoActualizado = new EventEmitter<Grupo>();
   @Output() abrirInvitarLink = new EventEmitter<void>();
@@ -84,6 +69,15 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
     this.refreshInterval = setInterval(() => {
       this.cargarMiembros();
     }, 8000);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // ✅ recarga cuando el padre incrementa version (botón dev)
+    if (changes["version"] && !changes["version"].firstChange) {
+      this.cargarGrupo();
+      this.cargarMiembros();
+      this.cargarHistorial();
+    }
   }
 
   ngOnDestroy(): void {
@@ -134,7 +128,7 @@ export class GrupoInfoModalComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ✅ MARCOS DE PERFIL
+  // MARCOS DE PERFIL
   // ============================================================
   getMarcoMiembro(miembro: MiembroGrupo | null | undefined): string {
     if (!miembro) return "none";

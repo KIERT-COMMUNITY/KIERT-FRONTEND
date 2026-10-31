@@ -28,7 +28,18 @@ export class AppComponent implements OnInit, OnDestroy {
   private presenciaActiva = false;
 
   ngOnInit(): void {
-    if (isDevMode()) console.log('[APP] AppComponent: ngOnInit');
+    if (isDevMode()) {
+      console.log('[APP] AppComponent: ngOnInit');
+      
+      // ✅ TRUCO DEFINITIVO: Recarga completa (F5) al guardar archivos
+      // Esto soluciona los problemas de HMR con modales que no se actualizan
+      if ((import.meta as any).hot) {
+        (import.meta as any).hot.on('vite:beforeUpdate', () => {
+          console.log('[APP] Cambio detectado. Recargando navegador...');
+          window.location.reload();
+        });
+      }
+    }
 
     // Suscripcion a cambios de sesion de usuario normal
     this.auth.sesionCambiada$
@@ -38,8 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.sincronizarPresencia();
       });
 
-    // Suscripcion a cambios de sesion de admin (si el servicio lo expone)
-    // Ajusta el nombre del observable si en tu AdminAuthService se llama distinto
+    // Suscripcion a cambios de sesion de admin
     const adminSesion$ = (this.adminAuth as any).sesionCambiada$;
     if (adminSesion$ && typeof adminSesion$.subscribe === 'function') {
       adminSesion$
@@ -50,7 +60,6 @@ export class AppComponent implements OnInit, OnDestroy {
         });
     }
 
-    // Sesion ya activa al arrancar
     this.sincronizarPresencia();
   }
 
@@ -63,12 +72,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.presenciaActiva = false;
   }
 
-  /**
-   * Decide si presencia debe estar activa:
-   *   - Usuario normal logueado O
-   *   - Admin logueado
-   * Solo se llama una vez por estado (evita dobles peticiones).
-   */
   private sincronizarPresencia(): void {
     const hayUsuario = this.auth.isAuthenticated();
     const hayAdmin = this.adminAuth.estaLogueado();

@@ -1,4 +1,8 @@
-import { Component, EventEmitter, Input, Output, inject, signal, OnInit } from '@angular/core';
+// src/app/shared/components/invitacion-modal/invitar-link-modal.component.ts
+import {
+  Component, EventEmitter, Input, Output, inject, signal,
+  OnInit, OnChanges, OnDestroy, SimpleChanges
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QRCodeComponent } from 'angularx-qrcode';
@@ -11,11 +15,12 @@ import { GrupoService, InvitacionLink } from '../../../core/services/grupo.servi
   templateUrl: './invitar-link-modal.component.html',
   styleUrl: './invitar-link-modal.component.scss'
 })
-export class InvitarLinkModalComponent implements OnInit {
+export class InvitarLinkModalComponent implements OnInit, OnChanges, OnDestroy {
   private grupoService = inject(GrupoService);
 
   @Input() grupoId!: number;
   @Input() grupoNombre!: string;
+              // ✅ NUEVO (botón dev)
   @Output() cerrar = new EventEmitter<void>();
 
   // ===== ESTADO =====
@@ -32,8 +37,28 @@ export class InvitarLinkModalComponent implements OnInit {
   opcionExpiracion = signal<'1h' | '24h' | '7d' | '30d' | 'nunca'>('7d');
   opcionUsos = signal<'ilimitado' | '1' | '5' | '10' | '50'>('ilimitado');
 
+  // ===== TIMEOUTS (cleanup) =====
+  private timeouts: ReturnType<typeof setTimeout>[] = [];
+
+  private setTimeoutSeguro(fn: () => void, ms: number): void {
+    this.timeouts.push(setTimeout(fn, ms));
+  }
+
+  // ===== CICLO DE VIDA =====
   ngOnInit(): void {
     this.cargarLinks();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // ✅ recarga cuando el padre incrementa version (botón dev)
+    if (changes['version'] && !changes['version'].firstChange) {
+      this.cargarLinks();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.timeouts.forEach(t => clearTimeout(t));
+    this.timeouts = [];
   }
 
   cargarLinks(): void {
@@ -85,8 +110,8 @@ export class InvitarLinkModalComponent implements OnInit {
         this.links.update(lista => [link, ...lista]);
         this.generando.set(false);
         this.copiado.set(link.urlInvitacion);
-        navigator.clipboard.writeText(link.urlInvitacion).catch(() => {});
-        setTimeout(() => this.copiado.set(null), 2500);
+        this.copiarAlPortapapeles(link.urlInvitacion);
+        this.setTimeoutSeguro(() => this.copiado.set(null), 2500);
       },
       error: (err) => {
         this.errorMsg.set(err?.error?.error || 'Error al generar link');
@@ -97,10 +122,39 @@ export class InvitarLinkModalComponent implements OnInit {
 
   // ===== ACCIONES =====
   copiarLink(url: string): void {
-    navigator.clipboard.writeText(url).then(() => {
-      this.copiado.set(url);
-      setTimeout(() => this.copiado.set(null), 2000);
-    });
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url)
+        .then(() => this.marcarCopiado(url))
+        .catch(() => this.copiarFallback(url));
+    } else {
+      this.copiarFallback(url);
+    }
+  }
+
+  private copiarAlPortapapeles(url: string): void {
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).catch(() => {});
+    }
+  }
+
+  private copiarFallback(url: string): void {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      this.marcarCopiado(url);
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+
+  private marcarCopiado(url: string): void {
+    this.copiado.set(url);
+    this.setTimeoutSeguro(() => this.copiado.set(null), 2000);
   }
 
   compartirWhatsApp(url: string): void {
@@ -137,6 +191,10 @@ export class InvitarLinkModalComponent implements OnInit {
         this.links.update(lista =>
           lista.map(l => l.id === linkId ? { ...l, activo: false } : l)
         );
+      },
+      error: (err) => {
+        this.errorMsg.set(err?.error?.error || 'Error al desactivar link');
+        this.setTimeoutSeguro(() => this.errorMsg.set(null), 3000);
       }
     });
   }
