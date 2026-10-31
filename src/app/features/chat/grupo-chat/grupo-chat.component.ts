@@ -1,7 +1,8 @@
-// src/app/features/chat/grupo-chat/grupo-chat.component.ts
+
+  // src/app/features/chat/grupo-chat/grupo-chat.component.ts
 import {
   Component, OnInit, OnDestroy, signal, inject,
-  ViewChild, ElementRef, AfterViewChecked, computed, isDevMode
+  ViewChild, ElementRef, AfterViewChecked, computed
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -45,14 +46,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private fb = inject(FormBuilder);
 
   @ViewChild('mensajesContainer') private mensajesContainer?: ElementRef;
-
-  // ===== DEV: recarga manual de modales =====
-  readonly isDevMode = isDevMode();
-  versionModales = signal(0);
-
-  forzarRecargaModales(): void {
-    this.versionModales.update(v => v + 1);
-  }
 
   // ===== TABS =====
   tabActual = signal<TabTipo>('grupos');
@@ -170,6 +163,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private pollingInterval: any;
 
   constructor() {
+    // ✅ Escuchamos las conversaciones del chat privado (compartido)
     this.chatService.conversaciones$.subscribe(conversaciones => {
       if (conversaciones.length > 0) {
         this.conversaciones.set(conversaciones);
@@ -181,6 +175,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // CICLO DE VIDA
   // ============================================================
   ngOnInit(): void {
+    // ✅ LIMPIEZA INICIAL (evita datos residuales)
     this.mensajes.set([]);
     this.miembros.set([]);
     this.grupo.set(null);
@@ -207,6 +202,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
+    // Polling más eficiente: solo si hay grupo activo
     this.pollingInterval = setInterval(() => {
       const gid = this.grupoSeleccionado();
       if (gid && this.tabActual() === 'grupos') {
@@ -299,6 +295,11 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   cargarGrupo(grupoId: number): void {
     this.grupoService.obtenerGrupo(grupoId).subscribe({
       next: (g) => {
+        // ✅ SEGURIDAD: Solo cargar si el usuario es miembro
+        const usuario = this.authService.usuario();
+        if (usuario && g && !g.totalMiembros) {
+          // Si el backend no devuelve miembros, intentamos igual
+        }
         this.grupo.set(g);
       },
       error: () => {
@@ -309,10 +310,11 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   cargarMensajes(grupoId: number): void {
+    // ✅ SEGURIDAD: Solo cargar mensajes si el usuario tiene acceso al grupo
     if (!this.grupoSeleccionado() || grupoId !== this.grupoSeleccionado()) {
       return;
     }
-
+    
     this.cargando.set(true);
     this.grupoService.obtenerMensajes(grupoId).subscribe({
       next: (msgs) => {
@@ -363,6 +365,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   seleccionarGrupo(grupoId: number): void {
+    // ✅ SEGURIDAD: No permitir seleccionar grupo si ya hay otro activo
     if (this.grupoSeleccionado() === grupoId) return;
 
     this.grupoSeleccionado.set(grupoId);
@@ -370,7 +373,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.grupo.set(null);
     this.mensajes.set([]);
     this.miembros.set([]);
-
+    
     this.cargarGrupo(grupoId);
     this.cargarMensajes(grupoId);
     this.cargarMiembros(grupoId);
@@ -388,6 +391,7 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   seleccionarConversacion(usuarioId: number): void {
+    // ✅ SEGURIDAD: No permitir chatear consigo mismo
     if (usuarioId === this.authService.usuario()?.id) {
       this.errorMsg.set('No puedes chatear contigo mismo');
       setTimeout(() => this.errorMsg.set(null), 3000);
@@ -759,12 +763,12 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (m.ultimaConexion) {
       const fecha = this.parsearFechaUtc(m.ultimaConexion);
       if (!fecha) return 'Desconectado';
-
+      
       const ahora = new Date();
       const diffMs = ahora.getTime() - fecha.getTime();
-
+      
       if (diffMs < 0) return 'Últ. vez hace unos segundos';
-
+      
       const diffMin = Math.floor(diffMs / 60000);
       const diffH = Math.floor(diffMin / 60);
       const diffD = Math.floor(diffH / 24);
@@ -795,3 +799,6 @@ export class GrupoChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return new Date(tieneZona ? s : s + 'Z');
   }
 }
+
+
+

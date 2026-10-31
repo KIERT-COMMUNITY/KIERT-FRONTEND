@@ -1,4 +1,4 @@
-<!-- src/app/features/chat/grupo-chat/grupo-chat.component.html -->
+!-- src/app/features/chat/grupo-chat/grupo-chat.component.html -->
 <div class="chat-messenger">
 
   <!-- SIDEBAR -->
@@ -563,10 +563,6 @@
 
 <!-- MODALES (FUERA DEL .chat-messenger) -->
 
-<!-- MODALES (FUERA DEL .chat-messenger) -->
-
-<!-- MODALES (FUERA DEL .chat-messenger) -->
-
 @if (mostrarModalGrupo()) {
   <kiert-crear-grupo-modal
     (cerrar)="cerrarModalGrupo()"
@@ -574,47 +570,21 @@
   </kiert-crear-grupo-modal>
 }
 
-<!-- ✅ AQUÍ ESTÁ LA MAGIA: La key del @if incluye la version -->
-<!-- ✅ AQUÍ ESTÁ LA MAGIA: @switch fuerza la destrucción y creación -->
-@if (mostrarInvitarLink() && grupo(); as g) {
-  @switch (versionModales()) {
-    @default {
-      <kiert-invitar-link-modal
-        [grupoId]="g.id"
-        [grupoNombre]="g.nombre"
-        (cerrar)="cerrarInvitarLink()">
-      </kiert-invitar-link-modal>
-    }
-  }
+@if (mostrarInvitarLink() && grupo()) {
+  <kiert-invitar-link-modal
+    [grupoId]="grupo()!.id"
+    [grupoNombre]="grupo()!.nombre"
+    (cerrar)="cerrarInvitarLink()">
+  </kiert-invitar-link-modal>
 }
 
-@if (mostrarInfoGrupo() && grupo(); as g) {
-  @switch (versionModales()) {
-    @default {
-      <kiert-grupo-info-modal
-        [grupoId]="g.id"
-        (cerrar)="cerrarInfoGrupo()"
-        (grupoActualizado)="onGrupoActualizado($event)"
-        (abrirInvitarLink)="abrirInvitarLink()">
-      </kiert-grupo-info-modal>
-    }
-  }
-}
-
-<!-- ===== RESTO DE MODALES (miembros, confirmar eliminar, salir, expulsar) ===== -->
-<!-- Déjalos EXACTAMENTE como los tienes, no los toques -->
-
-<!-- ===== BOTÓN DEV: recargar modales (solo en dev) ===== -->
-@if (isDevMode) {
-  <button
-    (click)="forzarRecargaModales()"
-    style="position: fixed; bottom: 16px; right: 16px; z-index: 99999;
-           background: #ff5722; color: white; padding: 10px 14px;
-           border-radius: 8px; border: none; cursor: pointer;
-           font-weight: 600; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,.3);"
-    title="Recargar modales abiertos (solo dev)">
-    🔄 Recargar modales
-  </button>
+@if (mostrarInfoGrupo() && grupo()) {
+  <kiert-grupo-info-modal
+    [grupoId]="grupo()!.id"
+    (cerrar)="cerrarInfoGrupo()"
+    (grupoActualizado)="onGrupoActualizado($event)"
+    (abrirInvitarLink)="abrirInvitarLink()">
+  </kiert-grupo-info-modal>
 }
 
 @if (mostrarMiembros()) {
@@ -722,8 +692,6 @@
     </div>
   </div>
 }
-
-
 
 
 
