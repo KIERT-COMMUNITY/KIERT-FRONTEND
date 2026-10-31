@@ -77,21 +77,15 @@ export const routes: Routes = [
       { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent) },
 
       // ============================================================
-      // ✅ CHAT (UNA SOLA RUTA PADRE — no se destruye al navegar)
+      // ✅ CHAT (Estructura de develop11 para que funcione el HMR)
       // ============================================================
-      // Orden IMPORTANTE: primero las rutas estáticas, luego dinámicas.
-      // Todas apuntan al MISMO ChatComponent, así no se recrea al cambiar.
       {
         path: 'chat',
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
       },
       {
-        path: 'chat/bienvenida',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
-      },
-      {
-        path: 'chat/grupo/:grupoId',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
+        path: 'chat/grupo/:id', // 👈 ANTES ERA :grupoId y cargaba a ChatComponent. AHORA carga a GrupoChatComponent.
+        loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent)
       },
       {
         path: 'chat/:usuarioId',
@@ -104,15 +98,21 @@ export const routes: Routes = [
       // ---------- LEGALES ----------
       {
         path: 'legal/privacidad',
-        loadComponent: () => import('./features/legal/privacidad/privacidad.component').then(m => m.PrivacidadComponent),
+        loadComponent: () =>
+          import('./features/legal/privacidad/privacidad.component')
+            .then(m => m.PrivacidadComponent),
       },
       {
         path: 'legal/cookies',
-        loadComponent: () => import('./features/legal/cookies/cookies.component').then(m => m.CookiesComponent),
+        loadComponent: () =>
+          import('./features/legal/cookies/cookies.component')
+            .then(m => m.CookiesComponent),
       },
       {
         path: 'legal/terminos',
-        loadComponent: () => import('./features/legal/terminos/terminos.component').then(m => m.TerminosComponent),
+        loadComponent: () =>
+          import('./features/legal/terminos/terminos.component')
+            .then(m => m.TerminosComponent),
       },
     ],
   },
