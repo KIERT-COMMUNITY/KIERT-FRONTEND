@@ -1,7 +1,6 @@
 // src/app/core/services/chat-global.service.ts
 import { Injectable, OnDestroy, inject, isDevMode } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -49,7 +48,7 @@ export class ChatGlobalService implements OnDestroy {
   }
 
   // ============================================================
-  // STOMP: solo conectar si hay usuario autenticado
+  // STOMP: conectar SIEMPRE (logueado o invitado)
   // ============================================================
   conectar(): void {
     if (this.stompClient?.active) return;
@@ -57,42 +56,31 @@ export class ChatGlobalService implements OnDestroy {
     const usuario = this.authService.getUser();
     const token = this.authService.getToken();
 
-    if (!usuario || !token) {
-      if (isDevMode()) console.warn('[CHAT-GLOBAL] Invitado: no se conecta al STOMP');
-      return;
+    // ✅ Invitado: conecta sin Authorization. El backend le asigna un
+    // Principal anonimo y puede suscribirse al topic para recibir mensajes.
+    // Logueado: envia Authorization y usuarioId.
+    const connectHeaders: Record<string, string> = {};
+    if (token) {
+      connectHeaders['Authorization'] = `Bearer ${token}`;
+    }
+    if (usuario?.id != null) {
+      connectHeaders['usuarioId'] = String(usuario.id);
     }
 
-    // Normalizar URL: SockJS requiere http(s), NO ws(s).
-    const baseUrl = this.wsUrl
-      .replace(/^wss:\/\//i, 'https://')
-      .replace(/^ws:\/\//i, 'http://');
-
-    let socket: any;
-    try {
-      socket = new SockJS(`${baseUrl}/ws`);
-    } catch (e) {
-      if (isDevMode()) console.error('[CHAT-GLOBAL] Error creando SockJS con URL', baseUrl, e);
-      return;
-    }
+    // WebSocket nativo: http -> ws, https -> wss
+    const baseUrl = this.wsUrl.replace(/^http/i, 'ws');
 
     this.stompClient = new Client({
-      webSocketFactory: () => socket,
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-        usuarioId: String(usuario.id)
-      },
+      brokerURL: `${baseUrl}/ws`,
+      connectHeaders,
       debug: () => {},
       reconnectDelay: 5000,
-      // ✅ Heartbeats: deben coincidir con el servidor (10s/10s).
-      // Sin esto, el servidor envia latidos y al no recibir respuesta
-      // cierra la sesion, causando los "[WS] Desconectado" en Render.
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
       onConnect: () => {
         if (isDevMode()) console.log('[CHAT-GLOBAL] STOMP conectado, suscribiendo a /topic/chat-global');
         this.conectadoSubject.next(true);
 
-        // Cancelar suscripcion previa si la hubiera (evita duplicados en reconexion)
         this.suscripcionTopic?.unsubscribe();
 
         this.suscripcionTopic = this.stompClient!.subscribe(
