@@ -83,6 +83,11 @@ export class ChatGlobalService implements OnDestroy {
       },
       debug: () => {},
       reconnectDelay: 5000,
+      // ✅ Heartbeats: deben coincidir con el servidor (10s/10s).
+      // Sin esto, el servidor envia latidos y al no recibir respuesta
+      // cierra la sesion, causando los "[WS] Desconectado" en Render.
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
       onConnect: () => {
         if (isDevMode()) console.log('[CHAT-GLOBAL] STOMP conectado, suscribiendo a /topic/chat-global');
         this.conectadoSubject.next(true);
