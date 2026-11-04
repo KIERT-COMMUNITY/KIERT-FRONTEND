@@ -1,10 +1,11 @@
-// src/environments/environment.ts
-// Variables de entorno para DESARROLLO (ng serve).
 export const environment = {
   production: false,
+
   apiUrl: 'http://localhost:8081/api',
   wsUrl: 'http://localhost:8081',
-  // URL publica del bucket de Supabase donde se sirven los archivos subidos
-  // supabaseUrl: 'LINK SUPABASE.ICO',
-  // supabaseBucket: 'kiert-files',
+
+  //  Usa la clave de prueba oficial de Cloudflare (¡no la de producción!)
+  turnstileSiteKey: '1x00000000000000000000AA',
+
+  // Supabase...
 };

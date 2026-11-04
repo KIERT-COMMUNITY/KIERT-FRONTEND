@@ -1,7 +1,6 @@
 <!-- src/app/features/auth/login/login.component.html -->
 <div class="login-page">
 
-  <!-- HEADER -->
   <header class="login-header">
     <img src="assets/logokiert.png" alt="Kiert" class="login-logo" />
     <div class="login-header-text">
@@ -11,7 +10,6 @@
     <p class="login-desc">Accede a tu cuenta para continuar</p>
   </header>
 
-  <!-- FORMULARIO -->
   <form [formGroup]="form" (ngSubmit)="enviar()" class="login-form">
 
     <!-- Email -->
@@ -52,9 +50,16 @@
       }
     </div>
 
-    <!-- Opciones -->
     <div class="field-options">
       <a routerLink="/recuperar-contrasena" class="forgot-link">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <!-- 👇 WIDGET TURNSTILE -->
+    <div class="turnstile-wrapper">
+      <ngx-turnstile
+        [siteKey]="turnstileSiteKey"
+        (resolved)="onTurnstileResolved($event)">
+      </ngx-turnstile>
     </div>
 
     <!-- Alerta -->
@@ -64,7 +69,6 @@
       </div>
     }
 
-    <!-- Botón admin (si aplica) -->
     @if (mostrarBotonAdmin()) {
       <a routerLink="/admin/login" class="btn-admin-redirect">
         Ir al panel de administración
@@ -72,7 +76,7 @@
     }
 
     <!-- Botón de login -->
-    <button type="submit" class="login-btn" [disabled]="cargando()">
+    <button type="submit" class="login-btn" [disabled]="cargando() || !turnstileToken">
       @if (cargando()) {
         <span>Verificando...</span>
       } @else {
@@ -81,12 +85,10 @@
     </button>
   </form>
 
-  <!-- SEPARADOR -->
   <div class="login-divider">
     <span>o</span>
   </div>
 
-  <!-- BOTÓN INVITADO -->
   <button type="button" class="guest-btn" (click)="entrarComoInvitado()">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -100,7 +102,6 @@
     pero no podrás escribir, publicar ni chatear en privado.
   </p>
 
-  <!-- REGISTRO -->
   <div class="register-link">
     ¿No tienes cuenta? <a routerLink="/registro">Regístrate</a>
   </div>

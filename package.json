@@ -20,6 +20,7 @@
     "@angular/router": "^20.0.0",
     "@stomp/stompjs": "^7.3.0",
     "angularx-qrcode": "^20.0.0",
+    "ngx-turnstile": "^1.0.0",
     "rxjs": "^7.8.0",
     "sockjs-client": "^1.6.1",
     "tslib": "^2.6.0",

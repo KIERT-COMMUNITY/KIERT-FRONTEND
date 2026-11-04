@@ -3,8 +3,10 @@ import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { NgxTurnstileModule } from 'ngx-turnstile';
+import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 function contrasenasIgualesValidator(grupo: AbstractControl): ValidationErrors | null {
   const pass = grupo.get('password')?.value;
@@ -15,7 +17,7 @@ function contrasenasIgualesValidator(grupo: AbstractControl): ValidationErrors |
 @Component({
   selector: 'kiert-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CommonModule],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule, NgxTurnstileModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -30,6 +32,10 @@ export class RegisterComponent implements OnDestroy {
   emailRegistrado = signal<string>('');
   reenviando = signal(false);
   codigoReenviado = signal(false);
+
+  // Turnstile
+  readonly turnstileSiteKey = environment.turnstileSiteKey;
+  turnstileToken: string | null = null;
 
   private redirectTimer: ReturnType<typeof setTimeout> | null = null;
   private reenvioTimer: ReturnType<typeof setTimeout> | null = null;
@@ -54,10 +60,19 @@ export class RegisterComponent implements OnDestroy {
   get confirmarPassword() { return this.form.controls.confirmarPassword; }
   get codigo() { return this.formCodigo.controls.codigo; }
 
+  onTurnstileResolved(token: string | null): void {
+    this.turnstileToken = token;
+  }
+
   // ===== PASO 1: enviar registro =====
   enviar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
+
+    if (!this.turnstileToken) {
+      this.errorMsg.set('Completa la verificacion de seguridad antes de continuar.');
       return;
     }
 
@@ -69,14 +84,23 @@ export class RegisterComponent implements OnDestroy {
     this.auth.registro({
       nombreUsuario: nombreUsuario!,
       email: email!,
-      password: password!
-    }).subscribe({
+      password: password!,
+      turnstileToken: this.turnstileToken,
+    } as any).subscribe({
       next: () => {
         this.emailRegistrado.set(email!);
         this.paso.set('verificar');
         this.cargando.set(false);
       },
       error: (err: HttpErrorResponse) => {
+        const codigo = err.error?.error || '';
+
+        if (codigo === 'TURNSTILE_FAILED') {
+          this.errorMsg.set('Verificacion de seguridad fallida. Recarga la pagina e intentalo de nuevo.');
+          this.cargando.set(false);
+          return;
+        }
+
         const mensaje = err.error?.error
           || (err.status === 409 ? 'Ese correo o usuario ya esta registrado.' : 'No se pudo crear la cuenta.');
         this.errorMsg.set(mensaje);
@@ -132,6 +156,7 @@ export class RegisterComponent implements OnDestroy {
     this.formCodigo.reset();
     this.errorMsg.set(null);
     this.codigoReenviado.set(false);
+    this.turnstileToken = null;
   }
 
   irAlLogin(): void {
