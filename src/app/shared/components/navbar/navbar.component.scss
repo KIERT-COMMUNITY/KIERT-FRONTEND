@@ -1,3 +1,5 @@
+// src/app/layouts/main-layout/navbar/navbar.component.scss
+
 $primary: #2dd4bf;
 $primary-light: rgba(45, 212, 191, 0.1);
 $primary-border: rgba(45, 212, 191, 0.28);
@@ -11,14 +13,14 @@ $text-muted: #5a6a7a;
 $danger: #f85149;
 $sidebar-expanded: 260px;
 $sidebar-collapsed: 78px;
-$transition: 0.25s ease;
+
+// Nota: Se ha eliminado la variable de transición
 
 :host {
   display: block;
   flex: 0 0 $sidebar-expanded;
   width: $sidebar-expanded;
   min-width: $sidebar-expanded;
-  transition: flex-basis $transition, width $transition, min-width $transition;
 }
 
 .navbar {
@@ -29,8 +31,7 @@ $transition: 0.25s ease;
   height: 100vh;
   background: rgba(13, 17, 23, 0.97);
   border-right: 1px solid $border;
-  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.16);
-  transition: width $transition;
+  /* Sin box-shadow */
 }
 
 .navbar-container {
@@ -66,12 +67,6 @@ $transition: 0.25s ease;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
-  transition: opacity 0.2s ease;
-
-  &:hover {
-    opacity: 0.82;
-    text-decoration: none;
-  }
 
   .brand-prompt {
     color: $primary;
@@ -95,18 +90,10 @@ $transition: 0.25s ease;
   border: 1px solid $border;
   border-radius: 10px;
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 
   svg {
     width: 19px;
     height: 19px;
-  }
-
-  &:hover {
-    color: $primary;
-    background: $primary-light;
-    border-color: $primary-border;
-    transform: translateY(-1px);
   }
 
   &:focus-visible {
@@ -162,7 +149,6 @@ $transition: 0.25s ease;
   line-height: 1.2;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: opacity 0.16s ease, height 0.2s ease, margin 0.2s ease;
 }
 
 .menu-item {
@@ -186,7 +172,6 @@ $transition: 0.25s ease;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 
   &::before {
     content: '';
@@ -198,19 +183,6 @@ $transition: 0.25s ease;
     background: $primary;
     border-radius: 0 4px 4px 0;
     transform: translateY(-50%);
-    transition: height 0.2s ease;
-  }
-
-  &:hover {
-    color: $text-primary;
-    background: $bg-card;
-    border-color: rgba(255, 255, 255, 0.035);
-    text-decoration: none;
-    transform: translateX(2px);
-
-    .menu-icon {
-      color: $primary;
-    }
   }
 
   &.active {
@@ -246,7 +218,6 @@ $transition: 0.25s ease;
   height: 21px;
   flex: 0 0 21px;
   color: $text-muted;
-  transition: color 0.2s ease;
 
   svg {
     width: 20px;
@@ -258,7 +229,6 @@ $transition: 0.25s ease;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: opacity 0.15s ease, width 0.2s ease;
 }
 
 .menu-badge {
@@ -303,16 +273,6 @@ $transition: 0.25s ease;
 
   .menu-icon {
     color: $danger;
-  }
-
-  &:hover {
-    color: $danger;
-    background: rgba(248, 81, 73, 0.1);
-    border-color: rgba(248, 81, 73, 0.45);
-
-    .menu-icon {
-      color: $danger;
-    }
   }
 }
 
@@ -372,10 +332,6 @@ $transition: 0.25s ease;
     &::before {
       left: -10px;
     }
-
-    &:hover {
-      transform: none;
-    }
   }
 
   .menu-label {
@@ -434,8 +390,6 @@ $transition: 0.25s ease;
     height: 60px;
     border-right: 0;
     border-bottom: 1px solid $border;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
-    transition: none;
   }
 
   .navbar-mobile-header {
@@ -471,12 +425,6 @@ $transition: 0.25s ease;
       background: $text-primary;
       border-radius: 2px;
       transform-origin: center;
-      transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
-    }
-
-    &:hover {
-      background: $bg-card;
-      border-color: $border;
     }
 
     &.is-active {
@@ -487,7 +435,6 @@ $transition: 0.25s ease;
 
       .toggle-line:nth-child(2) {
         opacity: 0;
-        transform: scaleX(0);
       }
 
       .toggle-line:nth-child(3) {
@@ -503,20 +450,17 @@ $transition: 0.25s ease;
     bottom: 0;
     left: 0;
     width: min(86vw, 310px);
-    height: calc(100dvh - 60px); // <-- Ajustado a dvh
+    height: calc(100dvh - 60px);
     background: rgba(13, 17, 23, 0.99);
     border-right: 1px solid $border;
-    box-shadow: 18px 0 40px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(-102%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, visibility 0.25s ease;
+    
+    /* Oculto por defecto sin transición */
+    display: none; 
   }
 
   .navbar.menu-abierto .navbar-container {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(0);
+    /* Se muestra instantáneamente al abrir */
+    display: flex; 
   }
 
   .navbar.menu-contraido {
@@ -588,12 +532,10 @@ $transition: 0.25s ease;
     z-index: 990;
     display: block;
     width: 100%;
-    height: calc(100dvh - 60px); // <-- Ajustado a dvh
+    height: calc(100dvh - 60px);
     padding: 0;
-    background: rgba(0, 0, 0, 0.58);
+    background: rgba(0, 0, 0, 0.6); /* Fondo oscuro sin blur */
     border: 0;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
   }
 }
 
@@ -620,12 +562,12 @@ $transition: 0.25s ease;
 
   .navbar-container {
     top: 56px;
-    height: calc(100dvh - 56px); // <-- Ajustado a dvh
+    height: calc(100dvh - 56px);
   }
 
   .navbar-overlay {
     inset: 56px 0 0;
-    height: calc(100dvh - 56px); // <-- Ajustado a dvh
+    height: calc(100dvh - 56px);
   }
 }
 
@@ -646,21 +588,8 @@ $transition: 0.25s ease;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  :host,
-  .navbar,
-  .navbar-container,
-  .menu-item,
-  .menu-label,
-  .menu-section-title,
-  .collapse-button,
-  .navbar-toggle .toggle-line {
-    transition: none !important;
-  }
-}
-
 // ============================================================
-// ✅ SECCIÓN ADMIN
+// SECCIÓN ADMIN
 // ============================================================
 
 .menu-section--admin {
@@ -702,16 +631,6 @@ $transition: 0.25s ease;
     font-weight: 600;
   }
 
-  &:hover {
-    background: rgba(45, 212, 191, 0.12);
-    border-color: rgba(45, 212, 191, 0.35);
-    color: $primary;
-
-    .menu-icon {
-      color: $primary;
-    }
-  }
-
   &.active {
     background: rgba(45, 212, 191, 0.15);
     border-color: $primary;
@@ -747,9 +666,9 @@ $transition: 0.25s ease;
     font-size: 0.5rem;
   }
 }
+
 // ============================================================
-// ADMIN – ajuste del badge en modo contraído
-// (el resto de estilos ya están en el archivo)
+// AJUSTE EXTRA: badge en modo contraído
 // ============================================================
 .navbar.menu-contraido {
   .menu-badge--admin {
