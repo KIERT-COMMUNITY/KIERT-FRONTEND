@@ -154,7 +154,6 @@
               </button>
             }
 
-            <!-- ✅ SOLO ADMIN: Editar bienvenida -->
             <button
               type="button"
               class="menu-item menu-button menu-button--admin"
@@ -171,7 +170,7 @@
           </div>
         }
 
-        <!-- COMUNICACIÓN (sin "Chat de bienvenida", ya está en el sidebar del chat) -->
+        <!-- COMUNICACIÓN (sin chat privado) -->
         <div class="menu-section">
           <span class="menu-section-title">Comunicacion</span>
 
@@ -191,19 +190,7 @@
             <span class="menu-label">Chat Global</span>
           </button>
 
-          <button type="button" class="menu-item menu-button" title="Chat privado" (click)="irAlChat()">
-            <span class="menu-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-            </span>
-            <span class="menu-label">Chat privado</span>
-            @if (mensajesNoLeidos() > 0) {
-              <span class="menu-badge" [attr.aria-label]="mensajesNoLeidos() + ' mensajes no leidos'">
-                {{ mensajesNoLeidos() > 99 ? '99+' : mensajesNoLeidos() }}
-              </span>
-            }
-          </button>
+          <!-- CHAT PRIVADO ELIMINADO -->
 
           <div class="menu-item-notificaciones" title="Notificaciones">
             <kiert-notificaciones></kiert-notificaciones>

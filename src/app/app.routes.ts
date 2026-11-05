@@ -14,11 +14,11 @@ export const routes: Routes = [
       { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
       { path: 'registro', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
       { path: 'recuperar-contrasena', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
-      
-      // Ruta pública para procesar el link de invitación
-      { 
-        path: 'invitacion/:token', 
-        loadComponent: () => import('./features/chat/unirse-por-link/unirse-por-link.component').then(m => m.UnirsePorLinkComponent) 
+
+      // Ruta pública para procesar el link de invitación (sigue funcionando)
+      {
+        path: 'invitacion/:token',
+        loadComponent: () => import('./features/chat/unirse-por-link/unirse-por-link.component').then(m => m.UnirsePorLinkComponent)
       },
     ],
   },
@@ -82,19 +82,15 @@ export const routes: Routes = [
       // ---------- CHAT GLOBAL ----------
       { path: 'chat-global', loadComponent: () => import('./features/chat/chat-global/chat-global.component').then(m => m.ChatGlobalComponent) },
 
-      // ---------- CHAT (Estructura corregida para HMR) ----------
-      {
-        path: 'chat',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
-      },
+      // ---------- CHAT GRUPAL (se mantiene) ----------
       {
         path: 'chat/grupo/:id',
         loadComponent: () => import('./features/chat/grupo-chat/grupo-chat.component').then(m => m.GrupoChatComponent)
       },
-      {
-        path: 'chat/:usuarioId',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
-      },
+
+      // ❌ CHAT PRIVADO ELIMINADO:
+      // { path: 'chat', ... }
+      // { path: 'chat/:usuarioId', ... }
 
       // ---------- AJUSTES ----------
       { path: 'ajustes', loadComponent: () => import('./features/community/settings/settings.component').then(m => m.SettingsComponent) },
