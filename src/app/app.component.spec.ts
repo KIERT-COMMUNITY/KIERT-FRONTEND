@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 
@@ -7,8 +9,11 @@ describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      // Provee el router para que el <router-outlet> funcione en el test
-      providers: [provideRouter(routes)],
+      providers: [
+        provideRouter(routes),
+        provideHttpClient(),          // 👈 Soluciona el error de HttpClient
+        provideHttpClientTesting(),   // 👈 Evita peticiones HTTP reales en los tests
+      ],
     }).compileComponents();
   });
 
