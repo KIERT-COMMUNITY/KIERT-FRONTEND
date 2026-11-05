@@ -11,8 +11,8 @@ describe('AppComponent', () => {
       imports: [AppComponent],
       providers: [
         provideRouter(routes),
-        provideHttpClient(),          // 👈 Soluciona el error de HttpClient
-        provideHttpClientTesting(),   // 👈 Evita peticiones HTTP reales en los tests
+        provideHttpClient(),          
+        provideHttpClientTesting(),   
       ],
     }).compileComponents();
   });
