@@ -26,7 +26,6 @@ $danger: #f85149;
   width: 150px;
   border-radius: 12px;
   overflow: visible;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   background: transparent;
 
   &__container {
@@ -52,11 +51,8 @@ $danger: #f85149;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
     padding: 0;
     z-index: 20;
-
-    &:hover { background: rgba(248, 81, 73, 0.9); }
 
     svg { width: 12px; height: 12px; stroke: currentColor; }
   }
@@ -95,10 +91,8 @@ $danger: #f85149;
     background: rgba(255, 255, 255, 0.2);
     cursor: pointer;
     padding: 0;
-    transition: background 0.2s ease;
 
     &.active { background: $primary; border-color: $primary; }
-    &:hover { background: rgba(255, 255, 255, 0.4); }
   }
 
   &__counter {
@@ -112,7 +106,6 @@ $danger: #f85149;
     border-radius: 10px;
     font-family: 'Inter', -apple-system, sans-serif;
     z-index: 15;
-    backdrop-filter: blur(4px);
   }
 
   &__nav {
@@ -129,12 +122,9 @@ $danger: #f85149;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
     padding: 0;
     z-index: 15;
-    backdrop-filter: blur(4px);
 
-    &:hover { background: rgba(0, 0, 0, 0.8); }
     svg { width: 14px; height: 14px; stroke: currentColor; }
 
     &--prev { left: 4px; }
@@ -149,36 +139,31 @@ $danger: #f85149;
   position: fixed;
   z-index: 9997;
   top: 250px;
-  right: 20px; // ✅ antes left:1500px → se salía de pantalla
+  right: 20px;
   background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
-  backdrop-filter: blur(12px);
   border: 1px solid $border;
   border-radius: 14px;
   padding: 14px 16px 16px;
-  box-shadow: 0 8px 33px rgba(0, 0, 0, 0.4);
   min-width: 200px;
   max-width: 200px;
 
   &__close {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 22px;
-    height: 22px;
+    top: -10px;
+    right: -10px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     border: none;
-    background: rgba(248, 81, 73, 0.15);
+    background: rgba(248, 81, 73, 0.2);
     color: $danger;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
     padding: 0;
 
-    &:hover { background: rgba(248, 81, 73, 0.25); }
-
-    svg { width: 12px; height: 12px; stroke: currentColor; }
+    svg { width: 14px; height: 14px; stroke: currentColor; }
   }
 
   &__title {
@@ -213,7 +198,6 @@ $danger: #f85149;
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid $border;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     flex-shrink: 0;
 
@@ -223,24 +207,6 @@ $danger: #f85149;
       object-fit: cover;
       display: block;
       background: var(--tema-card-bg, #1b232c);
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(45, 212, 191, 0.3), transparent);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-    }
-
-    &:hover {
-      transform: translateY(-3px) scale(1.1);
-      border-color: $primary;
-      box-shadow: 0 6px 16px rgba(45, 212, 191, 0.35);
-
-      &::after { opacity: 1; }
     }
   }
 
@@ -265,33 +231,48 @@ $danger: #f85149;
   bottom: 90px;
   right: 20px;
   background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
-  backdrop-filter: blur(12px);
   border: 1px solid $border;
   border-radius: 16px;
   padding: 14px 16px 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   min-width: 200px;
   max-width: 220px;
 
+  // BOTÓN DE CERRAR MEJORADO
   &__close {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 22px;
-    height: 22px;
+    top: -12px;
+    right: -12px;
+    width: 32px; /* Más grande */
+    height: 32px; /* Más grande */
     border-radius: 50%;
     border: none;
-    background: rgba(248, 81, 73, 0.15);
-    color: $danger;
+    background: rgba(248, 81, 73, 0.85); /* Fondo más sólido */
+    color: #ffffff; /* Icono blanco para contrastar */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
     padding: 0;
+    z-index: 10;
 
-    &:hover { background: rgba(248, 81, 73, 0.25); }
-    svg { width: 12px; height: 12px; stroke: currentColor; }
+    // Área de toque invisible extra para móviles
+    &::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border-radius: 50%;
+    }
+
+    svg { 
+      width: 16px; 
+      height: 16px; 
+      stroke: currentColor; 
+      stroke-width: 2.5; /* Icono más grueso */
+      pointer-events: none;
+    }
   }
 
   &__title {
@@ -340,11 +321,6 @@ $danger: #f85149;
         display: block;
       }
     }
-
-    &:hover {
-      background: rgba(128, 128, 128, 0.12) !important;
-      border-color: $primary;
-    }
   }
 
   &__footer {
@@ -366,11 +342,9 @@ $danger: #f85149;
   position: fixed;
   z-index: 9998;
   background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
-  backdrop-filter: blur(12px);
   border: 1px solid $border;
   border-radius: 12px;
   padding: 8px 14px 8px 18px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 
   &--top {
     top: 80px;
@@ -380,22 +354,20 @@ $danger: #f85149;
 
   &__close {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 22px;
-    height: 22px;
+    top: -10px;
+    right: -10px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     border: none;
-    background: rgba(248, 81, 73, 0.15);
+    background: rgba(248, 81, 73, 0.2);
     color: $danger;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
     padding: 0;
 
-    &:hover { background: rgba(248, 81, 73, 0.25); }
     svg { width: 12px; height: 12px; stroke: currentColor; }
   }
 
@@ -440,10 +412,8 @@ $danger: #f85149;
     color: $text-secondary;
     cursor: pointer;
     opacity: 0.5;
-    transition: opacity 0.2s ease;
     padding: 4px;
 
-    &:hover { opacity: 1; color: $danger; }
     svg { width: 16px; height: 16px; stroke: currentColor; }
   }
 
@@ -486,8 +456,6 @@ $danger: #f85149;
     cursor: pointer;
     text-decoration: none;
     white-space: nowrap;
-
-    &:hover { background: $primary-hover; }
   }
 }
 
@@ -500,16 +468,9 @@ $danger: #f85149;
   inset: 0;
   z-index: 99999;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 .popup {
@@ -522,13 +483,6 @@ $danger: #f85149;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
-  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px) scale(0.95); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
 
   &__close {
     position: absolute;
@@ -544,9 +498,7 @@ $danger: #f85149;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
 
-    &:hover { background: rgba(248, 81, 73, 0.1); color: $danger; }
     svg { width: 20px; height: 20px; stroke: currentColor; }
   }
 
@@ -605,26 +557,18 @@ $danger: #f85149;
     font-weight: 700;
     font-family: 'Inter', -apple-system, sans-serif;
     cursor: pointer;
-
-    &:hover { background: linear-gradient(135deg, $primary-hover, #14a094); }
   }
 }
 
 // ============================================================
 // RESPONSIVE — TABLET (<= 1024px)
-// Aquí empieza la corrección principal: los flotantes se
-// recolocan para no pisarse entre sí ni salirse del viewport.
 // ============================================================
 
 @media (max-width: 1024px) {
-  // En tablet, ocultamos el carrusel de anuncios lateral izquierdo
-  // (suele tapar contenido). Si lo quieres conservar, comenta esta regla.
   .static-ad-carousel {
     display: none !important;
   }
 
-  // Redes sociales: abajo-derecha pero subimos un poco para no
-  // chocar con el FAB del teclado (que está a 24px del fondo).
   .floating-social {
     bottom: 90px;
     right: 12px;
@@ -632,8 +576,6 @@ $danger: #f85149;
     max-width: 190px;
   }
 
-  // Colaboradores: a la IZQUIERDA abajo para que no se pise con
-  // redes sociales, y por encima del FAB.
   .floating-colaboradores {
     top: auto;
     right: auto;
@@ -643,7 +585,6 @@ $danger: #f85149;
     max-width: 190px;
   }
 
-  // Anuncio superior: seguimos arriba-derecha pero más pequeño.
   .floating-ad--top {
     top: 70px;
     right: 12px;
@@ -656,7 +597,6 @@ $danger: #f85149;
 // ============================================================
 
 @media (max-width: 768px) {
-  // Redes sociales abajo-derecha, más compactas.
   .floating-social {
     bottom: 76px;
     right: 10px;
@@ -672,14 +612,17 @@ $danger: #f85149;
       .social-icon svg { width: 20px; height: 20px; }
     }
     &__footer { font-size: 0.5rem; padding-top: 4px; }
+    
+    // Botón de cerrar más grande en móvil
     &__close {
-      width: 18px; height: 18px;
-      top: -6px; right: -6px;
-      svg { width: 10px; height: 10px; }
+      width: 30px; 
+      height: 30px;
+      top: -10px; 
+      right: -10px;
+      svg { width: 16px; height: 16px; }
     }
   }
 
-  // Colaboradores abajo-izquierda.
   .floating-colaboradores {
     top: auto;
     right: auto;
@@ -699,9 +642,11 @@ $danger: #f85149;
     &__link { width: 32px; height: 32px; border-width: 1.5px; }
     &__footer { font-size: 0.5rem; padding-top: 5px; }
     &__close {
-      width: 18px; height: 18px;
-      top: -6px; right: -6px;
-      svg { width: 10px; height: 10px; }
+      width: 26px; 
+      height: 26px;
+      top: -8px; 
+      right: -8px;
+      svg { width: 12px; height: 12px; }
     }
   }
 
@@ -715,9 +660,11 @@ $danger: #f85149;
     }
     &__text { font-size: 0.65rem; }
     &__close {
-      width: 18px; height: 18px;
-      top: -6px; right: -6px;
-      svg { width: 10px; height: 10px; }
+      width: 26px; 
+      height: 26px;
+      top: -8px; 
+      right: -8px;
+      svg { width: 12px; height: 12px; }
     }
   }
 
@@ -744,13 +691,9 @@ $danger: #f85149;
 
 // ============================================================
 // RESPONSIVE — MÓVIL (<= 480px)
-// Aquí ocultamos "Colaboradores" porque en pantallas muy
-// pequeñas se pisa con el input del chat / FAB y queda feo.
 // ============================================================
 
 @media (max-width: 480px) {
-  // En móviles pequeños ocultamos colaboradores para no saturar.
-  // Si los quieres conservar, cambia display: none por bottom: 140px.
   .floating-colaboradores {
     display: none !important;
   }
@@ -770,10 +713,14 @@ $danger: #f85149;
       .social-icon svg { width: 16px; height: 16px; }
     }
     &__footer { font-size: 0.45rem; padding-top: 3px; }
+    
+    // Botón de cerrar aún más grande y accesible
     &__close {
-      width: 16px; height: 16px;
-      top: -5px; right: -5px;
-      svg { width: 8px; height: 8px; }
+      width: 32px; 
+      height: 32px;
+      top: -12px; 
+      right: -12px;
+      svg { width: 16px; height: 16px; }
     }
   }
 
@@ -787,9 +734,11 @@ $danger: #f85149;
     }
     &__text { font-size: 0.55rem; }
     &__close {
-      width: 16px; height: 16px;
-      top: -5px; right: -5px;
-      svg { width: 8px; height: 8px; }
+      width: 24px; 
+      height: 24px;
+      top: -8px; 
+      right: -8px;
+      svg { width: 10px; height: 10px; }
     }
   }
 
@@ -819,16 +768,5 @@ $danger: #f85149;
     min-width: 100px;
     max-width: 115px;
     &__link .social-icon svg { width: 14px; height: 14px; }
-  }
-}
-
-// ============================================================
-// PREFERENCIAS DE ACCESIBILIDAD
-// ============================================================
-
-@media (prefers-reduced-motion: reduce) {
-  .popup-overlay,
-  .popup {
-    animation: none !important;
   }
 }
