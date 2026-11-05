@@ -1,10 +1,9 @@
 <!-- src/app/features/community/mis-publicaciones/mis-publicaciones.component.html -->
 <div class="mis-publicaciones-container" [ngClass]="personalizacionStore.temaClass()">
 
-  <!-- ✅ AVISO REUTILIZABLE PARA INVITADOS -->
+  <!-- AVISO REUTILIZABLE PARA INVITADOS -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
-    icono="🔒"
     titulo="Debes registrarte"
     [mensaje]="mensajeAvisoLogin()"
     textoBoton="Ir al login"

@@ -1,5 +1,5 @@
 // ============================================================
-// MIS PUBLICACIONES - CON TEMA DE COLOR
+// MIS PUBLICACIONES - CON TEMA DE COLOR (ESTÁTICO)
 // ============================================================
 
 .mis-publicaciones-container {
@@ -7,7 +7,6 @@
   margin: 0 auto;
   padding: 1.5rem 1rem;
   min-height: 100vh;
-  transition: background 0.5s ease, color 0.5s ease;
   color: inherit;
 }
 
@@ -25,19 +24,9 @@
     font-size: 0.9rem;
     cursor: pointer;
     padding: 0.25rem 0;
-    transition: all 0.2s;
 
     svg {
       stroke: currentColor;
-      transition: transform 0.2s;
-    }
-
-    &:hover {
-      opacity: 0.8;
-      
-      svg {
-        transform: translateX(-4px);
-      }
     }
   }
 
@@ -72,10 +61,6 @@
     font-size: 1.2rem;
     cursor: pointer;
     opacity: 0.7;
-
-    &:hover {
-      opacity: 1;
-    }
   }
 
   &-error {
@@ -107,13 +92,9 @@
     border: 4px solid rgba(255, 255, 255, 0.1);
     border-top-color: #2dd4bf;
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
     margin-bottom: 1rem;
+    /* Sin animación */
   }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 // ========== EMPTY STATE ==========
@@ -121,10 +102,8 @@
   text-align: center;
   padding: 4rem 2rem;
   background: rgba(19, 26, 34, 0.4);
-  backdrop-filter: blur(8px);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.3s ease;
 
   .empty-icon {
     margin-bottom: 1rem;
@@ -160,16 +139,9 @@
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.2s;
 
     svg {
       stroke: #0d1117;
-    }
-
-    &:hover {
-      opacity: 0.85;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
     }
   }
 }
@@ -183,17 +155,9 @@
 
 .post-card {
   background: rgba(19, 26, 34, 0.4);
-  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   padding: 1.25rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    border-color: rgba(45, 212, 191, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
 }
 
 .post-header {
@@ -255,17 +219,9 @@
   cursor: pointer;
   color: inherit !important;
   opacity: 0.4;
-  transition: all 0.2s;
 
   svg {
     stroke: currentColor;
-  }
-
-  &:hover {
-    background: rgba(248, 81, 73, 0.1);
-    border-color: #f85149;
-    color: #f85149 !important;
-    opacity: 1;
   }
 }
 
@@ -305,12 +261,6 @@
   padding: 0.25rem 0.75rem;
   border: 1px solid #2dd4bf;
   border-radius: 4px;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #2dd4bf;
-    color: #0d1117;
-  }
 }
 
 // ========== RESPONSIVE ==========
@@ -413,8 +363,9 @@
     color: #666666 !important;
   }
 }
+
 // ============================================================
-// ✅ AVISO DE LOGIN (invitados)
+// AVISO DE LOGIN (invitados)
 // ============================================================
 
 .mis-publicaciones-container {

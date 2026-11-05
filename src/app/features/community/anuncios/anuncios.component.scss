@@ -39,11 +39,7 @@
   border: 3px solid var(--tema-border, rgba(255, 255, 255, 0.1));
   border-top-color: #2dd4bf;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  /* Sin animación */
 }
 
 // ============================================================
@@ -81,10 +77,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
     padding: 0;
 
-    &:hover { background: rgba(248, 81, 73, 0.25); }
     svg { stroke: currentColor; }
   }
 
@@ -139,117 +133,97 @@
     font-size: 0.75rem;
     font-weight: 600;
     text-decoration: none;
-    transition: background 0.2s ease;
 
-    &:hover {
-      background: rgba(45, 212, 191, 0.2);
-    }
+    &:hover { background: rgba(45, 212, 191, 0.2); }
   }
 }
 
 // ============================================================
-// LISTA DE ANUNCIOS
+// LISTA NORMAL DE ANUNCIOS (GRID)
 // ============================================================
-.anuncios-list {
+.anuncios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+// ============================================================
+// TARJETA DEL ANUNCIO (DISEÑO TIPO IMAGEN)
+// ============================================================
+.anuncio-card {
+  background-color: #1a2a44; /* Azul marino oscuro de tu imagen */
+  border-radius: 4px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-}
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 
-.anuncio-banner {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.25rem 1.5rem;
-
-  background: rgba(13, 17, 23, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
-  border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.08));
-  border-left: 4px solid #2dd4bf;
-  border-radius: 12px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    border-color: rgba(45, 212, 191, 0.4);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  }
-
-  &__icon {
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
-    border-radius: 8px;
+  // 1. Contenedor de la imagen
+  &__imagen-wrapper {
+    width: 100%;
+    height: 220px; 
+    background-color: transparent; /* 🔥 FONDO TRANSPARENTE (antes blanco) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.2);
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    padding: 1rem;
   }
 
-  &__content {
-    flex: 1;
-    min-width: 0;
+  &__imagen {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* La foto se ve completa sin recortarse */
+  }
+
+  // 2. Contenido centrado
+  &__contenido {
+    padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    align-items: center;
+    text-align: center;
+    flex: 1;
   }
 
-  &__title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--tema-text, #e6edf3);
-    margin: 0;
-    line-height: 1.3;
+  &__titulo {
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 0.8rem;
   }
 
-  &__text {
-    font-size: 0.9rem;
-    color: var(--tema-text-muted, #8b98a5);
-    margin: 0;
+  &__texto {
+    color: #7b9acc; /* Azul claro/grisáceo de tu imagen */
+    font-size: 1.05rem;
     line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    margin: 0;
   }
 
-  &__action { flex-shrink: 0; }
-
+  // 3. Botón (si el anuncio tiene enlace)
   &__btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    margin-top: 1.5rem;
     padding: 0.6rem 1.2rem;
-    background: rgba(45, 212, 191, 0.1);
-    border: 1px solid rgba(45, 212, 191, 0.3);
-    border-radius: 8px;
-    color: #2dd4bf;
-    font-size: 0.85rem;
-    font-weight: 600;
+    background-color: #2dd4bf; /* Mantenemos tu color verde/cyan de la app */
+    color: #0d1117;
     text-decoration: none;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.9rem;
 
-    svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-    }
+    svg { stroke-width: 2.5; }
 
     &:hover {
-      background: rgba(45, 212, 191, 0.2);
-      border-color: #2dd4bf;
-      text-decoration: none;
+      background-color: #22b8a8; /* Sin animación, solo cambio de color */
     }
   }
 }
 
 // ============================================================
-// ✅ AVISO DE LOGIN (invitados)
+// ✅AVISO DE LOGIN (invitados)
 // ============================================================
 .anuncios-page {
   kiert-aviso-login {
@@ -296,30 +270,19 @@
     &__text h4 { font-size: 0.8rem; }
     &__text p { font-size: 0.7rem; }
   }
-
-  .anuncio-banner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    border-left-width: 6px;
-
-    &__icon {
-      width: 48px;
-      height: 48px;
-    }
-
-    &__action { width: 100%; }
-
-    &__btn {
-      width: 100%;
-      justify-content: center;
-    }
-  }
 }
 
 @media (max-width: 480px) {
   .floating-ad {
     display: none;
+  }
+
+  .anuncios-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .anuncio-card__imagen-wrapper {
+    height: 180px;
   }
 }

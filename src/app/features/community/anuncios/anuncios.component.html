@@ -59,34 +59,34 @@
     }
 
     <!-- ========================================================= -->
-    <!-- LISTA NORMAL DE ANUNCIOS                                  -->
+    <!-- LISTA NORMAL DE ANUNCIOS (NUEVO DISEÑO TIPO TARJETA)      -->
     <!-- ========================================================= -->
-    <div class="anuncios-list">
+    <div class="anuncios-grid">
       @for (a of anuncios(); track a.id) {
-        <article class="anuncio-banner">
+        <article class="anuncio-card">
 
+          <!-- 1. Imagen arriba -->
           @if (a.imagenUrl) {
-            <div class="anuncio-banner__icon">
-              <img [src]="a.imagenUrl" [alt]="a.titulo" loading="lazy" />
+            <div class="anuncio-card__imagen-wrapper">
+              <img [src]="a.imagenUrl" [alt]="a.titulo" loading="lazy" class="anuncio-card__imagen" />
             </div>
           }
 
-          <div class="anuncio-banner__content">
-            <h2 class="anuncio-banner__title">{{ a.titulo }}</h2>
-            <p class="anuncio-banner__text">{{ a.texto }}</p>
-          </div>
+          <!-- 2. Contenido centrado -->
+          <div class="anuncio-card__contenido">
+            <h2 class="anuncio-card__titulo">{{ a.titulo }}</h2>
+            <p class="anuncio-card__texto">{{ a.texto }}</p>
 
-          @if (a.enlaceUrl) {
-            <div class="anuncio-banner__action">
-              <a class="anuncio-banner__btn" [href]="a.enlaceUrl" target="_blank" rel="noopener">
-                Ver más
+            @if (a.enlaceUrl) {
+              <a class="anuncio-card__btn" [href]="a.enlaceUrl" target="_blank" rel="noopener">
+                Más información
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"/>
                   <polyline points="12 5 19 12 12 19"/>
                 </svg>
               </a>
-            </div>
-          }
+            }
+          </div>
 
         </article>
       }

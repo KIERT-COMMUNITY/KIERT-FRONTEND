@@ -15,7 +15,7 @@
     @for (m of mensajes(); track m.id) {
       <div class="mensaje" [class.propio]="esPropio(m)">
 
-        <!-- ✅ MARCO DE PERFIL APLICADO -->
+        <!-- MARCO DE PERFIL APLICADO -->
         <button
           type="button"
           class="avatar-btn"
@@ -23,13 +23,13 @@
           [attr.aria-label]="'Ver perfil de ' + getNombre(m)"
           [title]="'Ver perfil de ' + getNombre(m)"
         >
-        <kiert-avatar-frame
-  [fotoUrl]="getFoto(m)"
-  [nombre]="getNombre(m)"
-  [marcoId]="getMarco(m)"
-  [size]="36"
-  [alt]="getNombre(m)">
-</kiert-avatar-frame>
+          <kiert-avatar-frame
+            [fotoUrl]="getFoto(m)"
+            [nombre]="getNombre(m)"
+            [marcoId]="getMarco(m)"
+            [size]="36"
+            [alt]="getNombre(m)">
+          </kiert-avatar-frame>
         </button>
 
         <div class="burbuja">
@@ -54,9 +54,9 @@
     }
   </div>
 
+  <!-- Quitado el icono/emoji de candado -->
   <kiert-aviso-login
     [visible]="mostrarAvisoLogin()"
-    icono="🔒"
     titulo="Debes registrarte para escribir"
     mensaje="Como invitado solo puedes ver el chat. Inicia sesión para participar."
     textoBoton="Ir al login"

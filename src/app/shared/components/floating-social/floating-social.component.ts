@@ -48,7 +48,7 @@ export class FloatingSocialComponent implements OnInit, OnDestroy {
     {
       id: 'discord',
       name: 'Discord',
-      url: 'https://discord.gg/Ky9UwfqMF',
+      url: 'https://discord.gg/6y8mNRfcC',
       icon: this.getDiscordIcon(),
       bgColor: '#ffffff',
       iconColor: '#5865F2'
