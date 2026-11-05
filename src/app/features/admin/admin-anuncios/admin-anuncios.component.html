@@ -75,7 +75,7 @@
         <p class="empty">No hay anuncios todavía.</p>
       } @else {
         @for (a of anuncios(); track a.id) {
-          <div class="anuncio-item" [style.border-left]="a.esFlotante ? '3px solid #2dd4bf' : 'none'">
+        <div class="anuncio-item" [class.anuncio-item--flotante]="a.esFlotante">
             @if (a.imagenUrl) {
               <img class="anuncio-thumb" [src]="a.imagenUrl" [alt]="a.titulo" />
             } @else {
