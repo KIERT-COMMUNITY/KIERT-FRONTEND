@@ -1,5 +1,5 @@
 // src/app/features/feed/feed.component.ts
-import { Component, OnInit, OnDestroy, signal, computed, inject, isDevMode } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, isDevMode, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
@@ -42,6 +42,16 @@ export class FeedComponent implements OnInit, OnDestroy {
   // ===== CONFIRM RESTAURAR OCULTOS =====
   mostrarConfirmRestaurar = signal(false);
 
+  // ===== PULL TO REFRESH =====
+  pullDistance = signal(0);
+  pullOpacity = signal(0);
+  isRefreshing = signal(false);
+  
+  private startY = 0;
+  private isPulling = false;
+  private readonly maxPull = 100;
+  private readonly threshold = 60;
+
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
@@ -57,9 +67,79 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.timeouts.clear();
   }
 
-  private safeTimeout(fn: () => void, ms: number): void {
-    const id = setTimeout(() => { this.timeouts.delete(id); fn(); }, ms);
-    this.timeouts.add(id);
+  // ===== LOGICA PULL TO REFRESH =====
+  @HostListener('window:touchstart', ['$event'])
+  onTouchStart(event: TouchEvent) {
+    if (window.scrollY === 0 && !this.isRefreshing() && !this.cargando()) {
+      this.startY = event.touches[0].clientY;
+      this.isPulling = true;
+    }
+  }
+
+  @HostListener('window:touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (!this.isPulling || this.isRefreshing()) return;
+
+    const currentY = event.touches[0].clientY;
+    const diff = currentY - this.startY;
+
+    if (diff > 0) {
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+      const distance = Math.min(diff * 0.5, this.maxPull);
+      this.pullDistance.set(distance);
+      this.pullOpacity.set(Math.min(distance / this.threshold, 1));
+    }
+  }
+
+  @HostListener('window:touchend')
+  onTouchEnd() {
+    if (!this.isPulling || this.isRefreshing()) return;
+    this.isPulling = false;
+
+    if (this.pullDistance() >= this.threshold) {
+      this.triggerRefresh();
+    } else {
+      this.resetPull();
+    }
+  }
+
+  private triggerRefresh() {
+    this.isRefreshing.set(true);
+    this.pullDistance.set(this.threshold); // Mantener visible
+    this.pullOpacity.set(1);
+
+    // Simulamos un retraso de 1 segundo para que se vea el spinner girando
+    // y luego recargamos los datos reales
+    const timeoutId = setTimeout(() => {
+      this.timeouts.delete(timeoutId);
+      
+      this.postService.listar()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            this.posts.set(Array.isArray(data) ? data : []);
+            this.finishRefresh();
+          },
+          error: () => {
+            this.errorMsg.set('Error al recargar');
+            this.finishRefresh();
+          }
+        });
+    }, 1000);
+
+    this.timeouts.add(timeoutId);
+  }
+
+  private finishRefresh() {
+    this.isRefreshing.set(false);
+    this.resetPull();
+  }
+
+  private resetPull() {
+    this.pullDistance.set(0);
+    this.pullOpacity.set(0);
   }
 
   // ===== NAVEGACION =====
@@ -113,7 +193,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.cargarPosts();
   }
 
-  // ===== RESTAURAR OCULTOS (con modal propio) =====
+  // ===== RESTAURAR OCULTOS =====
   abrirConfirmRestaurar(): void {
     if (this.totalOcultos() === 0) return;
     this.mostrarConfirmRestaurar.set(true);

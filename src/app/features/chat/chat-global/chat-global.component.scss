@@ -22,6 +22,53 @@ $text-muted: #5a6a7a;
   padding: 1rem;
 }
 
+// ============================================================
+// PULL TO REFRESH (Indicador de recarga)
+// ============================================================
+.pull-to-refresh {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+  gap: 8px;
+  transition: none;
+
+  &__spinner {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $primary;
+    
+    svg {
+      width: 100%;
+      height: 100%;
+      stroke: currentColor;
+      
+      &.spinning {
+        animation: spin 0.8s linear infinite;
+      }
+    }
+  }
+
+  span {
+    font-size: 0.8rem;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// RESTO DE ESTILOS (Intactos)
+// ============================================================
 .chat-header {
   display: flex;
   align-items: center;
@@ -71,7 +118,6 @@ $text-muted: #5a6a7a;
   flex-direction: column;
   gap: 0.75rem;
   
-  // Scrollbar estático
   scrollbar-color: $border transparent;
   scrollbar-width: thin;
 
@@ -120,7 +166,6 @@ $text-muted: #5a6a7a;
     justify-content: center;
     line-height: 0;
 
-    /* Eliminados los efectos hover y outline para máxima estática */
     &:focus {
       outline: none;
     }
@@ -145,7 +190,6 @@ $text-muted: #5a6a7a;
         font-weight: 600;
         cursor: pointer;
 
-        /* Eliminado el hover con opacidad y subrayado */
         &:focus {
           outline: none;
         }
@@ -184,7 +228,6 @@ $text-muted: #5a6a7a;
 
     &::placeholder { color: $text-muted; }
     
-    /* Sin efectos de enfoque (box-shadow) para que sea puramente estático */
     &:focus {
       outline: none;
       border-color: $primary;
@@ -201,7 +244,6 @@ $text-muted: #5a6a7a;
     font-weight: 600;
     cursor: pointer;
 
-    /* Eliminado el filter: brightness al hacer hover */
     &:disabled { opacity: 0.5; cursor: not-allowed; }
   }
 }
@@ -217,7 +259,6 @@ $text-muted: #5a6a7a;
   .btn-guest {
     background: $primary;
     color: $bg-primary;
-    /* Eliminado el filter: brightness al hacer hover */
   }
 }
 

@@ -1,6 +1,6 @@
 // src/app/features/chat/chat-global/chat-global.component.ts
 import {
-  Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal, NgZone, ChangeDetectorRef
+  Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal, NgZone, ChangeDetectorRef, ViewChild as ViewChildAngular
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,10 +13,19 @@ import { AvisoLoginComponent } from '../../../shared/components/aviso-login/avis
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { safeUrl } from '../../../shared/utils/url-sanitizer';
 
+// IMPORTAMOS LA DIRECTIVA
+import { PullToRefreshDirective } from '../../../shared/directives/pull-to-refresh.directive';
+
 @Component({
   selector: 'kiert-chat-global',
   standalone: true,
-  imports: [CommonModule, FormsModule, AvisoLoginComponent, AvatarFrameComponent],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    AvisoLoginComponent, 
+    AvatarFrameComponent,
+    PullToRefreshDirective // Añadida aquí
+  ],
   templateUrl: './chat-global.component.html',
   styleUrl: './chat-global.component.scss'
 })
@@ -28,6 +37,14 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('scrollContainer') scrollContainer?: ElementRef<HTMLDivElement>;
+
+  // Hacemos referencia a la directiva para leer sus señales en el HTML
+  @ViewChild(PullToRefreshDirective) pullToRefresh!: PullToRefreshDirective;
+  
+  // Señales expuestas para el HTML
+  isRefreshing = signal(false);
+  pullDistance = signal(0);
+  pullOpacity = signal(0);
 
   readonly mensajes = signal<MensajeGlobal[]>([]);
   readonly conectado = signal(false);
@@ -42,19 +59,9 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // 1. Cargar historial
-    this.chatService.obtenerHistorial(0, 50)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: historial => {
-          this.mensajes.set([...historial].reverse());
-          this.scrollAbajo();
-        },
-        error: err => console.error('[CHAT-GLOBAL] Error historial', err)
-      });
+    this.cargarHistorial();
 
     // 2. Escuchar mensajes en tiempo real
-    // IMPORTANTE: el callback viene del WebSocket, FUERA de la NgZone.
-    // Hay que envolverlo en ngZone.run() para que Angular detecte cambios.
     this.chatService.mensajes$
       .pipe(takeUntil(this.destroy$))
       .subscribe(m => {
@@ -81,10 +88,53 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.timeouts.forEach(t => clearTimeout(t));
     this.timeouts.clear();
-    // NO llamar a this.chatService.desconectar() aqui:
-    // el servicio es singleton y debe mantenerse mientras la app viva.
   }
 
+  // ===== LOGICA DE RECARGA =====
+  recargarMensajes(): void {
+    this.isRefreshing.set(true);
+    
+    // Sincronizamos las señales de la directiva con las nuestras
+    this.pullDistance.set(this.pullToRefresh.pullDistance());
+    this.pullOpacity.set(this.pullToRefresh.pullOpacity());
+
+    // Retraso de 1 segundo para que se vea el spinner girando
+    const timeoutId = setTimeout(() => {
+      this.timeouts.delete(timeoutId);
+      this.cargarHistorial();
+    }, 1000);
+    
+    this.timeouts.add(timeoutId);
+  }
+
+  private cargarHistorial(): void {
+    this.chatService.obtenerHistorial(0, 50)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: historial => {
+          this.mensajes.set([...historial].reverse());
+          this.scrollAbajo();
+          this.finishRefresh();
+        },
+        error: err => {
+          console.error('[CHAT-GLOBAL] Error historial', err);
+          this.finishRefresh();
+        }
+      });
+  }
+
+  private finishRefresh(): void {
+    this.isRefreshing.set(false);
+    // Reseteamos la directiva para que el indicador suba
+    if (this.pullToRefresh) {
+      this.pullToRefresh.finishRefresh();
+    }
+    // Reseteamos nuestras señales locales
+    this.pullDistance.set(0);
+    this.pullOpacity.set(0);
+  }
+
+  // ===== RESTO DE METODOS =====
   enviar(): void {
     if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
     const contenido = this.texto.trim();
