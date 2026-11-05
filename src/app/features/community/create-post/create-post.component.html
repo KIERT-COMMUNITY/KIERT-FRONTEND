@@ -112,7 +112,13 @@
     <!-- Archivos -->
     <div class="field">
       <label for="archivos">Adjuntar archivos <span class="optional">(opcional)</span></label>
-      <p class="file-hint">Max 10 archivos. Imagenes/GIFs: 15MB | Videos: 50MB | Total: 100MB</p>
+      
+      <!-- TEXTO DE AYUDA CLARO Y DETALLADO -->
+      <p class="file-hint">
+        <strong>Que puedes subir:</strong> Imagenes (JPG, PNG, WebP, GIF), Videos (MP4, WebM), y Documentos (PDF, DOC, DOCX, TXT, ZIP, RAR).<br>
+        <strong>Limites de tamano:</strong> Imagenes hasta 15 MB (se optimizan automaticamente) | Videos hasta 50 MB | Documentos hasta 15 MB.<br>
+        <strong>Maximo:</strong> 10 archivos por publicacion, no superando 100 MB en total.
+      </p>
 
       <label class="file-input" for="archivos">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -131,6 +137,12 @@
           aria-label="Seleccionar archivos para adjuntar"
         >
       </label>
+
+      @if (comprimiendo()) {
+        <p class="comprimiendo-hint">
+          <span class="spinner-small"></span> Optimizando imagenes para ahorrar espacio...
+        </p>
+      }
 
       @if (archivosSeleccionados().length > 0) {
         <ul class="archivos-lista">
@@ -161,9 +173,11 @@
       <button type="button" class="btn-cancel" (click)="cancelar()" [disabled]="publicando()">
         Cancelar
       </button>
-      <button type="submit" class="btn btn--primary" [disabled]="publicando() || form.invalid">
+      <button type="submit" class="btn btn--primary" [disabled]="publicando() || form.invalid || comprimiendo()">
         @if (publicando()) {
           <span class="spinner-btn"></span> Publicando...
+        } @else if (comprimiendo()) {
+          <span class="spinner-btn"></span> Procesando...
         } @else {
           Publicar
         }

@@ -13,6 +13,7 @@ import { PostService } from '../../../core/services/post.service';
 import { BloqueoService } from '../../../core/services/bloqueo.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
+import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service'; // IMPORTADO
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
@@ -30,6 +31,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private postService = inject(PostService);
   private bloqueoService = inject(BloqueoService);
   private imageSanitizer = inject(ImageSanitizerService);
+  private imagenCompresion = inject(ImagenCompresionService); // INYECTADO
   private userService = inject(UserService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -79,7 +81,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       Validators.required,
       Validators.minLength(3),
       Validators.maxLength(20),
-      // Solo alfanumérico, guion bajo, punto y guion
       Validators.pattern(/^[a-zA-Z0-9_.-]+$/)
     ]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
@@ -131,13 +132,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // setTimeout rastreable
   private safeTimeout(fn: () => void, ms: number): void {
     const id = setTimeout(() => { this.timeouts.delete(id); fn(); }, ms);
     this.timeouts.add(id);
   }
 
-  // Navegacion al login
   irALogin(): void {
     this.mostrarAvisoLogin.set(false);
     this.router.navigate(['/login'], { queryParams: { returnUrl: '/perfil' } });
@@ -208,7 +207,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // FOTO DE PERFIL
+  // FOTO DE PERFIL (OPTIMIZADO)
   // ============================================================
   async onFotoSeleccionada(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement | null;
@@ -240,8 +239,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
 
     try {
-      // ImageSanitizerService debe re-codificar la imagen (canvas) y devolver Blob seguro
-      const archivoLimpio = await this.imageSanitizer.limpiarFotoPerfil(archivoOriginal);
+      // Comprimir imagen a maximo 400x400 para avatar (muy ligero)
+      const archivoComprimido = await this.imagenCompresion.comprimirAvatar(archivoOriginal);
+
+      // ImageSanitizerService re-codifica y limpia metadatos
+      const archivoLimpio = await this.imageSanitizer.limpiarFotoPerfil(archivoComprimido);
 
       // Verificacion adicional: tipo final debe ser imagen raster
       if (!/^image\/(jpeg|png|webp)$/i.test(archivoLimpio.type)) {
@@ -293,7 +295,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     lector.onload = () => {
       const result = lector.result;
       if (typeof result === 'string') {
-        // safeUrl acepta data:image/*;base64
         this.previsualizacion.set(safeUrl(result));
       }
       this.lectorActual = null;

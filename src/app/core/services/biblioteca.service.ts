@@ -1,9 +1,9 @@
 // src/app/core/services/biblioteca.service.ts
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { RecursoBiblioteca } from '../models/biblioteca.model';
+import { RecursoBiblioteca, HistorialRecurso } from '../models/biblioteca.model';
 
 @Injectable({ providedIn: 'root' })
 export class BibliotecaService {
@@ -13,7 +13,6 @@ export class BibliotecaService {
   // ============================================================
   // LECTURA
   // ============================================================
-
   obtenerTodos(): Observable<RecursoBiblioteca[]> {
     return this.http.get<RecursoBiblioteca[]>(`${this.apiUrl}/biblioteca`);
   }
@@ -41,9 +40,8 @@ export class BibliotecaService {
   }
 
   // ============================================================
-  // CRUD DEL USUARIO (usa HTTP real)
+  // CRUD DEL USUARIO
   // ============================================================
-
   agregarRecursoUsuario(datos: Omit<RecursoBiblioteca, 'id' | 'fechaAgregado' | 'esUsuario'>): Observable<RecursoBiblioteca> {
     const payload = {
       titulo: datos.titulo,
@@ -58,7 +56,6 @@ export class BibliotecaService {
       destacado: datos.destacado ?? false,
       tags: datos.tags || []
     };
-    console.log('POST /biblioteca/usuario', payload);
     return this.http.post<RecursoBiblioteca>(`${this.apiUrl}/biblioteca/usuario`, payload);
   }
 
@@ -76,12 +73,21 @@ export class BibliotecaService {
       destacado: datos.destacado ?? false,
       tags: datos.tags || []
     };
-    console.log('PUT /biblioteca/usuario/' + id, payload);
     return this.http.put<RecursoBiblioteca>(`${this.apiUrl}/biblioteca/usuario/${id}`, payload);
   }
 
   eliminarRecursoUsuario(id: number | string): Observable<void> {
-    console.log('DELETE /biblioteca/usuario/' + id);
     return this.http.delete<void>(`${this.apiUrl}/biblioteca/usuario/${id}`);
+  }
+
+  // ============================================================
+  // HISTORIAL
+  // ============================================================
+  obtenerHistorial(recursoId: number | string): Observable<HistorialRecurso[]> {
+    return this.http.get<HistorialRecurso[]>(`${this.apiUrl}/biblioteca/${recursoId}/historial`);
+  }
+
+  obtenerHistorialUsuario(): Observable<HistorialRecurso[]> {
+    return this.http.get<HistorialRecurso[]>(`${this.apiUrl}/biblioteca/historial/mio`);
   }
 }

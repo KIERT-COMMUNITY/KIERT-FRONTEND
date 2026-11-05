@@ -3,12 +3,14 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { NgxTurnstileModule } from 'ngx-turnstile';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'kiert-admin-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, NgxTurnstileModule],
   templateUrl: './admin-login.component.html',
   styleUrl: './admin-login.component.scss'
 })
@@ -22,6 +24,10 @@ export class AdminLoginComponent {
   errorMsg = signal<string | null>(null);
   mostrarPassword = signal(false);
 
+  // VARIABLES DE CLOUDFLARE TURNSTILE
+  readonly turnstileSiteKey = environment.turnstileSiteKey;
+  turnstileToken: string | null = null;
+
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]]
@@ -34,9 +40,20 @@ export class AdminLoginComponent {
     this.mostrarPassword.update(v => !v);
   }
 
+  // MÉTODO PARA RECIBIR EL TOKEN DE CLOUDFLARE
+  onTurnstileResolved(token: string | null): void {
+    this.turnstileToken = token;
+  }
+
   enviar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
+
+    //  VALIDACIÓN DE CLOUDFLARE
+    if (!this.turnstileToken) {
+      this.errorMsg.set('Completa la verificación de seguridad antes de continuar.');
       return;
     }
 
@@ -45,12 +62,11 @@ export class AdminLoginComponent {
 
     const { email, password } = this.form.getRawValue();
 
-    this.adminAuth.login(email!, password!).subscribe({
+    //  CORREGIDO: Se pasa el turnstileToken como tercer parámetro al servicio
+    this.adminAuth.login(email!, password!, this.turnstileToken).subscribe({
       next: () => {
         this.cargando.set(false);
         const redirect = this.route.snapshot.queryParams['redirect'] || '/admin/reportes';
-        // SEGURIDAD: Solo permitir rutas internas que comiencen con "/"
-        // y que no sean URLs absolutas (http://, https://, //)
         const rutaSegura = this.validarRutaInterna(redirect);
         this.router.navigate([rutaSegura]);
       },
@@ -68,14 +84,8 @@ export class AdminLoginComponent {
   }
 
   private validarRutaInterna(ruta: string): string {
-    // Si no empieza con "/", es externa o inválida -> usar ruta por defecto
-    if (!ruta.startsWith('/')) {
-      return '/admin/reportes';
-    }
-    // Si empieza con "//", es una URL protocol-relative (peligrosa)
-    if (ruta.startsWith('//')) {
-      return '/admin/reportes';
-    }
+    if (!ruta.startsWith('/')) return '/admin/reportes';
+    if (ruta.startsWith('//')) return '/admin/reportes';
     return ruta;
   }
 }

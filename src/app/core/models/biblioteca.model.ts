@@ -41,3 +41,13 @@ export interface RecursoBiblioteca {
   usuarioId?: number;
   usuarioNombre?: string;
 }
+export interface HistorialRecurso {
+  id: number;
+  recursoId?: number;
+  accion: 'CREAR' | 'EDITAR' | 'ELIMINAR' | string;
+  datosAnteriores?: string;
+  datosNuevos?: string;
+  ipUsuario?: string;
+  usuarioNombre?: string;
+  fechaAccion: string;
+}

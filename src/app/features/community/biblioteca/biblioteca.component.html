@@ -26,18 +26,33 @@
       <p>Certificaciones, cursos, herramientas y mas para tu desarrollo profesional</p>
     </div>
 
-    <button
-      type="button"
-      class="btn-agregar"
-      [class.btn-agregar--disabled]="!estaLogueado"
-      [attr.title]="!estaLogueado ? 'Inicia sesion para agregar recursos' : 'Agregar recurso'"
-      (click)="abrirModalAgregar()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      <span>Agregar recurso</span>
-    </button>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn-historial-global"
+        [class.btn-historial-global--disabled]="!estaLogueado"
+        [attr.title]="!estaLogueado ? 'Inicia sesion para ver tu historial' : 'Mi historial de cambios'"
+        (click)="abrirHistorialGlobal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>Mi historial</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn-agregar"
+        [class.btn-agregar--disabled]="!estaLogueado"
+        [attr.title]="!estaLogueado ? 'Inicia sesion para agregar recursos' : 'Agregar recurso'"
+        (click)="abrirModalAgregar()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>Agregar recurso</span>
+      </button>
+    </div>
   </div>
 
   <!-- ESTADISTICAS -->
@@ -287,6 +302,15 @@
 
           @if (recurso.esUsuario) {
             <div class="recurso-card__acciones-usuario">
+              <button type="button" class="btn-accion btn-historial"
+                      (click)="abrirHistorial(recurso, $event)"
+                      title="Historial"
+                      aria-label="Historial de cambios">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </button>
               <button type="button" class="btn-accion btn-editar"
                       (click)="abrirModalEditar(recurso, $event)"
                       title="Editar"
@@ -432,7 +456,7 @@
 
   <!-- MODAL AGREGAR/EDITAR -->
   @if (mostrarModal()) {
-    <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-overlay" (click)="$event.target === $event.currentTarget ? cerrarModal() : null">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal__header">
           <h2>{{ modoEdicion() ? 'Editar recurso' : 'Agregar recurso' }}</h2>
@@ -451,24 +475,24 @@
 
           <div class="form-group">
             <label for="bib-titulo">Titulo *</label>
-            <input id="bib-titulo" type="text" [(ngModel)]="formTitulo" placeholder="Ej: Curso de Angular Avanzado" maxlength="200" autocomplete="off" />
+            <input id="bib-titulo" type="text" [(ngModel)]="formTitulo" (ngModelChange)="marcarCambios()" placeholder="Ej: Curso de Angular Avanzado" maxlength="200" autocomplete="off" />
           </div>
 
           <div class="form-group">
             <label for="bib-url">URL *</label>
-            <input id="bib-url" type="url" [(ngModel)]="formUrl" placeholder="https://..." maxlength="2048" autocomplete="off" spellcheck="false" />
+            <input id="bib-url" type="url" [(ngModel)]="formUrl" (ngModelChange)="marcarCambios()" placeholder="https://..." maxlength="2048" autocomplete="off" spellcheck="false" />
             <small class="form-hint">Solo se permiten URLs https://</small>
           </div>
 
           <div class="form-group">
             <label for="bib-desc">Descripcion</label>
-            <textarea id="bib-desc" [(ngModel)]="formDescripcion" rows="3" placeholder="Breve descripcion..." maxlength="1000"></textarea>
+            <textarea id="bib-desc" [(ngModel)]="formDescripcion" (ngModelChange)="marcarCambios()" rows="3" placeholder="Breve descripcion..." maxlength="1000"></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="bib-cat">Categoria *</label>
-              <select id="bib-cat" [(ngModel)]="formCategoria">
+              <select id="bib-cat" [(ngModel)]="formCategoria" (ngModelChange)="marcarCambios()">
                 <option value="certificacion">Certificacion</option>
                 <option value="curso">Curso</option>
                 <option value="video">Video</option>
@@ -485,31 +509,31 @@
 
             <div class="form-group">
               <label for="bib-subcat">Subcategoria</label>
-              <input id="bib-subcat" type="text" [(ngModel)]="formSubcategoria" placeholder="Ej: Frontend" maxlength="100" autocomplete="off" />
+              <input id="bib-subcat" type="text" [(ngModel)]="formSubcategoria" (ngModelChange)="marcarCambios()" placeholder="Ej: Frontend" maxlength="100" autocomplete="off" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="bib-autor">Autor / Instructor</label>
-              <input id="bib-autor" type="text" [(ngModel)]="formAutor" placeholder="Ej: John Doe" maxlength="100" autocomplete="off" />
+              <input id="bib-autor" type="text" [(ngModel)]="formAutor" (ngModelChange)="marcarCambios()" placeholder="Ej: John Doe" maxlength="100" autocomplete="off" />
             </div>
 
             <div class="form-group">
               <label for="bib-plat">Plataforma</label>
-              <input id="bib-plat" type="text" [(ngModel)]="formPlataforma" placeholder="Ej: Udemy, Coursera" maxlength="100" autocomplete="off" />
+              <input id="bib-plat" type="text" [(ngModel)]="formPlataforma" (ngModelChange)="marcarCambios()" placeholder="Ej: Udemy, Coursera" maxlength="100" autocomplete="off" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="bib-dur">Duracion</label>
-              <input id="bib-dur" type="text" [(ngModel)]="formDuracion" placeholder="Ej: 10h" maxlength="50" autocomplete="off" />
+              <input id="bib-dur" type="text" [(ngModel)]="formDuracion" (ngModelChange)="marcarCambios()" placeholder="Ej: 10h" maxlength="50" autocomplete="off" />
             </div>
 
             <div class="form-group">
               <label for="bib-nivel">Nivel</label>
-              <select id="bib-nivel" [(ngModel)]="formNivel">
+              <select id="bib-nivel" [(ngModel)]="formNivel" (ngModelChange)="marcarCambios()">
                 <option value="">-- Sin especificar --</option>
                 <option value="principiante">Principiante</option>
                 <option value="intermedio">Intermedio</option>
@@ -520,13 +544,13 @@
 
           <div class="form-group">
             <label for="bib-tags">Tags (separados por coma)</label>
-            <input id="bib-tags" type="text" [(ngModel)]="formTags" placeholder="angular, typescript, frontend" maxlength="300" autocomplete="off" />
+            <input id="bib-tags" type="text" [(ngModel)]="formTags" (ngModelChange)="marcarCambios()" placeholder="angular, typescript, frontend" maxlength="300" autocomplete="off" />
             <small class="form-hint">Max 10 tags, 30 caracteres cada uno</small>
           </div>
 
           <div class="form-group form-check">
             <label for="bib-dest">
-              <input id="bib-dest" type="checkbox" [(ngModel)]="formDestacado" />
+              <input id="bib-dest" type="checkbox" [(ngModel)]="formDestacado" (ngModelChange)="marcarCambios()" />
               <span>Marcar como destacado</span>
             </label>
           </div>
@@ -537,6 +561,151 @@
           <button type="button" class="btn-guardar" (click)="guardarRecurso()">
             {{ modoEdicion() ? 'Guardar cambios' : 'Agregar recurso' }}
           </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL HISTORIAL GLOBAL -->
+  @if (mostrarModalHistorialGlobal()) {
+    <div class="modal-overlay" (click)="cerrarHistorialGlobal()">
+      <div class="modal modal--historial-global" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h2>Mi historial de cambios</h2>
+          <button type="button" class="modal__close" (click)="cerrarHistorialGlobal()" aria-label="Cerrar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal__body">
+          @if (cargandoHistorialGlobal()) {
+            <div class="historial-loading">
+              <div class="spinner-mini"></div>
+              <span>Cargando historial...</span>
+            </div>
+          } @else if (historialGlobal().length === 0) {
+            <div class="historial-vacio">
+              <p>Aun no has creado, editado ni eliminado ningun recurso.</p>
+            </div>
+          } @else {
+            <p class="historial-subtitulo">
+              {{ historialGlobal().length }} accion(es) registradas. Las mas recientes aparecen primero.
+            </p>
+            <div class="historial-lista historial-lista--global">
+              @for (item of historialGlobal(); track item.id) {
+                <div class="historial-item historial-item--clickable"
+                     [class.historial-item--crear]="item.accion === 'CREAR'"
+                     [class.historial-item--editar]="item.accion === 'EDITAR'"
+                     [class.historial-item--eliminar]="item.accion === 'ELIMINAR'"
+                     (click)="irARecursoDesdeHistorial(item)">
+                  <div class="historial-item__header">
+                    <span class="historial-item__accion">{{ item.accion }}</span>
+                    <span class="historial-item__fecha">{{ formatearFechaHistorial(item.fechaAccion) }}</span>
+                  </div>
+                  <div class="historial-item__meta">
+                    @if (item.usuarioNombre) {
+                      <span>Por: <strong>{{ item.usuarioNombre }}</strong></span>
+                    }
+                    @if (item.ipUsuario) {
+                      <span>IP: {{ item.ipUsuario }}</span>
+                    }
+                  </div>
+                  @if (item.datosNuevos || item.datosAnteriores) {
+                    <div class="historial-item__detalle">
+                      <span class="historial-item__detalle-label">Recurso:</span>
+                      <span class="historial-item__detalle-texto">
+                        {{ formatearResumenHistorial(item) }}
+                      </span>
+                    </div>
+                  }
+
+                  @if (item.accion !== 'ELIMINAR' && item.recursoId) {
+                    <div class="historial-item__acciones">
+                      <button type="button"
+                              class="btn-historial-accion btn-historial-eliminar"
+                              (click)="eliminarDesdeHistorial(item, $event)"
+                              title="Eliminar recurso"
+                              aria-label="Eliminar recurso">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        <span>Eliminar</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" class="btn-cancelar" (click)="cerrarHistorialGlobal()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL HISTORIAL POR RECURSO -->
+  @if (mostrarModalHistorial()) {
+    <div class="modal-overlay" (click)="cerrarHistorial()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h2>Historial de cambios</h2>
+          <button type="button" class="modal__close" (click)="cerrarHistorial()" aria-label="Cerrar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal__body">
+          @if (historialTitulo()) {
+            <p class="historial-recurso">
+              <strong>{{ historialTitulo() }}</strong>
+            </p>
+          }
+
+          @if (cargandoHistorial()) {
+            <div class="historial-loading">
+              <div class="spinner-mini"></div>
+              <span>Cargando historial...</span>
+            </div>
+          } @else if (historialRecurso().length === 0) {
+            <div class="historial-vacio">
+              <p>Este recurso aun no tiene historial registrado.</p>
+            </div>
+          } @else {
+            <div class="historial-lista">
+              @for (item of historialRecurso(); track item.id) {
+                <div class="historial-item" [class.historial-item--crear]="item.accion === 'CREAR'"
+                     [class.historial-item--editar]="item.accion === 'EDITAR'"
+                     [class.historial-item--eliminar]="item.accion === 'ELIMINAR'">
+                  <div class="historial-item__header">
+                    <span class="historial-item__accion">{{ item.accion }}</span>
+                    <span class="historial-item__fecha">{{ formatearFechaHistorial(item.fechaAccion) }}</span>
+                  </div>
+                  <div class="historial-item__meta">
+                    @if (item.usuarioNombre) {
+                      <span>Por: <strong>{{ item.usuarioNombre }}</strong></span>
+                    }
+                    @if (item.ipUsuario) {
+                      <span>IP: {{ item.ipUsuario }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" class="btn-cancelar" (click)="cerrarHistorial()">Cerrar</button>
         </div>
       </div>
     </div>

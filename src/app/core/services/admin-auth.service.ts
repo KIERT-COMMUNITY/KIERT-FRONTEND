@@ -61,25 +61,30 @@ export class AdminAuthService {
   });
 
   // ============================================================
-  // LOGIN
+  // LOGIN (CORREGIDO CON TURNSTILE)
   // ============================================================
-  login(email: string, password: string): Observable<AdminLoginResponse> {
-    return this.http.post<AdminLoginResponse>(`${this.API}/login`, { email, password })
-      .pipe(
-        tap((res) => {
-          if (!res.token || !res.admin) {
-            throw new Error('Respuesta de login inválida');
-          }
-          this._token.set(res.token);
-          this._admin.set(res.admin);
-          this.storage.setItem(this.TOKEN_KEY, res.token);
-          this.storage.setItem(this.ADMIN_KEY, JSON.stringify(res.admin));
+  login(email: string, password: string, turnstileToken?: string): Observable<AdminLoginResponse> {
+    //  Ahora enviamos el turnstileToken en el body al backend
+    return this.http.post<AdminLoginResponse>(`${this.API}/login`, { 
+      email, 
+      password, 
+      turnstileToken 
+    })
+    .pipe(
+      tap((res) => {
+        if (!res.token || !res.admin) {
+          throw new Error('Respuesta de login inválida');
+        }
+        this._token.set(res.token);
+        this._admin.set(res.admin);
+        this.storage.setItem(this.TOKEN_KEY, res.token);
+        this.storage.setItem(this.ADMIN_KEY, JSON.stringify(res.admin));
 
-          // Sincronizar AuthService para que getToken() use el admin token
-          this.authService.cargarSesionPublica();
-        }),
-        catchError((err) => throwError(() => err))
-      );
+        // Sincronizar AuthService para que getToken() use el admin token
+        this.authService.cargarSesionPublica();
+      }),
+      catchError((err) => throwError(() => err))
+    );
   }
 
   // ============================================================

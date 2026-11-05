@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Anuncio, AnuncioService } from '../../../core/services/anuncio.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
+import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service'; 
 
 @Component({
   selector: 'kiert-admin-anuncios',
@@ -18,10 +19,12 @@ export class AdminAnunciosComponent implements OnInit {
   private anuncioService = inject(AnuncioService);
   private adminAuth = inject(AdminAuthService);
   private router = inject(Router);
+  private imagenCompresion = inject(ImagenCompresionService);
 
   anuncios = signal<Anuncio[]>([]);
   cargando = signal(true);
   guardando = signal(false);
+  comprimiendo = signal(false); 
   editandoId = signal<number | null>(null);
   errorMsg = signal<string | null>(null);
   archivoSeleccionado = signal<File | null>(null);
@@ -31,7 +34,7 @@ export class AdminAnunciosComponent implements OnInit {
     titulo: ['', [Validators.required, Validators.maxLength(200)]],
     texto: ['', [Validators.required]],
     enlaceUrl: [''],
-    esFlotante: [false] // ✅ NUEVO CONTROL
+    esFlotante: [false]
   });
 
   ngOnInit(): void {
@@ -56,17 +59,44 @@ export class AdminAnunciosComponent implements OnInit {
     });
   }
 
-  onArchivoChange(event: Event): void {
+  // MÉTODO ASÍNCRONO PARA COMPRIMIR ANTES DE GUARDAR
+  async onArchivoChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
-    this.archivoSeleccionado.set(file);
 
-    if (file) {
+    if (!file) {
+      this.archivoSeleccionado.set(null);
+      this.previewUrl.set(null);
+      return;
+    }
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      this.errorMsg.set('El archivo debe ser una imagen');
+      input.value = '';
+      return;
+    }
+
+    this.comprimiendo.set(true);
+    this.errorMsg.set(null);
+
+    try {
+      //  Comprimir la imagen antes de guardarla
+      const archivoComprimido = await this.imagenCompresion.comprimir(file);
+      
+      this.archivoSeleccionado.set(archivoComprimido);
+
+      // Generar preview con el archivo comprimido
       const reader = new FileReader();
       reader.onload = () => this.previewUrl.set(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      this.previewUrl.set(null);
+      reader.readAsDataURL(archivoComprimido);
+
+    } catch (error) {
+      console.error('Error al comprimir imagen:', error);
+      this.errorMsg.set('Error al procesar la imagen');
+      input.value = '';
+    } finally {
+      this.comprimiendo.set(false);
     }
   }
 
@@ -76,6 +106,7 @@ export class AdminAnunciosComponent implements OnInit {
     this.archivoSeleccionado.set(null);
     this.previewUrl.set(null);
     this.errorMsg.set(null);
+    this.comprimiendo.set(false);
   }
 
   editar(a: Anuncio): void {
@@ -84,7 +115,7 @@ export class AdminAnunciosComponent implements OnInit {
       titulo: a.titulo,
       texto: a.texto,
       enlaceUrl: a.enlaceUrl ?? '',
-      esFlotante: a.esFlotante ?? false // ✅ Cargar valor
+      esFlotante: a.esFlotante ?? false
     });
     this.previewUrl.set(a.imagenUrl ?? null);
     this.archivoSeleccionado.set(null);
@@ -94,6 +125,11 @@ export class AdminAnunciosComponent implements OnInit {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.errorMsg.set('Completa todos los campos obligatorios');
+      return;
+    }
+
+    if (this.comprimiendo()) {
+      this.errorMsg.set('Espera a que la imagen termine de procesarse');
       return;
     }
 
@@ -108,8 +144,9 @@ export class AdminAnunciosComponent implements OnInit {
     if (enlaceUrl?.trim()) {
       fd.append('enlaceUrl', enlaceUrl.trim());
     }
-    fd.append('esFlotante', String(esFlotante)); // ✅ Enviar al backend
+    fd.append('esFlotante', String(esFlotante));
 
+    // ✅ Envía el archivo COMPRIMIDO, no el original
     const file = this.archivoSeleccionado();
     if (file) {
       fd.append('imagen', file);

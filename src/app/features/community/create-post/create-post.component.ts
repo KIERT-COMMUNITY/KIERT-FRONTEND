@@ -8,6 +8,7 @@ import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
+import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service'; // IMPORTADO
 import { CommonModule } from '@angular/common';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 import { safeClassToken, isSafeExternalUrl } from '../../../shared/utils/url-sanitizer';
@@ -15,7 +16,7 @@ import { safeClassToken, isSafeExternalUrl } from '../../../shared/utils/url-san
 /** Valida que un control de link sea http(s) o vacio. */
 function linkValidator(control: AbstractControl): { [key: string]: any } | null {
   const valor = (control.value || '').toString().trim();
-  if (!valor) return null; // opcional
+  if (!valor) return null;
   if (!isSafeExternalUrl(valor)) {
     return { linkInvalido: true };
   }
@@ -30,7 +31,6 @@ function plainTextValidator(maxLen: number) {
   return (control: AbstractControl): { [key: string]: any } | null => {
     const valor = (control.value || '').toString();
     if (valor.length > maxLen) return { tooLong: true };
-    // Bloquea <, >, y caracteres de control (excepto \n \r \t)
     if (/[<>\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(valor)) {
       return { caracteresInvalidos: true };
     }
@@ -51,6 +51,7 @@ export class CreatePostComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private imageSanitizer = inject(ImageSanitizerService);
+  private imagenCompresion = inject(ImagenCompresionService); // INYECTADO
   public personalizacionStore = inject(PersonalizacionStore);
 
   // ===== CICLO DE VIDA =====
@@ -72,6 +73,7 @@ export class CreatePostComponent implements OnInit, OnDestroy {
   estaLogueado = signal<boolean>(false);
   mostrarAvisoLogin = signal(false);
   esAnonimo = signal(false);
+  comprimiendo = signal(false); // NUEVO SIGNAL
 
   // ===== FORM =====
   form = this.fb.group({
@@ -178,7 +180,6 @@ export class CreatePostComponent implements OnInit, OnDestroy {
         continue;
       }
 
-      // Nombre de archivo vacio o raro: rechazar
       if (!archivo.name || archivo.name.length > 255) {
         this.errorMsg.set('Nombre de archivo invalido');
         this.safeTimeout(() => this.errorMsg.set(null), 4000);
@@ -198,16 +199,49 @@ export class CreatePostComponent implements OnInit, OnDestroy {
     }
 
     if (validos.length > 0) {
+      this.comprimiendo.set(true);
       try {
-        const limpios = await this.imageSanitizer.limpiarArchivos(validos);
+        // Comprimir imagenes antes de limpiar metadatos
+        const procesados = await this.procesarArchivos(validos);
+        // Limpiar metadatos (EXIF) de las imagenes
+        const limpios = await this.imageSanitizer.limpiarArchivos(procesados);
         this.archivosSeleccionados.set([...actuales, ...limpios]);
       } catch (error) {
-        if (isDevMode()) console.error('Error al limpiar metadatos:', error);
-        this.archivosSeleccionados.set([...actuales, ...validos]);
+        if (isDevMode()) console.error('Error al procesar archivos:', error);
+        // Fallback: usar los archivos originales si falla algo
+        try {
+          const limpios = await this.imageSanitizer.limpiarArchivos(validos);
+          this.archivosSeleccionados.set([...actuales, ...limpios]);
+        } catch {
+          this.archivosSeleccionados.set([...actuales, ...validos]);
+        }
+      } finally {
+        this.comprimiendo.set(false);
       }
     }
 
     input.value = '';
+  }
+
+  /**
+   * Procesa los archivos: comprime imagenes (WebP, 1200px) y deja videos/docs intactos.
+   */
+  private async procesarArchivos(archivos: File[]): Promise<File[]> {
+    const resultados: File[] = [];
+    for (const archivo of archivos) {
+      if (archivo.type.startsWith('image/') && archivo.type !== 'image/gif') {
+        try {
+          const comprimido = await this.imagenCompresion.comprimir(archivo);
+          resultados.push(comprimido);
+        } catch (error) {
+          if (isDevMode()) console.warn('No se pudo comprimir:', archivo.name, error);
+          resultados.push(archivo); // Si falla, usar el original
+        }
+      } else {
+        resultados.push(archivo); // Videos, GIFs y documentos sin tocar
+      }
+    }
+    return resultados;
   }
 
   quitarArchivo(index: number): void {
@@ -218,6 +252,12 @@ export class CreatePostComponent implements OnInit, OnDestroy {
   publicar(): void {
     if (!this.estaLogueado()) {
       this.mostrarAvisoLogin.set(true);
+      return;
+    }
+
+    if (this.comprimiendo()) {
+      this.errorMsg.set('Espera a que los archivos terminen de procesarse');
+      this.safeTimeout(() => this.errorMsg.set(null), 4000);
       return;
     }
 
@@ -249,7 +289,6 @@ export class CreatePostComponent implements OnInit, OnDestroy {
     const descripcion = (datos.descripcion || '').trim();
     const link = (datos.link || '').trim();
 
-    // Validacion post-trim
     if (titulo.length < 6 || titulo.length > 120) {
       this.errorMsg.set('El titulo debe tener entre 6 y 120 caracteres');
       this.publicando.set(false);
@@ -319,7 +358,6 @@ export class CreatePostComponent implements OnInit, OnDestroy {
             }
           }
 
-          // Recorta mensajes gigantes que puedan venir del backend
           if (mensaje.length > 300) mensaje = mensaje.slice(0, 300) + '...';
 
           this.errorMsg.set(mensaje);

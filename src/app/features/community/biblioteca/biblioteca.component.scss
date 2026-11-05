@@ -16,7 +16,7 @@ $text-muted: #5a6a7a;
 $danger: #f85149;
 
 // ============================================================
-// RESET CONTROLADO
+// RESET
 // ============================================================
 :host {
   display: block;
@@ -65,7 +65,6 @@ $danger: #f85149;
       font-weight: 700;
       color: $text-primary;
       margin: 0 0 6px;
-      letter-spacing: -0.02em;
       line-height: 1.2;
 
       svg {
@@ -89,6 +88,14 @@ $danger: #f85149;
       overflow-wrap: anywhere;
     }
   }
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .btn-agregar {
@@ -119,6 +126,38 @@ $danger: #f85149;
 .btn-agregar--disabled {
   background: rgba(45, 212, 191, 0.18) !important;
   color: rgba(13, 17, 23, 0.55) !important;
+  cursor: not-allowed;
+}
+
+.btn-historial-global {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  color: $primary;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: inherit;
+  min-height: 40px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+}
+
+.btn-historial-global--disabled {
+  background: rgba(45, 212, 191, 0.04) !important;
+  color: rgba(45, 212, 191, 0.4) !important;
+  border-color: rgba(45, 212, 191, 0.1) !important;
   cursor: not-allowed;
 }
 
@@ -296,9 +335,6 @@ $danger: #f85149;
   }
 }
 
-// ============================================================
-// BOTÓN VER MÁS (destacados)
-// ============================================================
 .btn-ver-mas {
   display: flex;
   align-items: center;
@@ -464,7 +500,7 @@ $danger: #f85149;
 }
 
 // ============================================================
-// DROPDOWN DE CATEGORÍA (con scroll)
+// DROPDOWN CATEGORÍA
 // ============================================================
 .dropdown-categoria {
   position: relative;
@@ -783,9 +819,6 @@ $danger: #f85149;
   }
 }
 
-// ============================================================
-// BOTÓN VER MÁS RECURSOS
-// ============================================================
 .recursos-ver-mas-wrapper {
   grid-column: 1 / -1;
   display: flex;
@@ -838,7 +871,7 @@ $danger: #f85149;
 }
 
 // ============================================================
-// TARJETA DE RECURSO (TU DISEÑO ORIGINAL)
+// TARJETA DE RECURSO
 // ============================================================
 .recurso-card {
   position: relative;
@@ -1021,9 +1054,6 @@ $danger: #f85149;
   }
 }
 
-// ============================================================
-// DOMINIO BADGE
-// ============================================================
 .recurso-card__dominio {
   display: inline-flex;
   align-items: center;
@@ -1082,6 +1112,7 @@ $danger: #f85149;
   overflow: hidden;
 
   &--small { max-width: 400px; }
+  &--historial-global { max-width: 640px; }
 
   &__header {
     display: flex;
@@ -1163,9 +1194,7 @@ $danger: #f85149;
 
         &::placeholder { color: $text-muted; }
 
-        &:focus {
-          border-color: $primary;
-        }
+        &:focus { border-color: $primary; }
       }
 
       textarea {
@@ -1262,9 +1291,6 @@ $danger: #f85149;
   }
 }
 
-// ============================================================
-// HINT DE FORMULARIO
-// ============================================================
 .form-hint {
   display: block;
   font-size: 0.7rem;
@@ -1274,11 +1300,9 @@ $danger: #f85149;
 }
 
 // ============================================================
-// MODAL AVISO ENLACE EXTERNO
+// MODAL AVISO
 // ============================================================
-.modal--aviso {
-  max-width: 520px;
-}
+.modal--aviso { max-width: 520px; }
 
 .modal__header--warning {
   display: flex;
@@ -1429,7 +1453,7 @@ $danger: #f85149;
 }
 
 // ============================================================
-// MODAL AVISO DE SEGURIDAD
+// MODAL SEGURIDAD
 // ============================================================
 .modal-overlay--seguridad {
   z-index: 99999;
@@ -1504,9 +1528,7 @@ $danger: #f85149;
   line-height: 1.5;
   max-width: 320px;
 
-  strong {
-    color: $text-primary;
-  }
+  strong { color: $text-primary; }
 }
 
 .seguridad-alerta {
@@ -1524,9 +1546,7 @@ $danger: #f85149;
   box-sizing: border-box;
   text-align: left;
 
-  svg {
-    flex-shrink: 0;
-  }
+  svg { flex-shrink: 0; }
 }
 
 .seguridad-auto {
@@ -1557,7 +1577,7 @@ $danger: #f85149;
 }
 
 // ============================================================
-// AVISO LOGIN (invitados)
+// AVISO LOGIN
 // ============================================================
 .biblioteca-container {
   kiert-aviso-login {
@@ -1565,6 +1585,190 @@ $danger: #f85149;
     margin-bottom: 20px;
     border-radius: 12px;
     overflow: hidden;
+  }
+}
+
+// ============================================================
+// HISTORIAL (compartido)
+// ============================================================
+.historial-recurso {
+  font-size: 0.9rem;
+  color: #e6edf3;
+  margin: 0 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  strong {
+    color: #2dd4bf;
+    font-weight: 600;
+  }
+}
+
+.historial-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  color: #8b98a5;
+  font-size: 0.85rem;
+  justify-content: center;
+}
+
+.historial-vacio {
+  padding: 20px;
+  text-align: center;
+  color: #8b98a5;
+  font-size: 0.85rem;
+}
+
+.historial-subtitulo {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.historial-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &--global { max-height: 500px; }
+
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(45, 212, 191, 0.3);
+    border-radius: 3px;
+  }
+}
+
+.historial-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--crear { border-left: 3px solid #3fb950; }
+  &--editar { border-left: 3px solid #2dd4bf; }
+  &--eliminar { border-left: 3px solid #f85149; }
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.06);
+      border-color: rgba(45, 212, 191, 0.3);
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__accion {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    .historial-item--crear & { color: #3fb950; }
+    .historial-item--editar & { color: #2dd4bf; }
+    .historial-item--eliminar & { color: #f85149; }
+  }
+
+  &__fecha {
+    font-size: 0.7rem;
+    color: #5a6a7a;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  &__meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.7rem;
+    color: #8b98a5;
+
+    strong {
+      color: #e6edf3;
+      font-weight: 600;
+    }
+  }
+
+  &__detalle {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    font-size: 0.68rem;
+    color: $text-muted;
+    margin-top: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  &__detalle-label {
+    color: $text-secondary;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  &__detalle-texto {
+    color: $text-primary;
+    font-size: 0.78rem;
+    word-break: break-word;
+    flex: 1;
+    min-width: 0;
+    line-height: 1.4;
+  }
+
+  &__acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+.btn-historial-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+}
+
+.btn-historial-eliminar {
+  background: rgba(248, 81, 73, 0.1);
+  border-color: rgba(248, 81, 73, 0.3);
+  color: #f85149;
+
+  &:hover {
+    background: rgba(248, 81, 73, 0.2);
+    border-color: #f85149;
   }
 }
 
@@ -1640,6 +1844,16 @@ $danger: #f85149;
     }
   }
 
+  .header-actions {
+    width: 100%;
+    justify-content: stretch;
+
+    .btn-historial-global,
+    .btn-agregar {
+      flex: 1;
+    }
+  }
+
   .btn-agregar {
     padding: 9px 14px;
     font-size: 0.8rem;
@@ -1685,9 +1899,7 @@ $danger: #f85149;
     }
   }
 
-  .dropdown-categoria {
-    max-width: 100%;
-  }
+  .dropdown-categoria { max-width: 100%; }
 
   .dropdown-menu {
     max-height: 320px;
@@ -1695,9 +1907,7 @@ $danger: #f85149;
     &__list { max-height: 260px; }
   }
 
-  .recurso-card__acciones-usuario {
-    opacity: 1;
-  }
+  .recurso-card__acciones-usuario { opacity: 1; }
 
   .btn-ver-mas {
     padding: 9px 14px;
@@ -1721,9 +1931,7 @@ $danger: #f85149;
     svg { width: 16px; height: 16px; }
   }
 
-  .modal__body--seguridad {
-    padding: 28px 20px 20px;
-  }
+  .modal__body--seguridad { padding: 28px 20px 20px; }
 
   .seguridad-title { font-size: 1.1rem; }
   .seguridad-desc { font-size: 0.85rem; }
@@ -1757,10 +1965,21 @@ $danger: #f85149;
     }
   }
 
+  .header-actions {
+    flex-direction: column;
+
+    .btn-historial-global,
+    .btn-agregar {
+      width: 100%;
+    }
+  }
+
   .btn-agregar {
     width: 100%;
     padding: 10px 14px;
   }
+
+  .modal--historial-global { max-width: 100%; }
 
   .biblioteca-stats {
     gap: 6px;

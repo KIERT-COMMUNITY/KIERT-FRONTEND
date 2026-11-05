@@ -87,6 +87,14 @@
         }
       </div>
 
+      <!-- CLOUDFLARE TURNSTILE -->
+      <div class="turnstile-wrapper">
+        <ngx-turnstile
+          [siteKey]="turnstileSiteKey"
+          (resolved)="onTurnstileResolved($event)">
+        </ngx-turnstile>
+      </div>
+
       <!-- Alerta -->
       @if (errorMsg()) {
         <div class="form-alert">
@@ -99,8 +107,8 @@
         </div>
       }
 
-      <!-- Botón -->
-      <button type="submit" class="admin-login-btn" [disabled]="cargando()">
+      <!-- Botón (Se desactiva si no hay token) -->
+      <button type="submit" class="admin-login-btn" [disabled]="cargando() || !turnstileToken">
         @if (cargando()) {
           <div class="spinner-btn"></div>
           <span>Verificando...</span>

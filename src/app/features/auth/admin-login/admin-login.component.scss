@@ -473,3 +473,19 @@ $danger-bg: rgba(239, 68, 68, 0.1);
     transition-duration: 0.01ms !important;
   }
 }
+// ============================================================
+// TURNSTILE WRAPPER
+// ============================================================
+.turnstile-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 4px 0;
+  min-height: 65px; // Evita saltos de layout cuando carga el widget
+  
+  // Si el widget se sale en pantallas muy pequeñas
+  transform-origin: center;
+  @media (max-width: 380px) {
+    transform: scale(0.9); 
+  }
+}
