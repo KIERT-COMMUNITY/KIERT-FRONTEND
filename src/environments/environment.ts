@@ -6,6 +6,6 @@ export const environment = {
 
   //  Usa la clave de prueba oficial de Cloudflare (¡no la de producción!)
   turnstileSiteKey: '1x00000000000000000000AA',
-
+  chatPrivadoEnabled: false
   // Supabase...
 };
