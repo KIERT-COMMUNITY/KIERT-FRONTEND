@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ChatService } from '../../../core/services/chat.service';
 import { StorageService } from '../../../core/services/storage.service';
 import { NotificacionesComponent } from '../../../features/community/notificaciones/notificaciones.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'kiert-navbar-admin',
@@ -35,6 +36,9 @@ export class NavbarAdminComponent implements OnInit, OnDestroy {
 
   public readonly auth = this.adminAuth;
 
+  //  Bandera para saber si el chat privado está activo
+  readonly chatPrivadoHabilitado = environment.chatPrivadoEnabled ?? false;
+
   readonly menuAbierto = signal(false);
   readonly menuContraido = signal(false);
   readonly mensajesNoLeidos = signal(0);
@@ -44,11 +48,14 @@ export class NavbarAdminComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.restaurarEstadoMenu();
-    this.cargarMensajesNoLeidos();
 
-    this.intervalId = setInterval(() => {
+    //  Solo cargar e iniciar el intervalo si el chat está habilitado
+    if (this.chatPrivadoHabilitado) {
       this.cargarMensajesNoLeidos();
-    }, 30000);
+      this.intervalId = setInterval(() => {
+        this.cargarMensajesNoLeidos();
+      }, 30000);
+    }
   }
 
   ngOnDestroy(): void {
@@ -86,10 +93,17 @@ export class NavbarAdminComponent implements OnInit, OnDestroy {
   }
 
   cargarMensajesNoLeidos(): void {
+    //  Si el chat no está habilitado, no hacer la petición
+    if (!this.chatPrivadoHabilitado) {
+      this.mensajesNoLeidos.set(0);
+      return;
+    }
+
     if (!this.authService.isAuthenticated() && !this.adminAuth.estaLogueado()) {
       this.mensajesNoLeidos.set(0);
       return;
     }
+
     this.chatService.obtenerMensajesNoLeidos().subscribe({
       next: (n: number) => this.mensajesNoLeidos.set(n || 0),
       error: () => this.mensajesNoLeidos.set(0)
@@ -98,7 +112,9 @@ export class NavbarAdminComponent implements OnInit, OnDestroy {
 
   irAlChat(): void {
     this.cerrarMenu();
-    this.router.navigate(['/chat']);
+    if (this.chatPrivadoHabilitado) {
+      this.router.navigate(['/chat']);
+    }
   }
 
   irAlChatGlobal(): void {
@@ -106,13 +122,11 @@ export class NavbarAdminComponent implements OnInit, OnDestroy {
     this.router.navigate(['/chat-global']);
   }
 
-  /** ✅ NUEVO: ir al chat de bienvenida */
   irAlChatBienvenida(): void {
     this.cerrarMenu();
     this.router.navigate(['/chat/bienvenida']);
   }
 
-  /** ✅ NUEVO: ir al panel admin de edición de bienvenida */
   irAEditarBienvenida(): void {
     this.cerrarMenu();
     this.router.navigate(['/admin/bienvenida']);

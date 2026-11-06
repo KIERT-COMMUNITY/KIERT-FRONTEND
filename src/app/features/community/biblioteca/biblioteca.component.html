@@ -481,17 +481,17 @@
           <div class="form-group">
             <label for="bib-url">URL *</label>
             <input id="bib-url" type="url" [(ngModel)]="formUrl" (ngModelChange)="marcarCambios()" placeholder="https://..." maxlength="2048" autocomplete="off" spellcheck="false" />
-            <small class="form-hint">Solo se permiten URLs https://</small>
+            <small class="form-hint">Acepta cualquier enlace https://</small>
           </div>
 
           <div class="form-group">
-            <label for="bib-desc">Descripcion</label>
+            <label for="bib-desc">Descripcion (opcional)</label>
             <textarea id="bib-desc" [(ngModel)]="formDescripcion" (ngModelChange)="marcarCambios()" rows="3" placeholder="Breve descripcion..." maxlength="1000"></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="bib-cat">Categoria *</label>
+              <label for="bib-cat">Categoria (opcional)</label>
               <select id="bib-cat" [(ngModel)]="formCategoria" (ngModelChange)="marcarCambios()">
                 <option value="certificacion">Certificacion</option>
                 <option value="curso">Curso</option>
@@ -508,31 +508,31 @@
             </div>
 
             <div class="form-group">
-              <label for="bib-subcat">Subcategoria</label>
+              <label for="bib-subcat">Subcategoria (opcional)</label>
               <input id="bib-subcat" type="text" [(ngModel)]="formSubcategoria" (ngModelChange)="marcarCambios()" placeholder="Ej: Frontend" maxlength="100" autocomplete="off" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="bib-autor">Autor / Instructor</label>
+              <label for="bib-autor">Autor / Instructor (opcional)</label>
               <input id="bib-autor" type="text" [(ngModel)]="formAutor" (ngModelChange)="marcarCambios()" placeholder="Ej: John Doe" maxlength="100" autocomplete="off" />
             </div>
 
             <div class="form-group">
-              <label for="bib-plat">Plataforma</label>
+              <label for="bib-plat">Plataforma (opcional)</label>
               <input id="bib-plat" type="text" [(ngModel)]="formPlataforma" (ngModelChange)="marcarCambios()" placeholder="Ej: Udemy, Coursera" maxlength="100" autocomplete="off" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="bib-dur">Duracion</label>
+              <label for="bib-dur">Duracion (opcional)</label>
               <input id="bib-dur" type="text" [(ngModel)]="formDuracion" (ngModelChange)="marcarCambios()" placeholder="Ej: 10h" maxlength="50" autocomplete="off" />
             </div>
 
             <div class="form-group">
-              <label for="bib-nivel">Nivel</label>
+              <label for="bib-nivel">Nivel (opcional)</label>
               <select id="bib-nivel" [(ngModel)]="formNivel" (ngModelChange)="marcarCambios()">
                 <option value="">-- Sin especificar --</option>
                 <option value="principiante">Principiante</option>
@@ -543,7 +543,7 @@
           </div>
 
           <div class="form-group">
-            <label for="bib-tags">Tags (separados por coma)</label>
+            <label for="bib-tags">Tags (opcional, separados por coma)</label>
             <input id="bib-tags" type="text" [(ngModel)]="formTags" (ngModelChange)="marcarCambios()" placeholder="angular, typescript, frontend" maxlength="300" autocomplete="off" />
             <small class="form-hint">Max 10 tags, 30 caracteres cada uno</small>
           </div>
@@ -560,6 +560,45 @@
           <button type="button" class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
           <button type="button" class="btn-guardar" (click)="guardarRecurso()">
             {{ modoEdicion() ? 'Guardar cambios' : 'Agregar recurso' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL DE CAMBIOS SIN GUARDAR (Reemplaza al confirm nativo) -->
+  @if (mostrarConfirmSalir()) {
+    <div class="modal-overlay" (click)="cancelarSalir()">
+      <div class="modal modal--aviso" (click)="$event.stopPropagation()">
+        <div class="modal__header modal__header--warning">
+          <div class="aviso-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h2>Cambios sin guardar</h2>
+        </div>
+
+        <div class="modal__body modal__body--aviso">
+          <p>Tienes cambios que no has guardado en este recurso.</p>
+          <p class="aviso-warning">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Si sales ahora, perderas la informacion que has escrito.</span>
+          </p>
+        </div>
+
+        <div class="modal__footer modal__footer--aviso">
+          <button type="button" class="btn-cancelar" (click)="cancelarSalir()">
+            Seguir editando
+          </button>
+          <button type="button" class="btn-continuar" (click)="confirmarSalirSinGuardar()">
+            Salir sin guardar
           </button>
         </div>
       </div>
@@ -732,41 +771,6 @@
               Eliminar
             }
           </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- CONFIRMAR DOMINIO NO CONFIABLE -->
-  @if (mostrarConfirmDominio()) {
-    <div class="modal-overlay" (click)="cancelarConfirmDominio()">
-      <div class="modal modal--aviso" (click)="$event.stopPropagation()">
-        <div class="modal__header modal__header--warning">
-          <div class="aviso-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-          </div>
-          <h2>Dominio no verificado</h2>
-        </div>
-
-        <div class="modal__body modal__body--aviso">
-          <p>El dominio <strong>{{ dominioAConfirmar() }}</strong> no esta en la lista de sitios verificados.</p>
-          <p class="aviso-warning">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <span>El servidor podria rechazarlo o contener contenido malicioso. Continua bajo tu responsabilidad.</span>
-          </p>
-        </div>
-
-        <div class="modal__footer modal__footer--aviso">
-          <button type="button" class="btn-cancelar" (click)="cancelarConfirmDominio()">Cancelar</button>
-          <button type="button" class="btn-continuar" (click)="confirmarGuardadoDominio()">Continuar de todos modos</button>
         </div>
       </div>
     </div>

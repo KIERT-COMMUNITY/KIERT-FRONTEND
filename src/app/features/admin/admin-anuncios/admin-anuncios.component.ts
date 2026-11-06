@@ -30,6 +30,11 @@ export class AdminAnunciosComponent implements OnInit {
   archivoSeleccionado = signal<File | null>(null);
   previewUrl = signal<string | null>(null);
 
+  // NUEVAS SEÑALES PARA EL MODAL DE ELIMINACIÓN
+  mostrarConfirmEliminar = signal(false);
+  anuncioAEliminar = signal<Anuncio | null>(null);
+  eliminando = signal(false);
+
   form = this.fb.group({
     titulo: ['', [Validators.required, Validators.maxLength(200)]],
     texto: ['', [Validators.required]],
@@ -59,7 +64,6 @@ export class AdminAnunciosComponent implements OnInit {
     });
   }
 
-  // MÉTODO ASÍNCRONO PARA COMPRIMIR ANTES DE GUARDAR
   async onArchivoChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
@@ -70,7 +74,6 @@ export class AdminAnunciosComponent implements OnInit {
       return;
     }
 
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
       this.errorMsg.set('El archivo debe ser una imagen');
       input.value = '';
@@ -81,12 +84,9 @@ export class AdminAnunciosComponent implements OnInit {
     this.errorMsg.set(null);
 
     try {
-      //  Comprimir la imagen antes de guardarla
       const archivoComprimido = await this.imagenCompresion.comprimir(file);
-      
       this.archivoSeleccionado.set(archivoComprimido);
 
-      // Generar preview con el archivo comprimido
       const reader = new FileReader();
       reader.onload = () => this.previewUrl.set(reader.result as string);
       reader.readAsDataURL(archivoComprimido);
@@ -146,7 +146,6 @@ export class AdminAnunciosComponent implements OnInit {
     }
     fd.append('esFlotante', String(esFlotante));
 
-    // ✅ Envía el archivo COMPRIMIDO, no el original
     const file = this.archivoSeleccionado();
     if (file) {
       fd.append('imagen', file);
@@ -179,13 +178,39 @@ export class AdminAnunciosComponent implements OnInit {
     });
   }
 
-  eliminar(a: Anuncio): void {
+  // ============================================================
+  // ELIMINAR (CON MODAL PERSONALIZADO)
+  // ============================================================
+  abrirConfirmEliminar(a: Anuncio): void {
     if (!a.id) return;
-    if (!confirm(`¿Eliminar el anuncio "${a.titulo}"?`)) return;
+    this.anuncioAEliminar.set(a);
+    this.mostrarConfirmEliminar.set(true);
+  }
 
+  cancelarEliminar(): void {
+    if (this.eliminando()) return;
+    this.mostrarConfirmEliminar.set(false);
+    this.anuncioAEliminar.set(null);
+  }
+
+  confirmarEliminar(): void {
+    const a = this.anuncioAEliminar();
+    if (!a || !a.id) return;
+
+    this.eliminando.set(true);
     this.anuncioService.eliminar(a.id).subscribe({
-      next: () => this.cargar(),
-      error: () => this.errorMsg.set('No se pudo eliminar')
+      next: () => {
+        this.eliminando.set(false);
+        this.mostrarConfirmEliminar.set(false);
+        this.anuncioAEliminar.set(null);
+        this.cargar();
+      },
+      error: () => {
+        this.eliminando.set(false);
+        this.mostrarConfirmEliminar.set(false);
+        this.anuncioAEliminar.set(null);
+        this.errorMsg.set('No se pudo eliminar');
+      }
     });
   }
 

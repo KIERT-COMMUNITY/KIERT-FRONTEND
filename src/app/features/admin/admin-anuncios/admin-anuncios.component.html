@@ -34,12 +34,9 @@
         <input type="url" formControlName="enlaceUrl" placeholder="https://..." />
       </label>
 
-      <!-- ✅ NUEVO CHECKBOX PARA BANNER FLOTANTE -->
-      <label class="field field--checkbox" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 20px;">
-        <input type="checkbox" formControlName="esFlotante" style="width: 18px; height: 18px; accent-color: #2dd4bf;" />
-        <span style="margin: 0; font-size: 0.85rem; text-transform: none; color: #e6edf3;">
-          Mostrar en el banner flotante de la página
-        </span>
+      <label class="field field--checkbox">
+        <input type="checkbox" formControlName="esFlotante" />
+        <span>Mostrar en el banner flotante de la página</span>
       </label>
 
       <label class="field">
@@ -93,7 +90,7 @@
             </div>
             <div class="anuncio-acciones">
               <button type="button" class="btn-edit" (click)="editar(a)">Editar</button>
-              <button type="button" class="btn-delete" (click)="eliminar(a)">Eliminar</button>
+              <button type="button" class="btn-delete" (click)="abrirConfirmEliminar(a)">Eliminar</button>
             </div>
           </div>
         }
@@ -101,3 +98,32 @@
     </div>
   </div>
 </div>
+
+<!-- ============================================================ -->
+<!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN (ESTÉTICO)              -->
+<!-- ============================================================ -->
+@if (mostrarConfirmEliminar()) {
+  <div class="admin-modal-overlay" (click)="cancelarEliminar()">
+    <div class="admin-modal" (click)="$event.stopPropagation()">
+      <div class="admin-modal__header">
+        <h2>Eliminar anuncio</h2>
+      </div>
+      <div class="admin-modal__body">
+        <p>¿Estás seguro de que quieres eliminar el anuncio <strong>{{ anuncioAEliminar()?.titulo }}</strong>?</p>
+        <p class="admin-modal__warning">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="admin-modal__footer">
+        <button type="button" class="admin-btn-secondary" (click)="cancelarEliminar()" [disabled]="eliminando()">
+          Cancelar
+        </button>
+        <button type="button" class="admin-btn-danger" (click)="confirmarEliminar()" [disabled]="eliminando()">
+          @if (eliminando()) {
+            <span>Eliminando...</span>
+          } @else {
+            <span>Eliminar</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

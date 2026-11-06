@@ -60,10 +60,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   contadorSeguridad = signal(5);
   private avisoSeguridadInterval: ReturnType<typeof setInterval> | null = null;
 
-  mostrarConfirmDominio = signal(false);
-  dominioAConfirmar = signal<string>('');
-  private datosPendientesGuardado: any = null;
-
   mostrarModalHistorial = signal(false);
   historialRecurso = signal<HistorialRecurso[]>([]);
   cargandoHistorial = signal(false);
@@ -73,33 +69,8 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   historialGlobal = signal<HistorialRecurso[]>([]);
   cargandoHistorialGlobal = signal(false);
 
-  private readonly DOMINIOS_CONFIABLES = [
-    'coursera.org', 'edx.org', 'udemy.com', 'udacity.com', 'platzi.com',
-    'domestika.org', 'crehana.com', 'khanacademy.org', 'classcentral.com',
-    'freecodecamp.org', 'codecademy.com', 'aprendesql.dev', 'midu.link',
-    'mygreatlearning.com', 'exceedlms.com', 'nobook.com',
-    'developer.mozilla.org', 'docs.microsoft.com', 'docs.python.org',
-    'docs.oracle.com', 'docs.spring.io', 'angular.io', 'react.dev',
-    'vuejs.org', 'nodejs.org', 'kotlinlang.org', 'go.dev', 'rust-lang.org',
-    'minecraft.wiki', 'wikipedia.org',
-    'github.com', 'gitlab.com', 'bitbucket.org', 'stackoverflow.com',
-    'figma.com', 'notion.so', 'trello.com', 'miro.com',
-    'photopea.com', 'ninite.com', 'ventoy.net', 'rufus.ie',
-    'optijuegos.net', '4download.net', 'technical.city', 'ifixit.com',
-    'duolingo.com', 'babbel.com', 'busuu.com', 'lingoda.com',
-    'youtube.com', 'vimeo.com', 'ted.com',
-    'medium.com', 'dev.to', 'vidaextra.com', 'scholar.google.com',
-    'hackthebox.com', 'tryhackme.com', 'netacad.com',
-    'openai.com', 'anthropic.com', 'claude.ai', 'chatgpt.com',
-    'gemini.google.com', 'perplexity.ai', 'deepseek.com', 'kimi.ai',
-    'grok.com', 'toolify.ai', 'opencode.ai', 'pippit.ai',
-    'kaggle.com', 'hackerrank.com', 'leetcode.com', 'codewars.com',
-    'encoded.pe', 'rebajitas.com', 'itsfree.dev', 'minecraftsearch.com',
-    'frivlegend.com', 'kawaiianimes.app', 'moewalls.com',
-    'wallpapercave.com', 'wallpaper.mob.org', 'alphacoders.com',
-    'geode-sdk.org', 'viper.pages.dev', 'rojatvdirecta.online',
-    'futbollibrefullhd.org', 'capacitacionlaboral.trabajo.gob.pe'
-  ];
+  // NUEVA SEÑAL PARA EL MODAL ESTÉTICO DE SALIDA
+  mostrarConfirmSalir = signal(false);
 
   get temaClaseSeguro(): string {
     return safeClassToken(this.personalizacionStore.temaId(), 'default');
@@ -234,9 +205,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.timeouts.add(id);
   }
 
-  // ============================================================
-  // AVISO SEGURIDAD
-  // ============================================================
   private iniciarAvisoSeguridad(): void {
     this.mostrarAvisoSeguridad.set(true);
     this.contadorSeguridad.set(5);
@@ -324,9 +292,9 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     if (this.mostrarAvisoEnlace()) this.cerrarAvisoEnlace();
     if (this.mostrarAvisoSeguridad()) this.cerrarAvisoSeguridad();
     if (this.mostrarAvisoLogin()) this.cerrarAvisoLogin();
-    if (this.mostrarConfirmDominio()) this.cancelarConfirmDominio();
     if (this.mostrarModalHistorial()) this.cerrarHistorial();
     if (this.mostrarModalHistorialGlobal()) this.cerrarHistorialGlobal();
+    if (this.mostrarConfirmSalir()) this.cancelarSalir();
     if (this.mostrarModal()) this.cerrarModal();
   }
 
@@ -356,19 +324,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   esDominioConfiable(url: string): boolean {
-    if (!url) return false;
-    const safe = safeUrl(url);
-    if (!safe) return false;
-    try {
-      const parsed = new URL(safe);
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
-      const host = parsed.hostname.toLowerCase();
-      return this.DOMINIOS_CONFIABLES.some(
-        d => host === d || host.endsWith('.' + d)
-      );
-    } catch {
-      return false;
-    }
+    return isSafeExternalUrl(url);
   }
 
   getDominio(url: string): string {
@@ -390,12 +346,12 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       this.safeTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-    if (this.esDominioConfiable(safe)) {
+    if (isSafeExternalUrl(safe)) {
       openExternalSafe(safe);
       return;
     }
-    this.enlaceAAbrir.set({ url: safe, titulo: titulo || 'Recurso' });
-    this.mostrarAvisoEnlace.set(true);
+    this.errorMsg.set('El enlace no es seguro.');
+    this.safeTimeout(() => this.errorMsg.set(null), 3000);
   }
 
   confirmarAbrirEnlace(): void {
@@ -467,12 +423,23 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
   cerrarModal(): void {
     if (this.hayCambiosSinGuardar()) {
-      const confirmar = confirm('Tienes cambios sin guardar. Seguro que quieres salir?');
-      if (!confirmar) return;
+      this.mostrarConfirmSalir.set(true);
+      return;
     }
     this.mostrarModal.set(false);
     this.hayCambiosSinGuardar.set(false);
     this.limpiarFormulario();
+  }
+
+  confirmarSalirSinGuardar(): void {
+    this.mostrarConfirmSalir.set(false);
+    this.hayCambiosSinGuardar.set(false);
+    this.mostrarModal.set(false);
+    this.limpiarFormulario();
+  }
+
+  cancelarSalir(): void {
+    this.mostrarConfirmSalir.set(false);
   }
 
   limpiarFormulario(): void {
@@ -492,7 +459,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // GUARDAR
+  // GUARDAR (Campos opcionales)
   // ============================================================
   guardarRecurso(): void {
     if (!this.estaLogueado) {
@@ -524,7 +491,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
 
     const datos = {
       titulo,
-      descripcion,
+      descripcion: descripcion || undefined,
       url: urlRaw,
       categoria: safeClassToken(this.formCategoria(), 'otro'),
       subcategoria: this.formSubcategoria().trim().slice(0, 100) || undefined,
@@ -537,20 +504,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     };
 
     this.ejecutarGuardado(datos);
-  }
-
-  confirmarGuardadoDominio(): void {
-    const datos = this.datosPendientesGuardado;
-    this.mostrarConfirmDominio.set(false);
-    this.dominioAConfirmar.set('');
-    this.datosPendientesGuardado = null;
-    if (datos) this.ejecutarGuardado(datos);
-  }
-
-  cancelarConfirmDominio(): void {
-    this.mostrarConfirmDominio.set(false);
-    this.dominioAConfirmar.set('');
-    this.datosPendientesGuardado = null;
   }
 
   private ejecutarGuardado(datos: any): void {
@@ -567,39 +520,11 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al guardar - status:', err.status);
-        console.error('Error al guardar - body:', err.error);
-
         let mensaje = 'No se pudo guardar el recurso';
-
-        if (err?.error) {
-          if (typeof err.error === 'string') {
-            mensaje = err.error;
-          } else if (typeof err.error === 'object') {
-            if (err.error.mensaje) mensaje = String(err.error.mensaje);
-            else if (err.error.message) mensaje = String(err.error.message);
-            else if (err.error.error) mensaje = String(err.error.error);
-            else if (err.error.errors) {
-              mensaje = Object.entries(err.error.errors)
-                .map(([campo, msg]) => `${campo}: ${msg}`)
-                .join(' | ');
-            } else {
-              mensaje = JSON.stringify(err.error);
-            }
-          }
-        }
-
-        if (err.status === 400) {
-          mensaje = 'Datos invalidos: ' + mensaje;
-        } else if (err.status === 401) {
-          mensaje = 'Sesion expirada. Inicia sesion de nuevo.';
-        } else if (err.status === 403) {
-          mensaje = 'No tienes permiso para hacer esto.';
-        } else if (err.status === 413) {
-          mensaje = 'El contenido es demasiado grande.';
-        }
-
-        if (mensaje.length > 500) mensaje = mensaje.slice(0, 500) + '...';
-
+        if (err?.error?.mensaje) mensaje = String(err.error.mensaje);
+        else if (err?.error?.message) mensaje = String(err.error.message);
+        else if (err?.error?.error) mensaje = String(err.error.error);
+        if (err.status === 400) mensaje = 'Datos invalidos: ' + mensaje;
         this.formError.set(mensaje);
       }
     });
@@ -610,10 +535,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ============================================================
   confirmarEliminar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
-    if (!this.estaLogueado) {
-      this.mostrarAvisoLogin.set(true);
-      return;
-    }
+    if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
     if (!recurso.esUsuario) return;
     this.recursoAEliminar.set(recurso);
   }
@@ -636,8 +558,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
           this.recursoAEliminar.set(null);
           this.cargarRecursos();
         },
-        error: (err) => {
-          if (isDevMode()) console.error('Error al eliminar:', err);
+        error: () => {
           this.eliminandoRecurso.set(false);
           this.recursoAEliminar.set(null);
           this.errorMsg.set('No se pudo eliminar el recurso');
@@ -647,33 +568,19 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // HISTORIAL POR RECURSO
+  // HISTORIAL Y OTROS
   // ============================================================
   abrirHistorial(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
-    if (!this.estaLogueado) {
-      this.mostrarAvisoLogin.set(true);
-      return;
-    }
+    if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
     this.historialTitulo.set(recurso.titulo);
     this.historialRecurso.set([]);
     this.cargandoHistorial.set(true);
     this.mostrarModalHistorial.set(true);
-
-    this.bibliotecaService.obtenerHistorial(recurso.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.historialRecurso.set(data);
-          this.cargandoHistorial.set(false);
-        },
-        error: (err) => {
-          if (isDevMode()) console.error('Error al cargar historial:', err);
-          this.cargandoHistorial.set(false);
-          this.errorMsg.set('No se pudo cargar el historial');
-          this.safeTimeout(() => this.errorMsg.set(null), 3000);
-        }
-      });
+    this.bibliotecaService.obtenerHistorial(recurso.id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (data) => { this.historialRecurso.set(data); this.cargandoHistorial.set(false); },
+      error: () => { this.cargandoHistorial.set(false); }
+    });
   }
 
   cerrarHistorial(): void {
@@ -682,35 +589,19 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.historialTitulo.set('');
   }
 
-  // ============================================================
-  // HISTORIAL GLOBAL
-  // ============================================================
   abrirHistorialGlobal(): void {
-    if (!this.estaLogueado) {
-      this.mostrarAvisoLogin.set(true);
-      return;
-    }
+    if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
     this.historialGlobal.set([]);
     this.cargandoHistorialGlobal.set(true);
     this.mostrarModalHistorialGlobal.set(true);
-
-    this.bibliotecaService.obtenerHistorialUsuario()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          const ordenado = [...data].sort((a, b) => {
-            return new Date(b.fechaAccion).getTime() - new Date(a.fechaAccion).getTime();
-          });
-          this.historialGlobal.set(ordenado);
-          this.cargandoHistorialGlobal.set(false);
-        },
-        error: (err) => {
-          if (isDevMode()) console.error('Error al cargar historial global:', err);
-          this.cargandoHistorialGlobal.set(false);
-          this.errorMsg.set('No se pudo cargar el historial');
-          this.safeTimeout(() => this.errorMsg.set(null), 3000);
-        }
-      });
+    this.bibliotecaService.obtenerHistorialUsuario().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (data) => {
+        const ordenado = [...data].sort((a, b) => new Date(b.fechaAccion).getTime() - new Date(a.fechaAccion).getTime());
+        this.historialGlobal.set(ordenado);
+        this.cargandoHistorialGlobal.set(false);
+      },
+      error: () => { this.cargandoHistorialGlobal.set(false); }
+    });
   }
 
   cerrarHistorialGlobal(): void {
@@ -719,119 +610,42 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   irARecursoDesdeHistorial(item: HistorialRecurso): void {
-    // Si la accion es ELIMINAR, no se puede editar
     if (item.accion === 'ELIMINAR') return;
-
     this.cerrarHistorialGlobal();
     this.cargarRecursos();
-
-    if (!item.recursoId) {
-      this.errorMsg.set('Accion ' + item.accion + ' registrada.');
-      this.safeTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
-
+    if (!item.recursoId) return;
     const recurso = this.recursos().find(r => r.id === item.recursoId);
-    if (!recurso) {
-      this.errorMsg.set('El recurso asociado ya no existe.');
-      this.safeTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
-
-    this.abrirModalEditar(recurso);
+    if (recurso) this.abrirModalEditar(recurso);
   }
 
   eliminarDesdeHistorial(item: HistorialRecurso, event: Event): void {
     event.stopPropagation();
-
-    if (!this.estaLogueado) {
-      this.mostrarAvisoLogin.set(true);
-      return;
-    }
-
-    if (!item.recursoId) {
-      this.errorMsg.set('No se pudo identificar el recurso');
-      this.safeTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
-
-    if (item.accion === 'ELIMINAR') {
-      this.errorMsg.set('Este recurso ya fue eliminado.');
-      this.safeTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
-
+    if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
+    if (!item.recursoId || item.accion === 'ELIMINAR') return;
     const recurso = this.recursos().find(r => r.id === item.recursoId);
-    if (!recurso) {
-      this.errorMsg.set('El recurso asociado ya no existe.');
-      this.safeTimeout(() => this.errorMsg.set(null), 3000);
-      return;
-    }
-
-    this.cerrarHistorialGlobal();
-    this.recursoAEliminar.set(recurso);
+    if (recurso) { this.cerrarHistorialGlobal(); this.recursoAEliminar.set(recurso); }
   }
 
-  // ============================================================
-  // FORMATEO DE HISTORIAL
-  // ============================================================
   formatearFechaHistorial(fecha: string): string {
     if (!fecha) return '';
     try {
       const d = new Date(fecha);
-      return d.toLocaleString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return fecha;
-    }
+      return d.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch { return fecha; }
   }
 
   formatearResumenHistorial(item: HistorialRecurso): string {
     const jsonStr = item.datosNuevos || item.datosAnteriores;
     if (!jsonStr) return '';
-
     try {
       const datos = JSON.parse(jsonStr);
       const partes: string[] = [];
-
-      if (datos.titulo) {
-        partes.push(`"${datos.titulo}"`);
-      }
-
-      if (datos.url) {
-        let url = String(datos.url);
-        if (url.length > 60) url = url.slice(0, 60) + '...';
-        partes.push(`-> ${url}`);
-      }
-
-      if (datos.categoria) {
-        partes.push(`[${datos.categoria}]`);
-      }
-
-      if (datos.autor) {
-        partes.push(`por ${datos.autor}`);
-      }
-
-      if (datos.tags && Array.isArray(datos.tags) && datos.tags.length > 0) {
-        const tags = datos.tags.slice(0, 3).join(', ');
-        partes.push(`tags: ${tags}`);
-      }
-
+      if (datos.titulo) partes.push(`"${datos.titulo}"`);
+      if (datos.url) { let url = String(datos.url); if (url.length > 60) url = url.slice(0, 60) + '...'; partes.push(`-> ${url}`); }
       return partes.length > 0 ? partes.join(' ') : 'Sin datos relevantes';
-    } catch {
-      const plano = jsonStr.slice(0, 100);
-      return plano + (jsonStr.length > 100 ? '...' : '');
-    }
+    } catch { return jsonStr.slice(0, 100); }
   }
 
-  // ============================================================
-  // ICONOS Y COLORES
-  // ============================================================
   getIconoCategoria(categoria: string): string {
     const key = safeClassToken(categoria, 'libro');
     const iconos: Record<string, string> = {
