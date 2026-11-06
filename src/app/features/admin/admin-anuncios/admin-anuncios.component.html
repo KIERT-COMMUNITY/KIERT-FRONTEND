@@ -1,6 +1,6 @@
 <!-- src/app/features/admin/admin-anuncios/admin-anuncios.component.html -->
 <div class="admin-anuncios">
-  <h1 class="admin-title">Gestión de anuncios</h1>
+  <h1 class="admin-title">Gestion de anuncios</h1>
 
   <div class="admin-layout">
     <!-- Formulario -->
@@ -14,10 +14,10 @@
       }
 
       <label class="field">
-        <span>Título</span>
-        <input type="text" formControlName="titulo" placeholder="Título del anuncio" />
+        <span>Titulo</span>
+        <input type="text" formControlName="titulo" placeholder="Titulo del anuncio" />
         @if (form.controls.titulo.touched && form.controls.titulo.invalid) {
-          <small class="error-msg">Título obligatorio (máx. 200)</small>
+          <small class="error-msg">Titulo obligatorio (max. 200)</small>
         }
       </label>
 
@@ -36,7 +36,12 @@
 
       <label class="field field--checkbox">
         <input type="checkbox" formControlName="esFlotante" />
-        <span>Mostrar en el banner flotante de la página</span>
+        <span>Mostrar en el banner flotante de la pagina</span>
+      </label>
+
+      <label class="field field--checkbox">
+        <input type="checkbox" formControlName="activo" />
+        <span>Activo (visible en la pagina publica)</span>
       </label>
 
       <label class="field">
@@ -69,10 +74,10 @@
       @if (cargando()) {
         <p class="empty">Cargando...</p>
       } @else if (anuncios().length === 0) {
-        <p class="empty">No hay anuncios todavía.</p>
+        <p class="empty">No hay anuncios todavia.</p>
       } @else {
         @for (a of anuncios(); track a.id) {
-        <div class="anuncio-item" [class.anuncio-item--flotante]="a.esFlotante">
+          <div class="anuncio-item" [class.anuncio-item--flotante]="a.esFlotante">
             @if (a.imagenUrl) {
               <img class="anuncio-thumb" [src]="a.imagenUrl" [alt]="a.titulo" />
             } @else {
@@ -81,7 +86,12 @@
             <div class="anuncio-info">
               <h3>
                 {{ a.titulo }}
-                @if (a.esFlotante) { <span style="color: #2dd4bf; font-size: 0.7rem;">(Flotante)</span> }
+                @if (a.esFlotante) {
+                  <span style="color: #2dd4bf; font-size: 0.7rem;">(Flotante)</span>
+                }
+                @if (a.activo === false) {
+                  <span style="color: #f85149; font-size: 0.7rem;">(Inactivo)</span>
+                }
               </h3>
               <p>{{ a.texto }}</p>
               @if (a.enlaceUrl) {
@@ -100,7 +110,7 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN (ESTÉTICO)              -->
+<!-- MODAL DE CONFIRMACION DE ELIMINACION                          -->
 <!-- ============================================================ -->
 @if (mostrarConfirmEliminar()) {
   <div class="admin-modal-overlay" (click)="cancelarEliminar()">
@@ -109,8 +119,8 @@
         <h2>Eliminar anuncio</h2>
       </div>
       <div class="admin-modal__body">
-        <p>¿Estás seguro de que quieres eliminar el anuncio <strong>{{ anuncioAEliminar()?.titulo }}</strong>?</p>
-        <p class="admin-modal__warning">Esta acción no se puede deshacer.</p>
+        <p>Estas seguro de que quieres eliminar el anuncio <strong>{{ anuncioAEliminar()?.titulo }}</strong>?</p>
+        <p class="admin-modal__warning">Esta accion no se puede deshacer.</p>
       </div>
       <div class="admin-modal__footer">
         <button type="button" class="admin-btn-secondary" (click)="cancelarEliminar()" [disabled]="eliminando()">

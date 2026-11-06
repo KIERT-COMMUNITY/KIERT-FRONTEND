@@ -13,7 +13,7 @@ export interface Anuncio {
   enlaceUrl?: string;
   activo?: boolean;
   destacado?: boolean;
-  esFlotante?: boolean; 
+  esFlotante?: boolean;
   fechaCreacion?: string;
   fechaPublicacion?: string;
 }
@@ -25,15 +25,20 @@ export class AnuncioService {
   private readonly API_PUBLICOS = `${environment.apiUrl}/anuncios`;
 
   // ============================================================
-  // PÚBLICOS
+  // PUBLICOS
   // ============================================================
   listarPublicos(): Observable<Anuncio[]> {
     return this.http.get<Anuncio[]>(`${this.API_PUBLICOS}/publicos`);
   }
 
-  // NUEVO: Obtener el anuncio para el banner flotante
+  // Solo uno (compatibilidad)
   obtenerFlotante(): Observable<Anuncio> {
     return this.http.get<Anuncio>(`${this.API_PUBLICOS}/flotante`);
+  }
+
+  // Lista de flotantes activos (publico)
+  listarFlotantes(): Observable<Anuncio[]> {
+    return this.http.get<Anuncio[]>(`${this.API_PUBLICOS}/flotantes`);
   }
 
   // ============================================================

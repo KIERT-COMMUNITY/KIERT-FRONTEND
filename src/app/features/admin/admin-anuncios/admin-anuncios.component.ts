@@ -1,11 +1,18 @@
 // src/app/features/admin/admin-anuncios/admin-anuncios.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { Anuncio, AnuncioService } from '../../../core/services/anuncio.service';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
-import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service'; 
+import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service';
+import { isSafeExternalUrl } from '../../../shared/utils/url-sanitizer';
 
 @Component({
   selector: 'kiert-admin-anuncios',
@@ -24,13 +31,12 @@ export class AdminAnunciosComponent implements OnInit {
   anuncios = signal<Anuncio[]>([]);
   cargando = signal(true);
   guardando = signal(false);
-  comprimiendo = signal(false); 
+  comprimiendo = signal(false);
   editandoId = signal<number | null>(null);
   errorMsg = signal<string | null>(null);
   archivoSeleccionado = signal<File | null>(null);
   previewUrl = signal<string | null>(null);
 
-  // NUEVAS SEÑALES PARA EL MODAL DE ELIMINACIÓN
   mostrarConfirmEliminar = signal(false);
   anuncioAEliminar = signal<Anuncio | null>(null);
   eliminando = signal(false);
@@ -38,8 +44,16 @@ export class AdminAnunciosComponent implements OnInit {
   form = this.fb.group({
     titulo: ['', [Validators.required, Validators.maxLength(200)]],
     texto: ['', [Validators.required]],
-    enlaceUrl: [''],
-    esFlotante: [false]
+    enlaceUrl: ['', [
+      (control: AbstractControl): ValidationErrors | null => {
+        const val = control.value;
+        if (!val || val.trim() === '') return null;
+        if (!isSafeExternalUrl(val)) return { linkInvalido: true };
+        return null;
+      }
+    ]],
+    esFlotante: [false],
+    activo: [true]
   });
 
   ngOnInit(): void {
@@ -101,7 +115,7 @@ export class AdminAnunciosComponent implements OnInit {
   }
 
   limpiarFormulario(): void {
-    this.form.reset({ esFlotante: false });
+    this.form.reset({ esFlotante: false, activo: true });
     this.editandoId.set(null);
     this.archivoSeleccionado.set(null);
     this.previewUrl.set(null);
@@ -115,7 +129,8 @@ export class AdminAnunciosComponent implements OnInit {
       titulo: a.titulo,
       texto: a.texto,
       enlaceUrl: a.enlaceUrl ?? '',
-      esFlotante: a.esFlotante ?? false
+      esFlotante: a.esFlotante ?? false,
+      activo: a.activo ?? true
     });
     this.previewUrl.set(a.imagenUrl ?? null);
     this.archivoSeleccionado.set(null);
@@ -124,7 +139,11 @@ export class AdminAnunciosComponent implements OnInit {
   guardar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMsg.set('Completa todos los campos obligatorios');
+      if (this.form.controls.enlaceUrl.errors?.['linkInvalido']) {
+        this.errorMsg.set('El enlace debe ser una URL valida (https://...)');
+      } else {
+        this.errorMsg.set('Completa todos los campos obligatorios');
+      }
       return;
     }
 
@@ -136,7 +155,7 @@ export class AdminAnunciosComponent implements OnInit {
     this.guardando.set(true);
     this.errorMsg.set(null);
 
-    const { titulo, texto, enlaceUrl, esFlotante } = this.form.getRawValue();
+    const { titulo, texto, enlaceUrl, esFlotante, activo } = this.form.getRawValue();
 
     const fd = new FormData();
     fd.append('titulo', titulo!.trim());
@@ -145,6 +164,7 @@ export class AdminAnunciosComponent implements OnInit {
       fd.append('enlaceUrl', enlaceUrl.trim());
     }
     fd.append('esFlotante', String(esFlotante));
+    fd.append('activo', String(activo));
 
     const file = this.archivoSeleccionado();
     if (file) {
@@ -167,10 +187,10 @@ export class AdminAnunciosComponent implements OnInit {
         this.guardando.set(false);
         let mensaje = 'No se pudo guardar';
 
-        if (err.status === 400) mensaje = err.error?.message || 'Datos inválidos.';
-        else if (err.status === 401) { mensaje = 'Sesión expirada.'; this.adminAuth.logoutYNavegar(); }
+        if (err.status === 400) mensaje = err.error?.message || 'Datos invalidos.';
+        else if (err.status === 401) { mensaje = 'Sesion expirada.'; this.adminAuth.logoutYNavegar(); }
         else if (err.status === 403) mensaje = 'No tienes permiso.';
-        else if (err.status === 413) mensaje = 'Archivo demasiado grande (máx. 10MB).';
+        else if (err.status === 413) mensaje = 'Archivo demasiado grande (max. 10MB).';
         else if (err.status === 415) mensaje = 'Tipo de archivo no permitido.';
 
         this.errorMsg.set(mensaje);
@@ -178,9 +198,6 @@ export class AdminAnunciosComponent implements OnInit {
     });
   }
 
-  // ============================================================
-  // ELIMINAR (CON MODAL PERSONALIZADO)
-  // ============================================================
   abrirConfirmEliminar(a: Anuncio): void {
     if (!a.id) return;
     this.anuncioAEliminar.set(a);

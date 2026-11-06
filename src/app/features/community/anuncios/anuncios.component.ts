@@ -1,5 +1,5 @@
 // src/app/features/anuncios/anuncios.component.ts
-import { Component, OnInit, inject, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Anuncio, AnuncioService } from '../../../core/services/anuncio.service';
@@ -14,56 +14,64 @@ import { PullToRefreshDirective } from '../../../shared/directives/pull-to-refre
   templateUrl: './anuncios.component.html',
   styleUrl: './anuncios.component.scss'
 })
-export class AnunciosComponent implements OnInit {
+export class AnunciosComponent implements OnInit, OnDestroy {
   private anuncioService = inject(AnuncioService);
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  // Referencia a la directiva
-  @ViewChild(PullToRefreshDirective) pullToRefresh!: PullToRefreshDirective;
-
   anuncios = signal<Anuncio[]>([]);
-  anuncioFlotante = signal<Anuncio | null>(null);
+  anunciosFlotantes = signal<Anuncio[]>([]);
+  indiceCarrusel = signal(0);
   cargando = signal(true);
   mostrarBanner = signal(true);
+  intervalo: ReturnType<typeof setInterval> | null = null;
 
-  // Señales para el Pull-to-Refresh
+  // Pull-to-Refresh
   isRefreshing = signal(false);
   pullDistance = signal(0);
   pullOpacity = signal(0);
 
-  // AVISO LOGIN
   mostrarAvisoLogin = signal(false);
   mensajeAvisoLogin = signal('Debes registrarte para interactuar con los anuncios.');
+
+  // Swipe (mobile)
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private touchDeltaX = 0;
+  private touchDeltaY = 0;
+  private touchActivo = false;
+  private readonly SWIPE_UMBRAL = 50;
 
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
 
-  ngOnInit(): void {
-    this.cargarAnuncios();
-    this.cargarFlotante();
+  get totalFlotantes(): number {
+    return this.anunciosFlotantes().length;
   }
 
-  // Lógica de recarga
+  ngOnInit(): void {
+    this.cargarAnuncios();
+    this.cargarFlotantes();
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervalo) {
+      clearInterval(this.intervalo);
+    }
+  }
+
   recargarAnuncios(): void {
     this.isRefreshing.set(true);
-    this.pullDistance.set(this.pullToRefresh.pullDistance());
-    this.pullOpacity.set(this.pullToRefresh.pullOpacity());
-
-    // Retraso de 1 segundo para que se vea el spinner girando
     setTimeout(() => {
       this.cargarAnuncios();
-      this.cargarFlotante();
+      this.cargarFlotantes();
       this.finishRefresh();
     }, 1000);
   }
 
   private finishRefresh(): void {
     this.isRefreshing.set(false);
-    if (this.pullToRefresh) {
-      this.pullToRefresh.finishRefresh();
-    }
     this.pullDistance.set(0);
     this.pullOpacity.set(0);
   }
@@ -75,26 +83,110 @@ export class AnunciosComponent implements OnInit {
         this.anuncios.set(data || []);
         this.cargando.set(false);
       },
-      error: (err) => {
-        console.error('[ANUNCIOS] Error al cargar anuncios:', err);
+      error: () => {
         this.anuncios.set([]);
         this.cargando.set(false);
       }
     });
   }
 
-  cargarFlotante(): void {
-    this.anuncioService.obtenerFlotante().subscribe({
+  // ============================================================
+  // FLOTANTES: usar SOLO endpoint publico. Nunca listarTodos().
+  // ============================================================
+  cargarFlotantes(): void {
+    this.anuncioService.listarPublicos().subscribe({
       next: (data) => {
-        if (data) this.anuncioFlotante.set(data);
-        else this.anuncioFlotante.set(null);
+        const flotantes = (data || []).filter(a => a.esFlotante && a.activo !== false);
+        this.anunciosFlotantes.set(flotantes);
+        this.indiceCarrusel.set(0);
+
+        if (flotantes.length > 0) {
+          this.iniciarCarrusel();
+        }
       },
-      error: () => this.anuncioFlotante.set(null)
+      error: () => {
+        this.anunciosFlotantes.set([]);
+      }
     });
+  }
+
+  iniciarCarrusel(): void {
+    if (this.intervalo) clearInterval(this.intervalo);
+
+    this.intervalo = setInterval(() => {
+      const total = this.anunciosFlotantes().length;
+      if (total <= 1) return;
+
+      this.indiceCarrusel.update(i => (i + 1) % total);
+    }, 5000);
+  }
+
+  get bannerActual(): Anuncio | null {
+    const flotantes = this.anunciosFlotantes();
+    if (flotantes.length === 0) return null;
+    return flotantes[this.indiceCarrusel()];
+  }
+
+  siguienteFlotante(): void {
+    const total = this.anunciosFlotantes().length;
+    if (total <= 1) return;
+    this.indiceCarrusel.update(i => (i + 1) % total);
+    this.reiniciarAutoavance();
+  }
+
+  anteriorFlotante(): void {
+    const total = this.anunciosFlotantes().length;
+    if (total <= 1) return;
+    this.indiceCarrusel.update(i => (i - 1 + total) % total);
+    this.reiniciarAutoavance();
+  }
+
+  private reiniciarAutoavance(): void {
+    if (this.anunciosFlotantes().length > 1) {
+      this.iniciarCarrusel();
+    }
+  }
+
+  onTouchStart(event: TouchEvent): void {
+    if (this.anunciosFlotantes().length <= 1) return;
+    const t = event.touches[0];
+    this.touchStartX = t.clientX;
+    this.touchStartY = t.clientY;
+    this.touchDeltaX = 0;
+    this.touchDeltaY = 0;
+    this.touchActivo = true;
+  }
+
+  onTouchMove(event: TouchEvent): void {
+    if (!this.touchActivo) return;
+    const t = event.touches[0];
+    this.touchDeltaX = t.clientX - this.touchStartX;
+    this.touchDeltaY = t.clientY - this.touchStartY;
+  }
+
+  onTouchEnd(): void {
+    if (!this.touchActivo) return;
+    this.touchActivo = false;
+
+    const dx = this.touchDeltaX;
+    const dy = this.touchDeltaY;
+
+    if (Math.abs(dx) < this.SWIPE_UMBRAL) return;
+    if (Math.abs(dx) < Math.abs(dy)) return;
+
+    if (dx < 0) {
+      this.siguienteFlotante();
+    } else {
+      this.anteriorFlotante();
+    }
+
+    this.touchDeltaX = 0;
+    this.touchDeltaY = 0;
   }
 
   cerrarBanner(): void {
     this.mostrarBanner.set(false);
+    if (this.intervalo) clearInterval(this.intervalo);
   }
 
   irALogin(): void {

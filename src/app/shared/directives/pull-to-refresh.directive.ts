@@ -8,7 +8,6 @@ import { Directive, ElementRef, HostListener, inject, output, signal } from '@an
 export class PullToRefreshDirective {
   private el = inject(ElementRef);
 
-  // Evento que emitirá cuando el usuario suelte para recargar
   onRefresh = output<void>();
 
   pullDistance = signal(0);
@@ -22,8 +21,11 @@ export class PullToRefreshDirective {
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
-    // Solo activar si estamos en el tope de la página y no está recargando
-    if (window.scrollY === 0 && !this.isRefreshing()) {
+    // Detectamos si estamos cerca del tope de la página
+    const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    
+    // Si el scroll está en 0 o cerca, permitimos jalar
+    if (scrollTop <= 5 && !this.isRefreshing()) {
       this.startY = event.touches[0].clientY;
       this.isPulling = true;
     }
@@ -36,6 +38,7 @@ export class PullToRefreshDirective {
     const currentY = event.touches[0].clientY;
     const diff = currentY - this.startY;
 
+    // Solo si arrastramos hacia abajo
     if (diff > 0) {
       if (event.cancelable) {
         event.preventDefault();

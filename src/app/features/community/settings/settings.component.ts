@@ -21,6 +21,7 @@ import { environment } from '../../../../environments/environment';
 import { KeyboardHelpComponent } from '../../../shared/components/keyboard-help/keyboard-help.component';
 import { KeyboardShortcutsService } from '../../../core/services/keyboard-shortcuts.service';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
+import { PullToRefreshDirective } from '../../../shared/directives/pull-to-refresh.directive';
 
 type SeccionActiva = 'perfil' | 'bloqueados' | 'accesibilidad' | 'cuenta';
 type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICITUD_RECIBIDA' | 'YO_MISMO';
@@ -33,7 +34,8 @@ type EstadoRelacion = 'DESCONOCIDO' | 'CONTACTO' | 'SOLICITUD_ENVIADA' | 'SOLICI
     FormsModule,
     ReactiveFormsModule,
     KeyboardHelpComponent,
-    AvisoLoginComponent
+    AvisoLoginComponent,
+    PullToRefreshDirective
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -77,17 +79,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
   cargandoBloqueados = signal(false);
   busquedaBloqueado = signal('');
 
-  // ✅ AVISO LOGIN
+  // AVISO LOGIN
   mostrarAvisoLogin = signal(false);
   mensajeAvisoLogin = signal('Debes registrarte para acceder a los ajustes.');
 
-  // ✅ ELIMINAR CUENTA
+  // ELIMINAR CUENTA
   mostrarModalEliminar = signal(false);
   confirmacionTexto = signal('');
 
-  // ✅ NUEVO: MODAL POSTS OCULTOS
+  // MODAL POSTS OCULTOS
   mostrarModalOcultos = signal(false);
   cantidadOcultos = computed(() => this.postsOcultos.total());
+
+  // PULL TO REFRESH
+  isRefreshing = signal(false);
+  pullDistance = signal(0);
+  pullOpacity = signal(0);
 
   bloqueadosFiltrados = computed(() => {
     const query = this.busquedaBloqueado().toLowerCase().trim();
@@ -136,12 +143,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ Getter logueado
   get estaLogueado(): boolean {
     return this.authService.estaLogueado();
   }
 
-  // ✅ Abrir/cerrar aviso
   abrirAvisoLogin(mensaje: string): void {
     this.mensajeAvisoLogin.set(mensaje);
     this.mostrarAvisoLogin.set(true);
@@ -223,6 +228,44 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
+  // PULL TO REFRESH
+  // ============================================================
+  recargarTodo(): void {
+    if (!this.estaLogueado) {
+      this.finishRefresh();
+      return;
+    }
+
+    this.isRefreshing.set(true);
+
+    this.cargarDatosUsuario();
+    this.personalizacionStore.cargarPersonalizacion();
+    this.personalizacionStore.cargarMarcos();
+    this.personalizacionStore.cargarFondos();
+    this.cargarBloqueados();
+
+    const user = this.authService.usuario();
+    if (user) {
+      this.formPerfil.patchValue({
+        nombreUsuario: user.nombreUsuario,
+        email: user.email,
+        bio: user.bio || '',
+      });
+    }
+
+    this.exitoMsg.set('Datos actualizados');
+    setTimeout(() => this.exitoMsg.set(null), 2000);
+
+    setTimeout(() => this.finishRefresh(), 600);
+  }
+
+  finishRefresh(): void {
+    this.isRefreshing.set(false);
+    this.pullDistance.set(0);
+    this.pullOpacity.set(0);
+  }
+
+  // ============================================================
   // MODAL POSTS OCULTOS
   // ============================================================
   abrirModalOcultos(): void {
@@ -246,7 +289,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     setTimeout(() => this.exitoMsg.set(null), 3000);
   }
 
-  /** Mantenido por compatibilidad: ahora abre el modal */
   mostrarTodosLosOcultos(): void {
     this.abrirModalOcultos();
   }
@@ -293,7 +335,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // ESTADO DE RELACIÓN
+  // ESTADO DE RELACION
   // ============================================================
   getEstadoRelacion(usuarioId: number): EstadoRelacion {
     if (this.esMiPropioPerfil(usuarioId)) return 'YO_MISMO';
@@ -354,7 +396,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // NAVEGACIÓN ENTRE SECCIONES
+  // NAVEGACION ENTRE SECCIONES
   // ============================================================
   irASeccion(seccion: SeccionActiva): void {
     this.seccionActiva.set(seccion);
@@ -514,7 +556,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // BÚSQUEDA
+  // BUSQUEDA
   // ============================================================
   onBusquedaChange(): void {
     const query = this.busquedaUsuario().trim();
@@ -616,7 +658,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // PERSONALIZACIÓN
+  // PERSONALIZACION
   // ============================================================
   seleccionarTheme(themeId: string): void {
     if (!this.estaLogueado) {
