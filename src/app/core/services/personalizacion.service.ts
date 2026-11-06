@@ -1,7 +1,7 @@
 // src/app/core/services/personalizacion.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, retry, throwError, timer } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface Personalizacion {
@@ -39,9 +39,6 @@ export class PersonalizacionService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/personalizacion`;
 
-  // ============================================================
-  // OBTENER
-  // ============================================================
   obtenerPersonalizacion(): Observable<Personalizacion> {
     return this.http.get<Personalizacion>(this.API_URL);
   }
@@ -50,9 +47,6 @@ export class PersonalizacionService {
     return this.http.get<Personalizacion>(`${this.API_URL}/usuario/${usuarioId}`);
   }
 
-  // ============================================================
-  // GUARDAR (PUT con DTO)
-  // ============================================================
   guardarPersonalizacion(datos: Partial<Personalizacion>): Observable<Personalizacion> {
     const payload = {
       temaId: datos.temaId || 'default',
@@ -65,21 +59,10 @@ export class PersonalizacionService {
     return this.http.put<Personalizacion>(this.API_URL, payload);
   }
 
-  // ============================================================
-  // GUARDAR (POST alternativo por params)
-  // ============================================================
-  guardarPersonalizacionParams(temaId: string, marcoId: string, fondoId: string): Observable<Personalizacion> {
-    return this.http.post<Personalizacion>(this.API_URL, null, {
-      params: { temaId, marcoId, fondoId }
-    });
-  }
-
-  // ============================================================
-  // FOTOS
-  // ============================================================
+  // ✅ CAMBIADO: Ahora se llama 'archivo' en lugar de 'foto' para que coincida con el backend
   subirFotoPerfil(archivo: File): Observable<Personalizacion> {
     const formData = new FormData();
-    formData.append('archivo', archivo);
+    formData.append('archivo', archivo); 
     return this.http.post<Personalizacion>(`${this.API_URL}/foto-perfil`, formData);
   }
 
@@ -89,9 +72,6 @@ export class PersonalizacionService {
     return this.http.post<Personalizacion>(`${this.API_URL}/foto-portada`, formData);
   }
 
-  // ============================================================
-  // CATÁLOGOS
-  // ============================================================
   obtenerMarcos(): Observable<Marco[]> {
     return this.http.get<Marco[]>(`${this.API_URL}/marcos`);
   }
@@ -100,9 +80,6 @@ export class PersonalizacionService {
     return this.http.get<Fondo[]>(`${this.API_URL}/fondos`);
   }
 
-  // ============================================================
-  // COMPRAS
-  // ============================================================
   comprarMarco(marcoId: string): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/comprar/marco/${marcoId}`, {});
   }

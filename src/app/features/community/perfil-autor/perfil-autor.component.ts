@@ -65,7 +65,6 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
   bloqueoInfo = signal<EstadoBloqueo | null>(null);
   procesandoBloqueo = signal(false);
 
-  // Modal de desbloqueo propio (sin confirm nativo)
   mostrarConfirmDesbloqueo = signal(false);
 
   // ===== PERSONALIZACION DEL AUTOR =====
@@ -86,7 +85,6 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
 
   // ===== COMPUTED SEGUROS PARA EL TEMPLATE =====
 
-  /** Fondo del contenedor principal, saneado. */
   fondoPerfilDelAutorSeguro = computed<string>(() => {
     const fondoId = this.autorFondoId();
     const fondos = this.personalizacionStore.fondos();
@@ -94,13 +92,11 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
     return safeCssGradient(encontrado?.gradiente);
   });
 
-  /** Clase de marco saneada. */
   marcoClaseDelAutorSeguro = computed<string>(() =>
     'frame-' + safeFrameToken(this.autorMarcoId(), 'none')
   );
 
-  /** Estilo de marco saneado (objeto listo para [ngStyle]). */
- marcoEstiloDelAutorSeguro = computed<Record<string, string | undefined>>(() => {
+  marcoEstiloDelAutorSeguro = computed<Record<string, string | undefined>>(() => {
     const marcoId = safeFrameToken(this.autorMarcoId(), 'none');
     const gradientFrames = ['rainbow', 'pastel', 'ocean', 'sunset', 'galaxy', 'fire', 'ice', 'rose', 'crystal'];
 
@@ -125,7 +121,6 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
     };
   });
 
-  /** URL de foto del autor saneada. */
   fotoPerfilDelAutorSeguro = computed<string | null>(() => {
     const autor = this.autor();
     if (!autor) return null;
@@ -137,14 +132,12 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
     return safeUrl(fotoPers);
   });
 
-  /** Background-image del banner, saneado. */
   bannerDelAutorSeguro = computed<string>(() => {
     const portada = this.autorFotoPortada();
     if (!portada) return 'none';
     return safeBackgroundImage(portada);
   });
 
-  /** true si hay banner que pintar. */
   tieneBanner = computed<boolean>(() => this.bannerDelAutorSeguro() !== 'none');
 
   // ===== HELPERS DE MARCO =====
@@ -188,7 +181,7 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
       'sunset': '0 0 30px rgba(255,107,107,0.4)',
       'galaxy': '0 0 35px rgba(108,92,231,0.5)',
       'fire': '0 0 35px rgba(255,107,107,0.6)',
-      'ice': '0 0 35px rgba(90,184,216,0.5)',
+      'ice': '0 0 35px rgba(0,180,216,0.5)',
       'rose': '0 0 30px rgba(253,121,168,0.5)',
       'cyber': '0 0 40px rgba(0,212,255,0.6)',
       'crystal': '0 0 40px rgba(255,255,255,0.2)',
@@ -396,7 +389,6 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
     if (userId) this.verificarBloqueo(userId);
   }
 
-  // Modal propio en vez de confirm()
   abrirConfirmDesbloqueo(): void {
     if (!this.estaLogueado) {
       this.abrirAvisoLogin('Debes registrarte para desbloquear usuarios.');
@@ -462,7 +454,6 @@ export class PerfilAutorComponent implements OnInit, OnDestroy {
           const mensaje = err?.error?.mensaje || err?.error?.error || 'Error al enviar solicitud';
           this.errorMsg.set(mensaje);
 
-          // Match por prefijo/codigo, no por substring arbitrario
           const codigo: string = err?.error?.code || '';
           if (codigo === 'ALREADY_SENT' || /^ya enviaste/i.test(mensaje)) {
             this.estadoContacto.set('pendiente-enviada');
