@@ -13,7 +13,7 @@ import { PostService } from '../../../core/services/post.service';
 import { BloqueoService } from '../../../core/services/bloqueo.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
-import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service'; // IMPORTADO
+import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service';
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
@@ -31,7 +31,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private postService = inject(PostService);
   private bloqueoService = inject(BloqueoService);
   private imageSanitizer = inject(ImageSanitizerService);
-  private imagenCompresion = inject(ImagenCompresionService); // INYECTADO
+  private imagenCompresion = inject(ImagenCompresionService);
   private userService = inject(UserService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -207,7 +207,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // FOTO DE PERFIL (OPTIMIZADO)
+  // FOTO DE PERFIL
   // ============================================================
   async onFotoSeleccionada(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement | null;
@@ -222,7 +222,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const archivoOriginal = input.files?.[0];
     if (!archivoOriginal) { input.value = ''; return; }
 
-    // Validacion MIME declarada
     if (!archivoOriginal.type.startsWith('image/')) {
       this.errorMsg.set('Solo se permiten imagenes');
       this.safeTimeout(() => this.errorMsg.set(null), 3000);
@@ -230,7 +229,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Limite de tamano
     if (archivoOriginal.size > 10 * 1024 * 1024) {
       this.errorMsg.set('La imagen no debe superar los 10MB');
       this.safeTimeout(() => this.errorMsg.set(null), 3000);
@@ -239,13 +237,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
 
     try {
-      // Comprimir imagen a maximo 400x400 para avatar (muy ligero)
       const archivoComprimido = await this.imagenCompresion.comprimirAvatar(archivoOriginal);
-
-      // ImageSanitizerService re-codifica y limpia metadatos
       const archivoLimpio = await this.imageSanitizer.limpiarFotoPerfil(archivoComprimido);
 
-      // Verificacion adicional: tipo final debe ser imagen raster
       if (!/^image\/(jpeg|png|webp)$/i.test(archivoLimpio.type)) {
         this.errorMsg.set('Formato de imagen no permitido');
         this.safeTimeout(() => this.errorMsg.set(null), 3000);
@@ -253,7 +247,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Preview via FileReader (rastreado)
       this.leerComoDataUrl(archivoLimpio);
 
       this.subiendoFoto.set(true);
@@ -377,25 +370,40 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.cargando.set(true);
     const data = this.formEditar.getRawValue();
 
-    this.userService.actualizarPerfil(usuarioId, {
+    // Construir payload. Solo enviar "bio" si el usuario la toco
+    // o si tiene contenido. Asi el backend conserva la bio anterior
+    // cuando el usuario solo cambia nombre o email.
+    // Usamos `any` para que TypeScript no exija que bio sea obligatorio,
+    // ya que el backend maneja el null como "no actualizar".
+    const payload: any = {
       nombreUsuario: (data.nombreUsuario ?? '').trim(),
       email: (data.email ?? '').trim(),
-      bio: (data.bio ?? '').trim()
-    }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (usuarioActualizado) => {
-        this.authService.usuario.set(usuarioActualizado);
-        this.cargando.set(false);
-        this.exitoMsg.set('Perfil actualizado correctamente');
-        this.editando.set(false);
-        this.safeTimeout(() => this.exitoMsg.set(null), 3000);
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.cargando.set(false);
-        this.errorMsg.set(err?.error?.error || 'Error al actualizar el perfil');
-        this.safeTimeout(() => this.errorMsg.set(null), 4000);
-      }
-    });
+    };
+
+    const bioControl = this.formEditar.get('bio');
+    const bioValor = (data.bio ?? '').trim();
+
+    if (bioControl?.dirty || bioValor.length > 0) {
+      payload.bio = bioValor;
+    }
+
+    this.userService.actualizarPerfil(usuarioId, payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (usuarioActualizado) => {
+          this.authService.usuario.set(usuarioActualizado);
+          this.cargando.set(false);
+          this.exitoMsg.set('Perfil actualizado correctamente');
+          this.editando.set(false);
+          this.safeTimeout(() => this.exitoMsg.set(null), 3000);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.cargando.set(false);
+          this.errorMsg.set(err?.error?.error || 'Error al actualizar el perfil');
+          this.safeTimeout(() => this.errorMsg.set(null), 4000);
+        }
+      });
   }
 
   // ============================================================
@@ -434,7 +442,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // LOGOUT (modal propio, sin confirm nativo)
+  // LOGOUT
   // ============================================================
   abrirConfirmLogout(): void {
     this.mostrarConfirmLogout.set(true);
