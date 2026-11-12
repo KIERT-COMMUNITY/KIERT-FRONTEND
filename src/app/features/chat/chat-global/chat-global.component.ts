@@ -1,6 +1,6 @@
 // src/app/features/chat/chat-global/chat-global.component.ts
 import {
-  Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal, NgZone, ChangeDetectorRef, ViewChild as ViewChildAngular
+  Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal, NgZone, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,19 +12,17 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { safeUrl } from '../../../shared/utils/url-sanitizer';
-
-// IMPORTAMOS LA DIRECTIVA
 import { PullToRefreshDirective } from '../../../shared/directives/pull-to-refresh.directive';
 
 @Component({
   selector: 'kiert-chat-global',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    AvisoLoginComponent, 
+    CommonModule,
+    FormsModule,
+    AvisoLoginComponent,
     AvatarFrameComponent,
-    PullToRefreshDirective // Añadida aquí
+    PullToRefreshDirective
   ],
   templateUrl: './chat-global.component.html',
   styleUrl: './chat-global.component.scss'
@@ -37,11 +35,8 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('scrollContainer') scrollContainer?: ElementRef<HTMLDivElement>;
-
-  // Hacemos referencia a la directiva para leer sus señales en el HTML
   @ViewChild(PullToRefreshDirective) pullToRefresh!: PullToRefreshDirective;
-  
-  // Señales expuestas para el HTML
+
   isRefreshing = signal(false);
   pullDistance = signal(0);
   pullOpacity = signal(0);
@@ -50,18 +45,25 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
   readonly conectado = signal(false);
   readonly mostrarAvisoLogin = signal(false);
 
+  /** Mensaje al que se está respondiendo (para mostrar la barra de cita) */
+  readonly respondiendoA = signal<MensajeGlobal | null>(null);
+
   texto = '';
 
   private readonly destroy$ = new Subject<void>();
   private timeouts = new Set<ReturnType<typeof setTimeout>>();
 
+  /** Controla el swipe de un mensaje concreto: id del mensaje y delta X actual */
+  readonly swipeState = signal<{ id: number; deltaX: number } | null>(null);
+  private swipeStartX = 0;
+  private swipeStartY = 0;
+  private swipeActivo = false;
+
   get estaLogueado(): boolean { return this.authService.estaLogueado(); }
 
   ngOnInit(): void {
-    // 1. Cargar historial
     this.cargarHistorial();
 
-    // 2. Escuchar mensajes en tiempo real
     this.chatService.mensajes$
       .pipe(takeUntil(this.destroy$))
       .subscribe(m => {
@@ -72,14 +74,12 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
         });
       });
 
-    // 3. Escuchar estado de conexion
     this.chatService.conectado$
       .pipe(takeUntil(this.destroy$))
       .subscribe(estado => {
         this.ngZone.run(() => this.conectado.set(estado));
       });
 
-    // 4. Conectar al STOMP
     this.chatService.conectar();
   }
 
@@ -90,20 +90,17 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.timeouts.clear();
   }
 
-  // ===== LOGICA DE RECARGA =====
+  // ===== RECARGA =====
   recargarMensajes(): void {
     this.isRefreshing.set(true);
-    
-    // Sincronizamos las señales de la directiva con las nuestras
     this.pullDistance.set(this.pullToRefresh.pullDistance());
     this.pullOpacity.set(this.pullToRefresh.pullOpacity());
 
-    // Retraso de 1 segundo para que se vea el spinner girando
     const timeoutId = setTimeout(() => {
       this.timeouts.delete(timeoutId);
       this.cargarHistorial();
     }, 1000);
-    
+
     this.timeouts.add(timeoutId);
   }
 
@@ -125,26 +122,106 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
 
   private finishRefresh(): void {
     this.isRefreshing.set(false);
-    // Reseteamos la directiva para que el indicador suba
-    if (this.pullToRefresh) {
-      this.pullToRefresh.finishRefresh();
-    }
-    // Reseteamos nuestras señales locales
+    if (this.pullToRefresh) this.pullToRefresh.finishRefresh();
     this.pullDistance.set(0);
     this.pullOpacity.set(0);
   }
 
-  // ===== RESTO DE METODOS =====
+  // ===== ENVIAR =====
   enviar(): void {
     if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
     const contenido = this.texto.trim();
     if (!contenido) return;
     if (contenido.length > 500) return;
 
-    this.chatService.enviarMensaje(contenido);
+    const cita = this.respondiendoA();
+    this.chatService.enviarMensaje(contenido, cita?.id);
     this.texto = '';
+    this.respondiendoA.set(null);
   }
 
+  // ===== RESPONDER =====
+  responderA(m: MensajeGlobal, event?: Event): void {
+    event?.stopPropagation();
+    if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
+    this.respondiendoA.set(m);
+    this.focusInput();
+  }
+
+  cancelarRespuesta(): void {
+    this.respondiendoA.set(null);
+  }
+
+  /** Devuelve el MensajeGlobal referenciado por una respuesta (si existe en la lista cargada) */
+  getMensajeCitado(m: MensajeGlobal): MensajeGlobal | null {
+    if (!m.respuestaAId) return null;
+    return this.mensajes().find(x => x.id === m.respuestaAId) || null;
+  }
+
+  // ===== SWIPE (móvil) =====
+  onTouchStart(m: MensajeGlobal, event: TouchEvent): void {
+    if (!this.estaLogueado) return;
+    const touch = event.touches[0];
+    this.swipeStartX = touch.clientX;
+    this.swipeStartY = touch.clientY;
+    this.swipeActivo = false;
+  }
+
+  onTouchMove(m: MensajeGlobal, event: TouchEvent): void {
+    if (!this.estaLogueado) return;
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - this.swipeStartX;
+    const deltaY = Math.abs(touch.clientY - this.swipeStartY);
+
+    // Solo activar swipe si el movimiento es claramente horizontal
+    if (!this.swipeActivo && Math.abs(deltaX) > 12 && Math.abs(deltaX) > deltaY) {
+      this.swipeActivo = true;
+    }
+
+    if (!this.swipeActivo) return;
+
+    // Solo permitimos deslizar a la derecha, con tope de 80px
+    const limitado = Math.max(0, Math.min(80, deltaX));
+    this.swipeState.set({ id: m.id!, deltaX: limitado });
+  }
+
+  onTouchEnd(m: MensajeGlobal): void {
+    const state = this.swipeState();
+    if (!this.swipeActivo || !state || state.id !== m.id) {
+      this.swipeState.set(null);
+      this.swipeActivo = false;
+      return;
+    }
+
+    if (state.deltaX >= 60) {
+      this.responderA(m);
+    }
+
+    this.swipeState.set(null);
+    this.swipeActivo = false;
+  }
+
+  getSwipeDelta(id: number): number {
+    const s = this.swipeState();
+    return s && s.id === id ? s.deltaX : 0;
+  }
+
+  // ===== FOCUS =====
+  private inputRef?: ElementRef<HTMLInputElement>;
+
+  @ViewChild('inputMensaje') set _inputRef(ref: ElementRef<HTMLInputElement> | undefined) {
+    if (ref) this.inputRef = ref;
+  }
+
+  private focusInput(): void {
+    const id = setTimeout(() => {
+      this.timeouts.delete(id);
+      this.inputRef?.nativeElement.focus();
+    }, 50);
+    this.timeouts.add(id);
+  }
+
+  // ===== AUX =====
   onFocusInput(): void {
     if (!this.estaLogueado) this.mostrarAvisoLogin.set(true);
   }

@@ -1,11 +1,282 @@
 // src/app/features/anuncios/anuncios.component.scss
 
+// ============================================================
+// VARIABLES CSS QUE RESPONDEN AL TEMA DEL USUARIO
+// (se sobrescriben por [data-theme="..."] más abajo)
+// ============================================================
 .anuncios-page {
+  --anuncios-bg: #0d1117;
+  --anuncios-card-bg: #1a2a44;
+  --anuncios-text: #ffffff;
+  --anuncios-text-muted: #7b9acc;
+  --anuncios-border: #26313c;
+  --anuncios-accent: #2dd4bf;
+  --anuncios-accent-text: #0d1117;
+  --anuncios-close-bg: rgba(248, 81, 73, 0.15);
+  --anuncios-close-text: #f85149;
+
   max-width: 1100px;
   margin: 0 auto;
   padding: 2rem 1rem;
   min-height: 100vh;
-  color: var(--tema-text, #e6edf3);
+  color: var(--anuncios-text);
+  background: transparent;
+}
+
+// ============================================================
+// TEMA DEFAULT (teal)
+// ============================================================
+:host-context([data-theme="default"]),
+:host-context(.tema-default) {
+  .anuncios-page {
+    --anuncios-bg: #0d1117;
+    --anuncios-card-bg: #1a2a44;
+    --anuncios-text: #ffffff;
+    --anuncios-text-muted: #7b9acc;
+    --anuncios-border: #26313c;
+    --anuncios-accent: #2dd4bf;
+    --anuncios-accent-text: #0d1117;
+  }
+}
+
+// ============================================================
+// TEMA DARK
+// ============================================================
+:host-context([data-theme="dark"]),
+:host-context(.tema-dark) {
+  .anuncios-page {
+    --anuncios-bg: #1a1a2e;
+    --anuncios-card-bg: #232342;
+    --anuncios-text: #e6edf3;
+    --anuncios-text-muted: #a29bfe;
+    --anuncios-border: #2d2d4a;
+    --anuncios-accent: #a29bfe;
+    --anuncios-accent-text: #1a1a2e;
+  }
+}
+
+// ============================================================
+// TEMA LIGHT
+// ============================================================
+:host-context([data-theme="light"]),
+:host-context(.tema-light) {
+  .anuncios-page {
+    --anuncios-bg: #ffffff;
+    --anuncios-card-bg: #f5f7fa;
+    --anuncios-text: #1a1a2e;
+    --anuncios-text-muted: #4a5568;
+    --anuncios-border: #e2e8f0;
+    --anuncios-accent: #2dd4bf;
+    --anuncios-accent-text: #ffffff;
+  }
+}
+
+// ============================================================
+// TEMA SUNSET
+// ============================================================
+:host-context([data-theme="sunset"]),
+:host-context(.tema-sunset) {
+  .anuncios-page {
+    --anuncios-bg: #2d1b1b;
+    --anuncios-card-bg: #4a2626;
+    --anuncios-text: #fff5f5;
+    --anuncios-text-muted: #ffb3b3;
+    --anuncios-border: #6b3636;
+    --anuncios-accent: #feca57;
+    --anuncios-accent-text: #2d1b1b;
+  }
+}
+
+// ============================================================
+// TEMA OCEAN
+// ============================================================
+:host-context([data-theme="ocean"]),
+:host-context(.tema-ocean) {
+  .anuncios-page {
+    --anuncios-bg: #0a1929;
+    --anuncios-card-bg: #0f2a3f;
+    --anuncios-text: #e6f4f8;
+    --anuncios-text-muted: #7ec8e3;
+    --anuncios-border: #1a4060;
+    --anuncios-accent: #00cec9;
+    --anuncios-accent-text: #0a1929;
+  }
+}
+
+// ============================================================
+// TEMA AURORA
+// ============================================================
+:host-context([data-theme="aurora"]),
+:host-context(.tema-aurora) {
+  .anuncios-page {
+    --anuncios-bg: #1a1630;
+    --anuncios-card-bg: #2a2345;
+    --anuncios-text: #f0eaff;
+    --anuncios-text-muted: #b8a9e8;
+    --anuncios-border: #3d3260;
+    --anuncios-accent: #6c5ce7;
+    --anuncios-accent-text: #ffffff;
+  }
+}
+
+// ============================================================
+// TEMA GALAXY
+// ============================================================
+:host-context([data-theme="galaxy"]),
+:host-context(.tema-galaxy) {
+  .anuncios-page {
+    --anuncios-bg: #0f0f1e;
+    --anuncios-card-bg: #1e1e35;
+    --anuncios-text: #e8e5ff;
+    --anuncios-text-muted: #a99ee8;
+    --anuncios-border: #2e2e50;
+    --anuncios-accent: #fd79a8;
+    --anuncios-accent-text: #0f0f1e;
+  }
+}
+
+// ============================================================
+// TEMA LAVA
+// ============================================================
+:host-context([data-theme="lava"]),
+:host-context(.tema-lava) {
+  .anuncios-page {
+    --anuncios-bg: #2a0a0a;
+    --anuncios-card-bg: #4a1010;
+    --anuncios-text: #ffe8e8;
+    --anuncios-text-muted: #ff9999;
+    --anuncios-border: #6b1f1f;
+    --anuncios-accent: #e17055;
+    --anuncios-accent-text: #2a0a0a;
+  }
+}
+
+// ============================================================
+// TEMA FOREST
+// ============================================================
+:host-context([data-theme="forest"]),
+:host-context(.tema-forest) {
+  .anuncios-page {
+    --anuncios-bg: #0a1f15;
+    --anuncios-card-bg: #143a26;
+    --anuncios-text: #e6f7ee;
+    --anuncios-text-muted: #80d4a0;
+    --anuncios-border: #1f5035;
+    --anuncios-accent: #55efc4;
+    --anuncios-accent-text: #0a1f15;
+  }
+}
+
+// ============================================================
+// TEMA CANDY
+// ============================================================
+:host-context([data-theme="candy"]),
+:host-context(.tema-candy) {
+  .anuncios-page {
+    --anuncios-bg: #2a1a2e;
+    --anuncios-card-bg: #3d2545;
+    --anuncios-text: #fde8f5;
+    --anuncios-text-muted: #f5a3d0;
+    --anuncios-border: #55304f;
+    --anuncios-accent: #fd79a8;
+    --anuncios-accent-text: #2a1a2e;
+  }
+}
+
+// ============================================================
+// TEMA CYBER
+// ============================================================
+:host-context([data-theme="cyber"]),
+:host-context(.tema-cyber) {
+  .anuncios-page {
+    --anuncios-bg: #0a0a1a;
+    --anuncios-card-bg: #141428;
+    --anuncios-text: #e0f7ff;
+    --anuncios-text-muted: #7ecfff;
+    --anuncios-border: #1e3a5f;
+    --anuncios-accent: #00d4ff;
+    --anuncios-accent-text: #0a0a1a;
+  }
+}
+
+// ============================================================
+// TEMA BLOOD
+// ============================================================
+:host-context([data-theme="blood"]),
+:host-context(.tema-blood) {
+  .anuncios-page {
+    --anuncios-bg: #1a0a0a;
+    --anuncios-card-bg: #2e0f0f;
+    --anuncios-text: #ffe0e0;
+    --anuncios-text-muted: #ff8080;
+    --anuncios-border: #4a1a1a;
+    --anuncios-accent: #ff0044;
+    --anuncios-accent-text: #ffffff;
+  }
+}
+
+// ============================================================
+// TEMA ROYAL
+// ============================================================
+:host-context([data-theme="royal"]),
+:host-context(.tema-royal) {
+  .anuncios-page {
+    --anuncios-bg: #1a1030;
+    --anuncios-card-bg: #2a1a4a;
+    --anuncios-text: #f0e6ff;
+    --anuncios-text-muted: #b8a0e8;
+    --anuncios-border: #3d2a5f;
+    --anuncios-accent: #6c5ce7;
+    --anuncios-accent-text: #ffffff;
+  }
+}
+
+// ============================================================
+// TEMA GOLD
+// ============================================================
+:host-context([data-theme="gold"]),
+:host-context(.tema-gold) {
+  .anuncios-page {
+    --anuncios-bg: #1f1a0a;
+    --anuncios-card-bg: #3a2e10;
+    --anuncios-text: #fff8e0;
+    --anuncios-text-muted: #e8cc80;
+    --anuncios-border: #5a4a1f;
+    --anuncios-accent: #f9ca24;
+    --anuncios-accent-text: #1f1a0a;
+  }
+}
+
+// ============================================================
+// TEMA PASTEL
+// ============================================================
+:host-context([data-theme="pastel"]),
+:host-context(.tema-pastel) {
+  .anuncios-page {
+    --anuncios-bg: #f0e6ff;
+    --anuncios-card-bg: #faf5ff;
+    --anuncios-text: #2d1a3d;
+    --anuncios-text-muted: #7a5a9a;
+    --anuncios-border: #d8c8e8;
+    --anuncios-accent: #fd79a8;
+    --anuncios-accent-text: #ffffff;
+  }
+}
+
+// ============================================================
+// TEMA NEON
+// ============================================================
+:host-context([data-theme="neon"]),
+:host-context(.tema-neon) {
+  .anuncios-page {
+    --anuncios-bg: #0a0a1a;
+    --anuncios-card-bg: #14142a;
+    --anuncios-text: #e0e0ff;
+    --anuncios-text-muted: #a0a0ff;
+    --anuncios-border: #2a2a4a;
+    --anuncios-accent: #fd79a8;
+    --anuncios-accent-text: #0a0a1a;
+  }
 }
 
 // ============================================================
@@ -19,7 +290,6 @@
   overflow: hidden;
   width: 100%;
   gap: 8px;
-  transition: none;
 
   &__spinner {
     width: 28px;
@@ -27,7 +297,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #2dd4bf;
+    color: var(--anuncios-accent);
 
     svg {
       width: 100%;
@@ -42,7 +312,7 @@
 
   span {
     font-size: 0.8rem;
-    color: var(--tema-text-muted, #8b98a5);
+    color: var(--anuncios-text-muted);
     font-weight: 500;
   }
 }
@@ -53,13 +323,13 @@
 }
 
 // ============================================================
-// RESTO DE ESTILOS
+// TITULOS Y ESTADOS
 // ============================================================
 .anuncios-title {
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 2rem;
-  color: var(--tema-text, #e6edf3);
+  color: var(--anuncios-text);
   text-align: center;
 }
 
@@ -71,7 +341,7 @@
   justify-content: center;
   padding: 4rem 2rem;
   gap: 1rem;
-  color: var(--tema-text-muted, #8b98a5);
+  color: var(--anuncios-text-muted);
   text-align: center;
 
   span {
@@ -83,9 +353,10 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--tema-border, rgba(255, 255, 255, 0.1));
-  border-top-color: #2dd4bf;
+  border: 3px solid var(--anuncios-border);
+  border-top-color: var(--anuncios-accent);
   border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 // ============================================================
@@ -97,11 +368,8 @@
   bottom: 100px;
   left: 270px;
 
-  background: var(--tema-card-bg, rgba(19, 26, 34, 0.92));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  border: 1px solid var(--tema-border, #26313c);
+  background: var(--anuncios-card-bg);
+  border: 1px solid var(--anuncios-border);
   border-radius: 16px;
   padding: 14px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -120,8 +388,8 @@
     height: 22px;
     border-radius: 50%;
     border: none;
-    background: rgba(248, 81, 73, 0.15);
-    color: #f85149;
+    background: var(--anuncios-close-bg);
+    color: var(--anuncios-close-text);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -138,9 +406,9 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    border: 1px solid var(--tema-border, #26313c);
-    background: rgba(13, 17, 23, 0.85);
-    color: #2dd4bf;
+    border: 1px solid var(--anuncios-border);
+    background: var(--anuncios-card-bg);
+    color: var(--anuncios-accent);
     cursor: pointer;
     display: none;
     align-items: center;
@@ -153,7 +421,7 @@
     &--prev { left: -10px; }
     &--next { right: -10px; }
 
-    &:hover { background: rgba(45, 212, 191, 0.15); }
+    &:hover { background: var(--anuncios-bg); }
   }
 
   &__content {
@@ -167,7 +435,7 @@
     height: 120px;
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.1));
+    border: 1px solid var(--anuncios-border);
   }
 
   &__img {
@@ -182,13 +450,13 @@
       margin: 0 0 4px;
       font-size: 0.9rem;
       font-weight: 700;
-      color: var(--tema-text, #e6edf3);
+      color: var(--anuncios-text);
       line-height: 1.2;
     }
     p {
       margin: 0;
       font-size: 0.75rem;
-      color: var(--tema-text-muted, #8b98a5);
+      color: var(--anuncios-text-muted);
       line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 3;
@@ -201,10 +469,10 @@
     display: inline-block;
     text-align: center;
     padding: 6px 12px;
-    background: rgba(45, 212, 191, 0.1);
-    border: 1px solid rgba(45, 212, 191, 0.3);
+    background: var(--anuncios-accent);
+    border: 1px solid var(--anuncios-accent);
     border-radius: 6px;
-    color: #2dd4bf;
+    color: var(--anuncios-accent-text);
     font-size: 0.75rem;
     font-weight: 600;
     text-decoration: none;
@@ -221,10 +489,12 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--anuncios-text-muted);
+      opacity: 0.35;
 
       &.active {
-        background: #2dd4bf;
+        background: var(--anuncios-accent);
+        opacity: 1;
         transform: scale(1.2);
       }
     }
@@ -238,7 +508,7 @@
 }
 
 // ============================================================
-// LISTA NORMAL DE ANUNCIOS (GRID)
+// GRID DE ANUNCIOS
 // ============================================================
 .anuncios-grid {
   display: grid;
@@ -247,11 +517,12 @@
 }
 
 // ============================================================
-// TARJETA DEL ANUNCIO
+// TARJETA DEL ANUNCIO (AHORA RESPONDE AL TEMA)
 // ============================================================
 .anuncio-card {
-  background-color: #1a2a44;
-  border-radius: 4px;
+  background-color: var(--anuncios-card-bg);
+  border: 1px solid var(--anuncios-border);
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -284,14 +555,14 @@
   }
 
   &__titulo {
-    color: #ffffff;
+    color: var(--anuncios-text);
     font-size: 1.2rem;
     font-weight: 600;
     margin: 0 0 0.8rem;
   }
 
   &__texto {
-    color: #7b9acc;
+    color: var(--anuncios-text-muted);
     font-size: 1.05rem;
     line-height: 1.5;
     margin: 0;
@@ -303,8 +574,8 @@
     gap: 6px;
     margin-top: 1.5rem;
     padding: 0.6rem 1.2rem;
-    background-color: #2dd4bf;
-    color: #0d1117;
+    background-color: var(--anuncios-accent);
+    color: var(--anuncios-accent-text);
     text-decoration: none;
     border-radius: 4px;
     font-weight: 600;
@@ -327,8 +598,9 @@
   }
 }
 
-.tema-light {
-  kiert-aviso-login .aviso-login {
+:host-context([data-theme="light"]),
+:host-context(.tema-light) {
+  .anuncios-page kiert-aviso-login .aviso-login {
     background: #fff3cd;
     border-color: #ffeeba;
     color: #856404;

@@ -1,19 +1,27 @@
 // src/app/features/chat/chat-global/chat-global.component.scss
-$primary: #2dd4bf;
-$bg-primary: #0d1117;
-$bg-secondary: #131a22;
-$bg-card: #1b232c;
-$border: #26313c;
-$text-primary: #e6edf3;
-$text-secondary: #8b98a5;
-$text-muted: #5a6a7a;
 
-:host {
-  display: block;
-  height: 100%;
-}
-
+// ============================================================
+// VARIABLES CSS QUE RESPONDEN AL TEMA
+// ============================================================
 .chat-global-container {
+  --chatg-primary: #2dd4bf;
+  --chatg-primary-soft: rgba(45, 212, 191, 0.08);
+  --chatg-primary-soft-2: rgba(45, 212, 191, 0.12);
+  --chatg-primary-border: rgba(45, 212, 191, 0.25);
+  --chatg-primary-border-2: rgba(45, 212, 191, 0.4);
+  --chatg-primary-text: #0d1117;
+
+  --chatg-bg: #0d1117;
+  --chatg-bg-secondary: #131a22;
+  --chatg-bg-card: #1b232c;
+
+  --chatg-border: #26313c;
+  --chatg-text-primary: #e6edf3;
+  --chatg-text-secondary: #8b98a5;
+  --chatg-text-muted: #5a6a7a;
+
+  --chatg-danger: #f85149;
+
   display: flex;
   flex-direction: column;
   height: calc(100vh - 80px);
@@ -22,8 +30,397 @@ $text-muted: #5a6a7a;
   padding: 1rem;
 }
 
+:host {
+  display: block;
+  height: 100%;
+}
+
 // ============================================================
-// PULL TO REFRESH (Indicador de recarga)
+// TEMA DEFAULT
+// ============================================================
+:host-context([data-theme="default"]),
+:host-context(.tema-default) {
+  .chat-global-container {
+    --chatg-primary: #2dd4bf;
+    --chatg-primary-soft: rgba(45, 212, 191, 0.08);
+    --chatg-primary-soft-2: rgba(45, 212, 191, 0.12);
+    --chatg-primary-border: rgba(45, 212, 191, 0.25);
+    --chatg-primary-border-2: rgba(45, 212, 191, 0.4);
+    --chatg-primary-text: #0d1117;
+
+    --chatg-bg: #0d1117;
+    --chatg-bg-secondary: #131a22;
+    --chatg-bg-card: #1b232c;
+
+    --chatg-border: #26313c;
+    --chatg-text-primary: #e6edf3;
+    --chatg-text-secondary: #8b98a5;
+    --chatg-text-muted: #5a6a7a;
+  }
+}
+
+// ============================================================
+// TEMA DARK
+// ============================================================
+:host-context([data-theme="dark"]),
+:host-context(.tema-dark) {
+  .chat-global-container {
+    --chatg-primary: #a29bfe;
+    --chatg-primary-soft: rgba(162, 155, 254, 0.08);
+    --chatg-primary-soft-2: rgba(162, 155, 254, 0.15);
+    --chatg-primary-border: rgba(162, 155, 254, 0.3);
+    --chatg-primary-border-2: rgba(162, 155, 254, 0.5);
+    --chatg-primary-text: #1a1a2e;
+
+    --chatg-bg: #1a1a2e;
+    --chatg-bg-secondary: #232342;
+    --chatg-bg-card: #2a2a4a;
+
+    --chatg-border: #2d2d4a;
+    --chatg-text-primary: #e6edf3;
+    --chatg-text-secondary: #b8b3e8;
+    --chatg-text-muted: #7a7a9a;
+  }
+}
+
+// ============================================================
+// TEMA LIGHT
+// ============================================================
+:host-context([data-theme="light"]),
+:host-context(.tema-light) {
+  .chat-global-container {
+    --chatg-primary: #0d9488;
+    --chatg-primary-soft: rgba(13, 148, 136, 0.08);
+    --chatg-primary-soft-2: rgba(13, 148, 136, 0.15);
+    --chatg-primary-border: rgba(13, 148, 136, 0.3);
+    --chatg-primary-border-2: rgba(13, 148, 136, 0.5);
+    --chatg-primary-text: #ffffff;
+
+    --chatg-bg: #ffffff;
+    --chatg-bg-secondary: #f5f7fa;
+    --chatg-bg-card: #ffffff;
+
+    --chatg-border: #e2e8f0;
+    --chatg-text-primary: #1a1a2e;
+    --chatg-text-secondary: #4a5568;
+    --chatg-text-muted: #718096;
+  }
+}
+
+// ============================================================
+// TEMA SUNSET
+// ============================================================
+:host-context([data-theme="sunset"]),
+:host-context(.tema-sunset) {
+  .chat-global-container {
+    --chatg-primary: #feca57;
+    --chatg-primary-soft: rgba(254, 202, 87, 0.08);
+    --chatg-primary-soft-2: rgba(254, 202, 87, 0.15);
+    --chatg-primary-border: rgba(254, 202, 87, 0.3);
+    --chatg-primary-border-2: rgba(254, 202, 87, 0.5);
+    --chatg-primary-text: #2d1b1b;
+
+    --chatg-bg: #2d1b1b;
+    --chatg-bg-secondary: #3a2424;
+    --chatg-bg-card: #4a2626;
+
+    --chatg-border: #6b3636;
+    --chatg-text-primary: #fff5f5;
+    --chatg-text-secondary: #ffb3b3;
+    --chatg-text-muted: #b38080;
+  }
+}
+
+// ============================================================
+// TEMA OCEAN
+// ============================================================
+:host-context([data-theme="ocean"]),
+:host-context(.tema-ocean) {
+  .chat-global-container {
+    --chatg-primary: #00cec9;
+    --chatg-primary-soft: rgba(0, 206, 201, 0.08);
+    --chatg-primary-soft-2: rgba(0, 206, 201, 0.15);
+    --chatg-primary-border: rgba(0, 206, 201, 0.3);
+    --chatg-primary-border-2: rgba(0, 206, 201, 0.5);
+    --chatg-primary-text: #0a1929;
+
+    --chatg-bg: #0a1929;
+    --chatg-bg-secondary: #0f2a3f;
+    --chatg-bg-card: #14324a;
+
+    --chatg-border: #1a4060;
+    --chatg-text-primary: #e6f4f8;
+    --chatg-text-secondary: #7ec8e3;
+    --chatg-text-muted: #4a7a8a;
+  }
+}
+
+// ============================================================
+// TEMA AURORA
+// ============================================================
+:host-context([data-theme="aurora"]),
+:host-context(.tema-aurora) {
+  .chat-global-container {
+    --chatg-primary: #6c5ce7;
+    --chatg-primary-soft: rgba(108, 92, 231, 0.08);
+    --chatg-primary-soft-2: rgba(108, 92, 231, 0.15);
+    --chatg-primary-border: rgba(108, 92, 231, 0.3);
+    --chatg-primary-border-2: rgba(108, 92, 231, 0.5);
+    --chatg-primary-text: #ffffff;
+
+    --chatg-bg: #1a1630;
+    --chatg-bg-secondary: #241e3d;
+    --chatg-bg-card: #2a2345;
+
+    --chatg-border: #3d3260;
+    --chatg-text-primary: #f0eaff;
+    --chatg-text-secondary: #b8a9e8;
+    --chatg-text-muted: #7a6a9a;
+  }
+}
+
+// ============================================================
+// TEMA GALAXY
+// ============================================================
+:host-context([data-theme="galaxy"]),
+:host-context(.tema-galaxy) {
+  .chat-global-container {
+    --chatg-primary: #fd79a8;
+    --chatg-primary-soft: rgba(253, 121, 168, 0.08);
+    --chatg-primary-soft-2: rgba(253, 121, 168, 0.15);
+    --chatg-primary-border: rgba(253, 121, 168, 0.3);
+    --chatg-primary-border-2: rgba(253, 121, 168, 0.5);
+    --chatg-primary-text: #0f0f1e;
+
+    --chatg-bg: #0f0f1e;
+    --chatg-bg-secondary: #1a1a2e;
+    --chatg-bg-card: #1e1e35;
+
+    --chatg-border: #2e2e50;
+    --chatg-text-primary: #e8e5ff;
+    --chatg-text-secondary: #a99ee8;
+    --chatg-text-muted: #6a6090;
+  }
+}
+
+// ============================================================
+// TEMA LAVA
+// ============================================================
+:host-context([data-theme="lava"]),
+:host-context(.tema-lava) {
+  .chat-global-container {
+    --chatg-primary: #e17055;
+    --chatg-primary-soft: rgba(225, 112, 85, 0.08);
+    --chatg-primary-soft-2: rgba(225, 112, 85, 0.15);
+    --chatg-primary-border: rgba(225, 112, 85, 0.3);
+    --chatg-primary-border-2: rgba(225, 112, 85, 0.5);
+    --chatg-primary-text: #2a0a0a;
+
+    --chatg-bg: #2a0a0a;
+    --chatg-bg-secondary: #3a1010;
+    --chatg-bg-card: #4a1010;
+
+    --chatg-border: #6b1f1f;
+    --chatg-text-primary: #ffe8e8;
+    --chatg-text-secondary: #ff9999;
+    --chatg-text-muted: #a06060;
+  }
+}
+
+// ============================================================
+// TEMA FOREST
+// ============================================================
+:host-context([data-theme="forest"]),
+:host-context(.tema-forest) {
+  .chat-global-container {
+    --chatg-primary: #55efc4;
+    --chatg-primary-soft: rgba(85, 239, 196, 0.08);
+    --chatg-primary-soft-2: rgba(85, 239, 196, 0.15);
+    --chatg-primary-border: rgba(85, 239, 196, 0.3);
+    --chatg-primary-border-2: rgba(85, 239, 196, 0.5);
+    --chatg-primary-text: #0a1f15;
+
+    --chatg-bg: #0a1f15;
+    --chatg-bg-secondary: #0f2a1e;
+    --chatg-bg-card: #143a26;
+
+    --chatg-border: #1f5035;
+    --chatg-text-primary: #e6f7ee;
+    --chatg-text-secondary: #80d4a0;
+    --chatg-text-muted: #4a7a5e;
+  }
+}
+
+// ============================================================
+// TEMA CANDY
+// ============================================================
+:host-context([data-theme="candy"]),
+:host-context(.tema-candy) {
+  .chat-global-container {
+    --chatg-primary: #fd79a8;
+    --chatg-primary-soft: rgba(253, 121, 168, 0.08);
+    --chatg-primary-soft-2: rgba(253, 121, 168, 0.15);
+    --chatg-primary-border: rgba(253, 121, 168, 0.3);
+    --chatg-primary-border-2: rgba(253, 121, 168, 0.5);
+    --chatg-primary-text: #2a1a2e;
+
+    --chatg-bg: #2a1a2e;
+    --chatg-bg-secondary: #362240;
+    --chatg-bg-card: #3d2545;
+
+    --chatg-border: #55304f;
+    --chatg-text-primary: #fde8f5;
+    --chatg-text-secondary: #f5a3d0;
+    --chatg-text-muted: #a06585;
+  }
+}
+
+// ============================================================
+// TEMA CYBER
+// ============================================================
+:host-context([data-theme="cyber"]),
+:host-context(.tema-cyber) {
+  .chat-global-container {
+    --chatg-primary: #00d4ff;
+    --chatg-primary-soft: rgba(0, 212, 255, 0.08);
+    --chatg-primary-soft-2: rgba(0, 212, 255, 0.15);
+    --chatg-primary-border: rgba(0, 212, 255, 0.3);
+    --chatg-primary-border-2: rgba(0, 212, 255, 0.5);
+    --chatg-primary-text: #0a0a1a;
+
+    --chatg-bg: #0a0a1a;
+    --chatg-bg-secondary: #101022;
+    --chatg-bg-card: #141428;
+
+    --chatg-border: #1e3a5f;
+    --chatg-text-primary: #e0f7ff;
+    --chatg-text-secondary: #7ecfff;
+    --chatg-text-muted: #4a7a90;
+  }
+}
+
+// ============================================================
+// TEMA BLOOD
+// ============================================================
+:host-context([data-theme="blood"]),
+:host-context(.tema-blood) {
+  .chat-global-container {
+    --chatg-primary: #ff0044;
+    --chatg-primary-soft: rgba(255, 0, 68, 0.08);
+    --chatg-primary-soft-2: rgba(255, 0, 68, 0.15);
+    --chatg-primary-border: rgba(255, 0, 68, 0.3);
+    --chatg-primary-border-2: rgba(255, 0, 68, 0.5);
+    --chatg-primary-text: #ffffff;
+
+    --chatg-bg: #1a0a0a;
+    --chatg-bg-secondary: #240e0e;
+    --chatg-bg-card: #2e0f0f;
+
+    --chatg-border: #4a1a1a;
+    --chatg-text-primary: #ffe0e0;
+    --chatg-text-secondary: #ff8080;
+    --chatg-text-muted: #a05050;
+  }
+}
+
+// ============================================================
+// TEMA ROYAL
+// ============================================================
+:host-context([data-theme="royal"]),
+:host-context(.tema-royal) {
+  .chat-global-container {
+    --chatg-primary: #6c5ce7;
+    --chatg-primary-soft: rgba(108, 92, 231, 0.08);
+    --chatg-primary-soft-2: rgba(108, 92, 231, 0.15);
+    --chatg-primary-border: rgba(108, 92, 231, 0.3);
+    --chatg-primary-border-2: rgba(108, 92, 231, 0.5);
+    --chatg-primary-text: #ffffff;
+
+    --chatg-bg: #1a1030;
+    --chatg-bg-secondary: #221640;
+    --chatg-bg-card: #2a1a4a;
+
+    --chatg-border: #3d2a5f;
+    --chatg-text-primary: #f0e6ff;
+    --chatg-text-secondary: #b8a0e8;
+    --chatg-text-muted: #7a6a9a;
+  }
+}
+
+// ============================================================
+// TEMA GOLD
+// ============================================================
+:host-context([data-theme="gold"]),
+:host-context(.tema-gold) {
+  .chat-global-container {
+    --chatg-primary: #f9ca24;
+    --chatg-primary-soft: rgba(249, 202, 36, 0.08);
+    --chatg-primary-soft-2: rgba(249, 202, 36, 0.15);
+    --chatg-primary-border: rgba(249, 202, 36, 0.3);
+    --chatg-primary-border-2: rgba(249, 202, 36, 0.5);
+    --chatg-primary-text: #1f1a0a;
+
+    --chatg-bg: #1f1a0a;
+    --chatg-bg-secondary: #2a2210;
+    --chatg-bg-card: #3a2e10;
+
+    --chatg-border: #5a4a1f;
+    --chatg-text-primary: #fff8e0;
+    --chatg-text-secondary: #e8cc80;
+    --chatg-text-muted: #a08a50;
+  }
+}
+
+// ============================================================
+// TEMA PASTEL
+// ============================================================
+:host-context([data-theme="pastel"]),
+:host-context(.tema-pastel) {
+  .chat-global-container {
+    --chatg-primary: #fd79a8;
+    --chatg-primary-soft: rgba(253, 121, 168, 0.1);
+    --chatg-primary-soft-2: rgba(253, 121, 168, 0.2);
+    --chatg-primary-border: rgba(253, 121, 168, 0.35);
+    --chatg-primary-border-2: rgba(253, 121, 168, 0.55);
+    --chatg-primary-text: #ffffff;
+
+    --chatg-bg: #f0e6ff;
+    --chatg-bg-secondary: #e8dcff;
+    --chatg-bg-card: #faf5ff;
+
+    --chatg-border: rgba(122, 90, 154, 0.2);
+    --chatg-text-primary: #2d1a3d;
+    --chatg-text-secondary: #7a5a9a;
+    --chatg-text-muted: #9a80b0;
+  }
+}
+
+// ============================================================
+// TEMA NEON
+// ============================================================
+:host-context([data-theme="neon"]),
+:host-context(.tema-neon) {
+  .chat-global-container {
+    --chatg-primary: #fd79a8;
+    --chatg-primary-soft: rgba(253, 121, 168, 0.08);
+    --chatg-primary-soft-2: rgba(253, 121, 168, 0.15);
+    --chatg-primary-border: rgba(253, 121, 168, 0.3);
+    --chatg-primary-border-2: rgba(253, 121, 168, 0.5);
+    --chatg-primary-text: #0a0a1a;
+
+    --chatg-bg: #0a0a1a;
+    --chatg-bg-secondary: #10102a;
+    --chatg-bg-card: #14142a;
+
+    --chatg-border: #2a2a4a;
+    --chatg-text-primary: #e0e0ff;
+    --chatg-text-secondary: #b0b0ff;
+    --chatg-text-muted: #6a6aa0;
+  }
+}
+
+// ============================================================
+// PULL TO REFRESH
 // ============================================================
 .pull-to-refresh {
   display: flex;
@@ -41,13 +438,13 @@ $text-muted: #5a6a7a;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $primary;
-    
+    color: var(--chatg-primary);
+
     svg {
       width: 100%;
       height: 100%;
       stroke: currentColor;
-      
+
       &.spinning {
         animation: spin 0.8s linear infinite;
       }
@@ -56,7 +453,7 @@ $text-muted: #5a6a7a;
 
   span {
     font-size: 0.8rem;
-    color: $text-secondary;
+    color: var(--chatg-text-secondary);
     font-weight: 500;
   }
 }
@@ -67,25 +464,25 @@ $text-muted: #5a6a7a;
 }
 
 // ============================================================
-// RESTO DE ESTILOS (Intactos)
+// HEADER
 // ============================================================
 .chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-bottom: 1rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--chatg-border);
 
   .chat-title {
     h1 {
       margin: 0;
       font-size: 1.4rem;
-      color: $text-primary;
+      color: var(--chatg-text-primary);
     }
     .subtitulo {
       margin: 0.2rem 0 0;
       font-size: 0.8rem;
-      color: $text-muted;
+      color: var(--chatg-text-muted);
     }
   }
 
@@ -94,22 +491,25 @@ $text-muted: #5a6a7a;
     align-items: center;
     gap: 0.4rem;
     font-size: 0.8rem;
-    color: #f85149;
+    color: var(--chatg-danger);
 
     .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #f85149;
+      background: var(--chatg-danger);
     }
 
     &.connected {
-      color: $primary;
-      .dot { background: $primary; }
+      color: var(--chatg-primary);
+      .dot { background: var(--chatg-primary); }
     }
   }
 }
 
+// ============================================================
+// LISTA DE MENSAJES
+// ============================================================
 .chat-mensajes {
   flex: 1;
   overflow-y: auto;
@@ -117,25 +517,29 @@ $text-muted: #5a6a7a;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  
-  scrollbar-color: $border transparent;
+
+  scrollbar-color: var(--chatg-border) transparent;
   scrollbar-width: thin;
 
   &::-webkit-scrollbar { width: 6px; }
   &::-webkit-scrollbar-thumb {
-    background: $border;
+    background: var(--chatg-border);
     border-radius: 10px;
   }
 
   .vacio {
     margin-top: 3rem;
     text-align: center;
-    color: $text-muted;
+    color: var(--chatg-text-muted);
     p { margin: 0.25rem 0; }
   }
 }
 
+// ============================================================
+// MENSAJE (con swipe + botón responder)
+// ============================================================
 .mensaje {
+  position: relative;
   display: flex;
   gap: 0.6rem;
   align-items: flex-start;
@@ -144,13 +548,28 @@ $text-muted: #5a6a7a;
     flex-direction: row-reverse;
 
     .burbuja {
-      background: rgba(45, 212, 191, 0.12);
-      border-color: rgba(45, 212, 191, 0.25);
+      background: var(--chatg-primary-soft-2);
+      border-color: var(--chatg-primary-border);
     }
 
     .meta {
       flex-direction: row-reverse;
     }
+  }
+
+  .swipe-reply-icon {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(-40px, -50%);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--chatg-primary);
+    pointer-events: none;
+    opacity: 0;
   }
 
   .avatar-btn {
@@ -165,18 +584,21 @@ $text-muted: #5a6a7a;
     align-items: center;
     justify-content: center;
     line-height: 0;
+    z-index: 2;
 
-    &:focus {
-      outline: none;
-    }
+    &:focus { outline: none; }
   }
 
   .burbuja {
-    background: $bg-card;
-    border: 1px solid $border;
+    position: relative;
+    background: var(--chatg-bg-card);
+    border: 1px solid var(--chatg-border);
     padding: 0.6rem 0.85rem;
     border-radius: 12px;
     max-width: 70%;
+    z-index: 1;
+
+    will-change: transform;
 
     .meta {
       display: flex;
@@ -186,59 +608,218 @@ $text-muted: #5a6a7a;
 
       .autor-link {
         font-size: 0.8rem;
-        color: $primary;
+        color: var(--chatg-primary);
         font-weight: 600;
         cursor: pointer;
 
-        &:focus {
-          outline: none;
-        }
+        &:focus { outline: none; }
       }
 
       .fecha {
         font-size: 0.7rem;
-        color: $text-muted;
+        color: var(--chatg-text-muted);
       }
     }
 
     .contenido {
       margin: 0;
       font-size: 0.92rem;
-      color: $text-primary;
+      color: var(--chatg-text-primary);
       word-break: break-word;
       white-space: pre-wrap;
+    }
+
+    .btn-responder {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--chatg-border);
+      background: var(--chatg-bg-secondary);
+      color: var(--chatg-text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
+
+      svg { width: 14px; height: 14px; }
+
+      &:hover {
+        color: var(--chatg-primary);
+        border-color: var(--chatg-primary-border-2);
+      }
+    }
+
+    &:hover .btn-responder {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media (hover: none) {
+    .burbuja .btn-responder {
+      display: none;
     }
   }
 }
 
+// ============================================================
+// CITA
+// ============================================================
+.cita {
+  display: flex;
+  gap: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  background: var(--chatg-primary-soft);
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__barra {
+    width: 3px;
+    border-radius: 3px;
+    background: var(--chatg-primary);
+    flex-shrink: 0;
+  }
+
+  &__contenido {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__autor {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--chatg-primary);
+  }
+
+  &__texto {
+    font-size: 0.75rem;
+    color: var(--chatg-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  &--borrado {
+    opacity: 0.6;
+
+    .cita__barra { background: var(--chatg-text-muted); }
+    .cita__texto { font-style: italic; }
+  }
+}
+
+// ============================================================
+// BARRA "RESPONDIENDO A"
+// ============================================================
+.respondiendo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--chatg-primary-soft);
+  border: 1px solid var(--chatg-primary-border);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  margin-top: 8px;
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+
+    > svg {
+      color: var(--chatg-primary);
+      flex-shrink: 0;
+    }
+  }
+
+  &__texto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: var(--chatg-text-secondary);
+
+    strong {
+      color: var(--chatg-primary);
+      font-weight: 600;
+    }
+  }
+
+  &__msg {
+    font-size: 0.78rem;
+    color: var(--chatg-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    color: var(--chatg-text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &:hover { color: var(--chatg-text-primary); }
+  }
+}
+
+// ============================================================
+// INPUT
+// ============================================================
 .chat-input {
   display: flex;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid $border;
+  border-top: 1px solid var(--chatg-border);
 
   input {
     flex: 1;
     padding: 0.7rem 1rem;
-    background: $bg-secondary;
-    border: 1px solid $border;
+    background: var(--chatg-bg-secondary);
+    border: 1px solid var(--chatg-border);
     border-radius: 10px;
-    color: $text-primary;
+    color: var(--chatg-text-primary);
     font-size: 0.9rem;
 
-    &::placeholder { color: $text-muted; }
-    
+    &::placeholder { color: var(--chatg-text-muted); }
+
     &:focus {
       outline: none;
-      border-color: $primary;
+      border-color: var(--chatg-primary);
     }
     &:disabled { opacity: 0.5; cursor: not-allowed; }
   }
 
   button {
     padding: 0.7rem 1.4rem;
-    background: $primary;
-    color: $bg-primary;
+    background: var(--chatg-primary);
+    color: var(--chatg-primary-text);
     border: none;
     border-radius: 10px;
     font-weight: 600;
@@ -248,20 +829,29 @@ $text-muted: #5a6a7a;
   }
 }
 
+.respondiendo-bar + .chat-input {
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding-top: 0.75rem;
+}
+
 .chat-input--guest {
   cursor: pointer;
 
   .input-guest {
     cursor: pointer;
-    color: $text-muted;
+    color: var(--chatg-text-muted);
   }
 
   .btn-guest {
-    background: $primary;
-    color: $bg-primary;
+    background: var(--chatg-primary);
+    color: var(--chatg-primary-text);
   }
 }
 
+// ============================================================
+// RESPONSIVE
+// ============================================================
 @media (max-width: 640px) {
   .chat-global-container {
     height: calc(100dvh - 56px);
@@ -269,4 +859,11 @@ $text-muted: #5a6a7a;
   }
 
   .mensaje .burbuja { max-width: 82%; }
+
+  .respondiendo-bar {
+    padding: 6px 10px;
+
+    &__label { font-size: 0.7rem; }
+    &__msg { font-size: 0.72rem; }
+  }
 }

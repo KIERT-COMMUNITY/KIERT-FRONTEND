@@ -248,12 +248,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   totalRecursos = computed(() => this.recursos().length);
-  totalCertificaciones = computed(() =>
-    this.recursos().filter(r => safeClassToken(r.categoria, 'otro') === 'certificacion').length
-  );
-  totalCursos = computed(() =>
-    this.recursos().filter(r => safeClassToken(r.categoria, 'otro') === 'curso').length
-  );
+
   totalDeUsuarios = computed(() =>
     this.recursos().filter(r => r.esUsuario).length
   );

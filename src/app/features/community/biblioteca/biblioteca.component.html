@@ -23,7 +23,7 @@
         </svg>
         <span>Biblioteca de Recursos</span>
       </h1>
-      <p>Certificaciones, cursos, herramientas y mas para tu desarrollo profesional</p>
+      <p>Encuentra tus recursos, elementos, cursos, herramientas y todo lo que necesites para tu desarrollo profesional</p>
     </div>
 
     <div class="header-actions">
@@ -60,14 +60,6 @@
     <div class="stat-item">
       <span class="stat-number">{{ totalRecursos() }}</span>
       <span class="stat-label">Recursos</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-number">{{ totalCertificaciones() }}</span>
-      <span class="stat-label">Certificaciones</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-number">{{ totalCursos() }}</span>
-      <span class="stat-label">Cursos</span>
     </div>
   </div>
 
@@ -132,7 +124,7 @@
         </svg>
         <input
           type="text"
-          placeholder="Buscar recursos..."
+          placeholder="Buscar recursos, elementos, cursos..."
           [(ngModel)]="busqueda"
           (input)="buscarRecursos()"
           maxlength="100"
@@ -566,7 +558,7 @@
     </div>
   }
 
-  <!-- MODAL DE CAMBIOS SIN GUARDAR (Reemplaza al confirm nativo) -->
+  <!-- MODAL DE CAMBIOS SIN GUARDAR -->
   @if (mostrarConfirmSalir()) {
     <div class="modal-overlay" (click)="cancelarSalir()">
       <div class="modal modal--aviso" (click)="$event.stopPropagation()">

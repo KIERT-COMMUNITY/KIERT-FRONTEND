@@ -14,6 +14,13 @@ export interface MensajeGlobal {
   marcoId?: string | null;
   contenido: string;
   fechaEnvio: string;
+  /** ID del mensaje al que responde (null/undefined si es un mensaje raíz) */
+  respuestaAId?: number | null;
+}
+
+interface PendienteMensaje {
+  contenido: string;
+  respuestaAId: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -31,7 +38,7 @@ export class ChatGlobalService implements OnDestroy {
   private readonly apiUrl = `${environment.apiUrl}/chat-global`;
   private readonly wsUrl = environment.wsUrl;
 
-  private pendientes: string[] = [];
+  private pendientes: PendienteMensaje[] = [];
   private suscripcionTopic: { unsubscribe: () => void } | null = null;
 
   get estaLogueado(): boolean {
@@ -56,9 +63,6 @@ export class ChatGlobalService implements OnDestroy {
     const usuario = this.authService.getUser();
     const token = this.authService.getToken();
 
-    // ✅ Invitado: conecta sin Authorization. El backend le asigna un
-    // Principal anonimo y puede suscribirse al topic para recibir mensajes.
-    // Logueado: envia Authorization y usuarioId.
     const connectHeaders: Record<string, string> = {};
     if (token) {
       connectHeaders['Authorization'] = `Bearer ${token}`;
@@ -67,7 +71,6 @@ export class ChatGlobalService implements OnDestroy {
       connectHeaders['usuarioId'] = String(usuario.id);
     }
 
-    // WebSocket nativo: http -> ws, https -> wss
     const baseUrl = this.wsUrl.replace(/^http/i, 'ws');
 
     this.stompClient = new Client({
@@ -120,31 +123,42 @@ export class ChatGlobalService implements OnDestroy {
 
   private flushPendientes(): void {
     if (!this.stompClient?.connected) return;
-    for (const contenido of this.pendientes) {
-      this.publishMensaje(contenido);
+    for (const p of this.pendientes) {
+      this.publishMensaje(p.contenido, p.respuestaAId);
     }
     this.pendientes = [];
   }
 
-  enviarMensaje(contenido: string): void {
+  // ============================================================
+  // ENVIAR
+  // ============================================================
+  enviarMensaje(contenido: string, respuestaAId?: number | null): void {
     if (!this.estaLogueado) {
       if (isDevMode()) console.warn('[CHAT-GLOBAL] Invitado: no puede enviar');
       return;
     }
+
+    const idRespuesta = respuestaAId ?? null;
+
     if (!this.stompClient?.connected) {
       if (isDevMode()) console.warn('[CHAT-GLOBAL] No conectado aun, encolando mensaje');
-      this.pendientes.push(contenido);
+      this.pendientes.push({ contenido, respuestaAId: idRespuesta });
       if (!this.stompClient?.active) this.conectar();
       return;
     }
-    this.publishMensaje(contenido);
+    this.publishMensaje(contenido, idRespuesta);
   }
 
-  private publishMensaje(contenido: string): void {
-    if (isDevMode()) console.log('[CHAT-GLOBAL] Publicando a /app/chat-global/enviar:', contenido);
+  private publishMensaje(contenido: string, respuestaAId: number | null): void {
+    if (isDevMode()) {
+      console.log('[CHAT-GLOBAL] Publicando a /app/chat-global/enviar:', {
+        contenido,
+        respuestaAId
+      });
+    }
     this.stompClient?.publish({
       destination: '/app/chat-global/enviar',
-      body: JSON.stringify({ contenido })
+      body: JSON.stringify({ contenido, respuestaAId })
     });
   }
 

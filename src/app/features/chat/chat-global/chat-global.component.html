@@ -1,9 +1,9 @@
 <!-- src/app/features/chat/chat-global/chat-global.component.html -->
 <div class="chat-global-container" appPullToRefresh (onRefresh)="recargarMensajes()">
-  
+
   <!-- INDICADOR PULL TO REFRESH -->
-  <div class="pull-to-refresh" 
-       [style.height.px]="pullDistance()" 
+  <div class="pull-to-refresh"
+       [style.height.px]="pullDistance()"
        [style.opacity]="pullOpacity()">
     <div class="pull-to-refresh__spinner">
       <svg [class.spinning]="isRefreshing()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -26,7 +26,21 @@
 
   <div class="chat-mensajes" #scrollContainer>
     @for (m of mensajes(); track m.id) {
-      <div class="mensaje" [class.propio]="esPropio(m)">
+      <div class="mensaje"
+           [class.propio]="esPropio(m)"
+           (touchstart)="onTouchStart(m, $event)"
+           (touchmove)="onTouchMove(m, $event)"
+           (touchend)="onTouchEnd(m)">
+
+        <!-- Icono de responder que aparece al hacer swipe -->
+        <div class="swipe-reply-icon"
+             [style.opacity]="getSwipeDelta(m.id!) / 60"
+             [style.transform]="'translateX(' + (-40 + getSwipeDelta(m.id!)) + 'px)'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 17 4 12 9 7"/>
+            <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+          </svg>
+        </div>
 
         <button
           type="button"
@@ -44,7 +58,29 @@
           </kiert-avatar-frame>
         </button>
 
-        <div class="burbuja">
+        <div class="burbuja"
+             [style.transform]="'translateX(' + getSwipeDelta(m.id!) + 'px)'">
+
+          <!-- Cita del mensaje respondido -->
+          @if (m.respuestaAId) {
+            @if (getMensajeCitado(m); as citado) {
+              <div class="cita">
+                <div class="cita__barra"></div>
+                <div class="cita__contenido">
+                  <span class="cita__autor">{{ getNombre(citado) }}</span>
+                  <span class="cita__texto">{{ citado.contenido }}</span>
+                </div>
+              </div>
+            } @else {
+              <div class="cita cita--borrado">
+                <div class="cita__barra"></div>
+                <div class="cita__contenido">
+                  <span class="cita__texto">Mensaje original no disponible</span>
+                </div>
+              </div>
+            }
+          }
+
           <div class="meta">
             <strong
               class="autor-link"
@@ -56,6 +92,19 @@
             <span class="fecha">{{ m.fechaEnvio | date:'shortTime' }}</span>
           </div>
           <p class="contenido">{{ m.contenido }}</p>
+
+          <!-- Botón de responder (hover en PC) -->
+          <button
+            type="button"
+            class="btn-responder"
+            (click)="responderA(m, $event)"
+            title="Responder"
+            aria-label="Responder a este mensaje">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 17 4 12 9 7"/>
+              <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+            </svg>
+          </button>
         </div>
       </div>
     } @empty {
@@ -75,13 +124,41 @@
     (cerrar)="cerrarAviso()">
   </kiert-aviso-login>
 
+  <!-- Barra de "respondiendo a" -->
+  @if (respondiendoA(); as resp) {
+    <div class="respondiendo-bar">
+      <div class="respondiendo-bar__info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 17 4 12 9 7"/>
+          <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+        </svg>
+        <div class="respondiendo-bar__texto">
+          <span class="respondiendo-bar__label">Respondiendo a <strong>{{ getNombre(resp) }}</strong></span>
+          <span class="respondiendo-bar__msg">{{ resp.contenido }}</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="respondiendo-bar__close"
+        (click)="cancelarRespuesta()"
+        aria-label="Cancelar respuesta"
+        title="Cancelar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  }
+
   @if (estaLogueado) {
     <form class="chat-input" (ngSubmit)="enviar()">
       <input
+        #inputMensaje
         type="text"
         [(ngModel)]="texto"
         name="texto"
-        placeholder="Escribe un mensaje para todos..."
+        [placeholder]="respondiendoA() ? 'Escribe tu respuesta...' : 'Escribe un mensaje para todos...'"
         maxlength="500"
         [disabled]="!conectado()"
         autocomplete="off"
