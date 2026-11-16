@@ -23,16 +23,21 @@ $transition: all 0.25s ease;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
   padding: 40px 20px;
   background: $bg;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 // ============================================================
-// HEADER (idéntico a login)
+// HEADER (identico a login)
 // ============================================================
 .register-header {
   text-align: center;
   margin-bottom: 28px;
+  flex-shrink: 0;
 }
 
 .register-logo {
@@ -78,10 +83,11 @@ $transition: all 0.25s ease;
 .exito-box {
   width: 100%;
   max-width: 300px;
+  flex-shrink: 0;
 }
 
 // ============================================================
-// CAMPOS (idéntico a login)
+// CAMPOS (identico a login)
 // ============================================================
 .field {
   margin-bottom: 12px;
@@ -98,6 +104,7 @@ $transition: all 0.25s ease;
     transition: $transition;
     border-radius: 0;
     font-family: inherit;
+    box-sizing: border-box;
 
     &::placeholder {
       color: $text-secondary;
@@ -133,6 +140,17 @@ $transition: all 0.25s ease;
     line-height: 1.35;
     color: $danger;
   }
+}
+
+// ============================================================
+// TURNSTILE
+// ============================================================
+.turnstile-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+  width: 100%;
+  overflow: hidden;
 }
 
 // ============================================================
@@ -192,7 +210,7 @@ $transition: all 0.25s ease;
 }
 
 // ============================================================
-// BOTON (idéntico a login)
+// BOTON (identico a login)
 // ============================================================
 .register-btn {
   width: 100%;
@@ -331,7 +349,7 @@ $transition: all 0.25s ease;
 // RESPONSIVE
 // ============================================================
 @media (max-width: 480px) {
-  .register-page { padding: 20px 16px; }
+  .register-page { padding: 20px 16px; justify-content: flex-start; }
   .register-logo { width: 40px; height: 40px; }
   .register-header-text { font-size: 1.15rem; }
   .register-desc { font-size: 0.7rem; }
@@ -353,4 +371,16 @@ $transition: all 0.25s ease;
   }
 
   .register-btn { font-size: 0.85rem; padding: 9px; }
+}
+
+@media (max-height: 720px) {
+  .register-page {
+    justify-content: flex-start;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .register-header {
+    margin-bottom: 18px;
+  }
 }

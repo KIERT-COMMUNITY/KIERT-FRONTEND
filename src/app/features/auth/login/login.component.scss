@@ -1,15 +1,14 @@
-// login.component.scss - Sin marco gigante (solo mejoras de texto)
+// login.component.scss - corregido (scroll funcional en cualquier pantalla)
 
 .login-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 100vh;
   min-height: 100dvh;
   padding: 40px 20px;
   background: #0d1117;
-  overflow-y: auto;
   box-sizing: border-box;
 }
 
@@ -227,7 +226,7 @@
   }
 }
 
-// ========== BOTÓN INVITADO ==========
+// ========== BOTON INVITADO ==========
 .guest-btn {
   width: 100%;
   max-width: 300px;

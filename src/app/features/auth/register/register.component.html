@@ -76,14 +76,21 @@
         }
       </div>
 
+      <!-- Turnstile (igual que en login) -->
+      <div class="turnstile-wrapper">
+        <ngx-turnstile
+          [siteKey]="turnstileSiteKey"
+          (resolved)="onTurnstileResolved($event)">
+        </ngx-turnstile>
+      </div>
+
       @if (errorMsg()) {
-        <div class="alert alert-error">
+        <div class="form-alert">
           <span>{{ errorMsg() }}</span>
-          <button type="button" (click)="errorMsg.set(null)">x</button>
         </div>
       }
 
-      <button type="submit" class="register-btn" [disabled]="cargando()">
+      <button type="submit" class="register-btn" [disabled]="cargando() || !turnstileToken">
         {{ cargando() ? 'Creando cuenta...' : 'Registrarme' }}
       </button>
 
@@ -133,9 +140,8 @@
         </div>
 
         @if (errorMsg()) {
-          <div class="alert alert-error">
+          <div class="form-alert">
             <span>{{ errorMsg() }}</span>
-            <button type="button" (click)="errorMsg.set(null)">x</button>
           </div>
         }
 

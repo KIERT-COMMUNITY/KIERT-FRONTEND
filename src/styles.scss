@@ -20,7 +20,7 @@ body {
   background: v.$bg;
   color: v.$text;
   font-family: v.$font-body;
-  // ⚠️ NO poner font-size fijo aquí — se controla desde <html>
+  // NO poner font-size fijo aquí — se controla desde <html>
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   transition: background 0.5s ease, color 0.5s ease;
@@ -168,7 +168,7 @@ img { max-width: 100%; display: block; }
 }
 
 // ============================================================
-// 🌊 ANIMACIONES DE GRADIENTE
+// ANIMACIONES DE GRADIENTE
 // ============================================================
 
 @keyframes waterFlow {
@@ -186,7 +186,7 @@ img { max-width: 100%; display: block; }
 }
 
 // ============================================================
-// 🌍 VARIABLES DE TEMA
+// VARIABLES DE TEMA
 // Cada .tema-xxx define TANTO las variables --tema-* (para
 // fondos de página) COMO las variables del chat (--primary,
 // --text-primary, --bg-app, etc.)
@@ -704,7 +704,7 @@ textarea::placeholder {
 }
 
 // ============================================================
-// 🎨 FONDOS DE PERFIL
+// FONDOS DE PERFIL
 // ============================================================
 
 .fondo-default {
@@ -784,7 +784,7 @@ textarea::placeholder {
 }
 
 // ============================================================
-// 🖼️ MARCOS DE AVATAR
+// MARCOS DE AVATAR
 // ============================================================
 
 .avatar-frame,
@@ -1022,8 +1022,9 @@ select:focus-visible {
     outline-offset: 2px;
   }
 }
+
 /* ============================================================
-   RESET GLOBAL PARA MÓVIL — pegarlo AL FINAL de styles.scss
+   RESET GLOBAL PARA MOVIL — version corregida (scroll permitido)
    ============================================================ */
 
 :root {
@@ -1034,25 +1035,30 @@ select:focus-visible {
   :root { --app-height: 100dvh; }
 }
 
-html, body {
+html {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
   -webkit-text-size-adjust: 100%;
-  overscroll-behavior-y: none;
+  /* NO overflow: hidden aqui — permite scroll del documento */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: contain;
+  /* NO overflow: hidden aqui — permite scroll del documento */
 }
 
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* iOS: 16px evita el zoom automático en inputs */
+/* iOS: 16px evita el zoom automatico en inputs */
 @media (max-width: 768px) {
   input, textarea, select {
     font-size: 16px !important;
   }
-}
-html, body {
-  overscroll-behavior-y: contain !important;
 }
