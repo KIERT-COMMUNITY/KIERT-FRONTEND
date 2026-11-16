@@ -76,13 +76,15 @@
         }
       </div>
 
-      <!-- Turnstile (igual que en login) -->
-      <div class="turnstile-wrapper">
-        <ngx-turnstile
-          [siteKey]="turnstileSiteKey"
-          (resolved)="onTurnstileResolved($event)">
-        </ngx-turnstile>
-      </div>
+      <!-- Turnstile con re-renderizado forzado -->
+      @if (mostrarCaptcha()) {
+        <div class="turnstile-wrapper">
+          <ngx-turnstile
+            [siteKey]="turnstileSiteKey"
+            (resolved)="onTurnstileResolved($event)">
+          </ngx-turnstile>
+        </div>
+      }
 
       @if (errorMsg()) {
         <div class="form-alert">

@@ -36,6 +36,7 @@ export class RegisterComponent implements OnDestroy {
   // Turnstile
   readonly turnstileSiteKey = environment.turnstileSiteKey;
   turnstileToken: string | null = null;
+  mostrarCaptcha = signal(true);
 
   private redirectTimer: ReturnType<typeof setTimeout> | null = null;
   private reenvioTimer: ReturnType<typeof setTimeout> | null = null;
@@ -93,10 +94,29 @@ export class RegisterComponent implements OnDestroy {
         this.cargando.set(false);
       },
       error: (err: HttpErrorResponse) => {
+        // SIEMPRE resetear el token del captcha en caso de error
+        this.turnstileToken = null;
+        
+        // Refrescar el widget de Turnstile visualmente (desmontar y montar)
+        this.mostrarCaptcha.set(false);
+        setTimeout(() => this.mostrarCaptcha.set(true), 50);
+
         const codigo = err.error?.error || '';
 
-        if (codigo === 'TURNSTILE_FAILED') {
-          this.errorMsg.set('Verificacion de seguridad fallida. Recarga la pagina e intentalo de nuevo.');
+        if (codigo === 'TURNSTILE_FAILED' || err.status === 403) {
+          this.errorMsg.set('Verificacion de seguridad fallida o expirada. Resuelve el CAPTCHA de nuevo.');
+          this.cargando.set(false);
+          return;
+        }
+
+        if (err.status === 429) {
+          this.errorMsg.set('Demasiados intentos. Espera unos minutos e intentalo de nuevo.');
+          this.cargando.set(false);
+          return;
+        }
+
+        if (err.status === 500) {
+          this.errorMsg.set('Error interno del servidor. Intentalo de nuevo en unos minutos.');
           this.cargando.set(false);
           return;
         }
@@ -157,6 +177,8 @@ export class RegisterComponent implements OnDestroy {
     this.errorMsg.set(null);
     this.codigoReenviado.set(false);
     this.turnstileToken = null;
+    this.mostrarCaptcha.set(false);
+    setTimeout(() => this.mostrarCaptcha.set(true), 50);
   }
 
   irAlLogin(): void {
