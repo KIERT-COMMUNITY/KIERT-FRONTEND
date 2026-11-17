@@ -1,0 +1,6 @@
+name = "kiert-frontend"
+compatibility_date = "2026-11-16"
+
+[assets]
+directory = "./dist/kiert-frontend/browser"
+not_found_handling = "single-page-application"
