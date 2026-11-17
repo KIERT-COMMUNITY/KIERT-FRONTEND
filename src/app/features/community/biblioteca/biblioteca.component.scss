@@ -3,140 +3,51 @@
 @use "sass:color";
 
 // ============================================================
+// VARIABLES (mismas que post-detail.component.scss)
+// ============================================================
+$primary: #2dd4bf;
+$primary-dark: #17b6a4;
+$primary-light: rgba(45, 212, 191, 0.1);
+$bg-primary: #0d1117;
+$bg-secondary: #131a22;
+$bg-card: #1b232c;
+$bg-surface: #1b232c;
+$bg-surface-alt: #1b232c;
+$border-color: #26313c;
+$border-light: #2a3a4a;
+$danger: #f85149;
+$success: #2ea043;
+$primary-share: #1d9bf0;
+$radius: 12px;
+$radius-sm: 8px;
+$radius-lg: 16px;
+$font-display: 'JetBrains Mono', monospace;
+
+// ============================================================
 // BASE
 // ============================================================
-:host { display: block; width: 100%; }
-:host *, :host *::before, :host *::after { box-sizing: border-box; }
+:host {
+  display: block;
+  width: 100%;
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}
 
 // ============================================================
-// VARIABLES BASE (fallback tema default)
+// CONTENEDOR PRINCIPAL
 // ============================================================
 .biblioteca-container {
-  --bib-primary: #2dd4bf;
-  --bib-primary-soft: rgba(45, 212, 191, 0.08);
-  --bib-primary-soft-2: rgba(45, 212, 191, 0.15);
-  --bib-primary-border: rgba(45, 212, 191, 0.25);
-  --bib-primary-text: #0d1117;
-
-  --bib-bg: #0d1117;
-  --bib-bg-secondary: #131a22;
-  --bib-bg-card: #1b232c;
-  --bib-bg-hover: rgba(255, 255, 255, 0.04);
-  --bib-bg-input: rgba(255, 255, 255, 0.04);
-
-  --bib-border: rgba(255, 255, 255, 0.06);
-  --bib-border-hover: rgba(255, 255, 255, 0.12);
-
-  --bib-text-primary: #e6edf3;
-  --bib-text-secondary: #8b98a5;
-  --bib-text-muted: #5a6a7a;
-
-  --bib-danger: #f85149;
-  --bib-danger-soft: rgba(248, 81, 73, 0.08);
-  --bib-danger-border: rgba(248, 81, 73, 0.2);
-  --bib-danger-soft-2: rgba(248, 81, 73, 0.15);
-
-  --bib-accent-gold: #f9ca24;
-  --bib-accent-gold-soft: rgba(249, 202, 36, 0.06);
-  --bib-accent-gold-border: rgba(249, 202, 36, 0.15);
-  --bib-accent-gold-soft-2: rgba(249, 202, 36, 0.15);
-
-  --bib-success: #3fb950;
-  --bib-success-soft: rgba(46, 160, 67, 0.1);
-  --bib-success-border: rgba(46, 160, 67, 0.2);
-
-  --bib-radius-sm: 8px;
-  --bib-radius-md: 12px;
-  --bib-radius-lg: 16px;
-  --bib-radius-xl: 20px;
-  --bib-radius-full: 999px;
-
-  --bib-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15);
-  --bib-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
-  --bib-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.3);
-
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 28px 20px 56px;
   min-height: 100vh;
   overflow-x: hidden;
-}
-
-// ============================================================
-// TEMAS (comprimidos: cada tema reescribe solo lo que cambia)
-// ============================================================
-$temas:
-  "default" ( #2dd4bf, rgba(45,212,191,0.08), rgba(45,212,191,0.15), rgba(45,212,191,0.25), #0d1117,
-             #0d1117, #131a22, #1b232c, rgba(255,255,255,0.04), rgba(255,255,255,0.04),
-             rgba(255,255,255,0.06), rgba(255,255,255,0.12), #e6edf3, #8b98a5, #5a6a7a ),
-  "dark"    ( #a29bfe, rgba(162,155,254,0.08), rgba(162,155,254,0.15), rgba(162,155,254,0.25), #1a1a2e,
-             #1a1a2e, #232342, #2a2a4a, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(162,155,254,0.3), #e6edf3, #a29bfe, #6a6a8a ),
-  "light"   ( #0d9488, rgba(13,148,136,0.08), rgba(13,148,136,0.15), rgba(13,148,136,0.3), #ffffff,
-             #ffffff, #f5f7fa, #ffffff, rgba(0,0,0,0.03), rgba(0,0,0,0.03),
-             rgba(0,0,0,0.08), rgba(13,148,136,0.3), #1a1a2e, #4a5568, #718096 ),
-  "sunset"  ( #feca57, rgba(254,202,87,0.08), rgba(254,202,87,0.15), rgba(254,202,87,0.3), #2d1b1b,
-             #2d1b1b, #3a2424, #4a2626, rgba(255,255,255,0.04), rgba(255,255,255,0.04),
-             rgba(255,255,255,0.08), rgba(254,202,87,0.3), #fff5f5, #ffb3b3, #b38080 ),
-  "ocean"   ( #00cec9, rgba(0,206,201,0.08), rgba(0,206,201,0.15), rgba(0,206,201,0.3), #0a1929,
-             #0a1929, #0f2a3f, #14324a, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(0,206,201,0.3), #e6f4f8, #7ec8e3, #4a7a8a ),
-  "aurora"  ( #6c5ce7, rgba(108,92,231,0.08), rgba(108,92,231,0.15), rgba(108,92,231,0.3), #ffffff,
-             #1a1630, #241e3d, #2a2345, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(108,92,231,0.4), #f0eaff, #b8a9e8, #6a5a8a ),
-  "galaxy"  ( #fd79a8, rgba(253,121,168,0.08), rgba(253,121,168,0.15), rgba(253,121,168,0.3), #0f0f1e,
-             #0f0f1e, #1a1a2e, #1e1e35, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(253,121,168,0.3), #e8e5ff, #a99ee8, #6a6090 ),
-  "lava"    ( #e17055, rgba(225,112,85,0.08), rgba(225,112,85,0.15), rgba(225,112,85,0.3), #2a0a0a,
-             #2a0a0a, #3a1010, #4a1010, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(225,112,85,0.3), #ffe8e8, #ff9999, #a06060 ),
-  "forest"  ( #55efc4, rgba(85,239,196,0.08), rgba(85,239,196,0.15), rgba(85,239,196,0.3), #0a1f15,
-             #0a1f15, #0f2a1e, #143a26, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(85,239,196,0.3), #e6f7ee, #80d4a0, #4a7a5e ),
-  "candy"   ( #fd79a8, rgba(253,121,168,0.08), rgba(253,121,168,0.15), rgba(253,121,168,0.3), #2a1a2e,
-             #2a1a2e, #362240, #3d2545, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(253,121,168,0.3), #fde8f5, #f5a3d0, #a06585 ),
-  "cyber"   ( #00d4ff, rgba(0,212,255,0.08), rgba(0,212,255,0.15), rgba(0,212,255,0.3), #0a0a1a,
-             #0a0a1a, #101022, #141428, rgba(0,212,255,0.05), rgba(0,212,255,0.05),
-             rgba(0,212,255,0.12), rgba(0,212,255,0.4), #e0f7ff, #7ecfff, #4a7a90 ),
-  "blood"   ( #ff0044, rgba(255,0,68,0.08), rgba(255,0,68,0.15), rgba(255,0,68,0.3), #ffffff,
-             #1a0a0a, #240e0e, #2e0f0f, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(255,0,68,0.4), #ffe0e0, #ff8080, #a05050 ),
-  "royal"   ( #6c5ce7, rgba(108,92,231,0.08), rgba(108,92,231,0.15), rgba(108,92,231,0.3), #ffffff,
-             #1a1030, #221640, #2a1a4a, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(108,92,231,0.4), #f0e6ff, #b8a0e8, #6a5a8a ),
-  "gold"    ( #f9ca24, rgba(249,202,36,0.08), rgba(249,202,36,0.15), rgba(249,202,36,0.3), #1f1a0a,
-             #1f1a0a, #2a2210, #3a2e10, rgba(255,255,255,0.05), rgba(255,255,255,0.05),
-             rgba(255,255,255,0.08), rgba(249,202,36,0.4), #fff8e0, #e8cc80, #a08a50 ),
-  "pastel"  ( #fd79a8, rgba(253,121,168,0.1), rgba(253,121,168,0.2), rgba(253,121,168,0.35), #ffffff,
-             #f0e6ff, #e8dcff, #faf5ff, rgba(0,0,0,0.03), rgba(0,0,0,0.03),
-             rgba(122,90,154,0.15), rgba(253,121,168,0.4), #2d1a3d, #7a5a9a, #9a80b0 ),
-  "neon"    ( #fd79a8, rgba(253,121,168,0.08), rgba(253,121,168,0.15), rgba(253,121,168,0.3), #0a0a1a,
-             #0a0a1a, #10102a, #14142a, rgba(253,121,168,0.05), rgba(253,121,168,0.05),
-             rgba(253,121,168,0.15), rgba(253,121,168,0.4), #e0e0ff, #a0a0ff, #6060a0 );
-
-@each $nombre, $vals in $temas {
-  :host-context([data-theme="#{$nombre}"]),
-  :host-context(.tema-#{$nombre}) {
-    .biblioteca-container {
-      --bib-primary: nth($vals, 1);
-      --bib-primary-soft: nth($vals, 2);
-      --bib-primary-soft-2: nth($vals, 3);
-      --bib-primary-border: nth($vals, 4);
-      --bib-primary-text: nth($vals, 5);
-      --bib-bg: nth($vals, 6);
-      --bib-bg-secondary: nth($vals, 7);
-      --bib-bg-card: nth($vals, 8);
-      --bib-bg-hover: nth($vals, 9);
-      --bib-bg-input: nth($vals, 10);
-      --bib-border: nth($vals, 11);
-      --bib-border-hover: nth($vals, 12);
-      --bib-text-primary: nth($vals, 13);
-      --bib-text-secondary: nth($vals, 14);
-      --bib-text-muted: nth($vals, 15);
-    }
-  }
+  color: var(--tema-text, #e6edf3);
 }
 
 // ============================================================
@@ -151,7 +62,7 @@ $temas:
   margin-bottom: 28px;
   width: 100%;
   padding-bottom: 24px;
-  border-bottom: 1px solid var(--bib-border);
+  border-bottom: 1px solid $border-color;
   position: relative;
 
   &::after {
@@ -161,7 +72,7 @@ $temas:
     left: 0;
     width: 80px;
     height: 2px;
-    background: var(--bib-primary);
+    background: $primary;
     border-radius: 2px;
   }
 
@@ -175,17 +86,26 @@ $temas:
       gap: 14px;
       font-size: 2rem;
       font-weight: 800;
-      color: var(--bib-text-primary);
+      color: var(--tema-text, #e6edf3);
       margin: 0 0 8px;
       line-height: 1.15;
       letter-spacing: -0.02em;
 
-      svg { color: var(--bib-primary); flex-shrink: 0; width: 36px; height: 36px; }
-      span { min-width: 0; overflow-wrap: anywhere; }
+      svg {
+        color: $primary;
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+      }
+
+      span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
     }
 
     p {
-      color: var(--bib-text-secondary);
+      color: var(--tema-text-muted, #8b98a5);
       font-size: 0.95rem;
       margin: 0;
       line-height: 1.6;
@@ -213,7 +133,7 @@ $temas:
   justify-content: center;
   gap: 8px;
   padding: 11px 20px;
-  border-radius: var(--bib-radius-md);
+  border-radius: $radius;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -223,47 +143,58 @@ $temas:
   min-height: 42px;
   letter-spacing: 0.01em;
 
-  svg { width: 18px; height: 18px; flex-shrink: 0; }
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
 }
 
 .btn-agregar {
-  background: var(--bib-primary);
-  color: var(--bib-primary-text);
+  background: $primary;
+  color: $bg-primary;
   border: none;
-  box-shadow: 0 2px 8px var(--bib-primary-soft-2);
+  box-shadow: 0 2px 8px rgba(45, 212, 191, 0.15);
 
-  &:hover:not(.btn-agregar--disabled) { filter: brightness(1.1); }
+  &:hover:not(.btn-agregar--disabled) {
+    filter: brightness(1.1);
+  }
 }
 
 .btn-agregar--disabled {
-  background: var(--bib-primary-soft-2) !important;
-  color: var(--bib-text-muted) !important;
+  background: rgba(45, 212, 191, 0.15) !important;
+  color: #5a6a7a !important;
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none !important;
 }
 
 .btn-historial-global {
-  background: var(--bib-bg-card);
-  border: 1px solid var(--bib-border);
-  color: var(--bib-text-primary);
+  background: $bg-card;
+  border: 1px solid $border-color;
+  color: var(--tema-text, #e6edf3);
   font-weight: 600;
 
-  svg { color: var(--bib-primary); }
+  svg {
+    color: $primary;
+  }
 
   &:hover:not(.btn-historial-global--disabled) {
-    border-color: var(--bib-primary-border);
-    background: var(--bib-primary-soft);
+    border-color: rgba(45, 212, 191, 0.25);
+    background: rgba(45, 212, 191, 0.08);
   }
 }
 
 .btn-historial-global--disabled {
-  background: var(--bib-bg-card) !important;
-  color: var(--bib-text-muted) !important;
-  border-color: var(--bib-border) !important;
+  background: $bg-card !important;
+  color: #5a6a7a !important;
+  border-color: $border-color !important;
   opacity: 0.5;
   cursor: not-allowed;
-  svg { color: var(--bib-text-muted); }
+
+  svg {
+    color: #5a6a7a;
+  }
 }
 
 // ============================================================
@@ -281,9 +212,9 @@ $temas:
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: var(--bib-primary-soft);
-    border: 1px solid var(--bib-primary-border);
-    border-radius: var(--bib-radius-lg);
+    background: $bg-secondary;
+    border: 1px solid $border-color;
+    border-radius: $radius-lg;
     padding: 20px 56px;
     text-align: center;
     min-width: 0;
@@ -291,14 +222,14 @@ $temas:
     max-width: 480px;
     position: relative;
     overflow: hidden;
-    box-shadow: var(--bib-shadow-sm);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 
     .stat-number {
       display: block;
       font-size: clamp(1.8rem, 4.5vw, 2.4rem);
       font-weight: 800;
-      color: var(--bib-primary);
-      font-family: 'JetBrains Mono', monospace;
+      color: $primary;
+      font-family: $font-display;
       line-height: 1;
       overflow-wrap: anywhere;
       letter-spacing: -0.03em;
@@ -306,7 +237,7 @@ $temas:
 
     .stat-label {
       font-size: clamp(0.65rem, 1.8vw, 0.8rem);
-      color: var(--bib-text-secondary);
+      color: var(--tema-text-muted, #8b98a5);
       text-transform: uppercase;
       letter-spacing: 1.2px;
       font-weight: 600;
@@ -322,9 +253,9 @@ $temas:
   margin-bottom: 28px;
   width: 100%;
   padding: 20px;
-  background: var(--bib-bg-secondary);
-  border: 1px solid var(--bib-border);
-  border-radius: var(--bib-radius-lg);
+  background: $bg-secondary;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
 
   &__header {
     display: flex;
@@ -340,12 +271,19 @@ $temas:
       gap: 10px;
       font-size: 1.1rem;
       font-weight: 700;
-      color: var(--bib-text-primary);
+      color: var(--tema-text, #e6edf3);
       margin: 0;
       min-width: 0;
 
-      svg { flex-shrink: 0; color: var(--bib-accent-gold); }
-      span { min-width: 0; overflow-wrap: anywhere; }
+      svg {
+        flex-shrink: 0;
+        color: #f9ca24;
+      }
+
+      span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
     }
   }
 
@@ -356,14 +294,14 @@ $temas:
     min-width: 24px;
     height: 22px;
     padding: 0 8px;
-    background: var(--bib-accent-gold-soft-2);
-    color: var(--bib-accent-gold);
-    border-radius: var(--bib-radius-full);
+    background: rgba(249, 202, 36, 0.15);
+    color: #f9ca24;
+    border-radius: 999px;
     font-size: 0.7rem;
     font-weight: 800;
     margin-left: 4px;
     flex-shrink: 0;
-    border: 1px solid var(--bib-accent-gold-border);
+    border: 1px solid rgba(249, 202, 36, 0.15);
   }
 
   .destacados-grid {
@@ -378,9 +316,9 @@ $temas:
     align-items: center;
     gap: 14px;
     padding: 16px;
-    background: var(--bib-bg-card);
-    border: 1px solid var(--bib-accent-gold-border);
-    border-radius: var(--bib-radius-md);
+    background: $bg-card;
+    border: 1px solid rgba(249, 202, 36, 0.15);
+    border-radius: $radius;
     cursor: pointer;
     width: 100%;
     min-width: 0;
@@ -388,8 +326,8 @@ $temas:
     overflow: hidden;
 
     &:hover {
-      border-color: var(--bib-accent-gold);
-      box-shadow: var(--bib-shadow-sm);
+      border-color: #f9ca24;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
     }
 
     &__icono {
@@ -399,11 +337,14 @@ $temas:
       width: 44px;
       height: 44px;
       flex-shrink: 0;
-      color: var(--bib-accent-gold);
-      background: var(--bib-accent-gold-soft);
-      border-radius: var(--bib-radius-sm);
+      color: #f9ca24;
+      background: rgba(249, 202, 36, 0.06);
+      border-radius: $radius-sm;
 
-      svg { width: 24px; height: 24px; }
+      svg {
+        width: 24px;
+        height: 24px;
+      }
     }
 
     &__info {
@@ -413,7 +354,7 @@ $temas:
       h4 {
         font-size: 0.88rem;
         font-weight: 700;
-        color: var(--bib-text-primary);
+        color: var(--tema-text, #e6edf3);
         margin: 0 0 3px;
         white-space: nowrap;
         overflow: hidden;
@@ -422,7 +363,7 @@ $temas:
 
       p {
         font-size: 0.72rem;
-        color: var(--bib-text-secondary);
+        color: var(--tema-text-muted, #8b98a5);
         margin: 0 0 4px;
         white-space: nowrap;
         overflow: hidden;
@@ -432,7 +373,7 @@ $temas:
       .destacado-card__categoria {
         font-size: 0.58rem;
         text-transform: uppercase;
-        color: var(--bib-accent-gold);
+        color: #f9ca24;
         font-weight: 700;
         letter-spacing: 0.6px;
         display: block;
@@ -446,11 +387,11 @@ $temas:
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: var(--bib-accent-gold-soft-2);
-      color: var(--bib-accent-gold);
-      border: 1px solid var(--bib-accent-gold-border);
+      background: rgba(249, 202, 36, 0.15);
+      color: #f9ca24;
+      border: 1px solid rgba(249, 202, 36, 0.15);
       padding: 7px 14px;
-      border-radius: var(--bib-radius-full);
+      border-radius: 999px;
       font-size: 0.7rem;
       font-weight: 700;
       cursor: pointer;
@@ -458,11 +399,14 @@ $temas:
       flex-shrink: 0;
       font-family: inherit;
 
-      svg { width: 14px; height: 14px; }
+      svg {
+        width: 14px;
+        height: 14px;
+      }
 
       &:hover {
-        background: var(--bib-accent-gold);
-        color: var(--bib-primary-text);
+        background: #f9ca24;
+        color: $bg-primary;
       }
     }
   }
@@ -477,19 +421,23 @@ $temas:
   margin-top: 14px;
   padding: 11px 18px;
   background: transparent;
-  border: 1px dashed var(--bib-accent-gold-border);
-  border-radius: var(--bib-radius-md);
-  color: var(--bib-accent-gold);
+  border: 1px dashed rgba(249, 202, 36, 0.15);
+  border-radius: $radius;
+  color: #f9ca24;
   font-size: 0.82rem;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
 
-  svg { width: 16px; height: 16px; flex-shrink: 0; }
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
 
   &:hover {
-    background: var(--bib-accent-gold-soft);
-    border-color: var(--bib-accent-gold);
+    background: rgba(249, 202, 36, 0.06);
+    border-color: #f9ca24;
     border-style: solid;
   }
 }
@@ -515,18 +463,23 @@ $temas:
       display: flex;
       align-items: center;
       gap: 10px;
-      background: var(--bib-bg-card);
-      border: 1px solid var(--bib-border);
-      border-radius: var(--bib-radius-md);
+      background: $bg-card;
+      border: 1px solid $border-color;
+      border-radius: $radius;
       padding: 0 16px;
       max-width: 100%;
 
       &:focus-within {
-        border-color: var(--bib-primary);
-        box-shadow: 0 0 0 3px var(--bib-primary-soft);
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08);
       }
 
-      > svg { color: var(--bib-text-secondary); flex-shrink: 0; width: 18px; height: 18px; }
+      > svg {
+        color: var(--tema-text-muted, #8b98a5);
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+      }
 
       input {
         flex: 1;
@@ -534,27 +487,34 @@ $temas:
         background: none;
         border: none;
         padding: 12px 0;
-        color: var(--bib-text-primary);
+        color: var(--tema-text, #e6edf3);
         font-size: 0.95rem;
         outline: none;
         width: 100%;
         font-family: inherit;
 
-        &::placeholder { color: var(--bib-text-muted); overflow: hidden; text-overflow: ellipsis; }
+        &::placeholder {
+          color: #5a6a7a;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
 
       .btn-clear-input {
-        background: var(--bib-bg-hover);
+        background: $bg-card;
         border: none;
-        color: var(--bib-text-secondary);
+        color: var(--tema-text-muted, #8b98a5);
         cursor: pointer;
         padding: 5px;
-        border-radius: var(--bib-radius-full);
+        border-radius: 999px;
         display: flex;
         align-items: center;
         flex-shrink: 0;
 
-        &:hover { color: var(--bib-danger); background: var(--bib-danger-soft); }
+        &:hover {
+          color: $danger;
+          background: rgba(248, 81, 73, 0.08);
+        }
       }
     }
 
@@ -567,10 +527,10 @@ $temas:
     }
 
     .btn-vista {
-      background: var(--bib-bg-card);
-      border: 1px solid var(--bib-border);
-      border-radius: var(--bib-radius-sm);
-      color: var(--bib-text-secondary);
+      background: $bg-card;
+      border: 1px solid $border-color;
+      border-radius: $radius-sm;
+      color: var(--tema-text-muted, #8b98a5);
       padding: 9px 11px;
       cursor: pointer;
       display: inline-flex;
@@ -581,18 +541,21 @@ $temas:
       min-width: 38px;
 
       &.active {
-        background: var(--bib-primary-soft-2);
-        border-color: var(--bib-primary);
-        color: var(--bib-primary);
-        box-shadow: 0 0 0 1px var(--bib-primary-border);
+        background: rgba(45, 212, 191, 0.15);
+        border-color: $primary;
+        color: $primary;
+        box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.25);
       }
 
       &:hover:not(.active) {
-        background: var(--bib-bg-hover);
-        border-color: var(--bib-border-hover);
+        background: $bg-secondary;
+        border-color: $border-light;
       }
 
-      svg { width: 16px; height: 16px; }
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
 
     .btn-limpiar {
@@ -601,9 +564,9 @@ $temas:
       justify-content: center;
       gap: 6px;
       background: transparent;
-      border: 1px solid var(--bib-danger-border);
-      border-radius: var(--bib-radius-sm);
-      color: var(--bib-danger);
+      border: 1px solid rgba(248, 81, 73, 0.2);
+      border-radius: $radius-sm;
+      color: $danger;
       padding: 9px 16px;
       font-size: 0.78rem;
       font-weight: 600;
@@ -613,9 +576,15 @@ $temas:
       font-family: inherit;
       min-height: 38px;
 
-      svg { width: 14px; height: 14px; flex-shrink: 0; }
+      svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+      }
 
-      &:hover { background: var(--bib-danger-soft); }
+      &:hover {
+        background: rgba(248, 81, 73, 0.08);
+      }
     }
   }
 
@@ -629,7 +598,7 @@ $temas:
     > label {
       font-size: 0.7rem;
       font-weight: 700;
-      color: var(--bib-text-secondary);
+      color: var(--tema-text-muted, #8b98a5);
       text-transform: uppercase;
       letter-spacing: 0.8px;
     }
@@ -651,10 +620,10 @@ $temas:
     gap: 10px;
     width: 100%;
     padding: 12px 16px;
-    background: var(--bib-bg-card);
-    border: 1px solid var(--bib-border);
-    border-radius: var(--bib-radius-md);
-    color: var(--bib-text-primary);
+    background: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: $radius;
+    color: var(--tema-text, #e6edf3);
     font-size: 0.88rem;
     font-weight: 500;
     font-family: inherit;
@@ -663,8 +632,8 @@ $temas:
     min-height: 46px;
 
     &:hover {
-      background: var(--bib-bg-hover);
-      border-color: var(--bib-border-hover);
+      background: $bg-secondary;
+      border-color: $border-light;
     }
 
     &__icon {
@@ -674,7 +643,11 @@ $temas:
       width: 22px;
       height: 22px;
       flex-shrink: 0;
-      svg { width: 18px; height: 18px; }
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
     }
 
     &__label {
@@ -683,7 +656,7 @@ $temas:
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: var(--bib-text-primary);
+      color: var(--tema-text, #e6edf3);
       font-weight: 600;
     }
 
@@ -694,21 +667,26 @@ $temas:
       min-width: 24px;
       height: 22px;
       padding: 0 8px;
-      border-radius: var(--bib-radius-full);
+      border-radius: 999px;
       font-size: 0.68rem;
       font-weight: 800;
       flex-shrink: 0;
     }
 
-    &__arrow { color: var(--bib-text-secondary); flex-shrink: 0; }
+    &__arrow {
+      color: var(--tema-text-muted, #8b98a5);
+      flex-shrink: 0;
+    }
   }
 
   &--open .dropdown-trigger {
-    border-color: var(--bib-primary);
-    background: var(--bib-primary-soft);
-    box-shadow: 0 0 0 3px var(--bib-primary-soft);
+    border-color: $primary;
+    background: rgba(45, 212, 191, 0.08);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08);
 
-    .dropdown-trigger__arrow { color: var(--bib-primary); }
+    .dropdown-trigger__arrow {
+      color: $primary;
+    }
   }
 
   .dropdown-menu {
@@ -716,30 +694,30 @@ $temas:
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    background: var(--bib-bg-card);
-    border: 1px solid var(--bib-border);
-    border-radius: var(--bib-radius-lg);
+    background: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: $radius-lg;
     overflow: hidden;
     z-index: 100;
     max-height: 400px;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--bib-shadow-lg);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 
     &__header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      border-bottom: 1px solid var(--bib-border);
-      background: var(--bib-bg-hover);
+      border-bottom: 1px solid $border-color;
+      background: $bg-secondary;
       flex-shrink: 0;
       gap: 8px;
 
       span {
         font-size: 0.7rem;
         font-weight: 700;
-        color: var(--bib-text-secondary);
+        color: var(--tema-text-muted, #8b98a5);
         text-transform: uppercase;
         letter-spacing: 0.8px;
         min-width: 0;
@@ -747,10 +725,10 @@ $temas:
 
       .dropdown-menu__count {
         font-size: 0.65rem;
-        color: var(--bib-text-muted);
-        background: var(--bib-bg-card);
+        color: #5a6a7a;
+        background: $bg-card;
         padding: 3px 10px;
-        border-radius: var(--bib-radius-full);
+        border-radius: 999px;
         text-transform: none;
         letter-spacing: 0;
         flex-shrink: 0;
@@ -764,15 +742,21 @@ $temas:
       padding: 8px;
       max-height: 340px;
 
-      &::-webkit-scrollbar { width: 6px; }
-      &::-webkit-scrollbar-track { background: transparent; }
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
       &::-webkit-scrollbar-thumb {
-        background: var(--bib-primary-soft-2);
+        background: rgba(45, 212, 191, 0.15);
         border-radius: 3px;
       }
 
       scrollbar-width: thin;
-      scrollbar-color: var(--bib-primary-soft-2) transparent;
+      scrollbar-color: rgba(45, 212, 191, 0.15) transparent;
     }
   }
 }
@@ -785,22 +769,26 @@ $temas:
   padding: 10px 12px;
   background: transparent;
   border: none;
-  border-radius: var(--bib-radius-sm);
-  color: var(--bib-text-primary);
+  border-radius: $radius-sm;
+  color: var(--tema-text, #e6edf3);
   font-size: 0.85rem;
   font-family: inherit;
   cursor: pointer;
   text-align: left;
   min-height: 42px;
 
-  &:hover { background: var(--bib-bg-hover); }
+  &:hover {
+    background: $bg-secondary;
+  }
 
   &--active {
-    background: var(--bib-primary-soft-2);
-    color: var(--bib-primary);
+    background: rgba(45, 212, 191, 0.15);
+    color: $primary;
     font-weight: 600;
 
-    .dropdown-item__check { opacity: 1; }
+    .dropdown-item__check {
+      opacity: 1;
+    }
   }
 
   &__icon {
@@ -810,7 +798,11 @@ $temas:
     width: 22px;
     height: 22px;
     flex-shrink: 0;
-    svg { width: 16px; height: 16px; }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 
   &__label {
@@ -824,15 +816,15 @@ $temas:
   &__count {
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--bib-text-muted);
-    background: var(--bib-bg-hover);
+    color: #5a6a7a;
+    background: $bg-secondary;
     padding: 2px 10px;
-    border-radius: var(--bib-radius-full);
+    border-radius: 999px;
     flex-shrink: 0;
 
     .dropdown-item--active & {
-      background: var(--bib-primary-soft-2);
-      color: var(--bib-primary);
+      background: rgba(45, 212, 191, 0.15);
+      color: $primary;
     }
   }
 
@@ -840,7 +832,7 @@ $temas:
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--bib-primary);
+    color: $primary;
     flex-shrink: 0;
     opacity: 0;
   }
@@ -856,24 +848,29 @@ $temas:
   justify-content: center;
   padding: 80px 20px;
   gap: 16px;
-  color: var(--bib-text-secondary);
+  color: var(--tema-text-muted, #8b98a5);
   width: 100%;
   text-align: center;
 
   .spinner {
     width: 44px;
     height: 44px;
-    border: 3px solid var(--bib-border);
-    border-top-color: var(--bib-primary);
+    border: 3px solid $border-color;
+    border-top-color: $primary;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
 
-  p { font-size: 0.95rem; font-weight: 500; }
+  p {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .estado-vacio {
@@ -883,24 +880,24 @@ $temas:
   justify-content: center;
   padding: 80px 24px;
   gap: 8px;
-  color: var(--bib-text-secondary);
+  color: var(--tema-text-muted, #8b98a5);
   text-align: center;
   width: 100%;
-  background: var(--bib-bg-secondary);
-  border: 1px dashed var(--bib-border);
-  border-radius: var(--bib-radius-lg);
+  background: $bg-secondary;
+  border: 1px dashed $border-color;
+  border-radius: $radius-lg;
 
   svg {
     opacity: 0.3;
     margin-bottom: 12px;
     max-width: 100%;
     height: auto;
-    stroke: var(--bib-primary);
+    stroke: $primary;
   }
 
   p {
     font-size: 1.15rem;
-    color: var(--bib-text-primary);
+    color: var(--tema-text, #e6edf3);
     margin: 8px 0 0;
     font-weight: 700;
     overflow-wrap: anywhere;
@@ -910,24 +907,26 @@ $temas:
     font-size: 0.9rem;
     margin-bottom: 20px;
     overflow-wrap: anywhere;
-    color: var(--bib-text-secondary);
+    color: var(--tema-text-muted, #8b98a5);
   }
 
   .btn-limpiar {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: var(--bib-primary-soft);
-    border: 1px solid var(--bib-primary-border);
-    border-radius: var(--bib-radius-sm);
-    color: var(--bib-primary);
+    background: rgba(45, 212, 191, 0.08);
+    border: 1px solid rgba(45, 212, 191, 0.25);
+    border-radius: $radius-sm;
+    color: $primary;
     padding: 10px 18px;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
 
-    &:hover { background: var(--bib-primary-soft-2); }
+    &:hover {
+      background: rgba(45, 212, 191, 0.15);
+    }
   }
 }
 
@@ -949,8 +948,16 @@ $temas:
       gap: 18px;
       flex-direction: row;
 
-      .recurso-card__icono svg { width: 30px; height: 30px; }
-      .recurso-card__info { flex: 1; min-width: 0; }
+      .recurso-card__icono svg {
+        width: 30px;
+        height: 30px;
+      }
+
+      .recurso-card__info {
+        flex: 1;
+        min-width: 0;
+      }
+
       .recurso-card__descripcion {
         font-size: 0.82rem;
         display: -webkit-box;
@@ -958,7 +965,12 @@ $temas:
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      .recurso-card__btn { width: auto; align-self: center; flex-shrink: 0; }
+
+      .recurso-card__btn {
+        width: auto;
+        align-self: center;
+        flex-shrink: 0;
+      }
     }
   }
 }
@@ -980,10 +992,10 @@ $temas:
   justify-content: center;
   gap: 8px;
   padding: 13px 32px;
-  background: var(--bib-primary-soft);
-  border: 1px solid var(--bib-primary-border);
-  border-radius: var(--bib-radius-md);
-  color: var(--bib-primary);
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  border-radius: $radius;
+  color: $primary;
   font-size: 0.85rem;
   font-weight: 700;
   font-family: inherit;
@@ -991,8 +1003,15 @@ $temas:
   min-width: 240px;
   max-width: 100%;
 
-  svg { width: 16px; height: 16px; flex-shrink: 0; }
-  &:hover { background: var(--bib-primary-soft-2); }
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.15);
+  }
 }
 
 .btn-volver-arriba {
@@ -1001,23 +1020,27 @@ $temas:
   justify-content: center;
   width: 46px;
   height: 46px;
-  background: var(--bib-bg-card);
-  border: 1px solid var(--bib-border);
-  border-radius: var(--bib-radius-md);
-  color: var(--bib-text-secondary);
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  color: var(--tema-text-muted, #8b98a5);
   cursor: pointer;
   flex-shrink: 0;
 
-  svg { width: 18px; height: 18px; }
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
   &:hover {
-    background: var(--bib-primary-soft);
-    color: var(--bib-primary);
-    border-color: var(--bib-primary-border);
+    background: rgba(45, 212, 191, 0.08);
+    color: $primary;
+    border-color: rgba(45, 212, 191, 0.25);
   }
 }
 
 // ============================================================
-// TARJETA DE RECURSO
+// TARJETA DE RECURSO (fondo sólido, sin transparencias)
 // ============================================================
 .recurso-card {
   position: relative;
@@ -1025,9 +1048,9 @@ $temas:
   flex-direction: column;
   gap: 14px;
   padding: 20px;
-  background: var(--bib-bg-card);
-  border: 1px solid var(--bib-border);
-  border-radius: var(--bib-radius-lg);
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
   cursor: pointer;
   width: 100%;
   max-width: 100%;
@@ -1037,17 +1060,24 @@ $temas:
   &::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 3px;
-    background: var(--bib-border);
+    background: $border-color;
   }
 
   &:hover {
-    border-color: var(--bib-border-hover);
-    box-shadow: var(--bib-shadow-md);
+    border-color: $border-light;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
-    &::before { background: var(--bib-primary); }
-    .recurso-card__acciones-usuario { opacity: 1; }
+    &::before {
+      background: $primary;
+    }
+
+    .recurso-card__acciones-usuario {
+      opacity: 1;
+    }
   }
 
   &__acciones-usuario {
@@ -1065,36 +1095,41 @@ $temas:
       justify-content: center;
       width: 32px;
       height: 32px;
-      border-radius: var(--bib-radius-sm);
-      border: 1px solid var(--bib-border);
-      background: var(--bib-bg-secondary);
-      color: var(--bib-text-secondary);
+      border-radius: $radius-sm;
+      border: 1px solid $border-color;
+      background: $bg-secondary;
+      color: var(--tema-text-muted, #8b98a5);
       cursor: pointer;
       padding: 0;
       font-family: inherit;
-      box-shadow: var(--bib-shadow-sm);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 
-      svg { width: 14px; height: 14px; }
+      svg {
+        width: 14px;
+        height: 14px;
+      }
 
       &:hover {
-        color: var(--bib-text-primary);
-        background: var(--bib-bg-card);
+        color: var(--tema-text, #e6edf3);
+        background: $bg-card;
       }
 
       &.btn-eliminar:hover {
-        color: var(--bib-danger);
-        border-color: var(--bib-danger-border);
-        background: var(--bib-danger-soft);
+        color: $danger;
+        border-color: rgba(248, 81, 73, 0.2);
+        background: rgba(248, 81, 73, 0.08);
       }
+
       &.btn-editar:hover {
-        color: var(--bib-primary);
-        border-color: var(--bib-primary-border);
-        background: var(--bib-primary-soft);
+        color: $primary;
+        border-color: rgba(45, 212, 191, 0.25);
+        background: rgba(45, 212, 191, 0.08);
       }
+
       &.btn-historial:hover {
-        color: var(--bib-accent-gold);
-        border-color: var(--bib-accent-gold-border);
-        background: var(--bib-accent-gold-soft);
+        color: #f9ca24;
+        border-color: rgba(249, 202, 36, 0.15);
+        background: rgba(249, 202, 36, 0.06);
       }
     }
   }
@@ -1106,9 +1141,13 @@ $temas:
     width: 52px;
     height: 52px;
     flex-shrink: 0;
-    border-radius: var(--bib-radius-md);
-    background: var(--bib-bg-hover);
-    svg { width: 30px; height: 30px; }
+    border-radius: $radius;
+    background: $bg-secondary;
+
+    svg {
+      width: 30px;
+      height: 30px;
+    }
   }
 
   &__info {
@@ -1130,7 +1169,7 @@ $temas:
     h3 {
       font-size: 1.05rem;
       font-weight: 700;
-      color: var(--bib-text-primary);
+      color: var(--tema-text, #e6edf3);
       margin: 0;
       line-height: 1.35;
       flex: 1 1 100%;
@@ -1143,7 +1182,7 @@ $temas:
       font-size: 0.6rem;
       font-weight: 800;
       padding: 4px 12px;
-      border-radius: var(--bib-radius-full);
+      border-radius: 999px;
       text-transform: uppercase;
       letter-spacing: 0.4px;
       white-space: nowrap;
@@ -1156,7 +1195,7 @@ $temas:
 
   &__descripcion {
     font-size: 0.85rem;
-    color: var(--bib-text-secondary);
+    color: var(--tema-text-muted, #8b98a5);
     margin: 0;
     line-height: 1.6;
     display: -webkit-box;
@@ -1180,14 +1219,19 @@ $temas:
       align-items: center;
       gap: 5px;
       font-size: 0.72rem;
-      color: var(--bib-text-secondary);
+      color: var(--tema-text-muted, #8b98a5);
       min-width: 0;
       max-width: 100%;
       padding: 3px 8px;
-      background: var(--bib-bg-hover);
-      border-radius: var(--bib-radius-full);
+      background: $bg-secondary;
+      border-radius: 999px;
 
-      svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--bib-primary); }
+      svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+        color: $primary;
+      }
 
       span {
         white-space: nowrap;
@@ -1210,10 +1254,10 @@ $temas:
     .tag {
       font-size: 0.65rem;
       padding: 3px 10px;
-      background: var(--bib-primary-soft);
-      border: 1px solid var(--bib-primary-border);
-      border-radius: var(--bib-radius-full);
-      color: var(--bib-primary);
+      background: rgba(45, 212, 191, 0.08);
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      border-radius: 999px;
+      color: $primary;
       white-space: nowrap;
       max-width: 100%;
       overflow: hidden;
@@ -1228,10 +1272,10 @@ $temas:
     justify-content: center;
     gap: 6px;
     background: transparent;
-    color: var(--bib-primary);
-    border: 1px solid var(--bib-primary-border);
+    color: $primary;
+    border: 1px solid rgba(45, 212, 191, 0.25);
     padding: 10px 18px;
-    border-radius: var(--bib-radius-sm);
+    border-radius: $radius-sm;
     font-size: 0.82rem;
     font-weight: 700;
     cursor: pointer;
@@ -1241,12 +1285,16 @@ $temas:
     min-height: 42px;
     margin-top: 4px;
 
-    svg { width: 16px; height: 16px; flex-shrink: 0; }
+    svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
 
     &:hover {
-      background: var(--bib-primary);
-      color: var(--bib-primary-text);
-      border-color: var(--bib-primary);
+      background: $primary;
+      color: $bg-primary;
+      border-color: $primary;
     }
   }
 }
@@ -1256,7 +1304,7 @@ $temas:
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  border-radius: var(--bib-radius-full);
+  border-radius: 999px;
   font-size: 0.65rem;
   font-weight: 700;
   white-space: nowrap;
@@ -1265,22 +1313,26 @@ $temas:
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  background: var(--bib-danger-soft);
-  color: var(--bib-danger);
-  border: 1px solid var(--bib-danger-border);
+  background: rgba(248, 81, 73, 0.08);
+  color: $danger;
+  border: 1px solid rgba(248, 81, 73, 0.2);
   letter-spacing: 0.01em;
 
-  svg { width: 12px; height: 12px; flex-shrink: 0; }
+  svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
 
   &--confiable {
-    background: var(--bib-success-soft);
-    color: var(--bib-success);
-    border-color: var(--bib-success-border);
+    background: rgba(46, 160, 67, 0.1);
+    color: $success;
+    border-color: rgba(46, 160, 67, 0.2);
   }
 }
 
 // ============================================================
-// MODAL BASE
+// MODAL BASE (fondos sólidos)
 // ============================================================
 .modal-overlay {
   position: fixed;
@@ -1295,9 +1347,9 @@ $temas:
 }
 
 .modal {
-  background: var(--bib-bg-card);
-  border: 1px solid var(--bib-border);
-  border-radius: var(--bib-radius-lg);
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
   width: 100%;
   max-width: 560px;
   max-height: calc(100vh - 32px);
@@ -1306,22 +1358,27 @@ $temas:
   overflow: hidden;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
 
-  &--small { max-width: 400px; }
-  &--historial-global { max-width: 640px; }
+  &--small {
+    max-width: 400px;
+  }
+
+  &--historial-global {
+    max-width: 640px;
+  }
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    border-bottom: 1px solid var(--bib-border);
+    border-bottom: 1px solid $border-color;
     flex-shrink: 0;
     gap: 12px;
 
     h2 {
       font-size: 1.15rem;
       font-weight: 700;
-      color: var(--bib-text-primary);
+      color: var(--tema-text, #e6edf3);
       margin: 0;
       min-width: 0;
       overflow-wrap: anywhere;
@@ -1329,18 +1386,18 @@ $temas:
   }
 
   &__close {
-    background: var(--bib-bg-hover);
+    background: $bg-secondary;
     border: none;
-    color: var(--bib-text-secondary);
+    color: var(--tema-text-muted, #8b98a5);
     cursor: pointer;
     padding: 7px;
-    border-radius: var(--bib-radius-full);
+    border-radius: 999px;
     display: flex;
     flex-shrink: 0;
 
     &:hover {
-      color: var(--bib-text-primary);
-      background: var(--bib-bg-input);
+      color: var(--tema-text, #e6edf3);
+      background: $bg-card;
     }
   }
 
@@ -1353,11 +1410,11 @@ $temas:
     flex: 1;
 
     .form-error {
-      background: var(--bib-danger-soft);
-      border: 1px solid var(--bib-danger-border);
-      color: var(--bib-danger);
+      background: rgba(248, 81, 73, 0.08);
+      border: 1px solid rgba(248, 81, 73, 0.2);
+      color: $danger;
       padding: 12px 16px;
-      border-radius: var(--bib-radius-sm);
+      border-radius: $radius-sm;
       font-size: 0.82rem;
       font-weight: 500;
       overflow-wrap: anywhere;
@@ -1372,7 +1429,7 @@ $temas:
       label {
         font-size: 0.7rem;
         font-weight: 700;
-        color: var(--bib-text-secondary);
+        color: var(--tema-text-muted, #8b98a5);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -1381,11 +1438,11 @@ $temas:
       input[type="url"],
       textarea,
       select {
-        background: var(--bib-bg-input);
-        border: 1px solid var(--bib-border);
-        border-radius: var(--bib-radius-sm);
+        background: $bg-secondary;
+        border: 1px solid $border-color;
+        border-radius: $radius-sm;
         padding: 11px 14px;
-        color: var(--bib-text-primary);
+        color: var(--tema-text, #e6edf3);
         font-size: 0.88rem;
         font-family: inherit;
         outline: none;
@@ -1393,15 +1450,20 @@ $temas:
         min-width: 0;
         min-height: 44px;
 
-        &::placeholder { color: var(--bib-text-muted); }
+        &::placeholder {
+          color: #5a6a7a;
+        }
 
         &:focus {
-          border-color: var(--bib-primary);
-          box-shadow: 0 0 0 3px var(--bib-primary-soft);
+          border-color: $primary;
+          box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08);
         }
       }
 
-      textarea { resize: vertical; min-height: 80px; }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
 
       select {
         cursor: pointer;
@@ -1412,8 +1474,8 @@ $temas:
         padding-right: 40px;
 
         option {
-          background: var(--bib-bg-card);
-          color: var(--bib-text-primary);
+          background: $bg-card;
+          color: var(--tema-text, #e6edf3);
         }
       }
     }
@@ -1434,19 +1496,21 @@ $temas:
         text-transform: none;
         letter-spacing: 0;
         font-size: 0.85rem;
-        color: var(--bib-text-primary);
+        color: var(--tema-text, #e6edf3);
         font-weight: 500;
         padding: 10px 14px;
-        background: var(--bib-bg-input);
-        border: 1px solid var(--bib-border);
-        border-radius: var(--bib-radius-sm);
+        background: $bg-secondary;
+        border: 1px solid $border-color;
+        border-radius: $radius-sm;
 
-        &:hover { border-color: var(--bib-border-hover); }
+        &:hover {
+          border-color: $border-light;
+        }
 
         input[type="checkbox"] {
           width: 18px;
           height: 18px;
-          accent-color: var(--bib-primary);
+          accent-color: $primary;
           cursor: pointer;
           flex-shrink: 0;
         }
@@ -1454,7 +1518,7 @@ $temas:
     }
 
     .text-muted {
-      color: var(--bib-text-muted);
+      color: #5a6a7a;
       font-size: 0.8rem;
       margin: 4px 0 0;
     }
@@ -1465,14 +1529,14 @@ $temas:
     justify-content: flex-end;
     gap: 10px;
     padding: 18px 24px;
-    border-top: 1px solid var(--bib-border);
+    border-top: 1px solid $border-color;
     flex-shrink: 0;
     flex-wrap: wrap;
-    background: var(--bib-bg-secondary);
+    background: $bg-secondary;
 
     button {
       padding: 11px 20px;
-      border-radius: var(--bib-radius-sm);
+      border-radius: $radius-sm;
       font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
@@ -1483,29 +1547,33 @@ $temas:
 
     .btn-cancelar {
       background: transparent;
-      border-color: var(--bib-border);
-      color: var(--bib-text-secondary);
+      border-color: $border-color;
+      color: var(--tema-text-muted, #8b98a5);
 
       &:hover {
-        background: var(--bib-bg-hover);
-        border-color: var(--bib-border-hover);
+        background: $bg-card;
+        border-color: $border-light;
       }
     }
 
     .btn-guardar {
-      background: var(--bib-primary);
-      color: var(--bib-primary-text);
-      box-shadow: 0 2px 8px var(--bib-primary-soft-2);
+      background: $primary;
+      color: $bg-primary;
+      box-shadow: 0 2px 8px rgba(45, 212, 191, 0.15);
 
-      &:hover { filter: brightness(1.1); }
+      &:hover {
+        filter: brightness(1.1);
+      }
     }
 
     .btn-eliminar-confirm {
-      background: var(--bib-danger);
+      background: $danger;
       color: #fff;
-      box-shadow: 0 2px 8px var(--bib-danger-soft-2);
+      box-shadow: 0 2px 8px rgba(248, 81, 73, 0.15);
 
-      &:hover:not(:disabled) { filter: brightness(1.1); }
+      &:hover:not(:disabled) {
+        filter: brightness(1.1);
+      }
     }
   }
 }
@@ -1513,7 +1581,7 @@ $temas:
 .form-hint {
   display: block;
   font-size: 0.7rem;
-  color: var(--bib-text-muted);
+  color: #5a6a7a;
   margin-top: 4px;
   font-style: italic;
 }
@@ -1521,20 +1589,22 @@ $temas:
 // ============================================================
 // MODAL AVISO
 // ============================================================
-.modal--aviso { max-width: 520px; }
+.modal--aviso {
+  max-width: 520px;
+}
 
 .modal__header--warning {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--bib-danger-border);
-  background: var(--bib-danger-soft);
+  border-bottom: 1px solid rgba(248, 81, 73, 0.2);
+  background: rgba(248, 81, 73, 0.08);
 
   h2 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--bib-danger);
+    color: $danger;
     margin: 0;
     min-width: 0;
     overflow-wrap: anywhere;
@@ -1546,13 +1616,16 @@ $temas:
     justify-content: center;
     width: 44px;
     height: 44px;
-    background: var(--bib-danger-soft-2);
-    border: 1px solid var(--bib-danger-border);
+    background: rgba(248, 81, 73, 0.15);
+    border: 1px solid rgba(248, 81, 73, 0.2);
     border-radius: 50%;
-    color: var(--bib-danger);
+    color: $danger;
     flex-shrink: 0;
 
-    svg { width: 24px; height: 24px; }
+    svg {
+      width: 24px;
+      height: 24px;
+    }
   }
 }
 
@@ -1565,15 +1638,15 @@ $temas:
   p {
     margin: 0;
     font-size: 0.9rem;
-    color: var(--bib-text-secondary);
+    color: var(--tema-text-muted, #8b98a5);
     line-height: 1.6;
     overflow-wrap: anywhere;
   }
 
   .aviso-url {
-    background: var(--bib-bg-input);
-    border: 1px solid var(--bib-border);
-    border-radius: var(--bib-radius-md);
+    background: $bg-secondary;
+    border: 1px solid $border-color;
+    border-radius: $radius;
     padding: 14px 16px;
     overflow: hidden;
     min-width: 0;
@@ -1581,16 +1654,16 @@ $temas:
     &__dominio {
       font-size: 0.98rem;
       font-weight: 800;
-      color: var(--bib-text-primary);
+      color: var(--tema-text, #e6edf3);
       margin-bottom: 5px;
       overflow-wrap: anywhere;
     }
 
     &__completa {
       font-size: 0.75rem;
-      color: var(--bib-text-muted);
+      color: #5a6a7a;
       overflow-wrap: anywhere;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: $font-display;
       line-height: 1.5;
     }
   }
@@ -1599,24 +1672,35 @@ $temas:
     display: flex;
     gap: 10px;
     padding: 12px 16px;
-    background: var(--bib-danger-soft);
-    border: 1px solid var(--bib-danger-border);
-    border-radius: var(--bib-radius-md);
-    color: var(--bib-danger);
+    background: rgba(248, 81, 73, 0.08);
+    border: 1px solid rgba(248, 81, 73, 0.2);
+    border-radius: $radius;
+    color: $danger;
     font-size: 0.82rem;
     line-height: 1.5;
     font-weight: 500;
 
-    svg { flex-shrink: 0; margin-top: 1px; }
-    span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    span {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
   }
 
   .aviso-info {
     font-size: 0.85rem;
-    color: var(--bib-text-primary);
+    color: var(--tema-text, #e6edf3);
     padding: 0 4px;
     overflow-wrap: anywhere;
-    strong { color: var(--bib-primary); }
+
+    strong {
+      color: $primary;
+    }
   }
 }
 
@@ -1624,8 +1708,8 @@ $temas:
   display: flex;
   gap: 10px;
   padding: 18px 24px;
-  border-top: 1px solid var(--bib-border);
-  background: var(--bib-bg-secondary);
+  border-top: 1px solid $border-color;
+  background: $bg-secondary;
   flex-wrap: wrap;
 
   button {
@@ -1635,7 +1719,7 @@ $temas:
     justify-content: center;
     gap: 8px;
     padding: 11px 18px;
-    border-radius: var(--bib-radius-sm);
+    border-radius: $radius-sm;
     font-size: 0.85rem;
     font-weight: 700;
     font-family: inherit;
@@ -1643,21 +1727,31 @@ $temas:
     border: 1px solid transparent;
     min-height: 44px;
 
-    svg { width: 16px; height: 16px; flex-shrink: 0; }
+    svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
   }
 
   .btn-cancelar {
-    background: var(--bib-bg-input);
-    border-color: var(--bib-border);
-    color: var(--bib-text-secondary);
-    &:hover { background: var(--bib-bg-hover); }
+    background: $bg-secondary;
+    border-color: $border-color;
+    color: var(--tema-text-muted, #8b98a5);
+
+    &:hover {
+      background: $bg-card;
+    }
   }
 
   .btn-continuar {
-    background: var(--bib-danger-soft-2);
-    border-color: var(--bib-danger-border);
-    color: var(--bib-danger);
-    &:hover { background: var(--bib-danger-soft); }
+    background: rgba(248, 81, 73, 0.15);
+    border-color: rgba(248, 81, 73, 0.2);
+    color: $danger;
+
+    &:hover {
+      background: rgba(248, 81, 73, 0.08);
+    }
   }
 }
 
@@ -1678,9 +1772,9 @@ $temas:
   width: 100%;
   max-width: 440px;
   margin: auto;
-  background: var(--bib-bg-card);
-  border: 1px solid var(--bib-primary-border);
-  border-radius: var(--bib-radius-xl);
+  background: $bg-card;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
 }
@@ -1692,9 +1786,9 @@ $temas:
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--bib-bg-hover);
+  background: $bg-secondary;
   border: none;
-  color: var(--bib-text-secondary);
+  color: var(--tema-text-muted, #8b98a5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1702,8 +1796,8 @@ $temas:
   z-index: 5;
 
   &:hover {
-    background: var(--bib-bg-input);
-    color: var(--bib-text-primary);
+    background: $bg-card;
+    color: var(--tema-text, #e6edf3);
   }
 }
 
@@ -1723,27 +1817,30 @@ $temas:
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: var(--bib-primary-soft);
-  border: 2px solid var(--bib-primary-border);
-  color: var(--bib-primary);
+  background: rgba(45, 212, 191, 0.08);
+  border: 2px solid rgba(45, 212, 191, 0.25);
+  color: $primary;
   flex-shrink: 0;
 }
 
 .seguridad-title {
   font-size: 1.35rem;
   font-weight: 800;
-  color: var(--bib-text-primary);
+  color: var(--tema-text, #e6edf3);
   margin: 0;
   letter-spacing: -0.02em;
 }
 
 .seguridad-desc {
   font-size: 0.9rem;
-  color: var(--bib-text-secondary);
+  color: var(--tema-text-muted, #8b98a5);
   margin: 0;
   line-height: 1.6;
   max-width: 340px;
-  strong { color: var(--bib-text-primary); }
+
+  strong {
+    color: var(--tema-text, #e6edf3);
+  }
 }
 
 .seguridad-alerta {
@@ -1751,16 +1848,19 @@ $temas:
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  background: var(--bib-danger-soft);
-  border: 1px solid var(--bib-danger-border);
-  border-radius: var(--bib-radius-md);
-  color: var(--bib-danger);
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.2);
+  border-radius: $radius;
+  color: $danger;
   font-size: 0.82rem;
   font-weight: 600;
   width: 100%;
   box-sizing: border-box;
   text-align: left;
-  svg { flex-shrink: 0; }
+
+  svg {
+    flex-shrink: 0;
+  }
 }
 
 .seguridad-auto {
@@ -1768,22 +1868,22 @@ $temas:
   align-items: center;
   gap: 8px;
   padding: 8px 20px;
-  background: var(--bib-primary-soft);
-  border-radius: var(--bib-radius-full);
-  border: 1px solid var(--bib-primary-border);
+  background: rgba(45, 212, 191, 0.08);
+  border-radius: 999px;
+  border: 1px solid rgba(45, 212, 191, 0.25);
   margin-top: 8px;
 
   &__number {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: $font-display;
     font-size: 1.2rem;
     font-weight: 800;
-    color: var(--bib-primary);
+    color: $primary;
     line-height: 1;
   }
 
   &__text {
     font-size: 0.75rem;
-    color: var(--bib-text-secondary);
+    color: var(--tema-text-muted, #8b98a5);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.6px;
@@ -1797,7 +1897,7 @@ $temas:
   kiert-aviso-login {
     display: block;
     margin-bottom: 20px;
-    border-radius: var(--bib-radius-md);
+    border-radius: $radius;
     overflow: hidden;
   }
 }
@@ -1807,12 +1907,15 @@ $temas:
 // ============================================================
 .historial-recurso {
   font-size: 0.92rem;
-  color: var(--bib-text-primary);
+  color: var(--tema-text, #e6edf3);
   margin: 0 0 14px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--bib-border);
+  border-bottom: 1px solid $border-color;
 
-  strong { color: var(--bib-primary); font-weight: 700; }
+  strong {
+    color: $primary;
+    font-weight: 700;
+  }
 }
 
 .historial-loading {
@@ -1820,7 +1923,7 @@ $temas:
   align-items: center;
   gap: 10px;
   padding: 24px;
-  color: var(--bib-text-secondary);
+  color: var(--tema-text-muted, #8b98a5);
   font-size: 0.85rem;
   justify-content: center;
 }
@@ -1828,16 +1931,16 @@ $temas:
 .historial-vacio {
   padding: 24px;
   text-align: center;
-  color: var(--bib-text-secondary);
+  color: var(--tema-text-muted, #8b98a5);
   font-size: 0.85rem;
 }
 
 .historial-subtitulo {
   font-size: 0.8rem;
-  color: var(--bib-text-secondary);
+  color: var(--tema-text-muted, #8b98a5);
   margin: 0 0 14px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--bib-border);
+  border-bottom: 1px solid $border-color;
 }
 
 .historial-lista {
@@ -1848,33 +1951,47 @@ $temas:
   overflow-y: auto;
   padding-right: 4px;
 
-  &--global { max-height: 520px; }
+  &--global {
+    max-height: 520px;
+  }
 
-  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
   &::-webkit-scrollbar-thumb {
-    background: var(--bib-primary-soft-2);
+    background: rgba(45, 212, 191, 0.15);
     border-radius: 3px;
   }
 }
 
 .historial-item {
-  background: var(--bib-bg-secondary);
-  border: 1px solid var(--bib-border);
-  border-radius: var(--bib-radius-md);
+  background: $bg-secondary;
+  border: 1px solid $border-color;
+  border-radius: $radius;
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 
-  &--crear { border-left: 3px solid var(--bib-success); }
-  &--editar { border-left: 3px solid var(--bib-primary); }
-  &--eliminar { border-left: 3px solid var(--bib-danger); }
+  &--crear {
+    border-left: 3px solid $success;
+  }
+
+  &--editar {
+    border-left: 3px solid $primary;
+  }
+
+  &--eliminar {
+    border-left: 3px solid $danger;
+  }
 
   &--clickable {
     cursor: pointer;
+
     &:hover {
-      background: var(--bib-bg-card);
-      border-color: var(--bib-border-hover);
+      background: $bg-card;
+      border-color: $border-light;
     }
   }
 
@@ -1892,17 +2009,28 @@ $temas:
     text-transform: uppercase;
     letter-spacing: 0.8px;
     padding: 3px 10px;
-    border-radius: var(--bib-radius-full);
+    border-radius: 999px;
 
-    .historial-item--crear & { color: var(--bib-success); background: var(--bib-success-soft); }
-    .historial-item--editar & { color: var(--bib-primary); background: var(--bib-primary-soft); }
-    .historial-item--eliminar & { color: var(--bib-danger); background: var(--bib-danger-soft); }
+    .historial-item--crear & {
+      color: $success;
+      background: rgba(46, 160, 67, 0.1);
+    }
+
+    .historial-item--editar & {
+      color: $primary;
+      background: rgba(45, 212, 191, 0.08);
+    }
+
+    .historial-item--eliminar & {
+      color: $danger;
+      background: rgba(248, 81, 73, 0.08);
+    }
   }
 
   &__fecha {
     font-size: 0.7rem;
-    color: var(--bib-text-muted);
-    font-family: 'JetBrains Mono', monospace;
+    color: #5a6a7a;
+    font-family: $font-display;
   }
 
   &__meta {
@@ -1910,9 +2038,12 @@ $temas:
     gap: 14px;
     flex-wrap: wrap;
     font-size: 0.72rem;
-    color: var(--bib-text-secondary);
+    color: var(--tema-text-muted, #8b98a5);
 
-    strong { color: var(--bib-text-primary); font-weight: 600; }
+    strong {
+      color: var(--tema-text, #e6edf3);
+      font-weight: 600;
+    }
   }
 
   &__detalle {
@@ -1920,19 +2051,19 @@ $temas:
     gap: 6px;
     align-items: flex-start;
     font-size: 0.7rem;
-    color: var(--bib-text-muted);
+    color: #5a6a7a;
     margin-top: 4px;
     overflow-wrap: anywhere;
   }
 
   &__detalle-label {
-    color: var(--bib-text-secondary);
+    color: var(--tema-text-muted, #8b98a5);
     font-weight: 700;
     flex-shrink: 0;
   }
 
   &__detalle-texto {
-    color: var(--bib-text-primary);
+    color: var(--tema-text, #e6edf3);
     font-size: 0.8rem;
     word-break: break-word;
     flex: 1;
@@ -1946,7 +2077,7 @@ $temas:
     gap: 8px;
     margin-top: 10px;
     padding-top: 10px;
-    border-top: 1px solid var(--bib-border);
+    border-top: 1px solid $border-color;
   }
 }
 
@@ -1955,24 +2086,29 @@ $temas:
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  border-radius: var(--bib-radius-sm);
+  border-radius: $radius-sm;
   font-size: 0.72rem;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   border: 1px solid transparent;
   white-space: nowrap;
-  svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
 }
 
 .btn-historial-eliminar {
-  background: var(--bib-danger-soft);
-  border-color: var(--bib-danger-border);
-  color: var(--bib-danger);
+  background: rgba(248, 81, 73, 0.08);
+  border-color: rgba(248, 81, 73, 0.2);
+  color: $danger;
 
   &:hover {
-    background: var(--bib-danger-soft-2);
-    border-color: var(--bib-danger);
+    background: rgba(248, 81, 73, 0.15);
+    border-color: $danger;
   }
 }
 
@@ -1982,8 +2118,8 @@ $temas:
 .spinner-mini {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--bib-border);
-  border-top-color: var(--bib-primary);
+  border: 2px solid $border-color;
+  border-top-color: $primary;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   flex-shrink: 0;
@@ -1993,12 +2129,20 @@ $temas:
 // RESPONSIVE
 // ============================================================
 @media (min-width: 640px) {
-  .recurso-card__header h3 { flex: 1 1 auto; }
-  .recurso-card__btn { width: auto; align-self: flex-start; }
+  .recurso-card__header h3 {
+    flex: 1 1 auto;
+  }
+
+  .recurso-card__btn {
+    width: auto;
+    align-self: flex-start;
+  }
 }
 
 @media (min-width: 768px) {
-  .biblioteca-container { padding: 36px 28px 64px; }
+  .biblioteca-container {
+    padding: 36px 28px 64px;
+  }
 
   .recurso-card {
     flex-direction: row;
@@ -2009,9 +2153,17 @@ $temas:
     &__icono {
       width: 56px;
       height: 56px;
-      svg { width: 32px; height: 32px; }
+
+      svg {
+        width: 32px;
+        height: 32px;
+      }
     }
-    &__info { gap: 12px; }
+
+    &__info {
+      gap: 12px;
+    }
+
     &__btn {
       align-self: center;
       flex-shrink: 0;
@@ -2025,114 +2177,270 @@ $temas:
 @media (max-width: 1024px) {
   .biblioteca-header__info h1 {
     font-size: 1.75rem;
-    svg { width: 32px; height: 32px; }
+
+    svg {
+      width: 32px;
+      height: 32px;
+    }
   }
 }
 
 @media (max-width: 768px) {
-  .biblioteca-container { padding: 20px 16px 48px; }
+  .biblioteca-container {
+    padding: 20px 16px 48px;
+  }
 
   .biblioteca-header {
     margin-bottom: 24px;
     padding-bottom: 20px;
+
     &__info {
       flex: 1 1 100%;
-      h1 { font-size: 1.45rem; gap: 10px; svg { width: 26px; height: 26px; } }
-      p { font-size: 0.88rem; }
+
+      h1 {
+        font-size: 1.45rem;
+        gap: 10px;
+
+        svg {
+          width: 26px;
+          height: 26px;
+        }
+      }
+
+      p {
+        font-size: 0.88rem;
+      }
     }
   }
 
   .header-actions {
     width: 100%;
     justify-content: stretch;
-    .btn-historial-global, .btn-agregar { flex: 1; }
+
+    .btn-historial-global,
+    .btn-agregar {
+      flex: 1;
+    }
   }
 
   .btn-agregar {
     padding: 10px 16px;
     font-size: 0.82rem;
-    svg { width: 16px; height: 16px; }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 
   .biblioteca-stats {
     margin-bottom: 24px;
-    .stat-item { padding: 18px 32px; max-width: 100%; }
+
+    .stat-item {
+      padding: 18px 32px;
+      max-width: 100%;
+    }
   }
 
   .biblioteca-destacados {
     margin-bottom: 24px;
     padding: 16px;
-    .destacados-grid { grid-template-columns: 1fr; }
+
+    .destacados-grid {
+      grid-template-columns: 1fr;
+    }
+
     .destacado-card {
       padding: 14px;
-      &__btn { padding: 6px 12px; font-size: 0.68rem; }
+
+      &__btn {
+        padding: 6px 12px;
+        font-size: 0.68rem;
+      }
     }
   }
 
   .biblioteca-filtros .filtros-busqueda {
-    .buscador { flex: 1 1 100%; max-width: 100%; }
-    .filtros-acciones { width: 100%; justify-content: space-between; }
+    .buscador {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+
+    .filtros-acciones {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 
-  .dropdown-categoria { max-width: 100%; }
+  .dropdown-categoria {
+    max-width: 100%;
+  }
+
   .dropdown-menu {
     max-height: 340px;
-    &__list { max-height: 280px; }
+
+    &__list {
+      max-height: 280px;
+    }
   }
 
-  .recurso-card__acciones-usuario { opacity: 1; }
+  .recurso-card__acciones-usuario {
+    opacity: 1;
+  }
 
-  .btn-ver-mas { padding: 10px 16px; font-size: 0.78rem; svg { width: 14px; height: 14px; } }
-  .btn-ver-mas-recursos { padding: 12px 24px; font-size: 0.8rem; min-width: 220px; svg { width: 14px; height: 14px; } }
-  .btn-volver-arriba { width: 42px; height: 42px; svg { width: 16px; height: 16px; } }
+  .btn-ver-mas {
+    padding: 10px 16px;
+    font-size: 0.78rem;
 
-  .modal__body--seguridad { padding: 32px 22px 24px; }
-  .seguridad-title { font-size: 1.15rem; }
-  .seguridad-desc { font-size: 0.86rem; }
-  .seguridad-alerta { font-size: 0.78rem; padding: 12px 14px; }
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .btn-ver-mas-recursos {
+    padding: 12px 24px;
+    font-size: 0.8rem;
+    min-width: 220px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .btn-volver-arriba {
+    width: 42px;
+    height: 42px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .modal__body--seguridad {
+    padding: 32px 22px 24px;
+  }
+
+  .seguridad-title {
+    font-size: 1.15rem;
+  }
+
+  .seguridad-desc {
+    font-size: 0.86rem;
+  }
+
+  .seguridad-alerta {
+    font-size: 0.78rem;
+    padding: 12px 14px;
+  }
+
   .seguridad-auto {
     padding: 6px 16px;
-    &__number { font-size: 1.05rem; }
-    &__text { font-size: 0.7rem; }
+
+    &__number {
+      font-size: 1.05rem;
+    }
+
+    &__text {
+      font-size: 0.7rem;
+    }
   }
 }
 
 @media (max-width: 480px) {
-  .biblioteca-container { padding: 16px 14px 40px; }
+  .biblioteca-container {
+    padding: 16px 14px 40px;
+  }
 
   .biblioteca-header__info {
-    h1 { font-size: 1.2rem; gap: 8px; svg { width: 22px; height: 22px; } }
-    p { font-size: 0.8rem; }
+    h1 {
+      font-size: 1.2rem;
+      gap: 8px;
+
+      svg {
+        width: 22px;
+        height: 22px;
+      }
+    }
+
+    p {
+      font-size: 0.8rem;
+    }
   }
 
   .header-actions {
     flex-direction: column;
-    .btn-historial-global, .btn-agregar { width: 100%; }
+
+    .btn-historial-global,
+    .btn-agregar {
+      width: 100%;
+    }
   }
 
-  .btn-agregar { width: 100%; padding: 11px 16px; }
+  .btn-agregar {
+    width: 100%;
+    padding: 11px 16px;
+  }
 
-  .modal--historial-global { max-width: 100%; }
+  .modal--historial-global {
+    max-width: 100%;
+  }
 
   .biblioteca-stats .stat-item {
     padding: 16px 20px;
-    .stat-number { font-size: 1.6rem; }
-    .stat-label { font-size: 0.62rem; letter-spacing: 0.6px; }
+
+    .stat-number {
+      font-size: 1.6rem;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.6px;
+    }
   }
 
   .biblioteca-destacados {
     padding: 14px;
-    h2 { font-size: 1rem; }
+
+    h2 {
+      font-size: 1rem;
+    }
 
     .destacado-card {
       gap: 10px;
       padding: 12px;
-      &__icono { width: 40px; height: 40px; svg { width: 22px; height: 22px; } }
-      &__info {
-        h4 { font-size: 0.82rem; }
-        p { font-size: 0.68rem; }
+
+      &__icono {
+        width: 40px;
+        height: 40px;
+
+        svg {
+          width: 22px;
+          height: 22px;
+        }
       }
-      &__btn { padding: 6px 10px; font-size: 0.64rem; svg { width: 12px; height: 12px; } }
+
+      &__info {
+        h4 {
+          font-size: 0.82rem;
+        }
+
+        p {
+          font-size: 0.68rem;
+        }
+      }
+
+      &__btn {
+        padding: 6px 10px;
+        font-size: 0.64rem;
+
+        svg {
+          width: 12px;
+          height: 12px;
+        }
+      }
     }
   }
 
@@ -2140,116 +2448,291 @@ $temas:
     gap: 8px;
     flex-direction: column;
     align-items: stretch;
+
     .buscador {
       padding: 0 14px;
       width: 100%;
-      input { padding: 10px 0; font-size: 0.85rem; }
+
+      input {
+        padding: 10px 0;
+        font-size: 0.85rem;
+      }
     }
-    .filtros-acciones { width: 100%; justify-content: space-between; }
-    .btn-limpiar { flex: 1 1 auto; padding: 9px 14px; font-size: 0.72rem; }
+
+    .filtros-acciones {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .btn-limpiar {
+      flex: 1 1 auto;
+      padding: 9px 14px;
+      font-size: 0.72rem;
+    }
   }
 
   .dropdown-trigger {
     padding: 11px 14px;
     font-size: 0.85rem;
     min-height: 44px;
-    &__label { font-size: 0.85rem; }
+
+    &__label {
+      font-size: 0.85rem;
+    }
   }
 
   .dropdown-item {
     padding: 10px 12px;
     font-size: 0.8rem;
-    &__count { font-size: 0.65rem; padding: 2px 8px; }
+
+    &__count {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+    }
   }
 
   .recurso-card {
     padding: 16px;
     gap: 12px;
 
-    &__icono { width: 44px; height: 44px; svg { width: 26px; height: 26px; } }
+    &__icono {
+      width: 44px;
+      height: 44px;
 
-    &__header {
-      h3 { font-size: 0.95rem; flex: 1 1 100%; }
-      .recurso-card__categoria { font-size: 0.55rem; padding: 3px 9px; }
+      svg {
+        width: 26px;
+        height: 26px;
+      }
     }
 
-    &__descripcion { font-size: 0.8rem; -webkit-line-clamp: 2; }
+    &__header {
+      h3 {
+        font-size: 0.95rem;
+        flex: 1 1 100%;
+      }
+
+      .recurso-card__categoria {
+        font-size: 0.55rem;
+        padding: 3px 9px;
+      }
+    }
+
+    &__descripcion {
+      font-size: 0.8rem;
+      -webkit-line-clamp: 2;
+    }
 
     &__meta .meta-item {
       font-size: 0.65rem;
       gap: 3px;
       padding: 2px 6px;
-      svg { width: 11px; height: 11px; }
+
+      svg {
+        width: 11px;
+        height: 11px;
+      }
     }
 
-    &__tags .tag { font-size: 0.6rem; padding: 2px 8px; }
-    &__btn { padding: 9px 14px; font-size: 0.76rem; }
+    &__tags .tag {
+      font-size: 0.6rem;
+      padding: 2px 8px;
+    }
+
+    &__btn {
+      padding: 9px 14px;
+      font-size: 0.76rem;
+    }
   }
 
   .modal {
     max-width: 100%;
-    &__body .form-row { grid-template-columns: 1fr; }
-    &__footer button { flex: 1 1 100%; }
+
+    &__body .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    &__footer button {
+      flex: 1 1 100%;
+    }
   }
 
   .estado-vacio {
     padding: 56px 20px;
-    svg { width: 52px; height: 52px; }
-    p { font-size: 1.05rem; }
-    span { font-size: 0.82rem; }
+
+    svg {
+      width: 52px;
+      height: 52px;
+    }
+
+    p {
+      font-size: 1.05rem;
+    }
+
+    span {
+      font-size: 0.82rem;
+    }
   }
 
-  .recursos-ver-mas-wrapper { flex-direction: column; align-items: stretch; }
-  .btn-ver-mas-recursos { width: 100%; min-width: 0; }
+  .recursos-ver-mas-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-ver-mas-recursos {
+    width: 100%;
+    min-width: 0;
+  }
 
   .modal__header--warning {
-    h2 { font-size: 1rem; }
-    .aviso-icon { width: 38px; height: 38px; }
+    h2 {
+      font-size: 1rem;
+    }
+
+    .aviso-icon {
+      width: 38px;
+      height: 38px;
+    }
   }
 
-  .modal__footer--aviso { flex-direction: column-reverse; }
+  .modal__footer--aviso {
+    flex-direction: column-reverse;
+  }
 
-  .seguridad-icon { width: 60px; height: 60px; svg { width: 30px; height: 30px; } }
-  .seguridad-alerta { font-size: 0.76rem; padding: 10px 12px; svg { width: 16px; height: 16px; } }
-  .modal__close--seguridad { top: 10px; right: 10px; width: 30px; height: 30px; }
+  .seguridad-icon {
+    width: 60px;
+    height: 60px;
+
+    svg {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .seguridad-alerta {
+    font-size: 0.76rem;
+    padding: 10px 12px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .modal__close--seguridad {
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+  }
 }
 
 @media (max-width: 380px) {
-  .biblioteca-container { padding: 14px 12px 32px; }
+  .biblioteca-container {
+    padding: 14px 12px 32px;
+  }
 
   .biblioteca-header__info {
-    h1 { font-size: 1.08rem; gap: 6px; svg { width: 20px; height: 20px; } }
-    p { font-size: 0.76rem; }
+    h1 {
+      font-size: 1.08rem;
+      gap: 6px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    p {
+      font-size: 0.76rem;
+    }
   }
 
   .biblioteca-stats .stat-item {
     padding: 14px 16px;
-    .stat-number { font-size: 1.4rem; }
-    .stat-label { font-size: 0.55rem; letter-spacing: 0.3px; }
+
+    .stat-number {
+      font-size: 1.4rem;
+    }
+
+    .stat-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.3px;
+    }
   }
 
   .biblioteca-destacados {
     padding: 12px;
-    h2 { font-size: 0.95rem; }
+
+    h2 {
+      font-size: 0.95rem;
+    }
 
     .destacado-card {
       padding: 10px;
       gap: 8px;
-      &__icono { width: 36px; height: 36px; svg { width: 20px; height: 20px; } }
-      &__info {
-        h4 { font-size: 0.76rem; }
-        p { font-size: 0.62rem; }
+
+      &__icono {
+        width: 36px;
+        height: 36px;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
       }
-      &__btn { padding: 5px 8px; font-size: 0.6rem; svg { width: 11px; height: 11px; } }
+
+      &__info {
+        h4 {
+          font-size: 0.76rem;
+        }
+
+        p {
+          font-size: 0.62rem;
+        }
+      }
+
+      &__btn {
+        padding: 5px 8px;
+        font-size: 0.6rem;
+
+        svg {
+          width: 11px;
+          height: 11px;
+        }
+      }
     }
   }
 
   .recurso-card {
     padding: 14px;
     gap: 10px;
-    &__icono { width: 40px; height: 40px; svg { width: 24px; height: 24px; } }
-    &__header h3 { font-size: 0.88rem; }
-    &__descripcion { font-size: 0.76rem; }
-    &__btn { padding: 8px 12px; font-size: 0.72rem; svg { width: 14px; height: 14px; } }
+
+    &__icono {
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    &__header h3 {
+      font-size: 0.88rem;
+    }
+
+    &__descripcion {
+      font-size: 0.76rem;
+    }
+
+    &__btn {
+      padding: 8px 12px;
+      font-size: 0.72rem;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
   }
 }
