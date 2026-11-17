@@ -47,7 +47,7 @@ export interface Reacciones {
 }
 
 /**
- *  NUEVO: Estado local de las reacciones del usuario.
+ * Estado local de las reacciones del usuario.
  * Se usa en el frontend para saber si el usuario ya reaccionó
  * (a un post, comentario o respuesta).
  */
@@ -78,12 +78,14 @@ export interface Comentario {
   autor: Autor;
   contenido: string;
   fechaCreacion: string;
+  urlImagen?: string | null;      // ✅ NUEVO: el backend lo devuelve en ComentarioDTO
   reacciones?: Reacciones;
 
   userReactions?: UserReactions;
 
+  // UI state (no viene del backend, se inicializa en cargarComentarios)
   respuestas?: Respuesta[];
-  totalRespuestas?: number;
+  totalRespuestas?: number;        // ✅ viene del backend (ComentarioDTO.totalRespuestas)
   mostrandoRespuestas?: boolean;
   mostrandoFormularioRespuesta?: boolean;
   cargandoRespuestas?: boolean;
@@ -94,6 +96,7 @@ export interface Respuesta {
   autor: Autor;
   contenido: string;
   fechaCreacion: string;
+  urlImagen?: string | null;       // ✅ NUEVO: por consistencia con Comentario
   reacciones?: Reacciones;
 
   userReactions?: UserReactions;

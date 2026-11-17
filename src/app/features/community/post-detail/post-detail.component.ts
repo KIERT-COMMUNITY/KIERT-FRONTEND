@@ -67,10 +67,8 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   errorMsg = signal<string | null>(null);
   estaLogueado = signal<boolean>(false);
 
-  // ===== MENU OCULTAR =====
   mostrarMenuOcultar = signal(false);
 
-  // ===== CONFIRMAR ELIMINAR =====
   mostrarConfirmEliminarComentario = signal(false);
   comentarioAEliminar = signal<number | null>(null);
   mostrarConfirmEliminarRespuesta = signal(false);
@@ -96,8 +94,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   idiomaSeleccionado = signal<{ [adjuntoId: number]: string }>({});
   subiendoSubtitulo = signal<number | null>(null);
 
+  // ✅ FIX #1: claves de reacciones coherentes con el backend (sin 's' final)
   reacciones = signal({
-    likes: 0, loves: 0, hahas: 0, wows: 0, sads: 0, angrys: 0
+    likes: 0, loves: 0, haha: 0, wow: 0, sad: 0, angry: 0
   });
 
   userReactions = signal({
@@ -120,14 +119,10 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     ]],
   });
 
-  // ===== COMPUTED SEGUROS PARA EL TEMPLATE =====
-
-  /** Clase de tema saneada. */
   temaClaseSeguro = computed<string>(() =>
     'tema-' + safeClassToken(this.personalizacionStore.temaId(), 'default')
   );
 
-  /** Fondo degradado saneado. */
   fondoSeguro = computed<string>(() =>
     safeCssGradient(this.personalizacionStore.fondoGradiente())
   );
@@ -158,7 +153,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.timeouts.add(id);
   }
 
-  // ===== OCULTAR POST =====
   toggleMenuOcultar(event: Event): void {
     event.stopPropagation();
     this.mostrarMenuOcultar.update(v => !v);
@@ -178,7 +172,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/comunidad']);
   }
 
-  // ===== AVISO LOGIN =====
   abrirAviso(mensaje: string): void {
     this.mensajeAvisoLogin.set(mensaje);
     this.mostrarAvisoLogin.set(true);
@@ -193,7 +186,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.mostrarAvisoLogin.set(false);
   }
 
-  // ===== HELPERS DE CATEGORIA =====
   getCategoriaFormateada(categoria: string): string {
     if (!categoria) return 'Sin categoria';
     const categoriaLimpia = categoria.replace(/-/g, ' ');
@@ -204,7 +196,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   }
 
   getColorCategoria(categoria: string): string {
-    // Colores fijos del codigo: no hay riesgo, pero se devuelve siempre un hex valido.
     if (!categoria) return '#8b98a5';
     const c = categoria.toLowerCase();
     if (c.includes('hacking') || c.includes('seguridad') || c.includes('ciber')) return '#ff6b6b';
@@ -227,32 +218,13 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     return usuario.id === autor.id;
   }
 
-  // ===== HELPERS DE URL PARA EL TEMPLATE =====
-  getFotoAutor(url: string | null | undefined): string | null {
-    return safeUrl(url);
-  }
+  getFotoAutor(url: string | null | undefined): string | null { return safeUrl(url); }
+  getAdjuntoUrl(url: string | null | undefined): string | null { return safeUrl(url); }
+  getAdjuntoPoster(url: string | null | undefined): string | null { return safeUrl(url); }
+  getSubtituloUrl(url: string | null | undefined): string | null { return safeUrl(url); }
+  getFotoComentario(url: string | null | undefined): string | null { return safeUrl(url); }
+  getFotoRespuesta(url: string | null | undefined): string | null { return safeUrl(url); }
 
-  getAdjuntoUrl(url: string | null | undefined): string | null {
-    return safeUrl(url);
-  }
-
-  getAdjuntoPoster(url: string | null | undefined): string | null {
-    return safeUrl(url);
-  }
-
-  getSubtituloUrl(url: string | null | undefined): string | null {
-    return safeUrl(url);
-  }
-
-  getFotoComentario(url: string | null | undefined): string | null {
-    return safeUrl(url);
-  }
-
-  getFotoRespuesta(url: string | null | undefined): string | null {
-    return safeUrl(url);
-  }
-
-  // ===== CARGA =====
   cargarPost(postId: number): void {
     this.cargando.set(true);
     this.postService.obtenerPorId(postId)
@@ -287,23 +259,39 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.idiomaSeleccionado.set(idiomas);
   }
 
+  // ✅ FIX #2: normalización robusta de la respuesta + sincroniza totalComentarios
   cargarComentarios(postId: number): void {
     this.comentarioService.listarPorPost(postId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          const comentariosConUI = data.map(c => ({
+        next: (data: any) => {
+          // Acepta: array directo, { content: [] }, { data: [] }, { comentarios: [] }
+          const lista: Comentario[] = Array.isArray(data)
+            ? data
+            : data?.content ?? data?.data ?? data?.comentarios ?? [];
+
+          const comentariosConUI = lista.map(c => ({
             ...c,
-            respuestas: [],
-            totalRespuestas: 0,
+            respuestas: c.respuestas ?? [],
+            totalRespuestas: c.totalRespuestas ?? 0,
             mostrandoRespuestas: false,
             mostrandoFormularioRespuesta: false,
             cargandoRespuestas: false,
             userReactions: c.userReactions || { like: false, love: false }
           }));
+
           this.comentarios.set(comentariosConUI);
+
+          // Sincroniza el contador del post con la realidad del backend
+          const total = data?.totalElements ?? data?.total ?? lista.length;
+          this.post.update(p => p ? { ...p, totalComentarios: total } : p);
         },
-        error: () => {}
+        error: (err) => {
+          // ✅ FIX: NO silenciar más el error
+          if (isDevMode()) console.error('[cargarComentarios] ERROR:', err);
+          this.errorMsg.set('No se pudieron cargar los comentarios');
+          this.safeTimeout(() => this.errorMsg.set(null), 4000);
+        }
       });
   }
 
@@ -311,8 +299,20 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.reaccionService.obtenerReaccionesPost(postId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => this.reacciones.set(data),
-        error: () => {}
+        next: (data: any) => {
+          // ✅ FIX #3: normaliza claves (por si el backend usa 'hahas', 'wows', ...)
+          this.reacciones.set({
+            likes: data?.likes ?? data?.like ?? 0,
+            loves: data?.loves ?? data?.love ?? 0,
+            haha: data?.haha ?? data?.hahas ?? 0,
+            wow: data?.wow ?? data?.wows ?? 0,
+            sad: data?.sad ?? data?.sads ?? 0,
+            angry: data?.angry ?? data?.angrys ?? 0
+          });
+        },
+        error: (err) => {
+          if (isDevMode()) console.error('[cargarReacciones] ERROR:', err);
+        }
       });
   }
 
@@ -321,11 +321,12 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => this.totalCompartidos.set(res.total || 0),
-        error: () => {}
+        error: (err) => {
+          if (isDevMode()) console.error('[cargarCompartidos] ERROR:', err);
+        }
       });
   }
 
-  // ===== REACCIONES =====
   reaccionar(tipo: string, event?: MouseEvent): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para reaccionar a las publicaciones.');
@@ -337,8 +338,16 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.reaccionService.reaccionarPost(postId, tipo)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          this.reacciones.set(data);
+        next: (data: any) => {
+          // ✅ FIX #3: normaliza también aquí
+          this.reacciones.set({
+            likes: data?.likes ?? data?.like ?? 0,
+            loves: data?.loves ?? data?.love ?? 0,
+            haha: data?.haha ?? data?.hahas ?? 0,
+            wow: data?.wow ?? data?.wows ?? 0,
+            sad: data?.sad ?? data?.sads ?? 0,
+            angry: data?.angry ?? data?.angrys ?? 0
+          });
           const userKey = this.getUserKey(tipo);
           this.userReactions.update(prev => ({ ...prev, [userKey]: !prev[userKey] }));
         },
@@ -357,7 +366,11 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.comentarioService.reaccionarComentario(comentarioId, tipo)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
+        next: (data: any) => {
+          const reaccionesNorm = {
+            likes: data?.likes ?? data?.like ?? 0,
+            loves: data?.loves ?? data?.love ?? 0
+          };
           this.comentarios.update(lista =>
             lista.map(c => {
               if (c.id === comentarioId) {
@@ -365,7 +378,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
                 const key = tipo as 'like' | 'love';
                 return {
                   ...c,
-                  reacciones: data,
+                  reacciones: reaccionesNorm,
                   userReactions: { ...userReactions, [key]: !userReactions[key] }
                 };
               }
@@ -373,7 +386,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
             })
           );
         },
-        error: () => {}
+        error: (err) => {
+          if (isDevMode()) console.error('[reaccionarComentario] ERROR:', err);
+        }
       });
   }
 
@@ -385,7 +400,11 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.comentarioService.reaccionarRespuesta(respuestaId, tipo)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
+        next: (data: any) => {
+          const reaccionesNorm = {
+            likes: data?.likes ?? data?.like ?? 0,
+            loves: data?.loves ?? data?.love ?? 0
+          };
           this.comentarios.update(lista =>
             lista.map(c => {
               if (c.id === comentarioId && c.respuestas) {
@@ -397,7 +416,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
                     const key = tipo as 'like' | 'love';
                     return {
                       ...r,
-                      reacciones: data,
+                      reacciones: reaccionesNorm,
                       userReactions: { ...userReactions, [key]: !userReactions[key] }
                     };
                   })
@@ -407,22 +426,42 @@ export class PostDetailComponent implements OnInit, OnDestroy {
             })
           );
         },
-        error: () => {}
+        error: (err) => {
+          if (isDevMode()) console.error('[reaccionarRespuesta] ERROR:', err);
+        }
       });
   }
 
-  // ===== COMENTARIOS =====
   enviarComentario(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para comentar.');
       return;
     }
-    if (this.formComentario.invalid) {
+
+    let contenido = (this.formComentario.getRawValue().contenido || '').trim();
+
+    if (!contenido) {
+      const inputEl = document.querySelector<HTMLInputElement>(
+        'form.comentarios__form input.comentarios__input'
+      );
+      const domValue = (inputEl?.value || '').trim();
+      if (domValue) {
+        contenido = domValue;
+        this.formComentario.get('contenido')?.setValue(contenido);
+      }
+    }
+
+    if (contenido.length < 2) {
       this.formComentario.markAllAsTouched();
+      this.errorMsg.set('El comentario debe tener al menos 2 caracteres');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
       return;
     }
-    const contenido = (this.formComentario.getRawValue().contenido || '').trim();
-    if (!contenido) return;
+    if (contenido.length > 2000) {
+      this.errorMsg.set('El comentario no puede superar los 2000 caracteres');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
 
     this.enviandoComentario.set(true);
     this.comentarioService.crear(Number(this.id()), contenido)
@@ -439,13 +478,19 @@ export class PostDetailComponent implements OnInit, OnDestroy {
             cargandoRespuestas: false,
             userReactions: { like: false, love: false }
           }]);
+          this.post.update(p => p ? { ...p, totalComentarios: (p.totalComentarios || 0) + 1 } : p);
           this.formComentario.reset();
+          const inputEl = document.querySelector<HTMLInputElement>(
+            'form.comentarios__form input.comentarios__input'
+          );
+          if (inputEl) inputEl.value = '';
           this.enviandoComentario.set(false);
         },
-        error: () => {
-          this.errorMsg.set('Error al enviar comentario');
+        error: (err) => {
+          if (isDevMode()) console.error('[enviarComentario] POST ERROR:', err);
+          this.errorMsg.set(err?.error?.error || 'Error al enviar comentario');
           this.enviandoComentario.set(false);
-          this.safeTimeout(() => this.errorMsg.set(null), 3000);
+          this.safeTimeout(() => this.errorMsg.set(null), 4000);
         },
       });
   }
@@ -533,19 +578,30 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.comentarioService.listarRespuestas(comentarioId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (respuestas) => {
-          const respuestasConUI = respuestas.map(r => ({
+        next: (data: any) => {
+          // ✅ FIX: normaliza respuesta paginada también
+          const lista: any[] = Array.isArray(data)
+            ? data
+            : data?.content ?? data?.data ?? data?.respuestas ?? [];
+
+          const respuestasConUI = lista.map(r => ({
             ...r,
             userReactions: r.userReactions || { like: false, love: false }
           }));
           this.comentarios.update(lista =>
             lista.map(c => c.id === comentarioId
-              ? { ...c, respuestas: respuestasConUI, totalRespuestas: respuestasConUI.length, cargandoRespuestas: false }
+              ? {
+                  ...c,
+                  respuestas: respuestasConUI,
+                  totalRespuestas: respuestasConUI.length,
+                  cargandoRespuestas: false
+                }
               : c
             )
           );
         },
-        error: () => {
+        error: (err) => {
+          if (isDevMode()) console.error('[cargarRespuestas] ERROR:', err);
           this.comentarios.update(lista =>
             lista.map(c => c.id === comentarioId ? { ...c, cargandoRespuestas: false } : c)
           );
@@ -553,7 +609,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ===== ELIMINAR (con modal propio) =====
   abrirConfirmEliminarComentario(comentarioId: number): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para eliminar comentarios.');
@@ -579,6 +634,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.comentarios.update(lista => lista.filter(c => c.id !== comentarioId));
+          this.post.update(p => p ? { ...p, totalComentarios: Math.max(0, (p.totalComentarios || 0) - 1) } : p);
           this.eliminandoComentario.set(false);
           this.mostrarConfirmEliminarComentario.set(false);
           this.comentarioAEliminar.set(null);
@@ -643,7 +699,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ===== REPORTES =====
   reportarPost(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para reportar publicaciones.');
@@ -688,7 +743,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.mostrarModalReporte.set(false);
   }
 
-  // ===== COMPARTIR =====
   abrirModalCompartir(): void {
     if (!this.authService.isAuthenticated()) {
       this.abrirAviso('Debes registrarte para compartir publicaciones.');
@@ -702,7 +756,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.cargarCompartidos(Number(this.id()));
   }
 
-  // ===== SUBTITULOS =====
   tieneSubtitulos(adjunto: Adjunto): boolean {
     return !!(adjunto.subtitulos && adjunto.subtitulos.length > 0);
   }
@@ -736,7 +789,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     const file = input.files?.[0];
     if (!file) { input.value = ''; return; }
 
-    // Validacion de extension
     if (!file.name.toLowerCase().endsWith('.vtt')) {
       this.errorMsg.set('Solo se permiten archivos .vtt para subtitulos');
       this.safeTimeout(() => this.errorMsg.set(null), 3000);
@@ -744,7 +796,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validacion de tamano (max 2 MB)
     if (file.size > 2 * 1024 * 1024) {
       this.errorMsg.set('El archivo .vtt no debe superar los 2MB');
       this.safeTimeout(() => this.errorMsg.set(null), 3000);
@@ -752,7 +803,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Idioma: solo letras y guion, 2-10 chars (ISO 639-1 o BCP-47 simple)
     const idiomaRaw = prompt('Codigo de idioma (ej: es, en, pt):', 'es');
     const idioma = (idiomaRaw || '').trim().toLowerCase();
     if (!/^[a-z]{2}(-[a-z]{2})?$/.test(idioma)) {
@@ -762,7 +812,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Etiqueta: texto plano, 1-40 chars, sin caracteres de control
     const etiquetaRaw = prompt('Nombre visible del idioma (ej: Espanol):', 'Espanol');
     const etiqueta = (etiquetaRaw || '').trim();
     if (!etiqueta || etiqueta.length > 40 || /[\u0000-\u001f\u007f<>]/.test(etiqueta)) {
@@ -803,7 +852,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ===== HELPERS =====
   getUserKey(tipo: string): 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' {
     switch (tipo) {
       case 'like': return 'like';
@@ -870,7 +918,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     return 'Archivo';
   }
 
-  // ===== ABRIR IMAGEN (seguro) =====
   abrirImagen(url: string): void {
     openExternalSafe(safeUrl(url));
   }

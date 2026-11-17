@@ -342,7 +342,7 @@
               <circle cx="15.5" cy="10" r="1.3" fill="#1f2937"/>
               <path d="M7 14c1 2 3 3 5 3s4-1 5-3" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
             </svg>
-            <span class="reaction-count">{{ reacciones().hahas }}</span>
+            <span class="reaction-count">{{ reacciones().haha }}</span>
           </button>
 
           <button type="button" class="reaction-btn"
@@ -363,7 +363,7 @@
               <circle cx="15.5" cy="10" r="1.5" fill="#1f2937"/>
               <ellipse cx="12" cy="15.5" rx="2.5" ry="3" fill="#1f2937"/>
             </svg>
-            <span class="reaction-count">{{ reacciones().wows }}</span>
+            <span class="reaction-count">{{ reacciones().wow }}</span>
           </button>
 
           <button type="button" class="reaction-btn"
@@ -385,7 +385,7 @@
               <path d="M7.5 17c1-1.5 2.5-2.5 4.5-2.5s3.5 1 4.5 2.5" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
               <path d="M18 5.5c-1 0-1.5 1-1.5 2s.5 2 1.5 2 1.5-1 1.5-2-.5-2-1.5-2z" fill="#60a5fa"/>
             </svg>
-            <span class="reaction-count">{{ reacciones().sads }}</span>
+            <span class="reaction-count">{{ reacciones().sad }}</span>
           </button>
 
           <button type="button" class="reaction-btn"
@@ -408,7 +408,7 @@
               <path d="M17.5 7.5l-3 1.5" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
               <path d="M7.5 17c1-1.5 2.5-2.5 4.5-2.5s3.5 1 4.5 2.5" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
             </svg>
-            <span class="reaction-count">{{ reacciones().angrys }}</span>
+            <span class="reaction-count">{{ reacciones().angry }}</span>
           </button>
 
           <button type="button" class="reaction-btn btn-compartir" (click)="abrirModalCompartir()" title="Compartir publicacion" aria-label="Compartir publicacion">
@@ -462,14 +462,16 @@
       @if (estaLogueado()) {
         <form [formGroup]="formComentario" (ngSubmit)="enviarComentario()" class="comentarios__form">
           <div class="comentarios__input-wrapper">
+            <!-- [formControl] directo para evitar bug de formControlName dentro de @if -->
             <input
-              formControlName="contenido"
+              [formControl]="formComentario.controls['contenido']"
               type="text"
               placeholder="Escribe un comentario..."
               class="comentarios__input"
               maxlength="2000"
               autocomplete="off"
               aria-label="Escribe un comentario"
+              (keyup.enter)="enviarComentario()"
             >
             <button type="submit" class="comentarios__btn" aria-label="Enviar comentario">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -500,18 +502,28 @@
       <div class="comentarios__lista">
         @for (c of comentarios(); track c.id) {
           <div class="comentario">
-            <div class="comentario__avatar" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
-              @if (getFotoComentario(c.autor.fotoPerfilUrl); as foto) {
-                <img [src]="foto" [alt]="c.autor.nombreUsuario" loading="lazy" (error)="onAvatarError($event)">
-              } @else {
-                {{ c.autor.nombreUsuario.charAt(0).toUpperCase() }}
-              }
-            </div>
+            @if (c.autor && c.autor.id) {
+              <div class="comentario__avatar" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
+                @if (getFotoComentario(c.autor.fotoPerfilUrl); as foto) {
+                  <img [src]="foto" [alt]="c.autor.nombreUsuario" loading="lazy" (error)="onAvatarError($event)">
+                } @else {
+                  {{ c.autor.nombreUsuario.charAt(0).toUpperCase() }}
+                }
+              </div>
+            } @else {
+              <div class="comentario__avatar" style="background: linear-gradient(135deg, #4a5568, #2d3748); color: #fff;">
+                ?
+              </div>
+            }
             <div class="comentario__body">
               <div class="comentario__header">
-                <span class="comentario__autor" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
-                  &#64;{{ c.autor.nombreUsuario }}
-                </span>
+                @if (c.autor && c.autor.id) {
+                  <span class="comentario__autor" [routerLink]="['/usuario', c.autor.id]" (click)="$event.stopPropagation()">
+                    &#64;{{ c.autor.nombreUsuario }}
+                  </span>
+                } @else {
+                  <span class="comentario__autor" style="opacity:.7;">Anonimo</span>
+                }
                 <span class="comentario__fecha">{{ c.fechaCreacion | date:'dd MMM yyyy' }}</span>
 
                 @if (esAutor(c.autor)) {
@@ -581,8 +593,9 @@
                 <div class="respuesta-form">
                   <form [formGroup]="formRespuesta" (ngSubmit)="enviarRespuesta(c.id)">
                     <div class="respuesta-form__input-wrapper">
+                      <!-- [formControl] directo para evitar bug de formControlName dentro de @if -->
                       <input
-                        formControlName="contenido"
+                        [formControl]="formRespuesta.controls['contenido']"
                         type="text"
                         placeholder="Escribe una respuesta..."
                         class="respuesta-form__input"
@@ -598,13 +611,13 @@
                 </div>
               }
 
-              @if (c.respuestas && c.respuestas.length > 0) {
+              @if ((c.totalRespuestas ?? 0) > 0) {
                 <div class="respuestas-toggle">
                   <button type="button" class="respuestas-toggle__btn" (click)="toggleVerRespuestas(c.id)">
                     @if (c.mostrandoRespuestas) {
-                      Ocultar respuestas ({{ c.respuestas.length }})
+                      Ocultar respuestas ({{ c.totalRespuestas }})
                     } @else {
-                      Ver respuestas ({{ c.respuestas.length }})
+                      Ver respuestas ({{ c.totalRespuestas }})
                     }
                   </button>
                 </div>
@@ -614,18 +627,26 @@
                 <div class="respuestas-lista">
                   @for (r of c.respuestas; track r.id) {
                     <div class="respuesta">
-                      <div class="respuesta__avatar" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
-                        @if (getFotoRespuesta(r.autor.fotoPerfilUrl); as foto) {
-                          <img [src]="foto" [alt]="r.autor.nombreUsuario" loading="lazy" (error)="onAvatarError($event)">
-                        } @else {
-                          {{ r.autor.nombreUsuario.charAt(0).toUpperCase() }}
-                        }
-                      </div>
+                      @if (r.autor && r.autor.id) {
+                        <div class="respuesta__avatar" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
+                          @if (getFotoRespuesta(r.autor.fotoPerfilUrl); as foto) {
+                            <img [src]="foto" [alt]="r.autor.nombreUsuario" loading="lazy" (error)="onAvatarError($event)">
+                          } @else {
+                            {{ r.autor.nombreUsuario.charAt(0).toUpperCase() }}
+                          }
+                        </div>
+                      } @else {
+                        <div class="respuesta__avatar" style="background: linear-gradient(135deg, #4a5568, #2d3748); color:#fff;">?</div>
+                      }
                       <div class="respuesta__body">
                         <div class="respuesta__header">
-                          <span class="respuesta__autor" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
-                            &#64;{{ r.autor.nombreUsuario }}
-                          </span>
+                          @if (r.autor && r.autor.id) {
+                            <span class="respuesta__autor" [routerLink]="['/usuario', r.autor.id]" (click)="$event.stopPropagation()">
+                              &#64;{{ r.autor.nombreUsuario }}
+                            </span>
+                          } @else {
+                            <span class="respuesta__autor" style="opacity:.7;">Anonimo</span>
+                          }
                           <span class="respuesta__fecha">{{ r.fechaCreacion | date:'dd MMM yyyy' }}</span>
 
                           @if (esAutor(r.autor)) {
@@ -691,105 +712,40 @@
                   }
                 </div>
               }
-
-              @if (c.cargandoRespuestas) {
-                <div class="cargando-respuestas">
-                  <div class="spinner-small"></div>
-                  <span>Cargando respuestas...</span>
-                </div>
-              }
             </div>
           </div>
-        } @empty {
+        }
+
+        @if (comentarios().length === 0) {
           <div class="comentarios__empty">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
-            <p>No hay comentarios aun. Se el primero en comentar.</p>
+            <p>Se el primero en comentar</p>
           </div>
         }
       </div>
     </section>
-  }
 
-  @if (mostrarModalReporte()) {
-    <kiert-reporte-modal
-      [tipoReporte]="tipoReporteActual()"
-      [postId]="datosReporte().postId"
-      [comentarioId]="datosReporte().comentarioId"
-      [respuestaId]="datosReporte().respuestaId"
-      [usuarioReportadoId]="datosReporte().usuarioReportadoId"
-      (cerrar)="cerrarModalReporte()">
-    </kiert-reporte-modal>
-  }
+    <!-- MODAL REPORTE: inputs reales = tipoReporte, postId, comentarioId, respuestaId, usuarioReportadoId -->
+    @if (mostrarModalReporte()) {
+      <kiert-reporte-modal
+        [tipoReporte]="tipoReporteActual()"
+        [postId]="datosReporte().postId"
+        [comentarioId]="datosReporte().comentarioId"
+        [respuestaId]="datosReporte().respuestaId"
+        [usuarioReportadoId]="datosReporte().usuarioReportadoId"
+        (cerrar)="cerrarModalReporte()">
+      </kiert-reporte-modal>
+    }
 
-  @if (mostrarModalCompartir()) {
-    <kiert-compartir-modal
-      [postId]="postId"
-      [postTitulo]="post()?.titulo || ''"
-      (cerrar)="cerrarModalCompartir()">
-    </kiert-compartir-modal>
-  }
-
-  <!-- MODAL CONFIRMAR ELIMINAR COMENTARIO -->
-  @if (mostrarConfirmEliminarComentario()) {
-    <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminarComentario()">
-      <div class="confirm-delete-card" (click)="$event.stopPropagation()">
-        <div class="confirm-delete-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-        </div>
-
-        <h3>Eliminar comentario</h3>
-        <p>Esta accion no se puede deshacer.</p>
-
-        <div class="confirm-delete-actions">
-          <button type="button" class="btn-secondary" (click)="cerrarConfirmEliminarComentario()" [disabled]="eliminandoComentario()">
-            Cancelar
-          </button>
-          <button type="button" class="btn-danger" (click)="confirmarEliminarComentario()" [disabled]="eliminandoComentario()">
-            @if (eliminandoComentario()) {
-              <div class="spinner-mini"></div>
-              Eliminando...
-            } @else {
-              Eliminar
-            }
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- MODAL CONFIRMAR ELIMINAR RESPUESTA -->
-  @if (mostrarConfirmEliminarRespuesta()) {
-    <div class="confirm-delete-overlay" (click)="cerrarConfirmEliminarRespuesta()">
-      <div class="confirm-delete-card" (click)="$event.stopPropagation()">
-        <div class="confirm-delete-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-        </div>
-
-        <h3>Eliminar respuesta</h3>
-        <p>Esta accion no se puede deshacer.</p>
-
-        <div class="confirm-delete-actions">
-          <button type="button" class="btn-secondary" (click)="cerrarConfirmEliminarRespuesta()" [disabled]="eliminandoComentario()">
-            Cancelar
-          </button>
-          <button type="button" class="btn-danger" (click)="confirmarEliminarRespuesta()" [disabled]="eliminandoComentario()">
-            @if (eliminandoComentario()) {
-              <div class="spinner-mini"></div>
-              Eliminando...
-            } @else {
-              Eliminar
-            }
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- MODAL COMPARTIR: inputs reales = postId, postTitulo -->
+    @if (mostrarModalCompartir()) {
+      <kiert-compartir-modal
+        [postId]="postId"
+        [postTitulo]="post()?.titulo || ''"
+        (cerrar)="cerrarModalCompartir()">
+      </kiert-compartir-modal>
+    }
   }
 </div>
