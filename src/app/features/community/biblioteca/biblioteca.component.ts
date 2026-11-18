@@ -69,7 +69,6 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   historialGlobal = signal<HistorialRecurso[]>([]);
   cargandoHistorialGlobal = signal(false);
 
-  // NUEVA SEÑAL PARA EL MODAL ESTÉTICO DE SALIDA
   mostrarConfirmSalir = signal(false);
 
   get temaClaseSeguro(): string {
@@ -386,13 +385,18 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.mostrarModal.set(true);
   }
 
+  // ✅ CORREGIDO: verifica propiedad real (usuarioId === logueado)
   abrirModalEditar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
     if (!this.estaLogueado) {
       this.mostrarAvisoLogin.set(true);
       return;
     }
-    if (!recurso.esUsuario) return;
+    if (!this.esRecursoDeUsuario(recurso)) {
+      this.errorMsg.set('No puedes editar un recurso que no te pertenece');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
 
     this.modoEdicion.set(true);
     this.recursoEditandoId.set(typeof recurso.id === 'number' ? recurso.id : null);
@@ -454,7 +458,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // GUARDAR (Campos opcionales)
+  // GUARDAR
   // ============================================================
   guardarRecurso(): void {
     if (!this.estaLogueado) {
@@ -501,6 +505,7 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.ejecutarGuardado(datos);
   }
 
+  // ✅ CORREGIDO: manejo explícito de 403 y 404
   private ejecutarGuardado(datos: any): void {
     const op$ = (this.modoEdicion() && this.recursoEditandoId() !== null)
       ? this.bibliotecaService.actualizarRecursoUsuario(this.recursoEditandoId()!, datos)
@@ -515,6 +520,20 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al guardar - status:', err.status);
+
+        if (err.status === 403) {
+          this.formError.set('No tienes permiso para modificar este recurso');
+          this.safeTimeout(() => {
+            this.mostrarModal.set(false);
+            this.limpiarFormulario();
+          }, 2000);
+          return;
+        }
+        if (err.status === 404) {
+          this.formError.set('El recurso ya no existe');
+          return;
+        }
+
         let mensaje = 'No se pudo guardar el recurso';
         if (err?.error?.mensaje) mensaje = String(err.error.mensaje);
         else if (err?.error?.message) mensaje = String(err.error.message);
@@ -528,10 +547,15 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
   // ============================================================
   // ELIMINAR
   // ============================================================
+  // ✅ CORREGIDO: verifica propiedad real
   confirmarEliminar(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
     if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
-    if (!recurso.esUsuario) return;
+    if (!this.esRecursoDeUsuario(recurso)) {
+      this.errorMsg.set('No puedes eliminar un recurso que no te pertenece');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
     this.recursoAEliminar.set(recurso);
   }
 
@@ -540,9 +564,17 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     this.recursoAEliminar.set(null);
   }
 
+  // ✅ CORREGIDO: manejo explícito de 403
   eliminarRecurso(): void {
     const recurso = this.recursoAEliminar();
     if (!recurso) return;
+
+    if (!this.esRecursoDeUsuario(recurso)) {
+      this.recursoAEliminar.set(null);
+      this.errorMsg.set('No puedes eliminar un recurso que no te pertenece');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
 
     this.eliminandoRecurso.set(true);
     this.bibliotecaService.eliminarRecursoUsuario(recurso.id)
@@ -553,29 +585,51 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
           this.recursoAEliminar.set(null);
           this.cargarRecursos();
         },
-        error: () => {
+        error: (err) => {
           this.eliminandoRecurso.set(false);
           this.recursoAEliminar.set(null);
-          this.errorMsg.set('No se pudo eliminar el recurso');
+          if (err.status === 403) {
+            this.errorMsg.set('No tienes permiso para eliminar este recurso');
+          } else {
+            this.errorMsg.set('No se pudo eliminar el recurso');
+          }
           this.safeTimeout(() => this.errorMsg.set(null), 3000);
         }
       });
   }
 
   // ============================================================
-  // HISTORIAL Y OTROS
+  // HISTORIAL
   // ============================================================
+  // ✅ CORREGIDO: verifica propiedad real + maneja 403
   abrirHistorial(recurso: RecursoBiblioteca, event?: Event): void {
     event?.stopPropagation();
     if (!this.estaLogueado) { this.mostrarAvisoLogin.set(true); return; }
+    if (!this.esRecursoDeUsuario(recurso)) {
+      this.errorMsg.set('No puedes ver el historial de un recurso ajeno');
+      this.safeTimeout(() => this.errorMsg.set(null), 3000);
+      return;
+    }
     this.historialTitulo.set(recurso.titulo);
     this.historialRecurso.set([]);
     this.cargandoHistorial.set(true);
     this.mostrarModalHistorial.set(true);
-    this.bibliotecaService.obtenerHistorial(recurso.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (data) => { this.historialRecurso.set(data); this.cargandoHistorial.set(false); },
-      error: () => { this.cargandoHistorial.set(false); }
-    });
+    this.bibliotecaService.obtenerHistorial(recurso.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.historialRecurso.set(data);
+          this.cargandoHistorial.set(false);
+        },
+        error: (err) => {
+          this.cargandoHistorial.set(false);
+          if (err.status === 403) {
+            this.cerrarHistorial();
+            this.errorMsg.set('No tienes permiso para ver este historial');
+            this.safeTimeout(() => this.errorMsg.set(null), 3000);
+          }
+        }
+      });
   }
 
   cerrarHistorial(): void {
@@ -685,8 +739,16 @@ export class BibliotecaComponent implements OnInit, OnDestroy {
     return safe.charAt(0).toUpperCase() + safe.slice(1);
   }
 
+  // ✅ CORREGIDO: compara usuarioId con el usuario logueado
   esRecursoDeUsuario(recurso: RecursoBiblioteca): boolean {
-    return !!recurso.esUsuario;
+    if (!recurso?.esUsuario) return false;
+    const usuarioActual = this.authService.usuario();
+    if (!usuarioActual?.id) return false;
+    if (recurso.usuarioId !== undefined && recurso.usuarioId !== null) {
+      return Number(recurso.usuarioId) === Number(usuarioActual.id);
+    }
+    // Fallback: si el backend no envía usuarioId, ocultar acciones (seguro)
+    return false;
   }
 
   getNombreAutor(recurso: RecursoBiblioteca): string {

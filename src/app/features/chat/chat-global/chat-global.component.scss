@@ -1,7 +1,7 @@
 // src/app/features/chat/chat-global/chat-global.component.scss
 
 // ============================================================
-// VARIABLES CSS QUE RESPONDEN AL TEMA
+// VARIABLES BASE (valores por defecto si no hay tema activo)
 // ============================================================
 .chat-global-container {
   --chatg-primary: #2dd4bf;
@@ -36,8 +36,9 @@
 }
 
 // ============================================================
-// TEMA DEFAULT
+// TEMAS — 20 colores sólidos (mismos IDs que styles.scss)
 // ============================================================
+
 :host-context([data-theme="default"]),
 :host-context(.tema-default) {
   .chat-global-container {
@@ -47,375 +48,374 @@
     --chatg-primary-border: rgba(45, 212, 191, 0.25);
     --chatg-primary-border-2: rgba(45, 212, 191, 0.4);
     --chatg-primary-text: #0d1117;
-
     --chatg-bg: #0d1117;
     --chatg-bg-secondary: #131a22;
     --chatg-bg-card: #1b232c;
-
     --chatg-border: #26313c;
-    --chatg-text-primary: #e6edf3;
-    --chatg-text-secondary: #8b98a5;
-    --chatg-text-muted: #5a6a7a;
+    --chatg-text-primary: #ffffff;
+    --chatg-text-secondary: #b0bec5;
+    --chatg-text-muted: #8b98a5;
   }
 }
 
-// ============================================================
-// TEMA DARK
-// ============================================================
-:host-context([data-theme="dark"]),
-:host-context(.tema-dark) {
+:host-context([data-theme="red"]),
+:host-context(.tema-red) {
   .chat-global-container {
-    --chatg-primary: #a29bfe;
-    --chatg-primary-soft: rgba(162, 155, 254, 0.08);
-    --chatg-primary-soft-2: rgba(162, 155, 254, 0.15);
-    --chatg-primary-border: rgba(162, 155, 254, 0.3);
-    --chatg-primary-border-2: rgba(162, 155, 254, 0.5);
-    --chatg-primary-text: #1a1a2e;
-
-    --chatg-bg: #1a1a2e;
-    --chatg-bg-secondary: #232342;
-    --chatg-bg-card: #2a2a4a;
-
-    --chatg-border: #2d2d4a;
-    --chatg-text-primary: #e6edf3;
-    --chatg-text-secondary: #b8b3e8;
-    --chatg-text-muted: #7a7a9a;
-  }
-}
-
-// ============================================================
-// TEMA LIGHT
-// ============================================================
-:host-context([data-theme="light"]),
-:host-context(.tema-light) {
-  .chat-global-container {
-    --chatg-primary: #0d9488;
-    --chatg-primary-soft: rgba(13, 148, 136, 0.08);
-    --chatg-primary-soft-2: rgba(13, 148, 136, 0.15);
-    --chatg-primary-border: rgba(13, 148, 136, 0.3);
-    --chatg-primary-border-2: rgba(13, 148, 136, 0.5);
+    --chatg-primary: #ff0000;
+    --chatg-primary-soft: rgba(255, 0, 0, 0.08);
+    --chatg-primary-soft-2: rgba(255, 0, 0, 0.15);
+    --chatg-primary-border: rgba(255, 0, 0, 0.3);
+    --chatg-primary-border-2: rgba(255, 0, 0, 0.5);
     --chatg-primary-text: #ffffff;
-
-    --chatg-bg: #ffffff;
-    --chatg-bg-secondary: #f5f7fa;
-    --chatg-bg-card: #ffffff;
-
-    --chatg-border: #e2e8f0;
-    --chatg-text-primary: #1a1a2e;
-    --chatg-text-secondary: #4a5568;
-    --chatg-text-muted: #718096;
-  }
-}
-
-// ============================================================
-// TEMA SUNSET
-// ============================================================
-:host-context([data-theme="sunset"]),
-:host-context(.tema-sunset) {
-  .chat-global-container {
-    --chatg-primary: #feca57;
-    --chatg-primary-soft: rgba(254, 202, 87, 0.08);
-    --chatg-primary-soft-2: rgba(254, 202, 87, 0.15);
-    --chatg-primary-border: rgba(254, 202, 87, 0.3);
-    --chatg-primary-border-2: rgba(254, 202, 87, 0.5);
-    --chatg-primary-text: #2d1b1b;
-
-    --chatg-bg: #2d1b1b;
-    --chatg-bg-secondary: #3a2424;
-    --chatg-bg-card: #4a2626;
-
-    --chatg-border: #6b3636;
-    --chatg-text-primary: #fff5f5;
-    --chatg-text-secondary: #ffb3b3;
-    --chatg-text-muted: #b38080;
-  }
-}
-
-// ============================================================
-// TEMA OCEAN
-// ============================================================
-:host-context([data-theme="ocean"]),
-:host-context(.tema-ocean) {
-  .chat-global-container {
-    --chatg-primary: #00cec9;
-    --chatg-primary-soft: rgba(0, 206, 201, 0.08);
-    --chatg-primary-soft-2: rgba(0, 206, 201, 0.15);
-    --chatg-primary-border: rgba(0, 206, 201, 0.3);
-    --chatg-primary-border-2: rgba(0, 206, 201, 0.5);
-    --chatg-primary-text: #0a1929;
-
-    --chatg-bg: #0a1929;
-    --chatg-bg-secondary: #0f2a3f;
-    --chatg-bg-card: #14324a;
-
-    --chatg-border: #1a4060;
-    --chatg-text-primary: #e6f4f8;
-    --chatg-text-secondary: #7ec8e3;
-    --chatg-text-muted: #4a7a8a;
-  }
-}
-
-// ============================================================
-// TEMA AURORA
-// ============================================================
-:host-context([data-theme="aurora"]),
-:host-context(.tema-aurora) {
-  .chat-global-container {
-    --chatg-primary: #6c5ce7;
-    --chatg-primary-soft: rgba(108, 92, 231, 0.08);
-    --chatg-primary-soft-2: rgba(108, 92, 231, 0.15);
-    --chatg-primary-border: rgba(108, 92, 231, 0.3);
-    --chatg-primary-border-2: rgba(108, 92, 231, 0.5);
-    --chatg-primary-text: #ffffff;
-
-    --chatg-bg: #1a1630;
-    --chatg-bg-secondary: #241e3d;
-    --chatg-bg-card: #2a2345;
-
-    --chatg-border: #3d3260;
-    --chatg-text-primary: #f0eaff;
-    --chatg-text-secondary: #b8a9e8;
-    --chatg-text-muted: #7a6a9a;
-  }
-}
-
-// ============================================================
-// TEMA GALAXY
-// ============================================================
-:host-context([data-theme="galaxy"]),
-:host-context(.tema-galaxy) {
-  .chat-global-container {
-    --chatg-primary: #fd79a8;
-    --chatg-primary-soft: rgba(253, 121, 168, 0.08);
-    --chatg-primary-soft-2: rgba(253, 121, 168, 0.15);
-    --chatg-primary-border: rgba(253, 121, 168, 0.3);
-    --chatg-primary-border-2: rgba(253, 121, 168, 0.5);
-    --chatg-primary-text: #0f0f1e;
-
-    --chatg-bg: #0f0f1e;
-    --chatg-bg-secondary: #1a1a2e;
-    --chatg-bg-card: #1e1e35;
-
-    --chatg-border: #2e2e50;
-    --chatg-text-primary: #e8e5ff;
-    --chatg-text-secondary: #a99ee8;
-    --chatg-text-muted: #6a6090;
-  }
-}
-
-// ============================================================
-// TEMA LAVA
-// ============================================================
-:host-context([data-theme="lava"]),
-:host-context(.tema-lava) {
-  .chat-global-container {
-    --chatg-primary: #e17055;
-    --chatg-primary-soft: rgba(225, 112, 85, 0.08);
-    --chatg-primary-soft-2: rgba(225, 112, 85, 0.15);
-    --chatg-primary-border: rgba(225, 112, 85, 0.3);
-    --chatg-primary-border-2: rgba(225, 112, 85, 0.5);
-    --chatg-primary-text: #2a0a0a;
-
-    --chatg-bg: #2a0a0a;
-    --chatg-bg-secondary: #3a1010;
-    --chatg-bg-card: #4a1010;
-
-    --chatg-border: #6b1f1f;
-    --chatg-text-primary: #ffe8e8;
-    --chatg-text-secondary: #ff9999;
-    --chatg-text-muted: #a06060;
-  }
-}
-
-// ============================================================
-// TEMA FOREST
-// ============================================================
-:host-context([data-theme="forest"]),
-:host-context(.tema-forest) {
-  .chat-global-container {
-    --chatg-primary: #55efc4;
-    --chatg-primary-soft: rgba(85, 239, 196, 0.08);
-    --chatg-primary-soft-2: rgba(85, 239, 196, 0.15);
-    --chatg-primary-border: rgba(85, 239, 196, 0.3);
-    --chatg-primary-border-2: rgba(85, 239, 196, 0.5);
-    --chatg-primary-text: #0a1f15;
-
-    --chatg-bg: #0a1f15;
-    --chatg-bg-secondary: #0f2a1e;
-    --chatg-bg-card: #143a26;
-
-    --chatg-border: #1f5035;
-    --chatg-text-primary: #e6f7ee;
-    --chatg-text-secondary: #80d4a0;
-    --chatg-text-muted: #4a7a5e;
-  }
-}
-
-// ============================================================
-// TEMA CANDY
-// ============================================================
-:host-context([data-theme="candy"]),
-:host-context(.tema-candy) {
-  .chat-global-container {
-    --chatg-primary: #fd79a8;
-    --chatg-primary-soft: rgba(253, 121, 168, 0.08);
-    --chatg-primary-soft-2: rgba(253, 121, 168, 0.15);
-    --chatg-primary-border: rgba(253, 121, 168, 0.3);
-    --chatg-primary-border-2: rgba(253, 121, 168, 0.5);
-    --chatg-primary-text: #2a1a2e;
-
-    --chatg-bg: #2a1a2e;
-    --chatg-bg-secondary: #362240;
-    --chatg-bg-card: #3d2545;
-
-    --chatg-border: #55304f;
-    --chatg-text-primary: #fde8f5;
-    --chatg-text-secondary: #f5a3d0;
-    --chatg-text-muted: #a06585;
-  }
-}
-
-// ============================================================
-// TEMA CYBER
-// ============================================================
-:host-context([data-theme="cyber"]),
-:host-context(.tema-cyber) {
-  .chat-global-container {
-    --chatg-primary: #00d4ff;
-    --chatg-primary-soft: rgba(0, 212, 255, 0.08);
-    --chatg-primary-soft-2: rgba(0, 212, 255, 0.15);
-    --chatg-primary-border: rgba(0, 212, 255, 0.3);
-    --chatg-primary-border-2: rgba(0, 212, 255, 0.5);
-    --chatg-primary-text: #0a0a1a;
-
-    --chatg-bg: #0a0a1a;
-    --chatg-bg-secondary: #101022;
-    --chatg-bg-card: #141428;
-
-    --chatg-border: #1e3a5f;
-    --chatg-text-primary: #e0f7ff;
-    --chatg-text-secondary: #7ecfff;
-    --chatg-text-muted: #4a7a90;
-  }
-}
-
-// ============================================================
-// TEMA BLOOD
-// ============================================================
-:host-context([data-theme="blood"]),
-:host-context(.tema-blood) {
-  .chat-global-container {
-    --chatg-primary: #ff0044;
-    --chatg-primary-soft: rgba(255, 0, 68, 0.08);
-    --chatg-primary-soft-2: rgba(255, 0, 68, 0.15);
-    --chatg-primary-border: rgba(255, 0, 68, 0.3);
-    --chatg-primary-border-2: rgba(255, 0, 68, 0.5);
-    --chatg-primary-text: #ffffff;
-
-    --chatg-bg: #1a0a0a;
-    --chatg-bg-secondary: #240e0e;
-    --chatg-bg-card: #2e0f0f;
-
-    --chatg-border: #4a1a1a;
+    --chatg-bg: #1a0000;
+    --chatg-bg-secondary: #200000;
+    --chatg-bg-card: #2a0505;
+    --chatg-border: #5a0a0a;
     --chatg-text-primary: #ffe0e0;
-    --chatg-text-secondary: #ff8080;
-    --chatg-text-muted: #a05050;
+    --chatg-text-secondary: #d09090;
+    --chatg-text-muted: #8a5050;
   }
 }
 
-// ============================================================
-// TEMA ROYAL
-// ============================================================
-:host-context([data-theme="royal"]),
-:host-context(.tema-royal) {
+:host-context([data-theme="green"]),
+:host-context(.tema-green) {
   .chat-global-container {
-    --chatg-primary: #6c5ce7;
-    --chatg-primary-soft: rgba(108, 92, 231, 0.08);
-    --chatg-primary-soft-2: rgba(108, 92, 231, 0.15);
-    --chatg-primary-border: rgba(108, 92, 231, 0.3);
-    --chatg-primary-border-2: rgba(108, 92, 231, 0.5);
-    --chatg-primary-text: #ffffff;
-
-    --chatg-bg: #1a1030;
-    --chatg-bg-secondary: #221640;
-    --chatg-bg-card: #2a1a4a;
-
-    --chatg-border: #3d2a5f;
-    --chatg-text-primary: #f0e6ff;
-    --chatg-text-secondary: #b8a0e8;
-    --chatg-text-muted: #7a6a9a;
+    --chatg-primary: #00c853;
+    --chatg-primary-soft: rgba(0, 200, 83, 0.08);
+    --chatg-primary-soft-2: rgba(0, 200, 83, 0.15);
+    --chatg-primary-border: rgba(0, 200, 83, 0.3);
+    --chatg-primary-border-2: rgba(0, 200, 83, 0.5);
+    --chatg-primary-text: #001a00;
+    --chatg-bg: #001a00;
+    --chatg-bg-secondary: #002000;
+    --chatg-bg-card: #052a05;
+    --chatg-border: #0a5a0a;
+    --chatg-text-primary: #e0ffe0;
+    --chatg-text-secondary: #90d490;
+    --chatg-text-muted: #508a50;
   }
 }
 
-// ============================================================
-// TEMA GOLD
-// ============================================================
+:host-context([data-theme="blue"]),
+:host-context(.tema-blue) {
+  .chat-global-container {
+    --chatg-primary: #0066ff;
+    --chatg-primary-soft: rgba(0, 102, 255, 0.08);
+    --chatg-primary-soft-2: rgba(0, 102, 255, 0.15);
+    --chatg-primary-border: rgba(0, 102, 255, 0.3);
+    --chatg-primary-border-2: rgba(0, 102, 255, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #00051a;
+    --chatg-bg-secondary: #000820;
+    --chatg-bg-card: #05102a;
+    --chatg-border: #0a1a5a;
+    --chatg-text-primary: #e0e8ff;
+    --chatg-text-secondary: #90a0d4;
+    --chatg-text-muted: #50608a;
+  }
+}
+
+:host-context([data-theme="yellow"]),
+:host-context(.tema-yellow) {
+  .chat-global-container {
+    --chatg-primary: #ffd600;
+    --chatg-primary-soft: rgba(255, 214, 0, 0.08);
+    --chatg-primary-soft-2: rgba(255, 214, 0, 0.15);
+    --chatg-primary-border: rgba(255, 214, 0, 0.3);
+    --chatg-primary-border-2: rgba(255, 214, 0, 0.5);
+    --chatg-primary-text: #1a1400;
+    --chatg-bg: #1a1400;
+    --chatg-bg-secondary: #201800;
+    --chatg-bg-card: #2a2005;
+    --chatg-border: #5a4a0a;
+    --chatg-text-primary: #fffbe0;
+    --chatg-text-secondary: #d4c090;
+    --chatg-text-muted: #8a7850;
+  }
+}
+
+:host-context([data-theme="orange"]),
+:host-context(.tema-orange) {
+  .chat-global-container {
+    --chatg-primary: #ff6d00;
+    --chatg-primary-soft: rgba(255, 109, 0, 0.08);
+    --chatg-primary-soft-2: rgba(255, 109, 0, 0.15);
+    --chatg-primary-border: rgba(255, 109, 0, 0.3);
+    --chatg-primary-border-2: rgba(255, 109, 0, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #1a0a00;
+    --chatg-bg-secondary: #200e00;
+    --chatg-bg-card: #2a1405;
+    --chatg-border: #5a2a0a;
+    --chatg-text-primary: #ffe8d8;
+    --chatg-text-secondary: #d4a080;
+    --chatg-text-muted: #8a6050;
+  }
+}
+
+:host-context([data-theme="purple"]),
+:host-context(.tema-purple) {
+  .chat-global-container {
+    --chatg-primary: #9c27b0;
+    --chatg-primary-soft: rgba(156, 39, 176, 0.08);
+    --chatg-primary-soft-2: rgba(156, 39, 176, 0.15);
+    --chatg-primary-border: rgba(156, 39, 176, 0.3);
+    --chatg-primary-border-2: rgba(156, 39, 176, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #0f001a;
+    --chatg-bg-secondary: #140020;
+    --chatg-bg-card: #20052a;
+    --chatg-border: #4a0a5a;
+    --chatg-text-primary: #f0d8ff;
+    --chatg-text-secondary: #b090d4;
+    --chatg-text-muted: #70508a;
+  }
+}
+
+:host-context([data-theme="pink"]),
+:host-context(.tema-pink) {
+  .chat-global-container {
+    --chatg-primary: #ff4081;
+    --chatg-primary-soft: rgba(255, 64, 129, 0.08);
+    --chatg-primary-soft-2: rgba(255, 64, 129, 0.15);
+    --chatg-primary-border: rgba(255, 64, 129, 0.3);
+    --chatg-primary-border-2: rgba(255, 64, 129, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #1a0010;
+    --chatg-bg-secondary: #20001a;
+    --chatg-bg-card: #2a0520;
+    --chatg-border: #5a0a3a;
+    --chatg-text-primary: #ffe0f0;
+    --chatg-text-secondary: #d0a0c0;
+    --chatg-text-muted: #906080;
+  }
+}
+
+:host-context([data-theme="cyan"]),
+:host-context(.tema-cyan) {
+  .chat-global-container {
+    --chatg-primary: #00e5ff;
+    --chatg-primary-soft: rgba(0, 229, 255, 0.08);
+    --chatg-primary-soft-2: rgba(0, 229, 255, 0.15);
+    --chatg-primary-border: rgba(0, 229, 255, 0.3);
+    --chatg-primary-border-2: rgba(0, 229, 255, 0.5);
+    --chatg-primary-text: #001a1a;
+    --chatg-bg: #001a1a;
+    --chatg-bg-secondary: #002020;
+    --chatg-bg-card: #052a2a;
+    --chatg-border: #0a5a5a;
+    --chatg-text-primary: #e0ffff;
+    --chatg-text-secondary: #90d4d4;
+    --chatg-text-muted: #508a8a;
+  }
+}
+
+:host-context([data-theme="white"]),
+:host-context(.tema-white) {
+  .chat-global-container {
+    --chatg-primary: #2dd4bf;
+    --chatg-primary-soft: rgba(45, 212, 191, 0.08);
+    --chatg-primary-soft-2: rgba(45, 212, 191, 0.15);
+    --chatg-primary-border: rgba(45, 212, 191, 0.3);
+    --chatg-primary-border-2: rgba(45, 212, 191, 0.5);
+    --chatg-primary-text: #0d1117;
+    --chatg-bg: #f5f7fa;
+    --chatg-bg-secondary: #ffffff;
+    --chatg-bg-card: #ffffff;
+    --chatg-border: #d0d7de;
+    --chatg-text-primary: #1a1a1a;
+    --chatg-text-secondary: #555555;
+    --chatg-text-muted: #888888;
+  }
+}
+
+:host-context([data-theme="black"]),
+:host-context(.tema-black) {
+  .chat-global-container {
+    --chatg-primary: #2dd4bf;
+    --chatg-primary-soft: rgba(45, 212, 191, 0.08);
+    --chatg-primary-soft-2: rgba(45, 212, 191, 0.15);
+    --chatg-primary-border: rgba(45, 212, 191, 0.3);
+    --chatg-primary-border-2: rgba(45, 212, 191, 0.5);
+    --chatg-primary-text: #000000;
+    --chatg-bg: #000000;
+    --chatg-bg-secondary: #0a0a0a;
+    --chatg-bg-card: #141414;
+    --chatg-border: #222222;
+    --chatg-text-primary: #e8e8e8;
+    --chatg-text-secondary: #a0a0a0;
+    --chatg-text-muted: #606060;
+  }
+}
+
+:host-context([data-theme="gray"]),
+:host-context(.tema-gray) {
+  .chat-global-container {
+    --chatg-primary: #9e9e9e;
+    --chatg-primary-soft: rgba(158, 158, 158, 0.08);
+    --chatg-primary-soft-2: rgba(158, 158, 158, 0.15);
+    --chatg-primary-border: rgba(158, 158, 158, 0.3);
+    --chatg-primary-border-2: rgba(158, 158, 158, 0.5);
+    --chatg-primary-text: #141414;
+    --chatg-bg: #141414;
+    --chatg-bg-secondary: #1a1a1a;
+    --chatg-bg-card: #1e1e1e;
+    --chatg-border: #3a3a3a;
+    --chatg-text-primary: #ececec;
+    --chatg-text-secondary: #a8a8a8;
+    --chatg-text-muted: #686868;
+  }
+}
+
+:host-context([data-theme="lime"]),
+:host-context(.tema-lime) {
+  .chat-global-container {
+    --chatg-primary: #c6ff00;
+    --chatg-primary-soft: rgba(198, 255, 0, 0.08);
+    --chatg-primary-soft-2: rgba(198, 255, 0, 0.15);
+    --chatg-primary-border: rgba(198, 255, 0, 0.3);
+    --chatg-primary-border-2: rgba(198, 255, 0, 0.5);
+    --chatg-primary-text: #101a00;
+    --chatg-bg: #101a00;
+    --chatg-bg-secondary: #142000;
+    --chatg-bg-card: #1e2a05;
+    --chatg-border: #4a5a0a;
+    --chatg-text-primary: #f0ffe0;
+    --chatg-text-secondary: #b8d090;
+    --chatg-text-muted: #788a50;
+  }
+}
+
+:host-context([data-theme="teal"]),
+:host-context(.tema-teal) {
+  .chat-global-container {
+    --chatg-primary: #009688;
+    --chatg-primary-soft: rgba(0, 150, 136, 0.08);
+    --chatg-primary-soft-2: rgba(0, 150, 136, 0.15);
+    --chatg-primary-border: rgba(0, 150, 136, 0.3);
+    --chatg-primary-border-2: rgba(0, 150, 136, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #001a15;
+    --chatg-bg-secondary: #002019;
+    --chatg-bg-card: #052a22;
+    --chatg-border: #0a5a48;
+    --chatg-text-primary: #e0fff5;
+    --chatg-text-secondary: #90d4c0;
+    --chatg-text-muted: #508a78;
+  }
+}
+
+:host-context([data-theme="brown"]),
+:host-context(.tema-brown) {
+  .chat-global-container {
+    --chatg-primary: #795548;
+    --chatg-primary-soft: rgba(121, 85, 72, 0.08);
+    --chatg-primary-soft-2: rgba(121, 85, 72, 0.15);
+    --chatg-primary-border: rgba(121, 85, 72, 0.3);
+    --chatg-primary-border-2: rgba(121, 85, 72, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #1a100a;
+    --chatg-bg-secondary: #20160e;
+    --chatg-bg-card: #2a1e14;
+    --chatg-border: #5a3a1a;
+    --chatg-text-primary: #f0e0d0;
+    --chatg-text-secondary: #b8a090;
+    --chatg-text-muted: #806858;
+  }
+}
+
+:host-context([data-theme="indigo"]),
+:host-context(.tema-indigo) {
+  .chat-global-container {
+    --chatg-primary: #3f51b5;
+    --chatg-primary-soft: rgba(63, 81, 181, 0.08);
+    --chatg-primary-soft-2: rgba(63, 81, 181, 0.15);
+    --chatg-primary-border: rgba(63, 81, 181, 0.3);
+    --chatg-primary-border-2: rgba(63, 81, 181, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #05081a;
+    --chatg-bg-secondary: #081020;
+    --chatg-bg-card: #0f1828;
+    --chatg-border: #1a225a;
+    --chatg-text-primary: #e0e4ff;
+    --chatg-text-secondary: #a0a8d8;
+    --chatg-text-muted: #6068a0;
+  }
+}
+
+:host-context([data-theme="crimson"]),
+:host-context(.tema-crimson) {
+  .chat-global-container {
+    --chatg-primary: #dc143c;
+    --chatg-primary-soft: rgba(220, 20, 60, 0.08);
+    --chatg-primary-soft-2: rgba(220, 20, 60, 0.15);
+    --chatg-primary-border: rgba(220, 20, 60, 0.3);
+    --chatg-primary-border-2: rgba(220, 20, 60, 0.5);
+    --chatg-primary-text: #ffffff;
+    --chatg-bg: #1a0005;
+    --chatg-bg-secondary: #20000a;
+    --chatg-bg-card: #2a0508;
+    --chatg-border: #5a0a1a;
+    --chatg-text-primary: #ffe0e4;
+    --chatg-text-secondary: #d4a0a8;
+    --chatg-text-muted: #8a5058;
+  }
+}
+
 :host-context([data-theme="gold"]),
 :host-context(.tema-gold) {
   .chat-global-container {
-    --chatg-primary: #f9ca24;
-    --chatg-primary-soft: rgba(249, 202, 36, 0.08);
-    --chatg-primary-soft-2: rgba(249, 202, 36, 0.15);
-    --chatg-primary-border: rgba(249, 202, 36, 0.3);
-    --chatg-primary-border-2: rgba(249, 202, 36, 0.5);
-    --chatg-primary-text: #1f1a0a;
-
-    --chatg-bg: #1f1a0a;
-    --chatg-bg-secondary: #2a2210;
-    --chatg-bg-card: #3a2e10;
-
-    --chatg-border: #5a4a1f;
-    --chatg-text-primary: #fff8e0;
-    --chatg-text-secondary: #e8cc80;
-    --chatg-text-muted: #a08a50;
+    --chatg-primary: #ffc107;
+    --chatg-primary-soft: rgba(255, 193, 7, 0.08);
+    --chatg-primary-soft-2: rgba(255, 193, 7, 0.15);
+    --chatg-primary-border: rgba(255, 193, 7, 0.3);
+    --chatg-primary-border-2: rgba(255, 193, 7, 0.5);
+    --chatg-primary-text: #1a1400;
+    --chatg-bg: #1a1400;
+    --chatg-bg-secondary: #201800;
+    --chatg-bg-card: #2a2005;
+    --chatg-border: #5a4a0a;
+    --chatg-text-primary: #fffbe0;
+    --chatg-text-secondary: #d4c090;
+    --chatg-text-muted: #8a7850;
   }
 }
 
-// ============================================================
-// TEMA PASTEL
-// ============================================================
-:host-context([data-theme="pastel"]),
-:host-context(.tema-pastel) {
+:host-context([data-theme="silver"]),
+:host-context(.tema-silver) {
   .chat-global-container {
-    --chatg-primary: #fd79a8;
-    --chatg-primary-soft: rgba(253, 121, 168, 0.1);
-    --chatg-primary-soft-2: rgba(253, 121, 168, 0.2);
-    --chatg-primary-border: rgba(253, 121, 168, 0.35);
-    --chatg-primary-border-2: rgba(253, 121, 168, 0.55);
-    --chatg-primary-text: #ffffff;
-
-    --chatg-bg: #f0e6ff;
-    --chatg-bg-secondary: #e8dcff;
-    --chatg-bg-card: #faf5ff;
-
-    --chatg-border: rgba(122, 90, 154, 0.2);
-    --chatg-text-primary: #2d1a3d;
-    --chatg-text-secondary: #7a5a9a;
-    --chatg-text-muted: #9a80b0;
+    --chatg-primary: #cfd8dc;
+    --chatg-primary-soft: rgba(207, 216, 220, 0.08);
+    --chatg-primary-soft-2: rgba(207, 216, 220, 0.15);
+    --chatg-primary-border: rgba(207, 216, 220, 0.3);
+    --chatg-primary-border-2: rgba(207, 216, 220, 0.5);
+    --chatg-primary-text: #15171a;
+    --chatg-bg: #15171a;
+    --chatg-bg-secondary: #1a1c20;
+    --chatg-bg-card: #24272c;
+    --chatg-border: #3a3f45;
+    --chatg-text-primary: #f0f2f5;
+    --chatg-text-secondary: #b0bec5;
+    --chatg-text-muted: #708090;
   }
 }
 
-// ============================================================
-// TEMA NEON
-// ============================================================
-:host-context([data-theme="neon"]),
-:host-context(.tema-neon) {
+:host-context([data-theme="navy"]),
+:host-context(.tema-navy) {
   .chat-global-container {
-    --chatg-primary: #fd79a8;
-    --chatg-primary-soft: rgba(253, 121, 168, 0.08);
-    --chatg-primary-soft-2: rgba(253, 121, 168, 0.15);
-    --chatg-primary-border: rgba(253, 121, 168, 0.3);
-    --chatg-primary-border-2: rgba(253, 121, 168, 0.5);
-    --chatg-primary-text: #0a0a1a;
-
-    --chatg-bg: #0a0a1a;
-    --chatg-bg-secondary: #10102a;
-    --chatg-bg-card: #14142a;
-
-    --chatg-border: #2a2a4a;
-    --chatg-text-primary: #e0e0ff;
-    --chatg-text-secondary: #b0b0ff;
-    --chatg-text-muted: #6a6aa0;
+    --chatg-primary: #2dd4bf;
+    --chatg-primary-soft: rgba(45, 212, 191, 0.08);
+    --chatg-primary-soft-2: rgba(45, 212, 191, 0.15);
+    --chatg-primary-border: rgba(45, 212, 191, 0.3);
+    --chatg-primary-border-2: rgba(45, 212, 191, 0.5);
+    --chatg-primary-text: #000814;
+    --chatg-bg: #000814;
+    --chatg-bg-secondary: #001020;
+    --chatg-bg-card: #05182e;
+    --chatg-border: #0a2a5a;
+    --chatg-text-primary: #e0e8f5;
+    --chatg-text-secondary: #90a8d0;
+    --chatg-text-muted: #506890;
   }
 }
 
@@ -536,7 +536,7 @@
 }
 
 // ============================================================
-// MENSAJE (con swipe + botón responder)
+// MENSAJE
 // ============================================================
 .mensaje {
   position: relative;

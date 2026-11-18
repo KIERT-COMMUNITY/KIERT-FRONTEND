@@ -1,14 +1,13 @@
 // src/app/features/anuncios/anuncios.component.scss
 
 // ============================================================
-// VARIABLES CSS QUE RESPONDEN AL TEMA DEL USUARIO
-// (se sobrescriben por [data-theme="..."] más abajo)
+// VARIABLES BASE (valores por defecto si no hay tema activo)
 // ============================================================
 .anuncios-page {
   --anuncios-bg: #0d1117;
-  --anuncios-card-bg: #1a2a44;
+  --anuncios-card-bg: #1b232c;
   --anuncios-text: #ffffff;
-  --anuncios-text-muted: #7b9acc;
+  --anuncios-text-muted: #b0bec5;
   --anuncios-border: #26313c;
   --anuncios-accent: #2dd4bf;
   --anuncios-accent-text: #0d1117;
@@ -24,258 +23,326 @@
 }
 
 // ============================================================
-// TEMA DEFAULT (teal)
+// TEMAS — 20 colores sólidos (mismos IDs que styles.scss)
 // ============================================================
+
+// DEFAULT (turquesa)
 :host-context([data-theme="default"]),
 :host-context(.tema-default) {
   .anuncios-page {
     --anuncios-bg: #0d1117;
-    --anuncios-card-bg: #1a2a44;
+    --anuncios-card-bg: #1b232c;
     --anuncios-text: #ffffff;
-    --anuncios-text-muted: #7b9acc;
+    --anuncios-text-muted: #b0bec5;
     --anuncios-border: #26313c;
     --anuncios-accent: #2dd4bf;
     --anuncios-accent-text: #0d1117;
+    --anuncios-close-bg: rgba(248, 81, 73, 0.15);
+    --anuncios-close-text: #f85149;
   }
 }
 
-// ============================================================
-// TEMA DARK
-// ============================================================
-:host-context([data-theme="dark"]),
-:host-context(.tema-dark) {
+// RED
+:host-context([data-theme="red"]),
+:host-context(.tema-red) {
   .anuncios-page {
-    --anuncios-bg: #1a1a2e;
-    --anuncios-card-bg: #232342;
-    --anuncios-text: #e6edf3;
-    --anuncios-text-muted: #a29bfe;
-    --anuncios-border: #2d2d4a;
-    --anuncios-accent: #a29bfe;
-    --anuncios-accent-text: #1a1a2e;
+    --anuncios-bg: #1a0000;
+    --anuncios-card-bg: #2a0505;
+    --anuncios-text: #ffe0e0;
+    --anuncios-text-muted: #d09090;
+    --anuncios-border: #5a0a0a;
+    --anuncios-accent: #ff0000;
+    --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
   }
 }
 
-// ============================================================
-// TEMA LIGHT
-// ============================================================
-:host-context([data-theme="light"]),
-:host-context(.tema-light) {
+// GREEN
+:host-context([data-theme="green"]),
+:host-context(.tema-green) {
+  .anuncios-page {
+    --anuncios-bg: #001a00;
+    --anuncios-card-bg: #052a05;
+    --anuncios-text: #c8ffc8;
+    --anuncios-text-muted: #80c880;
+    --anuncios-border: #0a5a0a;
+    --anuncios-accent: #00c853;
+    --anuncios-accent-text: #001a00;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
+  }
+}
+
+// BLUE
+:host-context([data-theme="blue"]),
+:host-context(.tema-blue) {
+  .anuncios-page {
+    --anuncios-bg: #00051a;
+    --anuncios-card-bg: #05102a;
+    --anuncios-text: #c8d8ff;
+    --anuncios-text-muted: #8090d0;
+    --anuncios-border: #0a1a5a;
+    --anuncios-accent: #0066ff;
+    --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
+  }
+}
+
+// YELLOW
+:host-context([data-theme="yellow"]),
+:host-context(.tema-yellow) {
+  .anuncios-page {
+    --anuncios-bg: #1a1400;
+    --anuncios-card-bg: #2a2005;
+    --anuncios-text: #fff4c8;
+    --anuncios-text-muted: #d0c080;
+    --anuncios-border: #5a4a0a;
+    --anuncios-accent: #ffd600;
+    --anuncios-accent-text: #1a1400;
+    --anuncios-close-bg: rgba(0, 0, 0, 0.15);
+    --anuncios-close-text: #1a1400;
+  }
+}
+
+// ORANGE
+:host-context([data-theme="orange"]),
+:host-context(.tema-orange) {
+  .anuncios-page {
+    --anuncios-bg: #1a0a00;
+    --anuncios-card-bg: #2a1405;
+    --anuncios-text: #ffdcc8;
+    --anuncios-text-muted: #d0a080;
+    --anuncios-border: #5a2a0a;
+    --anuncios-accent: #ff6d00;
+    --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
+  }
+}
+
+// PURPLE
+:host-context([data-theme="purple"]),
+:host-context(.tema-purple) {
+  .anuncios-page {
+    --anuncios-bg: #0f001a;
+    --anuncios-card-bg: #20052a;
+    --anuncios-text: #e8c8ff;
+    --anuncios-text-muted: #b090d0;
+    --anuncios-border: #4a0a5a;
+    --anuncios-accent: #9c27b0;
+    --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
+  }
+}
+
+// PINK
+:host-context([data-theme="pink"]),
+:host-context(.tema-pink) {
+  .anuncios-page {
+    --anuncios-bg: #1a0010;
+    --anuncios-card-bg: #2a0520;
+    --anuncios-text: #ffd0e8;
+    --anuncios-text-muted: #d090b8;
+    --anuncios-border: #5a0a3a;
+    --anuncios-accent: #ff4081;
+    --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
+  }
+}
+
+// CYAN
+:host-context([data-theme="cyan"]),
+:host-context(.tema-cyan) {
+  .anuncios-page {
+    --anuncios-bg: #001a1a;
+    --anuncios-card-bg: #052a2a;
+    --anuncios-text: #c8ffff;
+    --anuncios-text-muted: #80d0d0;
+    --anuncios-border: #0a5a5a;
+    --anuncios-accent: #00e5ff;
+    --anuncios-accent-text: #001a1a;
+    --anuncios-close-bg: rgba(0, 0, 0, 0.15);
+    --anuncios-close-text: #001a1a;
+  }
+}
+
+// WHITE
+:host-context([data-theme="white"]),
+:host-context(.tema-white) {
   .anuncios-page {
     --anuncios-bg: #ffffff;
     --anuncios-card-bg: #f5f7fa;
-    --anuncios-text: #1a1a2e;
-    --anuncios-text-muted: #4a5568;
-    --anuncios-border: #e2e8f0;
+    --anuncios-text: #1a1a1a;
+    --anuncios-text-muted: #555555;
+    --anuncios-border: #d0d0d0;
     --anuncios-accent: #2dd4bf;
+    --anuncios-accent-text: #0d1117;
+    --anuncios-close-bg: rgba(248, 81, 73, 0.15);
+    --anuncios-close-text: #f85149;
+  }
+}
+
+// BLACK
+:host-context([data-theme="black"]),
+:host-context(.tema-black) {
+  .anuncios-page {
+    --anuncios-bg: #000000;
+    --anuncios-card-bg: #0a0a0a;
+    --anuncios-text: #e0e0e0;
+    --anuncios-text-muted: #909090;
+    --anuncios-border: #222222;
+    --anuncios-accent: #2dd4bf;
+    --anuncios-accent-text: #000000;
+    --anuncios-close-bg: rgba(248, 81, 73, 0.15);
+    --anuncios-close-text: #f85149;
+  }
+}
+
+// GRAY
+:host-context([data-theme="gray"]),
+:host-context(.tema-gray) {
+  .anuncios-page {
+    --anuncios-bg: #141414;
+    --anuncios-card-bg: #1e1e1e;
+    --anuncios-text: #e0e0e0;
+    --anuncios-text-muted: #909090;
+    --anuncios-border: #3a3a3a;
+    --anuncios-accent: #9e9e9e;
+    --anuncios-accent-text: #141414;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
+  }
+}
+
+// LIME
+:host-context([data-theme="lime"]),
+:host-context(.tema-lime) {
+  .anuncios-page {
+    --anuncios-bg: #101a00;
+    --anuncios-card-bg: #1e2a05;
+    --anuncios-text: #e8ffc8;
+    --anuncios-text-muted: #b8d080;
+    --anuncios-border: #4a5a0a;
+    --anuncios-accent: #c6ff00;
+    --anuncios-accent-text: #101a00;
+    --anuncios-close-bg: rgba(0, 0, 0, 0.15);
+    --anuncios-close-text: #101a00;
+  }
+}
+
+// TEAL
+:host-context([data-theme="teal"]),
+:host-context(.tema-teal) {
+  .anuncios-page {
+    --anuncios-bg: #001a15;
+    --anuncios-card-bg: #052a22;
+    --anuncios-text: #c8ffeb;
+    --anuncios-text-muted: #80c8b0;
+    --anuncios-border: #0a5a48;
+    --anuncios-accent: #009688;
     --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
   }
 }
 
-// ============================================================
-// TEMA SUNSET
-// ============================================================
-:host-context([data-theme="sunset"]),
-:host-context(.tema-sunset) {
+// BROWN
+:host-context([data-theme="brown"]),
+:host-context(.tema-brown) {
   .anuncios-page {
-    --anuncios-bg: #2d1b1b;
-    --anuncios-card-bg: #4a2626;
-    --anuncios-text: #fff5f5;
-    --anuncios-text-muted: #ffb3b3;
-    --anuncios-border: #6b3636;
-    --anuncios-accent: #feca57;
-    --anuncios-accent-text: #2d1b1b;
-  }
-}
-
-// ============================================================
-// TEMA OCEAN
-// ============================================================
-:host-context([data-theme="ocean"]),
-:host-context(.tema-ocean) {
-  .anuncios-page {
-    --anuncios-bg: #0a1929;
-    --anuncios-card-bg: #0f2a3f;
-    --anuncios-text: #e6f4f8;
-    --anuncios-text-muted: #7ec8e3;
-    --anuncios-border: #1a4060;
-    --anuncios-accent: #00cec9;
-    --anuncios-accent-text: #0a1929;
-  }
-}
-
-// ============================================================
-// TEMA AURORA
-// ============================================================
-:host-context([data-theme="aurora"]),
-:host-context(.tema-aurora) {
-  .anuncios-page {
-    --anuncios-bg: #1a1630;
-    --anuncios-card-bg: #2a2345;
-    --anuncios-text: #f0eaff;
-    --anuncios-text-muted: #b8a9e8;
-    --anuncios-border: #3d3260;
-    --anuncios-accent: #6c5ce7;
+    --anuncios-bg: #1a100a;
+    --anuncios-card-bg: #2a1e14;
+    --anuncios-text: #e8d0c0;
+    --anuncios-text-muted: #b8a090;
+    --anuncios-border: #5a3a1a;
+    --anuncios-accent: #795548;
     --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
   }
 }
 
-// ============================================================
-// TEMA GALAXY
-// ============================================================
-:host-context([data-theme="galaxy"]),
-:host-context(.tema-galaxy) {
+// INDIGO
+:host-context([data-theme="indigo"]),
+:host-context(.tema-indigo) {
   .anuncios-page {
-    --anuncios-bg: #0f0f1e;
-    --anuncios-card-bg: #1e1e35;
-    --anuncios-text: #e8e5ff;
-    --anuncios-text-muted: #a99ee8;
-    --anuncios-border: #2e2e50;
-    --anuncios-accent: #fd79a8;
-    --anuncios-accent-text: #0f0f1e;
-  }
-}
-
-// ============================================================
-// TEMA LAVA
-// ============================================================
-:host-context([data-theme="lava"]),
-:host-context(.tema-lava) {
-  .anuncios-page {
-    --anuncios-bg: #2a0a0a;
-    --anuncios-card-bg: #4a1010;
-    --anuncios-text: #ffe8e8;
-    --anuncios-text-muted: #ff9999;
-    --anuncios-border: #6b1f1f;
-    --anuncios-accent: #e17055;
-    --anuncios-accent-text: #2a0a0a;
-  }
-}
-
-// ============================================================
-// TEMA FOREST
-// ============================================================
-:host-context([data-theme="forest"]),
-:host-context(.tema-forest) {
-  .anuncios-page {
-    --anuncios-bg: #0a1f15;
-    --anuncios-card-bg: #143a26;
-    --anuncios-text: #e6f7ee;
-    --anuncios-text-muted: #80d4a0;
-    --anuncios-border: #1f5035;
-    --anuncios-accent: #55efc4;
-    --anuncios-accent-text: #0a1f15;
-  }
-}
-
-// ============================================================
-// TEMA CANDY
-// ============================================================
-:host-context([data-theme="candy"]),
-:host-context(.tema-candy) {
-  .anuncios-page {
-    --anuncios-bg: #2a1a2e;
-    --anuncios-card-bg: #3d2545;
-    --anuncios-text: #fde8f5;
-    --anuncios-text-muted: #f5a3d0;
-    --anuncios-border: #55304f;
-    --anuncios-accent: #fd79a8;
-    --anuncios-accent-text: #2a1a2e;
-  }
-}
-
-// ============================================================
-// TEMA CYBER
-// ============================================================
-:host-context([data-theme="cyber"]),
-:host-context(.tema-cyber) {
-  .anuncios-page {
-    --anuncios-bg: #0a0a1a;
-    --anuncios-card-bg: #141428;
-    --anuncios-text: #e0f7ff;
-    --anuncios-text-muted: #7ecfff;
-    --anuncios-border: #1e3a5f;
-    --anuncios-accent: #00d4ff;
-    --anuncios-accent-text: #0a0a1a;
-  }
-}
-
-// ============================================================
-// TEMA BLOOD
-// ============================================================
-:host-context([data-theme="blood"]),
-:host-context(.tema-blood) {
-  .anuncios-page {
-    --anuncios-bg: #1a0a0a;
-    --anuncios-card-bg: #2e0f0f;
-    --anuncios-text: #ffe0e0;
-    --anuncios-text-muted: #ff8080;
-    --anuncios-border: #4a1a1a;
-    --anuncios-accent: #ff0044;
+    --anuncios-bg: #05081a;
+    --anuncios-card-bg: #0f1828;
+    --anuncios-text: #d0d4ff;
+    --anuncios-text-muted: #9098d0;
+    --anuncios-border: #1a225a;
+    --anuncios-accent: #3f51b5;
     --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
   }
 }
 
-// ============================================================
-// TEMA ROYAL
-// ============================================================
-:host-context([data-theme="royal"]),
-:host-context(.tema-royal) {
+// CRIMSON
+:host-context([data-theme="crimson"]),
+:host-context(.tema-crimson) {
   .anuncios-page {
-    --anuncios-bg: #1a1030;
-    --anuncios-card-bg: #2a1a4a;
-    --anuncios-text: #f0e6ff;
-    --anuncios-text-muted: #b8a0e8;
-    --anuncios-border: #3d2a5f;
-    --anuncios-accent: #6c5ce7;
+    --anuncios-bg: #1a0005;
+    --anuncios-card-bg: #2a0508;
+    --anuncios-text: #ffc8d0;
+    --anuncios-text-muted: #d09098;
+    --anuncios-border: #5a0a1a;
+    --anuncios-accent: #dc143c;
     --anuncios-accent-text: #ffffff;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
   }
 }
 
-// ============================================================
-// TEMA GOLD
-// ============================================================
+// GOLD
 :host-context([data-theme="gold"]),
 :host-context(.tema-gold) {
   .anuncios-page {
-    --anuncios-bg: #1f1a0a;
-    --anuncios-card-bg: #3a2e10;
-    --anuncios-text: #fff8e0;
-    --anuncios-text-muted: #e8cc80;
-    --anuncios-border: #5a4a1f;
-    --anuncios-accent: #f9ca24;
-    --anuncios-accent-text: #1f1a0a;
+    --anuncios-bg: #1a1400;
+    --anuncios-card-bg: #2a2005;
+    --anuncios-text: #fff4c8;
+    --anuncios-text-muted: #d8c090;
+    --anuncios-border: #5a4a0a;
+    --anuncios-accent: #ffc107;
+    --anuncios-accent-text: #1a1400;
+    --anuncios-close-bg: rgba(0, 0, 0, 0.15);
+    --anuncios-close-text: #1a1400;
   }
 }
 
-// ============================================================
-// TEMA PASTEL
-// ============================================================
-:host-context([data-theme="pastel"]),
-:host-context(.tema-pastel) {
+// SILVER
+:host-context([data-theme="silver"]),
+:host-context(.tema-silver) {
   .anuncios-page {
-    --anuncios-bg: #f0e6ff;
-    --anuncios-card-bg: #faf5ff;
-    --anuncios-text: #2d1a3d;
-    --anuncios-text-muted: #7a5a9a;
-    --anuncios-border: #d8c8e8;
-    --anuncios-accent: #fd79a8;
-    --anuncios-accent-text: #ffffff;
+    --anuncios-bg: #15171a;
+    --anuncios-card-bg: #24272c;
+    --anuncios-text: #eceff1;
+    --anuncios-text-muted: #b0bec5;
+    --anuncios-border: #3a3f45;
+    --anuncios-accent: #cfd8dc;
+    --anuncios-accent-text: #15171a;
+    --anuncios-close-bg: rgba(0, 0, 0, 0.15);
+    --anuncios-close-text: #15171a;
   }
 }
 
-// ============================================================
-// TEMA NEON
-// ============================================================
-:host-context([data-theme="neon"]),
-:host-context(.tema-neon) {
+// NAVY
+:host-context([data-theme="navy"]),
+:host-context(.tema-navy) {
   .anuncios-page {
-    --anuncios-bg: #0a0a1a;
-    --anuncios-card-bg: #14142a;
-    --anuncios-text: #e0e0ff;
-    --anuncios-text-muted: #a0a0ff;
-    --anuncios-border: #2a2a4a;
-    --anuncios-accent: #fd79a8;
-    --anuncios-accent-text: #0a0a1a;
+    --anuncios-bg: #000814;
+    --anuncios-card-bg: #05182e;
+    --anuncios-text: #c8d8f0;
+    --anuncios-text-muted: #8098c0;
+    --anuncios-border: #0a2a5a;
+    --anuncios-accent: #2dd4bf;
+    --anuncios-accent-text: #000814;
+    --anuncios-close-bg: rgba(255, 255, 255, 0.15);
+    --anuncios-close-text: #ffffff;
   }
 }
 
@@ -323,7 +390,7 @@
 }
 
 // ============================================================
-// TITULOS Y ESTADOS
+// TÍTULOS Y ESTADOS
 // ============================================================
 .anuncios-title {
   font-size: 1.8rem;
@@ -376,6 +443,7 @@
   width: 240px;
   display: flex;
   flex-direction: column;
+  color: var(--anuncios-text);
 
   touch-action: pan-y;
   user-select: none;
@@ -502,9 +570,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .floating-ad__nav {
-    display: flex;
-  }
+  .floating-ad__nav { display: flex; }
 }
 
 // ============================================================
@@ -517,7 +583,7 @@
 }
 
 // ============================================================
-// TARJETA DEL ANUNCIO (AHORA RESPONDE AL TEMA)
+// TARJETA DEL ANUNCIO
 // ============================================================
 .anuncio-card {
   background-color: var(--anuncios-card-bg);
@@ -598,15 +664,6 @@
   }
 }
 
-:host-context([data-theme="light"]),
-:host-context(.tema-light) {
-  .anuncios-page kiert-aviso-login .aviso-login {
-    background: #fff3cd;
-    border-color: #ffeeba;
-    color: #856404;
-  }
-}
-
 // ============================================================
 // RESPONSIVE
 // ============================================================
@@ -614,9 +671,7 @@
   .anuncios-page {
     padding: 1rem 0.75rem;
 
-    kiert-aviso-login {
-      margin-bottom: 16px;
-    }
+    kiert-aviso-login { margin-bottom: 16px; }
   }
 
   .anuncios-title {
@@ -637,16 +692,7 @@
 }
 
 @media (max-width: 480px) {
-  .floating-ad {
-    display: none;
-  }
-
-  .anuncios-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .anuncio-card__imagen-wrapper {
-    height: 180px;
-  }
+  .floating-ad { display: none; }
+  .anuncios-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .anuncio-card__imagen-wrapper { height: 180px; }
 }

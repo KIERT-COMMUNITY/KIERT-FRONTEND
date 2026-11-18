@@ -292,7 +292,8 @@
       @for (recurso of recursosMostrados(); track recurso.id) {
         <div class="recurso-card" (click)="abrirEnlace(recurso.url, recurso.titulo)">
 
-          @if (recurso.esUsuario) {
+          <!-- ✅ CAMBIO: esRecursoDeUsuario(recurso) en vez de recurso.esUsuario -->
+          @if (esRecursoDeUsuario(recurso)) {
             <div class="recurso-card__acciones-usuario">
               <button type="button" class="btn-accion btn-historial"
                       (click)="abrirHistorial(recurso, $event)"
