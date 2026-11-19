@@ -1,5 +1,13 @@
 // post-detail.component.scss - COMPLETO, ESTÁTICO Y RESPONSIVE
-
+.post-detail {
+  // ... tus estilos existentes
+  opacity: 1 !important; // Fuerza la visibilidad
+  visibility: visible !important;
+  animation: none !important; // Desactiva animaciones de entrada que puedan fallar
+  transition: none !important; // Desactiva transiciones de opacidad
+  
+  // ... resto de estilos
+}
 // ============================================================
 // VARIABLES PERSONALIZADAS
 // ============================================================
@@ -21,6 +29,10 @@ $radius-sm: 8px;
 $radius-lg: 16px;
 $font-display: 'JetBrains Mono', monospace;
 
+// ✅ NUEVO: Variable de texto con fallback seguro
+$text-safe: var(--tema-text, #e6edf3);
+$text-muted-safe: var(--tema-text-muted, #8b98a5);
+
 // ============================================================
 // LOADING & ERROR
 // ============================================================
@@ -31,7 +43,7 @@ $font-display: 'JetBrains Mono', monospace;
   border-radius: $radius;
   padding: 2.5rem 2rem;
   text-align: center;
-  color: var(--tema-text);
+  color: $text-safe; // ✅ Fallback
 }
 
 .spinner {
@@ -46,19 +58,19 @@ $font-display: 'JetBrains Mono', monospace;
 .error-container {
   .error-icon {
     margin-bottom: 1rem;
-    color: var(--tema-text);
+    color: $text-safe;
 
     svg { stroke: currentColor; }
   }
 
   h2 {
-    color: var(--tema-text);
+    color: $text-safe;
     margin-bottom: 0.5rem;
     font-size: 1.3rem;
   }
 
   p {
-    color: var(--tema-text);
+    color: $text-safe;
     opacity: 0.8;
     margin-bottom: 1.5rem;
   }
@@ -84,12 +96,13 @@ $font-display: 'JetBrains Mono', monospace;
 // POST DETALLE
 // ============================================================
 .post-detail {
-  background: $bg-secondary;
-  border: 1px solid $border-color;
+  // ✅ FIX: Aseguramos un fondo para que el texto contraste
+  background: var(--tema-card-bg, $bg-secondary); 
+  border: 1px solid var(--tema-border, $border-color);
   border-radius: $radius;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  color: var(--tema-text);
+  color: $text-safe; // ✅ Fallback
 
   &__header {
     display: flex;
@@ -148,7 +161,7 @@ $font-display: 'JetBrains Mono', monospace;
   &__username {
     font-weight: 600;
     font-size: 0.95rem;
-    color: var(--tema-text);
+    color: $text-safe;
     cursor: pointer;
   }
 
@@ -167,15 +180,17 @@ $font-display: 'JetBrains Mono', monospace;
 
   &__fecha {
     font-size: 0.7rem;
-    color: var(--tema-text);
-    opacity: 0.6;
+    color: $text-safe;
+    opacity: 0.7; // ✅ Subido de 0.6 a 0.7
     white-space: nowrap;
   }
 
   &__titulo {
     font-size: 1.4rem;
     font-weight: 700;
-    color: var(--tema-text);
+    // ✅ FIX: Color seguro y sombra para legibilidad
+    color: $text-safe; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5); 
     margin: 0.75rem 0;
     line-height: 1.3;
     font-family: $font-display;
@@ -185,8 +200,9 @@ $font-display: 'JetBrains Mono', monospace;
   &__desc {
     font-size: 0.95rem;
     line-height: 1.8;
-    color: var(--tema-text);
-    opacity: 0.85;
+    // ✅ FIX: Color seguro y opacidad alta
+    color: $text-safe;
+    opacity: 0.9; 
     margin-bottom: 1rem;
     overflow-wrap: anywhere;
   }
@@ -231,8 +247,8 @@ $font-display: 'JetBrains Mono', monospace;
 
     h4 {
       font-size: 0.8rem;
-      color: var(--tema-text);
-      opacity: 0.6;
+      color: $text-safe;
+      opacity: 0.7; // ✅ Subido de 0.6 a 0.7
       margin-bottom: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -255,7 +271,7 @@ $font-display: 'JetBrains Mono', monospace;
     border: 1px solid $border-color;
     border-radius: $radius-sm;
     text-decoration: none;
-    color: var(--tema-text);
+    color: $text-safe; // ✅ Fallback
     font-size: 0.8rem;
 
     .adjunto-icono { font-size: 0.9rem; }
@@ -291,8 +307,8 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: 1px solid $border-color;
   border-radius: 50%;
-  color: var(--tema-text);
-  opacity: 0.6;
+  color: $text-safe; // ✅ Fallback
+  opacity: 0.7; // ✅ Subido de 0.6 a 0.7
   cursor: pointer;
   flex-shrink: 0;
 
@@ -317,7 +333,7 @@ $font-display: 'JetBrains Mono', monospace;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  color: var(--tema-text);
+  color: $text-safe; // ✅ Fallback
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -413,8 +429,8 @@ $font-display: 'JetBrains Mono', monospace;
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  color: var(--tema-text);
-  opacity: 0.7;
+  color: $text-safe; // ✅ Fallback
+  opacity: 0.8; // ✅ Subido de 0.7 a 0.8
 
   svg { stroke: currentColor; flex-shrink: 0; }
 }
@@ -423,11 +439,12 @@ $font-display: 'JetBrains Mono', monospace;
 // COMENTARIOS
 // ============================================================
 .comentarios {
-  background: $bg-secondary;
-  border: 1px solid $border-color;
+  // ✅ FIX: Fondo asegurado
+  background: var(--tema-card-bg, $bg-secondary);
+  border: 1px solid var(--tema-border, $border-color);
   border-radius: $radius;
   padding: 1.5rem;
-  color: var(--tema-text);
+  color: $text-safe; // ✅ Fallback
 
   &__header {
     display: flex;
@@ -437,15 +454,15 @@ $font-display: 'JetBrains Mono', monospace;
 
     h3 {
       font-size: 1.1rem;
-      color: var(--tema-text);
+      color: $text-safe; // ✅ Fallback
       margin: 0;
       font-family: $font-display;
     }
 
     &__count {
       font-size: 0.75rem;
-      color: var(--tema-text);
-      opacity: 0.7;
+      color: $text-safe;
+      opacity: 0.8; // ✅ Subido
       background: rgba(255, 255, 255, 0.05);
       padding: 0.15rem 0.6rem;
       border-radius: 20px;
@@ -471,13 +488,13 @@ $font-display: 'JetBrains Mono', monospace;
     background: transparent;
     border: none;
     padding: 0.4rem 0.2rem;
-    color: var(--tema-text);
+    color: $text-safe; // ✅ Fallback
     font-size: 0.9rem;
     outline: none;
     font-family: inherit;
     min-width: 0;
 
-    &::placeholder { color: var(--tema-text); opacity: 0.5; }
+    &::placeholder { color: $text-safe; opacity: 0.6; } // ✅ Subido
 
     &.disabled {
       opacity: 0.5;
@@ -520,8 +537,8 @@ $font-display: 'JetBrains Mono', monospace;
     align-items: center;
     gap: 8px;
     padding: 1.5rem;
-    color: var(--tema-text);
-    opacity: 0.5;
+    color: $text-safe;
+    opacity: 0.6; // ✅ Subido de 0.5 a 0.6
 
     p { margin: 0; font-size: 0.9rem; }
   }
@@ -571,21 +588,21 @@ $font-display: 'JetBrains Mono', monospace;
   &__autor {
     font-weight: 600;
     font-size: 0.85rem;
-    color: var(--tema-text);
+    color: $text-safe; // ✅ Fallback
     cursor: pointer;
   }
 
   &__fecha {
     font-size: 0.65rem;
-    color: var(--tema-text);
-    opacity: 0.5;
+    color: $text-safe;
+    opacity: 0.6; // ✅ Subido de 0.5 a 0.6
   }
 
   &__texto {
     font-size: 0.9rem;
     line-height: 1.6;
-    color: var(--tema-text);
-    opacity: 0.9;
+    color: $text-safe; // ✅ Fallback
+    opacity: 0.95; // ✅ Subido de 0.9 a 0.95
     margin: 0;
     overflow-wrap: anywhere;
   }
@@ -604,7 +621,7 @@ $font-display: 'JetBrains Mono', monospace;
     gap: 5px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--tema-text);
+    color: $text-safe; // ✅ Fallback
     font-size: 0.72rem;
     font-weight: 600;
     cursor: pointer;
@@ -642,8 +659,8 @@ $font-display: 'JetBrains Mono', monospace;
     gap: 4px;
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--tema-text);
-    opacity: 0.7;
+    color: $text-safe; // ✅ Fallback
+    opacity: 0.8; // ✅ Subido de 0.7 a 0.8
     font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
@@ -655,8 +672,8 @@ $font-display: 'JetBrains Mono', monospace;
   &__reportar {
     background: none;
     border: none;
-    color: var(--tema-text);
-    opacity: 0.5;
+    color: $text-safe; // ✅ Fallback
+    opacity: 0.6; // ✅ Subido de 0.5 a 0.6
     cursor: pointer;
     padding: 0 4px;
     display: inline-flex;
@@ -685,12 +702,12 @@ $font-display: 'JetBrains Mono', monospace;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid $border-color;
     border-radius: 6px;
-    color: var(--tema-text);
+    color: $text-safe; // ✅ Fallback
     font-size: 0.85rem;
     outline: none;
     min-width: 0;
 
-    &::placeholder { color: var(--tema-text); opacity: 0.5; }
+    &::placeholder { color: $text-safe; opacity: 0.6; }
   }
 
   &__btn {
@@ -768,18 +785,18 @@ $font-display: 'JetBrains Mono', monospace;
   &__autor {
     font-weight: 600;
     font-size: 0.75rem;
-    color: var(--tema-text);
+    color: $text-safe; // ✅ Fallback
     cursor: pointer;
   }
 
-  &__fecha { font-size: 0.6rem; color: var(--tema-text); opacity: 0.5; }
+  &__fecha { font-size: 0.6rem; color: $text-safe; opacity: 0.6; } // ✅ Subido
 
   &__eliminar,
   &__reportar {
     background: none;
     border: none;
-    color: var(--tema-text);
-    opacity: 0.5;
+    color: $text-safe;
+    opacity: 0.6; // ✅ Subido
     cursor: pointer;
     padding: 0 2px;
     display: inline-flex;
@@ -790,8 +807,8 @@ $font-display: 'JetBrains Mono', monospace;
 
   &__texto {
     font-size: 0.85rem;
-    color: var(--tema-text);
-    opacity: 0.9;
+    color: $text-safe; // ✅ Fallback
+    opacity: 0.95; // ✅ Subido
     margin: 0;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -810,7 +827,7 @@ $font-display: 'JetBrains Mono', monospace;
     gap: 4px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--tema-text);
+    color: $text-safe; // ✅ Fallback
     font-size: 0.65rem;
     font-weight: 600;
     cursor: pointer;
@@ -849,8 +866,8 @@ $font-display: 'JetBrains Mono', monospace;
   gap: 0.5rem;
   margin-top: 0.5rem;
   margin-left: 2.5rem;
-  color: var(--tema-text);
-  opacity: 0.6;
+  color: $text-safe;
+  opacity: 0.7; // ✅ Subido de 0.6 a 0.7
   font-size: 0.75rem;
 
   .spinner-small {
@@ -905,8 +922,8 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: 1px solid $border-color;
   border-radius: 20px;
-  color: var(--tema-text);
-  opacity: 0.7;
+  color: $text-safe; // ✅ Fallback
+  opacity: 0.8; // ✅ Subido
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -927,7 +944,7 @@ $font-display: 'JetBrains Mono', monospace;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid $border-color;
   border-radius: 6px;
-  color: var(--tema-text);
+  color: $text-safe; // ✅ Fallback
   font-size: 0.75rem;
   cursor: pointer;
   outline: none;
@@ -958,8 +975,8 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: 1px dashed $border-light;
   border-radius: 20px;
-  color: var(--tema-text);
-  opacity: 0.7;
+  color: $text-safe; // ✅ Fallback
+  opacity: 0.8; // ✅ Subido
   font-size: 0.75rem;
   cursor: pointer;
   margin-left: auto;
@@ -1176,8 +1193,8 @@ $font-display: 'JetBrains Mono', monospace;
 
   .comentarios__input {
     cursor: pointer;
-    color: var(--tema-text);
-    opacity: 0.6;
+    color: $text-safe; // ✅ Fallback
+    opacity: 0.7;
   }
 }
 
@@ -1219,7 +1236,7 @@ $font-display: 'JetBrains Mono', monospace;
   cursor: default !important;
   opacity: 0.9;
   font-style: normal;
-  color: var(--tema-text-muted, #8b98a5) !important;
+  color: $text-muted-safe !important; // ✅ Fallback seguro
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -1240,8 +1257,8 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: 1px solid $border-color;
   border-radius: 50%;
-  color: var(--tema-text);
-  opacity: 0.6;
+  color: $text-safe; // ✅ Fallback
+  opacity: 0.7; // ✅ Subido de 0.6 a 0.7
   cursor: pointer;
 
   svg { stroke: currentColor; }
@@ -1271,7 +1288,7 @@ $font-display: 'JetBrains Mono', monospace;
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: var(--tema-text);
+  color: $text-safe; // ✅ Fallback
   font-size: 0.82rem;
   font-family: inherit;
   font-weight: 500;
@@ -1311,5 +1328,78 @@ $font-display: 'JetBrains Mono', monospace;
   .post-detail__menu-item {
     font-size: 0.8rem;
     padding: 8px 10px;
+  }
+}
+// ============================================================
+// 🔥 SOLUCIÓN DEFINITIVA: FORZAR VISIBILIDAD DEL TEXTO
+// ============================================================
+
+// 1. Forzar color en el contenedor principal y todos los hijos de texto
+.post-detail,
+.comentarios {
+  // Si el fondo es oscuro, el texto debe ser claro.
+  // Usamos !important para ganar a cualquier estilo inline o de tema.
+  color: #e6edf3 !important; 
+  
+  // Asegurar que el fondo no sea transparente (si falla el ngStyle)
+  background-color: #131a22 !important; 
+  
+  // Forzar opacidad (por si hay animaciones de Angular)
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+// 2. Forzar color en títulos, descripciones y metadatos
+.post-detail__titulo,
+.post-detail__desc,
+.post-detail__username,
+.post-detail__fecha,
+.post-detail__badge,
+.comentario__texto,
+.comentario__autor,
+.comentario__fecha,
+.respuesta__texto,
+.respuesta__autor,
+.respuesta__fecha,
+.post-stat,
+.comentarios__empty p {
+  color: #e6edf3 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); // Sombra para legibilidad sobre fondos claros
+}
+
+// 3. Si el tema es CLARO (tema-light), invertir los colores
+// Esto asume que tienes una clase .tema-light en el body o html
+.tema-light {
+  .post-detail,
+  .comentarios,
+  .post-detail__titulo,
+  .post-detail__desc,
+  .post-detail__username,
+  .comentario__texto,
+  .comentario__autor {
+    color: #1a1a2e !important;
+    background-color: #ffffff !important;
+    text-shadow: none;
+  }
+}
+
+// 4. Forzar que las imágenes y videos no tapen el texto
+.post-detail__imagen img,
+.video-player__el {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+// 5. Corregir el input de comentarios (a veces hereda color transparente)
+.comentarios__input,
+.respuesta-form__input {
+  color: #e6edf3 !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  
+  &::placeholder {
+    color: #8b98a5 !important;
+    opacity: 1 !important;
   }
 }

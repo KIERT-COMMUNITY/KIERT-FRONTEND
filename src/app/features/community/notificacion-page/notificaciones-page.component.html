@@ -1,29 +1,32 @@
+<!-- src/app/features/community/notificacion-page/notificaciones-page.component.html -->
 <div class="notif-page">
 
   <!-- ===== HEADER ===== -->
   <header class="notif-header">
     <div class="notif-header__left">
       <button class="btn-back" (click)="volver()" aria-label="Volver">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
         Volver
       </button>
 
       <div class="notif-header__title">
-        <h1>
-          <span>Notificaciones</span>
-        </h1>
+        <h1><span>Notificaciones</span></h1>
         <p>{{ totalNoLeidas() }} sin leer de {{ notificaciones().length }} en total</p>
       </div>
     </div>
 
     <div class="notif-header__actions">
       @if (totalNoLeidas() > 0) {
-        <button class="btn-accion" (click)="marcarTodasComoLeidas()">
+        <button class="btn-accion" (click)="marcarTodasComoLeidas()" type="button">
           <span>Marcar todas leídas</span>
         </button>
       }
 
       @if (notificaciones().length > 0) {
-        <button class="btn-accion btn-accion--danger" (click)="abrirConfirmacionEliminarTodas()">
+        <button class="btn-accion btn-accion--danger" (click)="abrirConfirmacionEliminarTodas()" type="button">
           <span>Eliminar todas</span>
         </button>
       }
@@ -32,32 +35,38 @@
 
   <!-- ===== ESTADÍSTICAS / FILTROS ===== -->
   <div class="notif-stats">
-    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'todas'" (click)="cambiarFiltro('todas')" type="button">
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'todas'"
+            (click)="cambiarFiltro('todas')" type="button">
       <span class="stat-number">{{ notificaciones().length }}</span>
       <span class="stat-label">Todas</span>
     </button>
 
-    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'no-leidas'" (click)="cambiarFiltro('no-leidas')" type="button">
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'no-leidas'"
+            (click)="cambiarFiltro('no-leidas')" type="button">
       <span class="stat-number stat-number--primary">{{ totalNoLeidas() }}</span>
       <span class="stat-label">Sin leer</span>
     </button>
 
-    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'like'" (click)="cambiarFiltro('like')" type="button">
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'like'"
+            (click)="cambiarFiltro('like')" type="button">
       <span class="stat-number" [style.color]="getColorTipo('like')">{{ totalPorTipo().like }}</span>
       <span class="stat-label">Me gusta</span>
     </button>
 
-    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'comentario'" (click)="cambiarFiltro('comentario')" type="button">
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'comentario'"
+            (click)="cambiarFiltro('comentario')" type="button">
       <span class="stat-number" [style.color]="getColorTipo('comentario')">{{ totalPorTipo().comentario }}</span>
       <span class="stat-label">Comentarios</span>
     </button>
 
-    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'respuesta'" (click)="cambiarFiltro('respuesta')" type="button">
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'respuesta'"
+            (click)="cambiarFiltro('respuesta')" type="button">
       <span class="stat-number" [style.color]="getColorTipo('respuesta')">{{ totalPorTipo().respuesta }}</span>
       <span class="stat-label">Respuestas</span>
     </button>
 
-    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'solicitud'" (click)="cambiarFiltro('solicitud')" type="button">
+    <button class="stat-item" [class.stat-item--active]="filtroActual() === 'solicitud'"
+            (click)="cambiarFiltro('solicitud')" type="button">
       <span class="stat-number" [style.color]="getColorTipo('solicitud')">{{ totalPorTipo().solicitud }}</span>
       <span class="stat-label">Solicitudes</span>
     </button>
@@ -66,16 +75,27 @@
   <!-- ===== BUSCADOR Y ACCIONES ===== -->
   <div class="notif-toolbar">
     <div class="notif-search">
-      <input type="text" placeholder="Buscar notificaciones..." [(ngModel)]="busqueda">
+      <!-- ✅ FIX: signals NO funcionan con [(ngModel)] → usar [ngModel] + (ngModelChange) -->
+      <input
+        type="text"
+        placeholder="Buscar notificaciones..."
+        [ngModel]="busqueda()"
+        (ngModelChange)="busqueda.set($event)"
+      >
       @if (busqueda()) {
         <button class="btn-clear" (click)="busqueda.set('')" aria-label="Limpiar" type="button">
-          X
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       }
     </div>
 
     <div class="notif-toolbar__actions">
-      <button class="btn-toggle-select" [class.btn-toggle-select--active]="modoSeleccion()" (click)="toggleModoSeleccion()" title="Seleccionar múltiples" type="button">
+      <button class="btn-toggle-select" [class.btn-toggle-select--active]="modoSeleccion()"
+              (click)="toggleModoSeleccion()" title="Seleccionar múltiples" type="button">
         <span>{{ modoSeleccion() ? 'Cancelar' : 'Seleccionar' }}</span>
       </button>
 
@@ -88,13 +108,24 @@
   </div>
 
   <!-- ===== BARRA DE SELECCIÓN ===== -->
-  @if (modoSeleccion() && haySeleccionadas()) {
+  <!-- ✅ FIX: mostrar cuando modoSeleccion activo (aunque 0 seleccionadas) -->
+  @if (modoSeleccion()) {
     <div class="selection-bar">
-      <span class="selection-bar__count">{{ seleccionadas().size }} seleccionadas</span>
+      <span class="selection-bar__count">
+        {{ seleccionadas().size }} seleccionada{{ seleccionadas().size === 1 ? '' : 's' }}
+      </span>
       <div class="selection-bar__actions">
-        <button class="btn-selection" (click)="seleccionarTodas()" type="button">Seleccionar todas</button>
-        <button class="btn-selection" (click)="deseleccionarTodas()" type="button">Deseleccionar</button>
-        <button class="btn-selection btn-selection--danger" (click)="abrirConfirmacionEliminarSeleccionadas()" type="button">
+        <button class="btn-selection" (click)="seleccionarTodas()" type="button"
+                [disabled]="notificacionesFiltradas().length === 0">
+          Seleccionar todas
+        </button>
+        <button class="btn-selection" (click)="deseleccionarTodas()" type="button"
+                [disabled]="!haySeleccionadas()">
+          Deseleccionar
+        </button>
+        <button class="btn-selection btn-selection--danger"
+                (click)="abrirConfirmacionEliminarSeleccionadas()" type="button"
+                [disabled]="!haySeleccionadas()">
           Eliminar ({{ seleccionadas().size }})
         </button>
       </div>
@@ -124,7 +155,11 @@
     } @else {
       <div class="notif-list">
         @for (notificacion of notificacionesFiltradas(); track notificacion.id) {
-          <article class="notif-card" [class.notif-card--leida]="notificacion.leida" [class.notif-card--seleccionada]="estaSeleccionada(notificacion.id)" (click)="onClickNotificacion(notificacion)">
+          <article class="notif-card"
+                   [class.notif-card--leida]="notificacion.leida"
+                   [class.notif-card--seleccionada]="estaSeleccionada(notificacion.id)"
+                   (click)="onClickNotificacion(notificacion)">
+
             @if (modoSeleccion()) {
               <div class="notif-card__checkbox" (click)="toggleSeleccion(notificacion.id, $event)">
                 <div class="checkbox" [class.checkbox--checked]="estaSeleccionada(notificacion.id)">
@@ -137,13 +172,15 @@
 
             <div class="notif-card__icon" [style.background]="getColorTipo(notificacion.tipo) + '20'">
               <span class="notif-card__icon-text" [style.color]="getColorTipo(notificacion.tipo)">
-                {{ getEtiquetaTipo(notificacion.tipo).charAt(0) }}
+                {{ (getEtiquetaTipo(notificacion.tipo) || '?').charAt(0) }}
               </span>
             </div>
 
             <div class="notif-card__content">
               <div class="notif-card__header">
-                <span class="notif-card__tipo" [style.color]="getColorTipo(notificacion.tipo)">{{ getEtiquetaTipo(notificacion.tipo) }}</span>
+                <span class="notif-card__tipo" [style.color]="getColorTipo(notificacion.tipo)">
+                  {{ getEtiquetaTipo(notificacion.tipo) || 'Notificación' }}
+                </span>
                 @if (!notificacion.leida) { <span class="notif-card__nueva">Nueva</span> }
               </div>
 
@@ -162,17 +199,15 @@
             @if (!modoSeleccion()) {
               <div class="notif-card__actions">
                 @if (!notificacion.leida) {
-                  <button class="btn-card-action" (click)="marcarComoLeida(notificacion.id, $event)" title="Marcar como leída" type="button">
-                    Leída
-                  </button>
+                  <button class="btn-card-action" (click)="marcarComoLeida(notificacion.id, $event)"
+                          title="Marcar como leída" type="button">Leída</button>
                 } @else {
-                  <button class="btn-card-action" (click)="marcarComoNoLeida(notificacion.id, $event)" title="Marcar como no leída" type="button">
-                    No leída
-                  </button>
+                  <button class="btn-card-action" (click)="marcarComoNoLeida(notificacion.id, $event)"
+                          title="Marcar como no leída" type="button">No leída</button>
                 }
-                <button class="btn-card-action btn-card-action--danger" (click)="abrirConfirmacionEliminar(notificacion.id, $event)" title="Eliminar" type="button">
-                  Eliminar
-                </button>
+                <button class="btn-card-action btn-card-action--danger"
+                        (click)="abrirConfirmacionEliminar(notificacion.id, $event)"
+                        title="Eliminar" type="button">Eliminar</button>
               </div>
             }
           </article>
@@ -185,19 +220,17 @@
 <!-- ===== MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ===== -->
 @if (mostrarModalEliminar()) {
   <div class="modal-overlay" (click)="cerrarModalEliminar()">
-    <div class="modal-card modal-card--small" (click)="$event.stopPropagation()">
+    <div class="modal-card modal-card--small" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
       <div class="modal-header">
         <h3>Confirmar eliminación</h3>
       </div>
       <div class="modal-body">
         <p>{{ textoConfirmacion() }}</p>
-        <p class="modal-warn" style="color: #f85149; font-size: 0.8rem; margin-top: 8px;">
-          Esta acción no se puede deshacer.
-        </p>
+        <p class="modal-warn">Esta acción no se puede deshacer.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" (click)="cerrarModalEliminar()">Cancelar</button>
-        <button class="btn-danger" (click)="confirmarEliminar()">Sí, eliminar</button>
+        <button class="btn-secondary" (click)="cerrarModalEliminar()" type="button">Cancelar</button>
+        <button class="btn-danger" (click)="confirmarEliminar()" type="button">Sí, eliminar</button>
       </div>
     </div>
   </div>

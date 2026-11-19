@@ -1,13 +1,18 @@
 <!-- src/app/features/community/notificaciones/notificaciones.component.html -->
-<div class="notificaciones-container">
-  <button class="btn-notificaciones" (click)="toggleMenu()" [class.tiene-notificaciones]="noLeidas() > 0" [attr.aria-expanded]="mostrando()" aria-label="Notificaciones">
-    <span class="btn-texto">Notificaciones</span>
-    @if (noLeidas() > 0) {
-      <span class="badge-notificacion">{{ noLeidas() > 99 ? '99+' : noLeidas() }}</span>
-    }
-  </button>
+<div class="notificaciones-container" [class.modo-panel]="modoPanel">
 
-  @if (mostrando()) {
+  @if (!modoPanel) {
+    <button class="btn-notificaciones" (click)="toggleMenu()"
+            [class.tiene-notificaciones]="noLeidas() > 0"
+            [attr.aria-expanded]="mostrando()" aria-label="Notificaciones">
+      <span class="btn-texto">Notificaciones</span>
+      @if (noLeidas() > 0) {
+        <span class="badge-notificacion">{{ noLeidas() > 99 ? '99+' : noLeidas() }}</span>
+      }
+    </button>
+  }
+
+  @if (mostrando() || modoPanel) {
     <div class="dropdown-notificaciones">
       <div class="dropdown-header">
         <div class="dropdown-header-left">

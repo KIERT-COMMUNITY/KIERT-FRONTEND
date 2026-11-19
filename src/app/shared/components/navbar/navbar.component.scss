@@ -14,8 +14,6 @@ $danger: #f85149;
 $sidebar-expanded: 260px;
 $sidebar-collapsed: 78px;
 
-// Nota: Se ha eliminado la variable de transición
-
 :host {
   display: block;
   flex: 0 0 $sidebar-expanded;
@@ -31,7 +29,6 @@ $sidebar-collapsed: 78px;
   height: 100vh;
   background: rgba(13, 17, 23, 0.97);
   border-right: 1px solid $border;
-  /* Sin box-shadow */
 }
 
 .navbar-container {
@@ -42,9 +39,7 @@ $sidebar-collapsed: 78px;
   min-height: 0;
 }
 
-.navbar-mobile-header {
-  display: none;
-}
+.navbar-mobile-header { display: none; }
 
 .sidebar-header {
   display: flex;
@@ -68,13 +63,8 @@ $sidebar-collapsed: 78px;
   text-decoration: none;
   white-space: nowrap;
 
-  .brand-prompt {
-    color: $primary;
-  }
-
-  .brand-name {
-    color: $text-primary;
-  }
+  .brand-prompt { color: $primary; }
+  .brand-name { color: $text-primary; }
 }
 
 .collapse-button {
@@ -91,10 +81,7 @@ $sidebar-collapsed: 78px;
   border-radius: 10px;
   cursor: pointer;
 
-  svg {
-    width: 19px;
-    height: 19px;
-  }
+  svg { width: 19px; height: 19px; }
 
   &:focus-visible {
     outline: 2px solid $primary;
@@ -119,14 +106,8 @@ $sidebar-collapsed: 78px;
   scrollbar-color: $border transparent;
   scrollbar-width: thin;
 
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $border;
-    border-radius: 10px;
-  }
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-thumb { background: $border; border-radius: 10px; }
 }
 
 .menu-section {
@@ -134,9 +115,7 @@ $sidebar-collapsed: 78px;
   flex-direction: column;
   gap: 4px;
 
-  & + .menu-section {
-    margin-top: 20px;
-  }
+  & + .menu-section { margin-top: 20px; }
 }
 
 .menu-section-title {
@@ -191,13 +170,8 @@ $sidebar-collapsed: 78px;
     border-color: $primary-border;
     font-weight: 600;
 
-    &::before {
-      height: 24px;
-    }
-
-    .menu-icon {
-      color: $primary;
-    }
+    &::before { height: 24px; }
+    .menu-icon { color: $primary; }
   }
 
   &:focus-visible {
@@ -206,9 +180,7 @@ $sidebar-collapsed: 78px;
   }
 }
 
-.menu-button {
-  appearance: none;
-}
+.menu-button { appearance: none; }
 
 .menu-icon {
   display: inline-flex;
@@ -219,10 +191,7 @@ $sidebar-collapsed: 78px;
   flex: 0 0 21px;
   color: $text-muted;
 
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+  svg { width: 20px; height: 20px; }
 }
 
 .menu-label {
@@ -249,17 +218,6 @@ $sidebar-collapsed: 78px;
   line-height: 1;
 }
 
-.menu-item-notificaciones {
-  display: block;
-  width: 100%;
-  min-width: 0;
-
-  kiert-notificaciones {
-    display: block;
-    width: 100%;
-  }
-}
-
 .navbar-footer {
   flex: 0 0 auto;
   padding: 12px;
@@ -271,16 +229,15 @@ $sidebar-collapsed: 78px;
   color: $danger;
   border-color: rgba(248, 81, 73, 0.18);
 
-  .menu-icon {
-    color: $danger;
-  }
+  .menu-icon { color: $danger; }
 }
 
 .navbar-toggle,
-.navbar-overlay {
-  display: none;
-}
+.navbar-overlay { display: none; }
 
+// ============================================================
+// MODO CONTRAÍDO (SOLO ICONOS)
+// ============================================================
 .navbar.menu-contraido {
   width: $sidebar-collapsed;
 
@@ -290,9 +247,7 @@ $sidebar-collapsed: 78px;
     padding: 0 10px;
   }
 
-  .sidebar-brand {
-    display: none;
-  }
+  .sidebar-brand { display: none; }
 
   .collapse-button {
     width: 42px;
@@ -300,9 +255,7 @@ $sidebar-collapsed: 78px;
     flex-basis: 42px;
   }
 
-  .navbar-menu-inner {
-    padding: 14px 10px;
-  }
+  .navbar-menu-inner { padding: 14px 10px; }
 
   .menu-section {
     align-items: center;
@@ -329,9 +282,7 @@ $sidebar-collapsed: 78px;
     padding: 11px;
     gap: 0;
 
-    &::before {
-      left: -10px;
-    }
+    &::before { left: -10px; }
   }
 
   .menu-label {
@@ -352,14 +303,6 @@ $sidebar-collapsed: 78px;
     font-size: 0.58rem;
   }
 
-  .menu-item-notificaciones {
-    display: flex;
-    justify-content: center;
-    width: 54px;
-    min-height: 46px;
-    overflow: visible;
-  }
-
   .navbar-footer {
     display: flex;
     justify-content: center;
@@ -373,6 +316,63 @@ $sidebar-collapsed: 78px;
   min-width: $sidebar-collapsed;
 }
 
+// ============================================================
+// NOTIFICACIONES — panel flotante (no se recorta)
+// ============================================================
+.notificaciones-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1190;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  animation: notif-fade 0.15s ease-out;
+}
+
+.notificaciones-panel-flotante {
+  position: fixed;
+  top: 72px;
+  left: calc(#{$sidebar-expanded} + 12px);
+  z-index: 1200;
+  width: 420px;
+  max-width: calc(100vw - #{$sidebar-expanded} - 32px);
+  max-height: calc(100vh - 96px);
+  overflow: visible;
+  animation: notif-pop 0.18s ease-out;
+
+  // El componente hijo ya trae su dropdown con su propio estilo
+  ::ng-deep .dropdown-notificaciones {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - 96px) !important;
+    box-shadow:
+      0 24px 64px rgba(0, 0, 0, 0.75),
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 0 0 1px rgba(45, 212, 191, 0.18);
+  }
+}
+
+@keyframes notif-pop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes notif-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// Sidebar contraído → mover panel a la izquierda
+:host:has(.navbar.menu-contraido) .notificaciones-panel-flotante {
+  left: calc(#{$sidebar-collapsed} + 12px);
+  max-width: calc(100vw - #{$sidebar-collapsed} - 32px);
+}
+
+// ============================================================
+// RESPONSIVE (MÓVIL)
+// ============================================================
 @media (max-width: 1024px) {
   :host,
   :host:has(.navbar.menu-contraido) {
@@ -400,9 +400,7 @@ $sidebar-collapsed: 78px;
     padding: 0 16px;
   }
 
-  .sidebar-header {
-    display: none;
-  }
+  .sidebar-header { display: none; }
 
   .navbar-toggle {
     display: flex;
@@ -428,19 +426,9 @@ $sidebar-collapsed: 78px;
     }
 
     &.is-active {
-      .toggle-line:nth-child(1) {
-        background: $primary;
-        transform: translateY(7px) rotate(45deg);
-      }
-
-      .toggle-line:nth-child(2) {
-        opacity: 0;
-      }
-
-      .toggle-line:nth-child(3) {
-        background: $primary;
-        transform: translateY(-7px) rotate(-45deg);
-      }
+      .toggle-line:nth-child(1) { background: $primary; transform: translateY(7px) rotate(45deg); }
+      .toggle-line:nth-child(2) { opacity: 0; }
+      .toggle-line:nth-child(3) { background: $primary; transform: translateY(-7px) rotate(-45deg); }
     }
   }
 
@@ -453,20 +441,13 @@ $sidebar-collapsed: 78px;
     height: calc(100dvh - 60px);
     background: rgba(13, 17, 23, 0.99);
     border-right: 1px solid $border;
-    
-    /* Oculto por defecto sin transición */
-    display: none; 
+    display: none;
   }
 
-  .navbar.menu-abierto .navbar-container {
-    /* Se muestra instantáneamente al abrir */
-    display: flex; 
-  }
+  .navbar.menu-abierto .navbar-container { display: flex; }
 
   .navbar.menu-contraido {
-    .navbar-menu-inner {
-      padding: 16px 14px;
-    }
+    .navbar-menu-inner { padding: 16px 14px; }
 
     .menu-section {
       align-items: stretch;
@@ -493,9 +474,7 @@ $sidebar-collapsed: 78px;
       padding: 11px 12px;
       gap: 12px;
 
-      &::before {
-        left: -1px;
-      }
+      &::before { left: -1px; }
     }
 
     .menu-label {
@@ -514,12 +493,6 @@ $sidebar-collapsed: 78px;
       font-size: 0.66rem;
     }
 
-    .menu-item-notificaciones {
-      display: block;
-      width: 100%;
-      min-height: 0;
-    }
-
     .navbar-footer {
       display: block;
       padding: 12px 14px;
@@ -534,8 +507,22 @@ $sidebar-collapsed: 78px;
     width: 100%;
     height: calc(100dvh - 60px);
     padding: 0;
-    background: rgba(0, 0, 0, 0.6); /* Fondo oscuro sin blur */
+    background: rgba(0, 0, 0, 0.6);
     border: 0;
+  }
+
+  // Panel de notificaciones en móvil → centrado
+  .notificaciones-panel-flotante {
+    top: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 24px);
+    max-width: 440px;
+    max-height: calc(100dvh - 84px);
+
+    ::ng-deep .dropdown-notificaciones {
+      max-height: calc(100dvh - 84px) !important;
+    }
   }
 }
 
@@ -552,13 +539,8 @@ $sidebar-collapsed: 78px;
     height: 56px;
   }
 
-  .navbar-mobile-header {
-    padding: 0 12px;
-  }
-
-  .navbar-brand {
-    font-size: 1.05rem;
-  }
+  .navbar-mobile-header { padding: 0 12px; }
+  .navbar-brand { font-size: 1.05rem; }
 
   .navbar-container {
     top: 56px;
@@ -569,16 +551,20 @@ $sidebar-collapsed: 78px;
     inset: 56px 0 0;
     height: calc(100dvh - 56px);
   }
+
+  .notificaciones-panel-flotante {
+    top: 60px;
+    max-height: calc(100dvh - 72px);
+
+    ::ng-deep .dropdown-notificaciones {
+      max-height: calc(100dvh - 72px) !important;
+    }
+  }
 }
 
 @media (max-width: 380px) {
-  .navbar-container {
-    width: 90vw;
-  }
-
-  .navbar-brand {
-    font-size: 0.96rem;
-  }
+  .navbar-container { width: 90vw; }
+  .navbar-brand { font-size: 0.96rem; }
 
   .menu-item,
   .navbar.menu-contraido .menu-item {
@@ -591,7 +577,6 @@ $sidebar-collapsed: 78px;
 // ============================================================
 // SECCIÓN ADMIN
 // ============================================================
-
 .menu-section--admin {
   .menu-section-title {
     display: flex;
@@ -620,10 +605,7 @@ $sidebar-collapsed: 78px;
 
   .menu-icon {
     color: $primary;
-
-    svg {
-      stroke: $primary;
-    }
+    svg { stroke: $primary; }
   }
 
   .menu-label {
@@ -655,21 +637,6 @@ $sidebar-collapsed: 78px;
   text-transform: uppercase;
 }
 
-.navbar.menu-contraido {
-  .menu-badge--admin {
-    position: absolute;
-    top: 3px;
-    right: 2px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 3px;
-    font-size: 0.5rem;
-  }
-}
-
-// ============================================================
-// AJUSTE EXTRA: badge en modo contraído
-// ============================================================
 .navbar.menu-contraido {
   .menu-badge--admin {
     position: absolute;

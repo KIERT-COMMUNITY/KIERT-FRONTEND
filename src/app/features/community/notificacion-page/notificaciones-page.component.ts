@@ -3,8 +3,11 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { NotificationService, Notificacion, TipoNotificacion } from '../../../core/services/notification.service';
-import { AuthService } from '../../../core/services/auth.service';
+import {
+  NotificationService,
+  Notificacion,
+  TipoNotificacion
+} from '../../../core/services/notification.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 
 type FiltroTipo =
@@ -15,6 +18,7 @@ type FiltroTipo =
   | 'respuesta'
   | 'solicitud'
   | 'sistema'
+  | 'INVITACION_GRUPO'
   | 'REPORTE_NUEVO'
   | 'REPORTE_RESUELTO'
   | 'REPORTE_RECHAZADO'
@@ -46,7 +50,6 @@ export interface TotalesPorTipo {
 })
 export class NotificacionesPageComponent implements OnInit {
   private notificationService = inject(NotificationService);
-  private authService = inject(AuthService);
   private router = inject(Router);
   public personalizacionStore = inject(PersonalizacionStore);
 
@@ -63,7 +66,7 @@ export class NotificacionesPageComponent implements OnInit {
   seleccionadas = signal<Set<number>>(new Set());
   modoSeleccion = signal(false);
 
-  // ===== MODAL DE CONFIRMACIÓN (NUEVO) =====
+  // ===== MODAL DE CONFIRMACIÓN =====
   mostrarModalEliminar = signal(false);
   idAEliminar = signal<number | null>(null);
   textoConfirmacion = signal('');
@@ -82,7 +85,7 @@ export class NotificacionesPageComponent implements OnInit {
 
     if (query) {
       resultado = resultado.filter(n =>
-        n.mensaje?.toLowerCase().includes(query)
+        (n.mensaje || '').toLowerCase().includes(query)
       );
     }
 
@@ -143,15 +146,38 @@ export class NotificacionesPageComponent implements OnInit {
     event?.stopPropagation();
     this.notificationService.marcarComoLeida(id).subscribe({
       next: () => {
-        this.notificaciones.update(lista => lista.map(n => n.id === id ? { ...n, leida: true } : n));
+        this.notificaciones.update(lista =>
+          lista.map(n => n.id === id ? { ...n, leida: true } : n)
+        );
       },
-      error: () => {}
+      error: (err) => console.error('Error al marcar como leída:', err)
     });
   }
 
   marcarComoNoLeida(id: number, event?: Event): void {
     event?.stopPropagation();
-    this.notificaciones.update(lista => lista.map(n => n.id === id ? { ...n, leida: false } : n));
+
+    // Si el servicio tiene endpoint, lo usamos. Si no, solo local.
+    const service = this.notificationService as any;
+    const obs = typeof service.marcarComoNoLeida === 'function'
+      ? service.marcarComoNoLeida(id)
+      : null;
+
+    if (obs) {
+      obs.subscribe({
+        next: () => {
+          this.notificaciones.update(lista =>
+            lista.map(n => n.id === id ? { ...n, leida: false } : n)
+          );
+        },
+        error: (err: unknown) => console.error('Error al marcar como no leída:', err)
+      });
+    } else {
+      // Fallback local
+      this.notificaciones.update(lista =>
+        lista.map(n => n.id === id ? { ...n, leida: false } : n)
+      );
+    }
   }
 
   marcarTodasComoLeidas(): void {
@@ -159,11 +185,11 @@ export class NotificacionesPageComponent implements OnInit {
     if (ids.length === 0) return;
     this.notificationService.marcarTodasComoLeidas(ids).subscribe({
       next: () => this.notificaciones.update(lista => lista.map(n => ({ ...n, leida: true }))),
-      error: () => {}
+      error: (err) => console.error('Error al marcar todas como leídas:', err)
     });
   }
 
-  // ===== LOGICA DE ELIMINACIÓN CON MODAL =====
+  // ===== ELIMINACIÓN CON MODAL =====
   abrirConfirmacionEliminar(id: number, event?: Event): void {
     event?.stopPropagation();
     this.idAEliminar.set(id);
@@ -172,14 +198,17 @@ export class NotificacionesPageComponent implements OnInit {
   }
 
   abrirConfirmacionEliminarTodas(): void {
-    this.idAEliminar.set(null); // null significa "eliminar todas"
+    this.idAEliminar.set(null);
     this.textoConfirmacion.set('¿Eliminar TODAS las notificaciones? Esta acción no se puede deshacer.');
     this.mostrarModalEliminar.set(true);
   }
 
   abrirConfirmacionEliminarSeleccionadas(): void {
-    this.idAEliminar.set(null); // null y seleccionadas > 0 significa "eliminar seleccionadas"
-    this.textoConfirmacion.set(`¿Eliminar las ${this.seleccionadas().size} notificaciones seleccionadas?`);
+    if (!this.haySeleccionadas()) return;
+    this.idAEliminar.set(null);
+    this.textoConfirmacion.set(
+      `¿Eliminar las ${this.seleccionadas().size} notificaciones seleccionadas?`
+    );
     this.mostrarModalEliminar.set(true);
   }
 
@@ -201,7 +230,10 @@ export class NotificacionesPageComponent implements OnInit {
         },
         error: () => this.cerrarModalEliminar()
       });
-    } else if (seleccionadas.size > 0) {
+      return;
+    }
+
+    if (seleccionadas.size > 0) {
       // Eliminar seleccionadas
       const ids = Array.from(seleccionadas);
       ids.forEach(i => this.notificationService.eliminarNotificacion(i).subscribe());
@@ -209,15 +241,16 @@ export class NotificacionesPageComponent implements OnInit {
       this.seleccionadas.set(new Set());
       this.modoSeleccion.set(false);
       this.cerrarModalEliminar();
-    } else {
-      // Eliminar todas
-      const ids = this.notificaciones().map(n => n.id);
-      ids.forEach(i => this.notificationService.eliminarNotificacion(i).subscribe());
-      this.notificaciones.set([]);
-      this.seleccionadas.set(new Set());
-      this.modoSeleccion.set(false);
-      this.cerrarModalEliminar();
+      return;
     }
+
+    // Eliminar todas
+    const ids = this.notificaciones().map(n => n.id);
+    ids.forEach(i => this.notificationService.eliminarNotificacion(i).subscribe());
+    this.notificaciones.set([]);
+    this.seleccionadas.set(new Set());
+    this.modoSeleccion.set(false);
+    this.cerrarModalEliminar();
   }
 
   // ===== SELECCIÓN =====
@@ -245,6 +278,7 @@ export class NotificacionesPageComponent implements OnInit {
 
   deseleccionarTodas(): void { this.seleccionadas.set(new Set()); }
 
+  // ===== CLICK EN NOTIFICACIÓN =====
   onClickNotificacion(notificacion: Notificacion): void {
     if (this.modoSeleccion()) {
       this.toggleSeleccion(notificacion.id, new Event('click'));
@@ -259,18 +293,27 @@ export class NotificacionesPageComponent implements OnInit {
     }
   }
 
-  private construirNavegacion(notificacion: Notificacion): { ruta: any[]; queryParams?: Record<string, any>; } | null {
+  private construirNavegacion(notificacion: Notificacion):
+    { ruta: any[]; queryParams?: Record<string, any> } | null {
     const n = notificacion;
     switch (n.tipo) {
       case 'comentario':
-        if (n.postId) return { ruta: ['/comunidad', n.postId], queryParams: n.comentarioId ? { comentarioId: n.comentarioId } : undefined };
+        if (n.postId) {
+          return {
+            ruta: ['/comunidad', n.postId],
+            queryParams: n.comentarioId ? { comentarioId: n.comentarioId } : undefined
+          };
+        }
         break;
       case 'respuesta':
         if (n.postId) {
           const qp: Record<string, any> = {};
           if (n.comentarioId) qp['comentarioId'] = n.comentarioId;
           if (n.respuestaId) qp['respuestaId'] = n.respuestaId;
-          return { ruta: ['/comunidad', n.postId], queryParams: Object.keys(qp).length > 0 ? qp : undefined };
+          return {
+            ruta: ['/comunidad', n.postId],
+            queryParams: Object.keys(qp).length > 0 ? qp : undefined
+          };
         }
         break;
       case 'like':
@@ -292,8 +335,12 @@ export class NotificacionesPageComponent implements OnInit {
   volver(): void { this.router.navigate(['/comunidad']); }
 
   // ===== UTILIDADES =====
-  getColorTipo(tipo: string): string { return this.notificationService.getColorTipo(tipo as TipoNotificacion); }
-  getEtiquetaTipo(tipo: string): string { return this.notificationService.getEtiquetaTipo(tipo as TipoNotificacion); }
+  getColorTipo(tipo: string): string {
+    return this.notificationService.getColorTipo(tipo as TipoNotificacion);
+  }
+  getEtiquetaTipo(tipo: string): string {
+    return this.notificationService.getEtiquetaTipo(tipo as TipoNotificacion);
+  }
 
   formatearFecha(fecha: Date): string {
     const ahora = new Date();
@@ -306,6 +353,8 @@ export class NotificacionesPageComponent implements OnInit {
     if (minutos < 60) return `Hace ${minutos} ${minutos === 1 ? 'minuto' : 'minutos'}`;
     if (horas < 24) return `Hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
     if (dias < 7) return `Hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
-    return new Date(fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(fecha).toLocaleDateString('es-ES', {
+      day: '2-digit', month: 'long', year: 'numeric'
+    });
   }
 }

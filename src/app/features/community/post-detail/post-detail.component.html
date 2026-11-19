@@ -36,7 +36,7 @@
   } @else {
     @let postActual = post()!;
 
-    <article class="post-detail" [ngStyle]="{ background: fondoSeguro() }">
+   <article class="post-detail" [ngStyle]="{ background: fondoSeguro() }" style="color: #e6edf3 !important;">
 
       <!-- HEADER -->
       <div class="post-detail__header">
@@ -453,7 +453,7 @@
       </div>
     </article>
 
-    <section class="comentarios" [ngStyle]="{ background: fondoSeguro() }">
+    <section class="comentarios" [ngStyle]="{ background: fondoSeguro() }" style="color: #e6edf3 !important;">
       <div class="comentarios__header">
         <h3>Comentarios</h3>
         <span class="comentarios__count">{{ comentarios().length }}</span>

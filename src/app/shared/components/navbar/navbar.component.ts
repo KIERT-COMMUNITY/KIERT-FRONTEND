@@ -16,6 +16,7 @@ import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { ChatService } from '../../../core/services/chat.service';
 import { StorageService } from '../../../core/services/storage.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { NotificacionesComponent } from '../../../features/community/notificaciones/notificaciones.component';
 import { environment } from '../../../../environments/environment';
 
@@ -34,27 +35,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly chatService = inject(ChatService);
   private readonly storage = inject(StorageService);
   private readonly personalizacionStore = inject(PersonalizacionStore);
+  private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
 
-  //  Bandera para saber si el chat privado está activo
   readonly chatPrivadoHabilitado = environment.chatPrivadoEnabled ?? false;
 
   readonly menuAbierto = signal(false);
   readonly menuContraido = signal(false);
   readonly mensajesNoLeidos = signal(0);
 
+  // ✅ Estado del panel de notificaciones flotante
+  readonly panelNotificacionesAbierto = signal(false);
+  readonly notificacionesNoLeidas = signal(0);
+
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.restaurarEstadoMenu();
-    
-    //  Solo cargar e iniciar el intervalo si el chat está habilitado
+
+    // Refresco de contadores
+    this.cargarContadorNotificaciones();
+
     if (this.chatPrivadoHabilitado) {
       this.cargarMensajesNoLeidos();
-      this.intervalId = setInterval(() => {
-        this.cargarMensajesNoLeidos();
-      }, 30000);
     }
+
+    this.intervalId = setInterval(() => {
+      if (this.chatPrivadoHabilitado) this.cargarMensajesNoLeidos();
+      this.cargarContadorNotificaciones();
+    }, 30000);
   }
 
   ngOnDestroy(): void {
@@ -66,12 +75,28 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    if (this.panelNotificacionesAbierto()) {
+      this.cerrarPanelNotificaciones();
+      return;
+    }
     if (this.menuAbierto()) this.cerrarMenu();
   }
 
   @HostListener('window:resize')
   onResize(): void {
     if (window.innerWidth > 1024 && this.menuAbierto()) this.cerrarMenu();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(ev: MouseEvent): void {
+    if (!this.panelNotificacionesAbierto()) return;
+    const t = ev.target as HTMLElement;
+    // Si el clic está dentro del panel o del botón, no cerrar
+    if (
+      t.closest('.notificaciones-panel-flotante') ||
+      t.closest('.btn-notificaciones-trigger')
+    ) return;
+    this.cerrarPanelNotificaciones();
   }
 
   alternarMenu(): void { this.menuAbierto.update((v) => !v); }
@@ -87,18 +112,40 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.storage.setLocal('kiert-menu-contraido', String(nuevo));
   }
 
+  // ===== NOTIFICACIONES =====
+  toggleNotificaciones(): void {
+    this.panelNotificacionesAbierto.update(v => !v);
+    if (this.panelNotificacionesAbierto()) {
+      this.cerrarMenu();
+      this.cargarContadorNotificaciones();
+    }
+  }
+
+  cerrarPanelNotificaciones(): void {
+    this.panelNotificacionesAbierto.set(false);
+  }
+
+  cargarContadorNotificaciones(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.notificacionesNoLeidas.set(0);
+      return;
+    }
+    this.notificationService.contarNoLeidas().subscribe({
+      next: (n: number) => this.notificacionesNoLeidas.set(n || 0),
+      error: () => this.notificacionesNoLeidas.set(0)
+    });
+  }
+
+  // ===== CHAT =====
   cargarMensajesNoLeidos(): void {
-    //  Si el chat no está habilitado, no hacer la petición
     if (!this.chatPrivadoHabilitado) {
       this.mensajesNoLeidos.set(0);
       return;
     }
-
     if (!this.authService.isAuthenticated() && !this.adminAuth.estaLogueado()) {
       this.mensajesNoLeidos.set(0);
       return;
     }
-    
     this.chatService.obtenerMensajesNoLeidos().subscribe({
       next: (n: number) => this.mensajesNoLeidos.set(n || 0),
       error: () => this.mensajesNoLeidos.set(0)
@@ -107,9 +154,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   irAlChat(): void {
     this.cerrarMenu();
-    if (this.chatPrivadoHabilitado) {
-      this.router.navigate(['/chat']);
-    }
+    if (this.chatPrivadoHabilitado) this.router.navigate(['/chat']);
   }
 
   irAlChatGlobal(): void {
@@ -150,6 +195,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   cerrarSesion(): void {
     this.cerrarMenu();
+    this.cerrarPanelNotificaciones();
     this.adminAuth.logout();
     this.authService.logout();
 

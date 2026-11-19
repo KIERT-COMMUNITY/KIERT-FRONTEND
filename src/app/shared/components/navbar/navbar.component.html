@@ -190,9 +190,28 @@
             <span class="menu-label">Chat Global</span>
           </button>
 
-          <div class="menu-item-notificaciones" title="Notificaciones">
-            <kiert-notificaciones></kiert-notificaciones>
-          </div>
+          <!-- ✅ NOTIFICACIONES: item nativo + badge + estado activo -->
+          <button
+            type="button"
+            class="menu-item menu-button btn-notificaciones-trigger"
+            title="Notificaciones"
+            [class.active]="panelNotificacionesAbierto()"
+            [attr.aria-expanded]="panelNotificacionesAbierto()"
+            (click)="toggleNotificaciones()"
+          >
+            <span class="menu-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+            </span>
+            <span class="menu-label">Notificaciones</span>
+
+            @if (notificacionesNoLeidas() > 0) {
+              <span class="menu-badge">{{ notificacionesNoLeidas() > 99 ? '99+' : notificacionesNoLeidas() }}</span>
+            }
+          </button>
         </div>
 
         <!-- MI CUENTA -->
@@ -239,4 +258,15 @@
 
 @if (menuAbierto()) {
   <button type="button" class="navbar-overlay" aria-label="Cerrar menu" (click)="cerrarMenu()"></button>
+}
+
+<!-- ✅ PANEL DE NOTIFICACIONES FLOTANTE (fuera del header, no se recorta) -->
+@if (panelNotificacionesAbierto()) {
+  <div class="notificaciones-panel-backdrop" (click)="cerrarPanelNotificaciones()"></div>
+  <div class="notificaciones-panel-flotante" (click)="$event.stopPropagation()">
+    <kiert-notificaciones
+      [modoPanel]="true"
+      (cerrarPanel)="cerrarPanelNotificaciones()"
+    ></kiert-notificaciones>
+  </div>
 }

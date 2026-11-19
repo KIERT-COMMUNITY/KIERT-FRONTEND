@@ -918,3 +918,29 @@
     transition-duration: 0.01ms !important;
   }
 }
+// ============================================================
+// MODO PANEL (cuando el navbar lo controla)
+// ============================================================
+.notificaciones-container.modo-panel {
+  display: block;
+  width: 100%;
+
+  // El dropdown interno ya no se posiciona raro: el navbar controla el wrapper
+  .dropdown-notificaciones {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    box-shadow: none;
+    border: none;
+    border-radius: 16px;
+    animation: none;
+  }
+}
+
+// ============================================================
+// ITEM DEL SIDEBAR (badge cuando está contraído)
+// ============================================================
+// (El .menu-item ya lo estiliza el navbar.component.scss)

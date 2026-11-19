@@ -1,3 +1,5 @@
+// src/app/features/community/notificacion-page/notificaciones-page.component.scss
+
 // ============================================================
 // VARIABLES (basadas en el tema global)
 // ============================================================
@@ -48,12 +50,13 @@ $transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1;
+    flex: 1 1 240px;   // ✅ permite encoger
     min-width: 0;
   }
 
   &__title {
     min-width: 0;
+    flex: 1;
 
     h1 {
       display: flex;
@@ -65,6 +68,7 @@ $transition: all 0.2s ease;
       margin: 0 0 4px;
       letter-spacing: -0.02em;
       line-height: 1.2;
+      min-width: 0;
 
       svg {
         flex-shrink: 0;
@@ -74,7 +78,10 @@ $transition: all 0.2s ease;
       }
 
       span {
-        word-break: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;   // ✅ evita que el título rompa el flex
+        min-width: 0;
       }
     }
 
@@ -82,6 +89,9 @@ $transition: all 0.2s ease;
       font-size: 0.85rem;
       color: $text-secondary;
       margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
@@ -90,22 +100,30 @@ $transition: all 0.2s ease;
     gap: 8px;
     flex-wrap: wrap;
     flex-shrink: 0;
+    align-items: center;
   }
 }
 
 .btn-back {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
   background: $bg-card;
   border: 1px solid $border;
   border-radius: 10px;
   color: $text-primary;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
   transition: $transition;
+  white-space: nowrap;
+
+  svg { flex-shrink: 0; }
 
   &:hover {
     background: $bg-card-hover;
@@ -117,8 +135,10 @@ $transition: all 0.2s ease;
 .btn-accion {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 9px 14px;
+  min-height: 38px;
+  padding: 8px 14px;
   background: $bg-card;
   border: 1px solid $border;
   border-radius: 8px;
@@ -127,13 +147,23 @@ $transition: all 0.2s ease;
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;
-  white-space: nowrap;
+  white-space: nowrap;         // ✅ ahora sí seguro porque el padre puede wrap
   transition: $transition;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 
   svg {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   &:hover {
@@ -189,9 +219,7 @@ $transition: all 0.2s ease;
     border-color: $primary;
     background: rgba(45, 212, 191, 0.08);
 
-    .stat-number {
-      color: $primary;
-    }
+    .stat-number { color: $primary; }
   }
 
   .stat-number {
@@ -200,11 +228,11 @@ $transition: all 0.2s ease;
     color: $text-primary;
     font-family: 'JetBrains Mono', monospace;
     line-height: 1;
-    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
-    &--primary {
-      color: $primary;
-    }
+    &--primary { color: $primary; }
   }
 
   .stat-label {
@@ -214,8 +242,12 @@ $transition: all 0.2s ease;
     letter-spacing: 0.4px;
     font-weight: 500;
     text-align: center;
-    word-break: break-word;
-    line-height: 1.2;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;      // ✅ una sola línea, con ellipsis si no cabe
+    max-width: 100%;
+    padding: 0 2px;
   }
 }
 
@@ -227,20 +259,21 @@ $transition: all 0.2s ease;
   gap: 12px;
   margin-bottom: 16px;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
 
   &__actions {
     display: flex;
     gap: 8px;
-    align-items: center;
+    align-items: stretch;
     flex-shrink: 0;
+    flex-wrap: wrap;
   }
 }
 
 .notif-search {
-  flex: 1;
-  min-width: 200px;
+  flex: 1 1 220px;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -249,6 +282,7 @@ $transition: all 0.2s ease;
   border: 1px solid $border;
   border-radius: 10px;
   transition: $transition;
+  min-height: 40px;
 
   &:focus-within {
     border-color: $primary;
@@ -280,7 +314,7 @@ $transition: all 0.2s ease;
   }
 
   .btn-clear {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 22px;
@@ -300,11 +334,14 @@ $transition: all 0.2s ease;
   }
 }
 
-.btn-toggle-select {
+.btn-toggle-select,
+.btn-limpiar {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 10px 14px;
+  min-height: 40px;
+  padding: 0 14px;
   background: $bg-card;
   border: 1px solid $border;
   border-radius: 10px;
@@ -313,8 +350,10 @@ $transition: all 0.2s ease;
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;
-  white-space: nowrap;
   transition: $transition;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 
   svg {
     flex-shrink: 0;
@@ -322,11 +361,20 @@ $transition: all 0.2s ease;
     height: 16px;
   }
 
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
   &:hover {
     background: $bg-card-hover;
     color: $text-primary;
   }
+}
 
+.btn-toggle-select {
   &--active {
     background: rgba(45, 212, 191, 0.12);
     border-color: $primary;
@@ -335,25 +383,7 @@ $transition: all 0.2s ease;
 }
 
 .btn-limpiar {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
   background: transparent;
-  border: 1px solid $border;
-  border-radius: 10px;
-  color: $text-secondary;
-  font-size: 0.8rem;
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-  transition: $transition;
-
-  svg {
-    flex-shrink: 0;
-    width: 14px;
-    height: 14px;
-  }
 
   &:hover {
     color: $text-primary;
@@ -382,16 +412,26 @@ $transition: all 0.2s ease;
     font-size: 0.85rem;
     font-weight: 600;
     color: $primary;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    min-width: 0;
   }
 }
 
 .btn-selection {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
   padding: 7px 12px;
   background: transparent;
   border: 1px solid rgba(45, 212, 191, 0.3);
@@ -403,9 +443,9 @@ $transition: all 0.2s ease;
   font-family: inherit;
   white-space: nowrap;
   transition: $transition;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     background: rgba(45, 212, 191, 0.1);
@@ -419,24 +459,24 @@ $transition: all 0.2s ease;
       background: rgba(248, 81, 73, 0.1);
     }
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }
 
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 // ============================================================
-// CONTENIDO
+// CONTENIDO / ESTADOS
 // ============================================================
-.notif-content {
-  min-height: 300px;
-  width: 100%;
-}
+.notif-content { min-height: 300px; width: 100%; }
 
-// ============================================================
-// ESTADOS
-// ============================================================
 .notif-loading,
 .notif-error,
 .notif-empty {
@@ -449,11 +489,9 @@ $transition: all 0.2s ease;
   gap: 12px;
   color: $text-secondary;
   width: 100%;
+  min-width: 0;
 
-  svg {
-    max-width: 100%;
-    height: auto;
-  }
+  svg { max-width: 100%; height: auto; }
 }
 
 .notif-loading .spinner {
@@ -465,9 +503,7 @@ $transition: all 0.2s ease;
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .notif-error {
   p {
@@ -489,18 +525,12 @@ $transition: all 0.2s ease;
     font-family: inherit;
     transition: $transition;
 
-    &:hover {
-      background: #22b8a8;
-    }
+    &:hover { background: #22b8a8; }
   }
 }
 
 .notif-empty {
-  svg {
-    opacity: 0.5;
-    color: $primary;
-    margin-bottom: 8px;
-  }
+  svg { opacity: 0.5; color: $primary; margin-bottom: 8px; }
 
   h3 {
     font-size: 1.15rem;
@@ -529,9 +559,7 @@ $transition: all 0.2s ease;
     font-family: inherit;
     transition: $transition;
 
-    &:hover {
-      background: #22b8a8;
-    }
+    &:hover { background: #22b8a8; }
   }
 }
 
@@ -573,9 +601,7 @@ $transition: all 0.2s ease;
   &--leida {
     opacity: 0.65;
 
-    &:hover {
-      opacity: 0.9;
-    }
+    &:hover { opacity: 0.9; }
   }
 
   &--seleccionada {
@@ -586,7 +612,7 @@ $transition: all 0.2s ease;
 
   &__checkbox {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     flex-shrink: 0;
     padding-top: 10px;
@@ -607,9 +633,7 @@ $transition: all 0.2s ease;
         border-color: $primary;
       }
 
-      svg {
-        stroke: currentColor;
-      }
+      svg { stroke: currentColor; }
     }
   }
 
@@ -622,10 +646,7 @@ $transition: all 0.2s ease;
     border-radius: 50%;
     flex-shrink: 0;
 
-    svg {
-      width: 22px;
-      height: 22px;
-    }
+    svg { width: 22px; height: 22px; }
   }
 
   &__content {
@@ -642,6 +663,7 @@ $transition: all 0.2s ease;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+    min-width: 0;
   }
 
   &__tipo {
@@ -649,9 +671,14 @@ $transition: all 0.2s ease;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
 
   &__nueva {
+    flex-shrink: 0;
     font-size: 0.6rem;
     font-weight: 700;
     color: $bg-primary;
@@ -659,6 +686,7 @@ $transition: all 0.2s ease;
     padding: 2px 7px;
     border-radius: 8px;
     letter-spacing: 0.4px;
+    white-space: nowrap;
   }
 
   &__mensaje {
@@ -667,11 +695,9 @@ $transition: all 0.2s ease;
     color: $text-primary;
     word-break: break-word;
     overflow-wrap: break-word;
+    min-width: 0;
 
-    strong {
-      color: $primary;
-      font-weight: 600;
-    }
+    strong { color: $primary; font-weight: 600; }
   }
 
   &__footer {
@@ -680,11 +706,16 @@ $transition: all 0.2s ease;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+    min-width: 0;
   }
 
   &__fecha {
     font-size: 0.7rem;
     color: $text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   &__link {
@@ -699,10 +730,10 @@ $transition: all 0.2s ease;
     border-radius: 6px;
     background: rgba(45, 212, 191, 0.1);
     transition: $transition;
+    white-space: nowrap;
+    flex-shrink: 0;
 
-    svg {
-      flex-shrink: 0;
-    }
+    svg { flex-shrink: 0; }
 
     &:hover {
       background: rgba(45, 212, 191, 0.2);
@@ -715,29 +746,40 @@ $transition: all 0.2s ease;
     gap: 6px;
     flex-shrink: 0;
     align-self: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }
 
 // ============================================================
-// BOTONES DE ACCIÓN
+// BOTONES DE ACCIÓN (texto: "Leída" / "Eliminar")
 // ============================================================
 .btn-card-action {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
   background: transparent;
   border: 1px solid $border;
   border-radius: 8px;
   color: $text-secondary;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
   transition: $transition;
   flex-shrink: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
   }
 
   &:hover {
@@ -759,9 +801,7 @@ $transition: all 0.2s ease;
 // RESPONSIVE - TABLET (<= 768px)
 // ============================================================
 @media (max-width: 768px) {
-  .notif-page {
-    padding: 20px 16px;
-  }
+  .notif-page { padding: 20px 16px; }
 
   .notif-header {
     margin-bottom: 20px;
@@ -769,10 +809,7 @@ $transition: all 0.2s ease;
     &__title h1 {
       font-size: 1.35rem;
 
-      svg {
-        width: 22px;
-        height: 22px;
-      }
+      svg { width: 22px; height: 22px; }
     }
   }
 
@@ -784,13 +821,8 @@ $transition: all 0.2s ease;
   .stat-item {
     padding: 12px 6px;
 
-    .stat-number {
-      font-size: 1.25rem;
-    }
-
-    .stat-label {
-      font-size: 0.65rem;
-    }
+    .stat-number { font-size: 1.25rem; }
+    .stat-label { font-size: 0.65rem; }
   }
 
   .notif-card {
@@ -801,15 +833,10 @@ $transition: all 0.2s ease;
       width: 40px;
       height: 40px;
 
-      svg {
-        width: 20px;
-        height: 20px;
-      }
+      svg { width: 20px; height: 20px; }
     }
 
-    &__mensaje {
-      font-size: 0.85rem;
-    }
+    &__mensaje { font-size: 0.85rem; }
   }
 }
 
@@ -817,37 +844,30 @@ $transition: all 0.2s ease;
 // RESPONSIVE - MÓVIL (<= 640px)
 // ============================================================
 @media (max-width: 640px) {
-  .notif-page {
-    padding: 16px 14px;
-  }
+  .notif-page { padding: 16px 14px; }
 
   .notif-header {
     gap: 12px;
     margin-bottom: 16px;
 
-    &__left {
-      gap: 10px;
-    }
+    &__left { gap: 10px; }
 
     &__title h1 {
       font-size: 1.2rem;
       gap: 8px;
 
-      svg {
-        width: 20px;
-        height: 20px;
-      }
+      svg { width: 20px; height: 20px; }
     }
 
-    &__title p {
-      font-size: 0.75rem;
-    }
+    &__title p { font-size: 0.75rem; }
 
     &__actions {
       width: 100%;
       justify-content: flex-start;
 
       .btn-accion {
+        flex: 1 1 auto;
+        min-width: 0;
         padding: 8px 12px;
         font-size: 0.75rem;
       }
@@ -855,8 +875,9 @@ $transition: all 0.2s ease;
   }
 
   .btn-back {
-    width: 36px;
-    height: 36px;
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 0.8rem;
   }
 
   .notif-stats {
@@ -868,14 +889,8 @@ $transition: all 0.2s ease;
   .stat-item {
     padding: 10px 4px;
 
-    .stat-number {
-      font-size: 1.1rem;
-    }
-
-    .stat-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.2px;
-    }
+    .stat-number { font-size: 1.1rem; }
+    .stat-label { font-size: 0.6rem; letter-spacing: 0.2px; }
   }
 
   .notif-toolbar {
@@ -884,21 +899,25 @@ $transition: all 0.2s ease;
     gap: 8px;
 
     &__actions {
-      justify-content: space-between;
       width: 100%;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+
+      .btn-toggle-select,
+      .btn-limpiar {
+        flex: 1 1 0;
+        min-width: 0;
+      }
     }
   }
 
-  .notif-search {
-    min-width: 100%;
-  }
+  .notif-search { min-width: 100%; }
 
   .btn-toggle-select,
   .btn-limpiar {
     font-size: 0.75rem;
-    padding: 9px 12px;
-    flex: 1;
-    justify-content: center;
+    padding: 0 12px;
+    min-height: 38px;
   }
 
   .selection-bar {
@@ -910,64 +929,54 @@ $transition: all 0.2s ease;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
+      width: 100%;
     }
   }
 
   .btn-selection {
     width: 100%;
-    justify-content: center;
 
-    &--danger {
-      grid-column: span 2;
-    }
+    &--danger { grid-column: span 2; }
   }
 
   .notif-card {
     padding: 12px 10px;
     gap: 8px;
+    flex-wrap: wrap;   // ✅ permite que las acciones bajen si no caben
 
     &__icon {
       width: 36px;
       height: 36px;
 
-      svg {
-        width: 18px;
-        height: 18px;
-      }
+      svg { width: 18px; height: 18px; }
     }
 
-    &__content {
-      gap: 5px;
-    }
-
-    &__tipo {
-      font-size: 0.65rem;
-    }
+    &__content { gap: 5px; }
+    &__tipo { font-size: 0.65rem; }
 
     &__mensaje {
       font-size: 0.8rem;
       line-height: 1.4;
     }
 
-    &__footer {
-      gap: 6px;
-    }
+    &__footer { gap: 6px; }
 
     &__actions {
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
       gap: 4px;
-      align-self: flex-end;
+      width: 100%;
+      justify-content: flex-end;
+      margin-top: 4px;
     }
   }
 
   .btn-card-action {
-    width: 30px;
-    height: 30px;
+    min-height: 30px;
+    padding: 0 8px;
+    font-size: 0.7rem;
 
-    svg {
-      width: 14px;
-      height: 14px;
-    }
+    svg { width: 12px; height: 12px; }
   }
 }
 
@@ -975,36 +984,20 @@ $transition: all 0.2s ease;
 // RESPONSIVE - MÓVIL PEQUEÑO (<= 480px)
 // ============================================================
 @media (max-width: 480px) {
-  .notif-page {
-    padding: 14px 12px;
-  }
+  .notif-page { padding: 14px 12px; }
 
   .notif-header {
     &__title h1 {
       font-size: 1.1rem;
 
-      svg {
-        width: 18px;
-        height: 18px;
-      }
+      svg { width: 18px; height: 18px; }
     }
 
-    &__title p {
-      font-size: 0.7rem;
-    }
+    &__title p { font-size: 0.7rem; }
 
     &__actions .btn-accion {
       padding: 7px 10px;
       font-size: 0.7rem;
-
-      span {
-        display: none;
-      }
-
-      svg {
-        width: 14px;
-        height: 14px;
-      }
     }
   }
 
@@ -1014,13 +1007,11 @@ $transition: all 0.2s ease;
     .stat-item {
       padding: 8px 3px;
 
-      .stat-number {
-        font-size: 1rem;
-      }
+      .stat-number { font-size: 1rem; }
 
       .stat-label {
         font-size: 0.55rem;
-        line-height: 1.1;
+        letter-spacing: 0;
       }
     }
   }
@@ -1033,23 +1024,13 @@ $transition: all 0.2s ease;
       width: 32px;
       height: 32px;
 
-      svg {
-        width: 16px;
-        height: 16px;
-      }
+      svg { width: 16px; height: 16px; }
     }
 
-    &__tipo {
-      font-size: 0.6rem;
-    }
+    &__tipo { font-size: 0.6rem; }
+    &__mensaje { font-size: 0.75rem; }
 
-    &__mensaje {
-      font-size: 0.75rem;
-    }
-
-    &__footer {
-      flex-wrap: wrap;
-    }
+    &__footer { flex-wrap: wrap; }
 
     &__link {
       font-size: 0.7rem;
@@ -1058,13 +1039,11 @@ $transition: all 0.2s ease;
   }
 
   .btn-card-action {
-    width: 28px;
-    height: 28px;
+    min-height: 28px;
+    padding: 0 6px;
+    font-size: 0.65rem;
 
-    svg {
-      width: 12px;
-      height: 12px;
-    }
+    svg { width: 11px; height: 11px; }
   }
 }
 
@@ -1072,13 +1051,9 @@ $transition: all 0.2s ease;
 // RESPONSIVE - MÓVIL MUY PEQUEÑO (<= 380px)
 // ============================================================
 @media (max-width: 380px) {
-  .notif-page {
-    padding: 12px 10px;
-  }
+  .notif-page { padding: 12px 10px; }
 
-  .notif-header__title h1 {
-    font-size: 1rem;
-  }
+  .notif-header__title h1 { font-size: 1rem; }
 
   .notif-stats {
     grid-template-columns: repeat(3, 1fr);
@@ -1087,9 +1062,7 @@ $transition: all 0.2s ease;
     .stat-item {
       padding: 6px 2px;
 
-      .stat-number {
-        font-size: 0.9rem;
-      }
+      .stat-number { font-size: 0.9rem; }
 
       .stat-label {
         font-size: 0.5rem;
@@ -1106,29 +1079,17 @@ $transition: all 0.2s ease;
       width: 28px;
       height: 28px;
 
-      svg {
-        width: 14px;
-        height: 14px;
-      }
+      svg { width: 14px; height: 14px; }
     }
 
-    &__mensaje {
-      font-size: 0.72rem;
-    }
+    &__mensaje { font-size: 0.72rem; }
   }
+
+  .btn-card-action { font-size: 0.6rem; padding: 0 6px; }
 }
 
 // ============================================================
-// ACCESIBILIDAD
-// ============================================================
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-// ============================================================
-// MODAL DE CONFIRMACIÓN (ESTÁTICO Y RESPONSIVE)
+// MODAL DE CONFIRMACIÓN
 // ============================================================
 .modal-overlay {
   position: fixed;
@@ -1154,9 +1115,7 @@ $transition: all 0.2s ease;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 
-  &--small {
-    max-width: 400px;
-  }
+  &--small { max-width: 400px; }
 }
 
 .modal-header {
@@ -1169,6 +1128,7 @@ $transition: all 0.2s ease;
     font-size: 1.05rem;
     font-weight: 700;
     color: $text-primary;
+    word-break: break-word;
   }
 }
 
@@ -1177,10 +1137,9 @@ $transition: all 0.2s ease;
   color: $text-secondary;
   font-size: 0.9rem;
   line-height: 1.5;
+  overflow-wrap: break-word;
 
-  p {
-    margin: 0 0 8px;
-  }
+  p { margin: 0 0 8px; }
 
   .modal-warn {
     color: $danger;
@@ -1202,6 +1161,8 @@ $transition: all 0.2s ease;
 
   button {
     flex: 1;
+    min-width: 0;
+    min-height: 42px;
     padding: 10px 16px;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -1209,6 +1170,9 @@ $transition: all 0.2s ease;
     font-family: inherit;
     cursor: pointer;
     border: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .btn-secondary {
@@ -1226,14 +1190,24 @@ $transition: all 0.2s ease;
     background: $danger;
     color: #fff;
 
-    &:hover {
-      background: #d63031;
-    }
+    &:hover { background: #d63031; }
   }
 }
 
 @media (max-width: 480px) {
   .modal-actions {
     flex-direction: column-reverse;
+
+    button { flex: none; width: 100%; }
+  }
+}
+
+// ============================================================
+// ACCESIBILIDAD
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
   }
 }
