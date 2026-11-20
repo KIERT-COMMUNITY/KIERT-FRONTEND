@@ -547,3 +547,123 @@ $transition: all 0.2s ease;
     transition-duration: 0.01ms !important;
   }
 }
+// ============================================================
+// SENSIBILIDAD
+// ============================================================
+.field--sensible {
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    background: rgba(251, 191, 36, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      background: rgba(251, 191, 36, 0.09);
+      border-color: rgba(251, 191, 36, 0.4);
+    }
+
+    input[type="checkbox"] {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: #fbbf24;
+      cursor: pointer;
+    }
+
+    .checkbox-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+
+      strong {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: inherit;
+      }
+
+      small {
+        font-size: 0.72rem;
+        color: inherit;
+        opacity: 0.6;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  &.field--sensible-active {
+    .checkbox-label {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: rgba(251, 191, 36, 0.5);
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+    }
+  }
+
+  .motivo-select {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: $radius-sm;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: inherit;
+      opacity: 0.85;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(128, 128, 128, 0.25);
+      border-radius: $radius-sm;
+      color: inherit;
+      font-size: 0.88rem;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: $transition;
+
+      &:focus {
+        border-color: #fbbf24;
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+      }
+    }
+
+    .field-hint {
+      font-size: 0.7rem;
+      color: inherit;
+      opacity: 0.5;
+      font-style: italic;
+    }
+  }
+}
+
+// Tema claro
+.tema-light {
+  .field--sensible {
+    .checkbox-label {
+      background: rgba(251, 191, 36, 0.08);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+    .motivo-select {
+      background: rgba(0, 0, 0, 0.03);
+      select {
+        background: rgba(255, 255, 255, 0.9);
+        color: #1a1a2e;
+      }
+    }
+  }
+}

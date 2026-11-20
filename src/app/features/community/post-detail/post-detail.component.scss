@@ -1,13 +1,5 @@
-// post-detail.component.scss - COMPLETO, ESTÁTICO Y RESPONSIVE
-.post-detail {
-  // ... tus estilos existentes
-  opacity: 1 !important; // Fuerza la visibilidad
-  visibility: visible !important;
-  animation: none !important; // Desactiva animaciones de entrada que puedan fallar
-  transition: none !important; // Desactiva transiciones de opacidad
-  
-  // ... resto de estilos
-}
+// post-detail.component.scss - COMPLETO, DINÁMICO Y RESPONSIVE
+
 // ============================================================
 // VARIABLES PERSONALIZADAS
 // ============================================================
@@ -17,10 +9,6 @@ $primary-light: rgba(45, 212, 191, 0.1);
 $bg-primary: #0d1117;
 $bg-secondary: #131a22;
 $bg-card: #1b232c;
-$bg-surface: #1b232c;
-$bg-surface-alt: #1b232c;
-$border-color: #26313c;
-$border-light: #2a3a4a;
 $danger: #f85149;
 $success: #2ea043;
 $primary-share: #1d9bf0;
@@ -29,28 +17,32 @@ $radius-sm: 8px;
 $radius-lg: 16px;
 $font-display: 'JetBrains Mono', monospace;
 
-// ✅ NUEVO: Variable de texto con fallback seguro
+// ✅ Variables dinámicas de tema
 $text-safe: var(--tema-text, #e6edf3);
 $text-muted-safe: var(--tema-text-muted, #8b98a5);
+$bg-card-safe: var(--tema-card-bg, #1b232c);
+$bg-body-safe: var(--tema-bg, #0d1117);
+$border-safe: var(--tema-border, #26313c);
+$accent-safe: var(--tema-accent, #2dd4bf);
 
 // ============================================================
 // LOADING & ERROR
 // ============================================================
 .loading-container,
 .error-container {
-  background: $bg-secondary;
-  border: 1px solid $border-color;
+  background: $bg-card-safe;
+  border: 1px solid $border-safe;
   border-radius: $radius;
   padding: 2.5rem 2rem;
   text-align: center;
-  color: $text-safe; // ✅ Fallback
+  color: $text-safe;
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid $border-color;
-  border-top-color: $primary;
+  border: 3px solid $border-safe;
+  border-top-color: $accent-safe;
   border-radius: 50%;
   margin: 0 auto 1rem;
 }
@@ -81,28 +73,32 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.5rem;
-  background: $primary;
-  color: $bg-primary;
+  background: $accent-safe;
+  color: var(--tema-bg, #0d1117);
   border: none;
   border-radius: 6px;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
 
-  svg { stroke: $bg-primary; }
+  svg { stroke: var(--tema-bg, #0d1117); }
 }
 
 // ============================================================
 // POST DETALLE
 // ============================================================
 .post-detail {
-  // ✅ FIX: Aseguramos un fondo para que el texto contraste
-  background: var(--tema-card-bg, $bg-secondary); 
-  border: 1px solid var(--tema-border, $border-color);
+  background: $bg-card-safe;
+  border: 1px solid $border-safe;
   border-radius: $radius;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  color: $text-safe; // ✅ Fallback
+  color: $text-safe;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: none !important;
+  transition: none !important;
 
   &__header {
     display: flex;
@@ -130,7 +126,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     height: 44px;
     border-radius: 50%;
     overflow: hidden;
-    background: linear-gradient(135deg, $primary, $primary-dark);
+    background: linear-gradient(135deg, $accent-safe, $primary-dark);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -145,7 +141,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     }
 
     .avatar-inicial {
-      color: $bg-primary;
+      color: var(--tema-bg, #0d1117);
       font-weight: 700;
       font-size: 1.1rem;
       font-family: $font-display;
@@ -167,7 +163,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 
   &__badge {
     font-size: 0.6rem;
-    color: $primary;
+    color: $accent-safe;
     background: $primary-light;
     padding: 0.15rem 0.6rem;
     border-radius: 20px;
@@ -180,17 +176,16 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 
   &__fecha {
     font-size: 0.7rem;
-    color: $text-safe;
-    opacity: 0.7; // ✅ Subido de 0.6 a 0.7
+    color: $text-muted-safe;
+    opacity: 0.85;
     white-space: nowrap;
   }
 
   &__titulo {
     font-size: 1.4rem;
     font-weight: 700;
-    // ✅ FIX: Color seguro y sombra para legibilidad
-    color: $text-safe; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5); 
+    color: $text-safe;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     margin: 0.75rem 0;
     line-height: 1.3;
     font-family: $font-display;
@@ -200,9 +195,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   &__desc {
     font-size: 0.95rem;
     line-height: 1.8;
-    // ✅ FIX: Color seguro y opacidad alta
     color: $text-safe;
-    opacity: 0.9; 
+    opacity: 0.9;
     margin-bottom: 1rem;
     overflow-wrap: anywhere;
   }
@@ -229,7 +223,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     position: relative;
     cursor: pointer;
     overflow: hidden;
-    background: $bg-card;
+    background: $bg-card-safe;
     aspect-ratio: 16/9;
     border-radius: $radius-sm;
 
@@ -243,12 +237,12 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   &__adjuntos {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid $border-color;
+    border-top: 1px solid $border-safe;
 
     h4 {
       font-size: 0.8rem;
-      color: $text-safe;
-      opacity: 0.7; // ✅ Subido de 0.6 a 0.7
+      color: $text-muted-safe;
+      opacity: 0.85;
       margin-bottom: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -267,11 +261,11 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     align-items: center;
     gap: 0.4rem;
     padding: 0.4rem 0.8rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid $border-color;
+    background: color-mix(in srgb, $text-safe 5%, transparent);
+    border: 1px solid $border-safe;
     border-radius: $radius-sm;
     text-decoration: none;
-    color: $text-safe; // ✅ Fallback
+    color: $text-safe;
     font-size: 0.8rem;
 
     .adjunto-icono { font-size: 0.9rem; }
@@ -290,7 +284,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     gap: 12px;
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid $border-color;
+    border-top: 1px solid $border-safe;
   }
 }
 
@@ -305,10 +299,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   width: 32px;
   height: 32px;
   background: transparent;
-  border: 1px solid $border-color;
+  border: 1px solid $border-safe;
   border-radius: 50%;
-  color: $text-safe; // ✅ Fallback
-  opacity: 0.7; // ✅ Subido de 0.6 a 0.7
+  color: $text-safe;
+  opacity: 0.75;
   cursor: pointer;
   flex-shrink: 0;
 
@@ -316,7 +310,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 }
 
 // ============================================================
-// REACCIONES — EMOJIS (SIN ANIMACIÓN)
+// REACCIONES — EMOJIS
 // ============================================================
 .reactions {
   display: flex;
@@ -330,10 +324,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   align-items: center;
   gap: 6px;
   padding: 5px 12px 5px 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, $text-safe 5%, transparent);
+  border: 1px solid $border-safe;
   border-radius: 20px;
-  color: $text-safe; // ✅ Fallback
+  color: $text-safe;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -421,7 +415,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   gap: 20px;
   flex-wrap: wrap;
   padding-top: 8px;
-  border-top: 1px solid $border-color;
+  border-top: 1px solid $border-safe;
 }
 
 .post-stat {
@@ -429,8 +423,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  color: $text-safe; // ✅ Fallback
-  opacity: 0.8; // ✅ Subido de 0.7 a 0.8
+  color: $text-muted-safe;
+  opacity: 0.85;
 
   svg { stroke: currentColor; flex-shrink: 0; }
 }
@@ -439,12 +433,11 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 // COMENTARIOS
 // ============================================================
 .comentarios {
-  // ✅ FIX: Fondo asegurado
-  background: var(--tema-card-bg, $bg-secondary);
-  border: 1px solid var(--tema-border, $border-color);
+  background: $bg-card-safe;
+  border: 1px solid $border-safe;
   border-radius: $radius;
   padding: 1.5rem;
-  color: $text-safe; // ✅ Fallback
+  color: $text-safe;
 
   &__header {
     display: flex;
@@ -454,16 +447,15 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 
     h3 {
       font-size: 1.1rem;
-      color: $text-safe; // ✅ Fallback
+      color: $text-safe;
       margin: 0;
       font-family: $font-display;
     }
 
     &__count {
       font-size: 0.75rem;
-      color: $text-safe;
-      opacity: 0.8; // ✅ Subido
-      background: rgba(255, 255, 255, 0.05);
+      color: $text-muted-safe;
+      background: color-mix(in srgb, $text-safe 5%, transparent);
       padding: 0.15rem 0.6rem;
       border-radius: 20px;
     }
@@ -477,10 +469,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, $text-safe 5%, transparent);
     border-radius: $radius;
     padding: 0.4rem;
-    border: 1px solid $border-color;
+    border: 1px solid $border-safe;
   }
 
   &__input {
@@ -488,13 +480,16 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     background: transparent;
     border: none;
     padding: 0.4rem 0.2rem;
-    color: $text-safe; // ✅ Fallback
+    color: $text-safe;
     font-size: 0.9rem;
     outline: none;
     font-family: inherit;
     min-width: 0;
 
-    &::placeholder { color: $text-safe; opacity: 0.6; } // ✅ Subido
+    &::placeholder {
+      color: $text-muted-safe;
+      opacity: 0.8;
+    }
 
     &.disabled {
       opacity: 0.5;
@@ -507,8 +502,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     align-items: center;
     justify-content: center;
     padding: 8px 16px;
-    background: $primary;
-    color: $bg-primary;
+    background: $accent-safe;
+    color: var(--tema-bg, #0d1117);
     border: none;
     border-radius: $radius-sm;
     font-weight: 600;
@@ -517,7 +512,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     min-width: 44px;
     flex-shrink: 0;
 
-    svg { stroke: $bg-primary; }
+    svg { stroke: var(--tema-bg, #0d1117); }
 
     &.disabled {
       opacity: 0.4;
@@ -537,8 +532,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     align-items: center;
     gap: 8px;
     padding: 1.5rem;
-    color: $text-safe;
-    opacity: 0.6; // ✅ Subido de 0.5 a 0.6
+    color: $text-muted-safe;
+    opacity: 0.7;
 
     p { margin: 0; font-size: 0.9rem; }
   }
@@ -558,14 +553,14 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     height: 32px;
     border-radius: 50%;
     overflow: hidden;
-    background: linear-gradient(135deg, $primary, $primary-dark);
+    background: linear-gradient(135deg, $accent-safe, $primary-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     font-weight: 700;
     font-size: 0.75rem;
-    color: $bg-primary;
+    color: var(--tema-bg, #0d1117);
     cursor: pointer;
 
     .avatar-comentario-img {
@@ -588,21 +583,21 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   &__autor {
     font-weight: 600;
     font-size: 0.85rem;
-    color: $text-safe; // ✅ Fallback
+    color: $text-safe;
     cursor: pointer;
   }
 
   &__fecha {
     font-size: 0.65rem;
-    color: $text-safe;
-    opacity: 0.6; // ✅ Subido de 0.5 a 0.6
+    color: $text-muted-safe;
+    opacity: 0.7;
   }
 
   &__texto {
     font-size: 0.9rem;
     line-height: 1.6;
-    color: $text-safe; // ✅ Fallback
-    opacity: 0.95; // ✅ Subido de 0.9 a 0.95
+    color: $text-safe;
+    opacity: 0.95;
     margin: 0;
     overflow-wrap: anywhere;
   }
@@ -619,9 +614,9 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: $text-safe; // ✅ Fallback
+    background: color-mix(in srgb, $text-safe 5%, transparent);
+    border: 1px solid $border-safe;
+    color: $text-safe;
     font-size: 0.72rem;
     font-weight: 600;
     cursor: pointer;
@@ -658,9 +653,9 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     align-items: center;
     gap: 4px;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: $text-safe; // ✅ Fallback
-    opacity: 0.8; // ✅ Subido de 0.7 a 0.8
+    border: 1px solid $border-safe;
+    color: $text-muted-safe;
+    opacity: 0.85;
     font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
@@ -672,8 +667,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   &__reportar {
     background: none;
     border: none;
-    color: $text-safe; // ✅ Fallback
-    opacity: 0.6; // ✅ Subido de 0.5 a 0.6
+    color: $text-muted-safe;
+    opacity: 0.7;
     cursor: pointer;
     padding: 0 4px;
     display: inline-flex;
@@ -699,21 +694,24 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   &__input {
     flex: 1;
     padding: 0.4rem 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid $border-color;
+    background: color-mix(in srgb, $text-safe 5%, transparent);
+    border: 1px solid $border-safe;
     border-radius: 6px;
-    color: $text-safe; // ✅ Fallback
+    color: $text-safe;
     font-size: 0.85rem;
     outline: none;
     min-width: 0;
 
-    &::placeholder { color: $text-safe; opacity: 0.6; }
+    &::placeholder {
+      color: $text-muted-safe;
+      opacity: 0.8;
+    }
   }
 
   &__btn {
     padding: 0.3rem 1rem;
-    background: $primary;
-    color: $bg-primary;
+    background: $accent-safe;
+    color: var(--tema-bg, #0d1117);
     border: none;
     border-radius: 6px;
     font-weight: 600;
@@ -732,7 +730,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   &__btn {
     background: none;
     border: none;
-    color: $primary;
+    color: $accent-safe;
     font-size: 0.75rem;
     cursor: pointer;
     padding: 0;
@@ -743,14 +741,14 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   margin-top: 0.5rem;
   margin-left: 0.5rem;
   padding-left: 0.5rem;
-  border-left: 2px solid rgba(45, 212, 191, 0.2);
+  border-left: 2px solid color-mix(in srgb, $accent-safe 25%, transparent);
 }
 
 .respuesta {
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid color-mix(in srgb, $text-safe 5%, transparent);
 
   &:last-child { border-bottom: none; }
 
@@ -759,14 +757,14 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     height: 28px;
     border-radius: 50%;
     overflow: hidden;
-    background: linear-gradient(135deg, $primary, $primary-dark);
+    background: linear-gradient(135deg, $accent-safe, $primary-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     font-weight: 700;
     font-size: 0.65rem;
-    color: $bg-primary;
+    color: var(--tema-bg, #0d1117);
     cursor: pointer;
 
     img { width: 100%; height: 100%; object-fit: cover; }
@@ -785,18 +783,22 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   &__autor {
     font-weight: 600;
     font-size: 0.75rem;
-    color: $text-safe; // ✅ Fallback
+    color: $text-safe;
     cursor: pointer;
   }
 
-  &__fecha { font-size: 0.6rem; color: $text-safe; opacity: 0.6; } // ✅ Subido
+  &__fecha {
+    font-size: 0.6rem;
+    color: $text-muted-safe;
+    opacity: 0.7;
+  }
 
   &__eliminar,
   &__reportar {
     background: none;
     border: none;
-    color: $text-safe;
-    opacity: 0.6; // ✅ Subido
+    color: $text-muted-safe;
+    opacity: 0.7;
     cursor: pointer;
     padding: 0 2px;
     display: inline-flex;
@@ -807,8 +809,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 
   &__texto {
     font-size: 0.85rem;
-    color: $text-safe; // ✅ Fallback
-    opacity: 0.95; // ✅ Subido
+    color: $text-safe;
+    opacity: 0.95;
     margin: 0;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -825,9 +827,9 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: $text-safe; // ✅ Fallback
+    background: color-mix(in srgb, $text-safe 5%, transparent);
+    border: 1px solid $border-safe;
+    color: $text-safe;
     font-size: 0.65rem;
     font-weight: 600;
     cursor: pointer;
@@ -866,15 +868,15 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   gap: 0.5rem;
   margin-top: 0.5rem;
   margin-left: 2.5rem;
-  color: $text-safe;
-  opacity: 0.7; // ✅ Subido de 0.6 a 0.7
+  color: $text-muted-safe;
+  opacity: 0.75;
   font-size: 0.75rem;
 
   .spinner-small {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: $primary;
+    border: 2px solid color-mix(in srgb, $text-safe 10%, transparent);
+    border-top-color: $accent-safe;
     border-radius: 50%;
   }
 }
@@ -894,7 +896,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   background: #000;
   border-radius: $radius-sm;
   overflow: hidden;
-  border: 1px solid $border-color;
+  border: 1px solid $border-safe;
 
   &__el {
     width: 100%;
@@ -908,8 +910,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-top: 1px solid $border-color;
+    background: color-mix(in srgb, $text-safe 5%, transparent);
+    border-top: 1px solid $border-safe;
     flex-wrap: wrap;
   }
 }
@@ -920,10 +922,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   gap: 6px;
   padding: 5px 12px;
   background: transparent;
-  border: 1px solid $border-color;
+  border: 1px solid $border-safe;
   border-radius: 20px;
-  color: $text-safe; // ✅ Fallback
-  opacity: 0.8; // ✅ Subido
+  color: $text-safe;
+  opacity: 0.85;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -931,36 +933,36 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   svg { stroke: currentColor; }
 
   &.active {
-    background: $primary;
-    color: $bg-primary;
-    border-color: $primary;
+    background: $accent-safe;
+    color: var(--tema-bg, #0d1117);
+    border-color: $accent-safe;
 
-    svg { stroke: $bg-primary; }
+    svg { stroke: var(--tema-bg, #0d1117); }
   }
 }
 
 .select-idioma {
   padding: 5px 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid $border-color;
+  background: color-mix(in srgb, $text-safe 5%, transparent);
+  border: 1px solid $border-safe;
   border-radius: 6px;
-  color: $text-safe; // ✅ Fallback
+  color: $text-safe;
   font-size: 0.75rem;
   cursor: pointer;
   outline: none;
 
   option {
-    background: $bg-secondary;
-    color: #e6edf3;
+    background: $bg-card-safe;
+    color: $text-safe;
   }
 }
 
 .badge-auto {
   font-size: 0.6rem;
   padding: 2px 8px;
-  background: rgba(45, 212, 191, 0.15);
-  color: $primary;
-  border: 1px solid rgba(45, 212, 191, 0.3);
+  background: color-mix(in srgb, $accent-safe 15%, transparent);
+  color: $accent-safe;
+  border: 1px solid color-mix(in srgb, $accent-safe 30%, transparent);
   border-radius: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -973,10 +975,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   gap: 6px;
   padding: 5px 12px;
   background: transparent;
-  border: 1px dashed $border-light;
+  border: 1px dashed $border-safe;
   border-radius: 20px;
-  color: $text-safe; // ✅ Fallback
-  opacity: 0.8; // ✅ Subido
+  color: $text-safe;
+  opacity: 0.85;
   font-size: 0.75rem;
   cursor: pointer;
   margin-left: auto;
@@ -990,7 +992,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 }
 
 // ============================================================
-// RESPONSIVE (MÓVIL Y TABLET) - CORREGIDO
+// RESPONSIVE
 // ============================================================
 @media (max-width: 768px) {
   .post-detail {
@@ -1036,13 +1038,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     padding: 0.75rem;
     border-radius: 0;
 
-    &__input-wrapper { 
-      flex-wrap: nowrap; 
-    }
-
-    &__input {
-      font-size: 0.85rem;
-    }
+    &__input-wrapper { flex-wrap: nowrap; }
+    &__input { font-size: 0.85rem; }
 
     &__btn {
       padding: 6px 12px;
@@ -1174,10 +1171,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     transition: none !important;
   }
 }
+
 // ============================================================
 // AVISO DE LOGIN (invitados)
 // ============================================================
-
 .post-detail-wrapper {
   kiert-aviso-login {
     display: block;
@@ -1187,26 +1184,24 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   }
 }
 
-// Formulario de comentario "invitado"
 .comentarios__form--guest {
   cursor: pointer;
 
   .comentarios__input {
     cursor: pointer;
-    color: $text-safe; // ✅ Fallback
-    opacity: 0.7;
+    color: $text-muted-safe;
+    opacity: 0.8;
   }
 }
 
 .btn-guest-small {
-  background: $primary !important;
-  color: $bg-primary !important;
+  background: $accent-safe !important;
+  color: var(--tema-bg, #0d1117) !important;
   font-weight: 700 !important;
   padding: 8px 14px !important;
   white-space: nowrap;
 }
 
-// Tema claro
 .tema-light {
   kiert-aviso-login .aviso-login {
     background: #fff3cd;
@@ -1220,6 +1215,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     margin-bottom: 12px;
   }
 }
+
 // ============================================================
 // AVATAR Y USERNAME ANONIMO
 // ============================================================
@@ -1236,10 +1232,11 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   cursor: default !important;
   opacity: 0.9;
   font-style: normal;
-  color: $text-muted-safe !important; // ✅ Fallback seguro
+  color: $text-muted-safe !important;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
+
 // ============================================================
 // MENÚ DE OPCIONES (ocultar post)
 // ============================================================
@@ -1255,10 +1252,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   width: 32px;
   height: 32px;
   background: transparent;
-  border: 1px solid $border-color;
+  border: 1px solid $border-safe;
   border-radius: 50%;
-  color: $text-safe; // ✅ Fallback
-  opacity: 0.7; // ✅ Subido de 0.6 a 0.7
+  color: $text-safe;
+  opacity: 0.75;
   cursor: pointer;
 
   svg { stroke: currentColor; }
@@ -1269,8 +1266,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   top: calc(100% + 6px);
   right: 0;
   min-width: 230px;
-  background: var(--tema-bg-card, #1b232c);
-  border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.1));
+  background: $bg-card-safe;
+  border: 1px solid $border-safe;
   border-radius: 10px;
   z-index: 50;
   padding: 6px;
@@ -1288,7 +1285,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: $text-safe; // ✅ Fallback
+  color: $text-safe;
   font-size: 0.82rem;
   font-family: inherit;
   font-weight: 500;
@@ -1300,22 +1297,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     stroke: currentColor;
     opacity: 0.7;
   }
-}
 
-// Tema light
-.tema-light {
-  .btn-menu-opciones {
-    color: #666;
-    border-color: rgba(0, 0, 0, 0.15);
-  }
-
-  .post-detail__menu {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.1);
-  }
-
-  .post-detail__menu-item {
-    color: #1a1a2e;
+  &:hover {
+    background: color-mix(in srgb, $accent-safe 12%, transparent);
+    color: $accent-safe;
   }
 }
 
@@ -1330,76 +1315,250 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
     padding: 8px 10px;
   }
 }
+
 // ============================================================
-// 🔥 SOLUCIÓN DEFINITIVA: FORZAR VISIBILIDAD DEL TEXTO
+// CONTENIDO SENSIBLE — INTERSTITIAL + BADGE
 // ============================================================
+.sensible-guard {
+  max-width: 560px;
+  margin: 2.5rem auto;
+  padding: 2rem 1.75rem;
 
-// 1. Forzar color en el contenedor principal y todos los hijos de texto
-.post-detail,
-.comentarios {
-  // Si el fondo es oscuro, el texto debe ser claro.
-  // Usamos !important para ganar a cualquier estilo inline o de tema.
-  color: #e6edf3 !important; 
-  
-  // Asegurar que el fondo no sea transparente (si falla el ngStyle)
-  background-color: #131a22 !important; 
-  
-  // Forzar opacidad (por si hay animaciones de Angular)
-  opacity: 1 !important;
-  visibility: visible !important;
-}
+  background: var(--tema-card-bg, #1b232c);
+  border: 1px solid color-mix(in srgb, var(--tema-accent, #fbbf24) 35%, transparent);
+  border-radius: 16px;
+  text-align: center;
+  color: var(--tema-text, #e6edf3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 
-// 2. Forzar color en títulos, descripciones y metadatos
-.post-detail__titulo,
-.post-detail__desc,
-.post-detail__username,
-.post-detail__fecha,
-.post-detail__badge,
-.comentario__texto,
-.comentario__autor,
-.comentario__fecha,
-.respuesta__texto,
-.respuesta__autor,
-.respuesta__fecha,
-.post-stat,
-.comentarios__empty p {
-  color: #e6edf3 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); // Sombra para legibilidad sobre fondos claros
-}
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 1rem;
+    border-radius: 50%;
 
-// 3. Si el tema es CLARO (tema-light), invertir los colores
-// Esto asume que tienes una clase .tema-light en el body o html
-.tema-light {
-  .post-detail,
-  .comentarios,
-  .post-detail__titulo,
-  .post-detail__desc,
-  .post-detail__username,
-  .comentario__texto,
-  .comentario__autor {
-    color: #1a1a2e !important;
-    background-color: #ffffff !important;
-    text-shadow: none;
+    background: color-mix(in srgb, var(--tema-accent, #fbbf24) 15%, transparent);
+    color: var(--tema-accent, #fbbf24);
+
+    svg { stroke: currentColor; }
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--tema-text, #e6edf3);
+  }
+
+  &__motivo {
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem;
+    color: var(--tema-text, #e6edf3);
+    opacity: 0.85;
+
+    strong {
+      color: var(--tema-accent, #fbbf24);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-size: 0.78rem;
+    }
+  }
+
+  &__hint {
+    font-size: 0.8rem;
+    margin: 0 0 1.5rem;
+    color: var(--tema-text-muted, #8b98a5);
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }
 
-// 4. Forzar que las imágenes y videos no tapen el texto
-.post-detail__imagen img,
-.video-player__el {
-  opacity: 1 !important;
-  visibility: visible !important;
+.btn-sensible {
+  flex: 1 1 140px;
+  max-width: 200px;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  min-height: 44px;
+
+  &--ghost {
+    background: transparent;
+    border-color: var(--tema-border, rgba(128, 128, 128, 0.3));
+    color: var(--tema-text, #e6edf3);
+    opacity: 0.8;
+
+    &:hover {
+      background: color-mix(in srgb, var(--tema-text, #e6edf3) 10%, transparent);
+      opacity: 1;
+    }
+  }
+
+  &--primary {
+    background: var(--tema-accent, #fbbf24);
+    color: var(--tema-bg, #0d1117);
+
+    &:hover {
+      background: color-mix(in srgb, var(--tema-accent, #fbbf24) 85%, #000);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px color-mix(in srgb, var(--tema-accent, #fbbf24) 30%, transparent);
+    }
+  }
 }
 
-// 5. Corregir el input de comentarios (a veces hereda color transparente)
-.comentarios__input,
-.respuesta-form__input {
-  color: #e6edf3 !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  
-  &::placeholder {
-    color: #8b98a5 !important;
-    opacity: 1 !important;
+.post-detail__sensible-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  margin-bottom: 0.75rem;
+
+  background: color-mix(in srgb, var(--tema-accent, #fbbf24) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tema-accent, #fbbf24) 35%, transparent);
+  border-radius: 20px;
+  color: var(--tema-accent, #fbbf24);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+
+  svg { stroke: currentColor; flex-shrink: 0; }
+}
+
+// ============================================================
+// TEMA LIGHT
+// ============================================================
+.tema-light {
+  .post-detail {
+    background: var(--tema-card-bg, #ffffff);
+    border-color: $border-safe;
+    color: var(--tema-text, #1a1a2e);
+  }
+
+  .post-detail__titulo {
+    color: var(--tema-text, #1a1a2e);
+    text-shadow: none;
+  }
+
+  .post-detail__desc { color: var(--tema-text, #333); }
+  .post-detail__username { color: var(--tema-text, #1a1a2e); }
+  .post-detail__fecha { color: var(--tema-text-muted, #666); }
+  .post-detail__username--anonimo { color: var(--tema-text-muted, #666) !important; }
+
+  .comentarios {
+    background: var(--tema-card-bg, #ffffff);
+    border-color: $border-safe;
+    color: var(--tema-text, #1a1a2e);
+
+    &__header h3 { color: var(--tema-text, #1a1a2e); }
+    &__header__count { color: var(--tema-text-muted, #666); }
+    &__input { color: var(--tema-text, #1a1a2e); }
+    &__empty { color: var(--tema-text-muted, #666); }
+  }
+
+  .comentario {
+    &__autor { color: var(--tema-text, #1a1a2e); }
+    &__fecha { color: var(--tema-text-muted, #666); }
+    &__texto { color: var(--tema-text, #1a1a2e); }
+  }
+
+  .respuesta {
+    &__autor { color: var(--tema-text, #1a1a2e); }
+    &__fecha { color: var(--tema-text-muted, #666); }
+    &__texto { color: var(--tema-text, #1a1a2e); }
+  }
+
+  .btn-compartir-header,
+  .btn-reportar,
+  .btn-menu-opciones {
+    color: var(--tema-text-muted, #666);
+    border-color: $border-safe;
+  }
+
+  .post-detail__menu {
+    background: var(--tema-card-bg, #ffffff);
+    border-color: $border-safe;
+  }
+
+  .post-detail__menu-item { color: var(--tema-text, #1a1a2e); }
+
+  .post-stat { color: var(--tema-text-muted, #666); }
+
+  .sensible-guard {
+    background: var(--tema-card-bg, #ffffff);
+    border-color: color-mix(in srgb, var(--tema-accent, #b45309) 40%, transparent);
+    color: var(--tema-text, #1a1a2e);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+
+    &__icon {
+      background: color-mix(in srgb, var(--tema-accent, #b45309) 12%, transparent);
+      color: var(--tema-accent, #b45309);
+    }
+
+    &__title { color: var(--tema-text, #1a1a2e); }
+    &__motivo { color: var(--tema-text, #1a1a2e); strong { color: var(--tema-accent, #b45309); } }
+    &__hint { color: var(--tema-text-muted, #666); }
+  }
+
+  .btn-sensible {
+    &--ghost {
+      color: var(--tema-text, #1a1a2e);
+      border-color: var(--tema-border, rgba(0, 0, 0, 0.2));
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    &--primary {
+      background: var(--tema-accent, #b45309);
+      color: #ffffff;
+
+      &:hover {
+        background: color-mix(in srgb, var(--tema-accent, #b45309) 85%, #000);
+      }
+    }
+  }
+
+  .post-detail__sensible-badge {
+    background: color-mix(in srgb, var(--tema-accent, #b45309) 10%, transparent);
+    border-color: color-mix(in srgb, var(--tema-accent, #b45309) 40%, transparent);
+    color: var(--tema-accent, #b45309);
+  }
+}
+
+@media (max-width: 480px) {
+  .sensible-guard {
+    margin: 1rem;
+    padding: 1.5rem 1rem;
+
+    &__icon { width: 56px; height: 56px; }
+    &__title { font-size: 1.05rem; }
+
+    &__actions { flex-direction: column; }
+  }
+
+  .btn-sensible {
+    max-width: none;
+    width: 100%;
+  }
+
+  .post-detail__sensible-badge {
+    font-size: 0.65rem;
+    padding: 3px 8px;
   }
 }

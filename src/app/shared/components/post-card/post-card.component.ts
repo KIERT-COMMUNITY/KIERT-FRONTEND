@@ -1,5 +1,5 @@
 // src/app/features/community/post-card/post-card.component.ts
-import { Component, Input, inject, signal, computed, HostListener } from '@angular/core';
+import { Component, Input, inject, signal, computed, HostListener,OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Post, Adjunto } from '../../../core/models/post.model';
@@ -14,15 +14,24 @@ import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/av
   templateUrl: './post-card.component.html',
   styleUrl: './post-card.component.scss'
 })
-export class PostCardComponent {
+
+export class PostCardComponent  {
   private router = inject(Router);
   private personalizacionStore = inject(PersonalizacionStore);
   private postsOcultos = inject(PostsOcultosService);
 
-  @Input({ required: true }) post!: Post;
-
+@Input({ required: true })
+set post(value: Post) {
+  this._post = value;
+  this.cargarEstadoRevelado();
+}
+get post(): Post { return this._post; }
+private _post!: Post;
   // ===== ESTADO DEL MENÚ =====
   mostrarMenu = signal(false);
+  //SENSIBILIDAD
+revelarSensible = signal(false);
+private readonly SENSIBLE_KEY = 'kiert.revelarSensible';
 
   get temaClase(): string {
     return `tema-${this.personalizacionStore.temaId()}`;
@@ -200,4 +209,69 @@ export class PostCardComponent {
   get estaGuardado(): boolean {
     return this.estaOculto;
   }
+  // ============================================================
+// SENSIBILIDAD
+// ============================================================
+
+/** Etiqueta legible del motivo. */
+getEtiquetaMotivo(): string {
+  const motivo = this.post?.motivoSensibilidad ?? 'otro';
+  switch (motivo) {
+    case 'nsfw':      return 'Contenido adulto (NSFW)';
+    case 'violencia': return 'Violencia';
+    case 'spoiler':   return 'Spoiler';
+    case 'sangre':    return 'Sangre / gore';
+    default:          return 'Contenido sensible';
+  }
+}
+
+/** Comprueba si el post está marcado como sensible. */
+esSensible(): boolean {
+  return !!this.post?.esSensible;
+}
+
+/** Se muestra el overlay solo si es sensible y NO se ha revelado. */
+mostrarGuardSensible(): boolean {
+  return this.esSensible() && !this.revelarSensible();
+}
+
+/** Usuario pulsa "Ver contenido". */
+revelarPostSensible(event: Event): void {
+  event.stopPropagation();
+  this.revelarSensible.set(true);
+  if (this.post?.id) this.marcarRevelado(this.post.id);
+}
+
+/** Usuario pulsa "No ver": oculta el post. */
+ocultarPostSensible(event: Event): void {
+  event.stopPropagation();
+  if (this.post?.id) {
+    this.postsOcultos.ocultar(this.post.id, 'sensible');
+  }
+  this.cerrarMenu();
+}
+
+/** Carga el estado desde sessionStorage (para no volver a preguntar). */
+private cargarEstadoRevelado(): void {
+  if (!this.post?.id) return;
+  this.revelarSensible.set(this.yaRevelado(this.post.id));
+}
+
+private yaRevelado(postId: number): boolean {
+  try {
+    const raw = sessionStorage.getItem(this.SENSIBLE_KEY);
+    if (!raw) return false;
+    const map = JSON.parse(raw) as Record<string, boolean>;
+    return !!map[postId];
+  } catch { return false; }
+}
+
+private marcarRevelado(postId: number): void {
+  try {
+    const raw = sessionStorage.getItem(this.SENSIBLE_KEY);
+    const map = raw ? JSON.parse(raw) as Record<string, boolean> : {};
+    map[postId] = true;
+    sessionStorage.setItem(this.SENSIBLE_KEY, JSON.stringify(map));
+  } catch { /* noop */ }
+}
 }

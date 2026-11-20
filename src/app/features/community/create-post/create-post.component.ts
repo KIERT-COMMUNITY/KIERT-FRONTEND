@@ -8,21 +8,29 @@ import { PostService } from '../../../core/services/post.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { ImageSanitizerService } from '../../../core/services/image-sanitizer.service';
-import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service'; // IMPORTADO
+import { ImagenCompresionService } from '../../../core/services/imagen-compresion.service';
 import { CommonModule } from '@angular/common';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 import { safeClassToken, isSafeExternalUrl } from '../../../shared/utils/url-sanitizer';
+
+/** Motivos de sensibilidad aceptados por el backend. */
+export type MotivoSensibilidad = 'nsfw' | 'violencia' | 'spoiler' | 'sangre' | 'otro';
+
+/** Opciones para el <select> del template. */
+export const MOTIVOS_SENSIBILIDAD: { valor: MotivoSensibilidad; etiqueta: string }[] = [
+  { valor: 'nsfw',      etiqueta: 'NSFW (contenido adulto)' },
+  { valor: 'violencia', etiqueta: 'Violencia' },
+  { valor: 'spoiler',   etiqueta: 'Spoiler' },
+  { valor: 'sangre',    etiqueta: 'Sangre / gore' },
+  { valor: 'otro',      etiqueta: 'Otro' },
+];
 
 /** Valida que un control de link sea http(s) o vacio. */
 function linkValidator(control: AbstractControl): { [key: string]: any } | null {
   const valor = (control.value || '').toString().trim();
   if (!valor) return null;
-  if (!isSafeExternalUrl(valor)) {
-    return { linkInvalido: true };
-  }
-  if (valor.length > 2048) {
-    return { linkLargo: true };
-  }
+  if (!isSafeExternalUrl(valor)) return { linkInvalido: true };
+  if (valor.length > 2048)       return { linkLargo: true };
   return null;
 }
 
@@ -51,7 +59,7 @@ export class CreatePostComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private imageSanitizer = inject(ImageSanitizerService);
-  private imagenCompresion = inject(ImagenCompresionService); // INYECTADO
+  private imagenCompresion = inject(ImagenCompresionService);
   public personalizacionStore = inject(PersonalizacionStore);
 
   // ===== CICLO DE VIDA =====
@@ -60,7 +68,7 @@ export class CreatePostComponent implements OnInit, OnDestroy {
 
   // ===== LIMITES =====
   private readonly MAX_ARCHIVOS = 10;
-  private readonly MAX_TOTAL_BYTES = 100 * 1024 * 1024; // 100 MB
+  private readonly MAX_TOTAL_BYTES = 100 * 1024 * 1024;
   private readonly MAX_IMAGE_SIZE = 15 * 1024 * 1024;
   private readonly MAX_VIDEO_SIZE = 50 * 1024 * 1024;
   private readonly MAX_GIF_SIZE = 15 * 1024 * 1024;
@@ -73,7 +81,12 @@ export class CreatePostComponent implements OnInit, OnDestroy {
   estaLogueado = signal<boolean>(false);
   mostrarAvisoLogin = signal(false);
   esAnonimo = signal(false);
-  comprimiendo = signal(false); // NUEVO SIGNAL
+  comprimiendo = signal(false);
+
+  // ✅ SENSIBILIDAD
+  esSensible = signal(false);
+  motivoSensibilidad = signal<MotivoSensibilidad>('otro');
+  readonly motivosSensibilidad = MOTIVOS_SENSIBILIDAD;
 
   // ===== FORM =====
   form = this.fb.group({
@@ -98,7 +111,6 @@ export class CreatePostComponent implements OnInit, OnDestroy {
     link: ['', [linkValidator]],
   });
 
-  /** Clase de tema saneada. */
   get temaClaseSeguro(): string {
     return safeClassToken(this.personalizacionStore.temaId(), 'default');
   }
@@ -106,9 +118,7 @@ export class CreatePostComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const logueado = this.authService.estaLogueado();
     this.estaLogueado.set(logueado);
-    if (!logueado) {
-      this.mostrarAvisoLogin.set(true);
-    }
+    if (!logueado) this.mostrarAvisoLogin.set(true);
   }
 
   ngOnDestroy(): void {
@@ -128,10 +138,25 @@ export class CreatePostComponent implements OnInit, OnDestroy {
   get descripcion() { return this.form.controls.descripcion; }
   get link() { return this.form.controls.link; }
 
+  // ===== SENSIBILIDAD =====
+  /** Cambia el flag. Si se desactiva, resetea el motivo a "otro". */
+  toggleSensible(valor: boolean): void {
+    this.esSensible.set(valor);
+    if (!valor) this.motivoSensibilidad.set('otro');
+  }
+
+  /** Cambia el motivo seleccionado. */
+  cambiarMotivoSensibilidad(valor: string): void {
+    const motivo = valor as MotivoSensibilidad;
+    if (MOTIVOS_SENSIBILIDAD.some(m => m.valor === motivo)) {
+      this.motivoSensibilidad.set(motivo);
+    }
+  }
+
   // ===== ARCHIVOS =====
   getTipoArchivo(archivo: File): string {
     if (archivo.type.startsWith('video/')) return 'Video';
-    if (archivo.type === 'image/gif') return 'GIF';
+    if (archivo.type === 'image/gif')      return 'GIF';
     if (archivo.type.startsWith('image/')) return 'Imagen';
     return 'Documento';
   }
@@ -151,7 +176,6 @@ export class CreatePostComponent implements OnInit, OnDestroy {
     const archivos = Array.from(input.files);
     const actuales = this.archivosSeleccionados();
 
-    // Limite de cantidad total (acumulada)
     if (actuales.length + archivos.length > this.MAX_ARCHIVOS) {
       this.errorMsg.set(`Maximo ${this.MAX_ARCHIVOS} archivos por publicacion`);
       this.safeTimeout(() => this.errorMsg.set(null), 4000);
@@ -160,17 +184,15 @@ export class CreatePostComponent implements OnInit, OnDestroy {
     }
 
     const validos: File[] = [];
-
     for (const archivo of archivos) {
-      const esVideo = archivo.type.startsWith('video/');
-      const esGif = archivo.type === 'image/gif';
+      const esVideo  = archivo.type.startsWith('video/');
+      const esGif    = archivo.type === 'image/gif';
       const esImagen = archivo.type.startsWith('image/');
 
       let maxSize = this.MAX_DOC_SIZE;
       let tipo = 'documento';
-
-      if (esVideo) { maxSize = this.MAX_VIDEO_SIZE; tipo = 'video'; }
-      else if (esGif) { maxSize = this.MAX_GIF_SIZE; tipo = 'GIF'; }
+      if (esVideo)       { maxSize = this.MAX_VIDEO_SIZE; tipo = 'video'; }
+      else if (esGif)    { maxSize = this.MAX_GIF_SIZE;   tipo = 'GIF'; }
       else if (esImagen) { maxSize = this.MAX_IMAGE_SIZE; tipo = 'imagen'; }
 
       if (archivo.size > maxSize) {
@@ -179,17 +201,14 @@ export class CreatePostComponent implements OnInit, OnDestroy {
         this.safeTimeout(() => this.errorMsg.set(null), 4000);
         continue;
       }
-
       if (!archivo.name || archivo.name.length > 255) {
         this.errorMsg.set('Nombre de archivo invalido');
         this.safeTimeout(() => this.errorMsg.set(null), 4000);
         continue;
       }
-
       validos.push(archivo);
     }
 
-    // Limite de tamano total acumulado
     const totalBytes = [...actuales, ...validos].reduce((acc, f) => acc + f.size, 0);
     if (totalBytes > this.MAX_TOTAL_BYTES) {
       this.errorMsg.set('El total de archivos supera el limite de 100MB');
@@ -201,14 +220,11 @@ export class CreatePostComponent implements OnInit, OnDestroy {
     if (validos.length > 0) {
       this.comprimiendo.set(true);
       try {
-        // Comprimir imagenes antes de limpiar metadatos
         const procesados = await this.procesarArchivos(validos);
-        // Limpiar metadatos (EXIF) de las imagenes
         const limpios = await this.imageSanitizer.limpiarArchivos(procesados);
         this.archivosSeleccionados.set([...actuales, ...limpios]);
       } catch (error) {
         if (isDevMode()) console.error('Error al procesar archivos:', error);
-        // Fallback: usar los archivos originales si falla algo
         try {
           const limpios = await this.imageSanitizer.limpiarArchivos(validos);
           this.archivosSeleccionados.set([...actuales, ...limpios]);
@@ -223,22 +239,18 @@ export class CreatePostComponent implements OnInit, OnDestroy {
     input.value = '';
   }
 
-  /**
-   * Procesa los archivos: comprime imagenes (WebP, 1200px) y deja videos/docs intactos.
-   */
   private async procesarArchivos(archivos: File[]): Promise<File[]> {
     const resultados: File[] = [];
     for (const archivo of archivos) {
       if (archivo.type.startsWith('image/') && archivo.type !== 'image/gif') {
         try {
-          const comprimido = await this.imagenCompresion.comprimir(archivo);
-          resultados.push(comprimido);
+          resultados.push(await this.imagenCompresion.comprimir(archivo));
         } catch (error) {
           if (isDevMode()) console.warn('No se pudo comprimir:', archivo.name, error);
-          resultados.push(archivo); // Si falla, usar el original
+          resultados.push(archivo);
         }
       } else {
-        resultados.push(archivo); // Videos, GIFs y documentos sin tocar
+        resultados.push(archivo);
       }
     }
     return resultados;
@@ -275,7 +287,6 @@ export class CreatePostComponent implements OnInit, OnDestroy {
       } else {
         this.errorMsg.set('Completa todos los campos obligatorios');
       }
-
       this.safeTimeout(() => this.errorMsg.set(null), 4000);
       return;
     }
@@ -308,18 +319,25 @@ export class CreatePostComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // ============================================================
+    // FORMDATA
+    // ============================================================
     const formData = new FormData();
     formData.append('titulo', titulo);
     formData.append('categoria', categoria);
     formData.append('descripcion', descripcion);
     formData.append('esAnonimo', String(this.esAnonimo()));
 
-    if (link) {
-      formData.append('link', link);
+    // ✅ SENSIBILIDAD
+    const sensible = this.esSensible();
+    formData.append('esSensible', String(sensible));
+    if (sensible) {
+      formData.append('motivoSensibilidad', this.motivoSensibilidad());
     }
 
-    const archivos = this.archivosSeleccionados();
-    archivos.forEach((archivo) => {
+    if (link) formData.append('link', link);
+
+    this.archivosSeleccionados().forEach((archivo) => {
       formData.append('archivos', archivo);
     });
 
@@ -331,6 +349,8 @@ export class CreatePostComponent implements OnInit, OnDestroy {
           this.archivosSeleccionados.set([]);
           this.form.reset();
           this.esAnonimo.set(false);
+          this.esSensible.set(false);
+          this.motivoSensibilidad.set('otro');
 
           const id = nuevoPost?.id;
           if (id != null && Number.isFinite(Number(id)) && Number.isInteger(Number(id)) && Number(id) > 0) {
@@ -344,7 +364,6 @@ export class CreatePostComponent implements OnInit, OnDestroy {
           if (isDevMode()) console.error('Error al publicar:', error);
 
           let mensaje = 'No se pudo publicar. Intenta nuevamente.';
-
           if (error?.error) {
             if (typeof error.error === 'string') {
               mensaje = error.error;
@@ -353,11 +372,9 @@ export class CreatePostComponent implements OnInit, OnDestroy {
             } else if (error.error.message) {
               mensaje = String(error.error.message);
             } else if (error.error.errors) {
-              const errores = Object.values(error.error.errors).join(', ');
-              mensaje = `Error de validacion: ${errores}`;
+              mensaje = `Error de validacion: ${Object.values(error.error.errors).join(', ')}`;
             }
           }
-
           if (mensaje.length > 300) mensaje = mensaje.slice(0, 300) + '...';
 
           this.errorMsg.set(mensaje);

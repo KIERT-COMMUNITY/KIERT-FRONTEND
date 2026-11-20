@@ -1,6 +1,39 @@
 <!-- src/app/features/community/post-card/post-card.component.html -->
 <div class="post-card" [class]="temaClase" (click)="onClick()">
 
+    <!-- OVERLAY DE CONTENIDO SENSIBLE -->
+  @if (mostrarGuardSensible()) {
+    <div class="post-card__guard" role="alertdialog" aria-labelledby="sensible-titulo-card">
+      <div class="post-card__guard-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+
+      <p id="sensible-titulo-card" class="post-card__guard-title">
+        Contenido sensible
+      </p>
+      <p class="post-card__guard-motivo">
+        <strong>{{ getEtiquetaMotivo() }}</strong>
+      </p>
+
+      <div class="post-card__guard-actions">
+        <button type="button" class="post-card__guard-btn post-card__guard-btn--ghost"
+                (click)="ocultarPostSensible($event)">
+          No ver
+        </button>
+        <button type="button" class="post-card__guard-btn post-card__guard-btn--primary"
+                (click)="revelarPostSensible($event)">
+          Ver
+        </button>
+      </div>
+    </div>
+  } @else {
+
+    <!-- 👇 AQUÍ VA TODO EL CONTENIDO ACTUAL DE LA TARJETA -->
+    <!-- HEADER, TÍTULO, DESC, MEDIA, ADJUNTOS, FOOTER -->
   <!-- HEADER -->
   <div class="post-card__header">
     <div class="post-card__user">
@@ -17,6 +50,7 @@
             {{ getCategoriaFormateada(post.categoria) }}
           </span>
         </div>
+      
       } @else {
         <kiert-avatar-frame
           [fotoUrl]="post.autor.fotoPerfilUrl || null"
@@ -37,7 +71,7 @@
         </div>
       }
     </div>
-
+  
     <div class="post-card__header-right">
       <span class="post-card__fecha">{{ formatearFecha(post.fechaCreacion) }}</span>
 
@@ -57,6 +91,7 @@
           </svg>
         </button>
 
+      
         @if (mostrarMenu()) {
           <div class="post-card__menu" (click)="$event.stopPropagation()">
             <button
@@ -192,4 +227,5 @@
       }
     </div>
   </div>
+}
 </div>

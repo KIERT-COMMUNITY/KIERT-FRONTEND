@@ -36,8 +36,50 @@
   } @else {
     @let postActual = post()!;
 
-   <article class="post-detail" [ngStyle]="{ background: fondoSeguro() }" style="color: #e6edf3 !important;">
+    @if (postActual.esSensible && !revelarSensible()) {
+      <div class="sensible-guard" role="alertdialog" aria-labelledby="sensible-titulo">
+        <div class="sensible-guard__icon" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
 
+        <h2 id="sensible-titulo" class="sensible-guard__title">
+          Este post puede contener contenido sensible
+        </h2>
+
+        <p class="sensible-guard__motivo">
+          Motivo: <strong>{{ getEtiquetaMotivo() }}</strong>
+        </p>
+
+        <p class="sensible-guard__hint">
+          El contenido no se muestra automáticamente para proteger a las personas que no desean verlo.
+        </p>
+
+        <div class="sensible-guard__actions">
+          <button type="button" class="btn-sensible btn-sensible--ghost" (click)="ocultarPostSensible()">
+            No ver
+          </button>
+          <button type="button" class="btn-sensible btn-sensible--primary" (click)="revelarPostSensible()">
+            Ver contenido
+          </button>
+        </div>
+      </div>
+    } @else {
+      <article class="post-detail" [ngStyle]="{ background: fondoSeguro() }" style="color: #e6edf3 !important;">
+
+        @if (postActual.esSensible) {
+          <div class="post-detail__sensible-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>{{ getEtiquetaMotivo() }}</span>
+          </div>
+        }
       <!-- HEADER -->
       <div class="post-detail__header">
         <div class="post-detail__user">
@@ -452,7 +494,7 @@
         </div>
       </div>
     </article>
-
+  }
     <section class="comentarios" [ngStyle]="{ background: fondoSeguro() }" style="color: #e6edf3 !important;">
       <div class="comentarios__header">
         <h3>Comentarios</h3>

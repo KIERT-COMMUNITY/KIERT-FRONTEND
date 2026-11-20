@@ -68,6 +68,8 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   estaLogueado = signal<boolean>(false);
 
   mostrarMenuOcultar = signal(false);
+  revelarSensible = signal(false);
+private readonly SENSIBLE_KEY = 'kiert.revelarSensible';
 
   mostrarConfirmEliminarComentario = signal(false);
   comentarioAEliminar = signal<number | null>(null);
@@ -171,6 +173,53 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.cerrarMenuOcultar();
     this.router.navigate(['/comunidad']);
   }
+  // ============================================================
+// SENSIBILIDAD
+// ============================================================
+
+/** Etiqueta legible del motivo de sensibilidad. */
+getEtiquetaMotivo(): string {
+  const motivo = this.post()?.motivoSensibilidad ?? 'otro';
+  switch (motivo) {
+    case 'nsfw':      return 'Contenido adulto (NSFW)';
+    case 'violencia': return 'Violencia';
+    case 'spoiler':   return 'Spoiler';
+    case 'sangre':    return 'Sangre / gore';
+    default:          return 'Contenido sensible';
+  }
+}
+
+/** Usuario pulsa "Ver contenido": revela el post. */
+revelarPostSensible(): void {
+  this.revelarSensible.set(true);
+  const postId = Number(this.id());
+  if (postId) this.marcarRevelado(postId);
+}
+
+/** Usuario pulsa "No ver": oculta el post y vuelve al feed. */
+ocultarPostSensible(): void {
+  const postId = Number(this.id());
+  if (postId) this.postsOcultos.ocultar(postId, 'sensible');
+  this.router.navigate(['/comunidad']);
+}
+
+private yaRevelado(postId: number): boolean {
+  try {
+    const raw = sessionStorage.getItem(this.SENSIBLE_KEY);
+    if (!raw) return false;
+    const map = JSON.parse(raw) as Record<string, boolean>;
+    return !!map[postId];
+  } catch { return false; }
+}
+
+private marcarRevelado(postId: number): void {
+  try {
+    const raw = sessionStorage.getItem(this.SENSIBLE_KEY);
+    const map = raw ? JSON.parse(raw) as Record<string, boolean> : {};
+    map[postId] = true;
+    sessionStorage.setItem(this.SENSIBLE_KEY, JSON.stringify(map));
+  } catch { /* noop */ }
+}
 
   abrirAviso(mensaje: string): void {
     this.mensajeAvisoLogin.set(mensaje);
@@ -225,9 +274,12 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   getFotoComentario(url: string | null | undefined): string | null { return safeUrl(url); }
   getFotoRespuesta(url: string | null | undefined): string | null { return safeUrl(url); }
 
-  cargarPost(postId: number): void {
-    this.cargando.set(true);
-    this.postService.obtenerPorId(postId)
+cargarPost(postId: number): void {
+  this.cargando.set(true);
+  //  Si ya lo reveló en esta sesión, no volver a preguntar
+  this.revelarSensible.set(this.yaRevelado(postId));
+
+  this.postService.obtenerPorId(postId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {

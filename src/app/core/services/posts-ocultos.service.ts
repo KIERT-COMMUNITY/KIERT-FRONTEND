@@ -5,6 +5,10 @@ interface EntradaOculto {
   id: number;
   motivo: 'sensible' | 'no-interesa' | 'otro';
   fecha: number;
+  // ✅ NUEVO: metadatos para mostrar en Ajustes
+  titulo?: string;
+  autorNombre?: string;
+  autorId?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -36,11 +40,26 @@ export class PostsOcultosService {
   // ============================================================
   // ACCIONES
   // ============================================================
-  ocultar(postId: number, motivo: EntradaOculto['motivo'] = 'no-interesa'): void {
+  /**
+   * Oculta un post.
+   * ✅ Ahora acepta metadatos opcionales para mostrarlos en Ajustes.
+   */
+  ocultar(
+    postId: number,
+    motivo: EntradaOculto['motivo'] = 'no-interesa',
+    meta?: { titulo?: string; autorNombre?: string; autorId?: number }
+  ): void {
     if (!postId || postId <= 0) return;
 
     const mapa = new Map(this.ocultosSignal());
-    mapa.set(postId, { id: postId, motivo, fecha: Date.now() });
+    mapa.set(postId, {
+      id: postId,
+      motivo,
+      fecha: Date.now(),
+      titulo: meta?.titulo,
+      autorNombre: meta?.autorNombre,
+      autorId: meta?.autorId,
+    });
     this.ocultosSignal.set(mapa);
     this.guardarEnStorage(mapa);
   }
@@ -87,7 +106,10 @@ export class PostsOcultosService {
           mapa.set(item.id, {
             id: item.id,
             motivo: item.motivo ?? 'no-interesa',
-            fecha: item.fecha ?? Date.now()
+            fecha: item.fecha ?? Date.now(),
+            titulo: item.titulo,
+            autorNombre: item.autorNombre,
+            autorId: item.autorId,
           });
         }
       }

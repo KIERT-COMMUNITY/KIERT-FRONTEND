@@ -10,9 +10,13 @@ $radius-sm: 8px;
 $font-display: 'JetBrains Mono', monospace;
 $danger: #f85149;
 
-// Variables de texto seguro
+// ✅ Variables dinámicas de tema
 $text-safe: var(--tema-text, #e6edf3);
 $text-muted-safe: var(--tema-text-muted, #8b98a5);
+$bg-card-safe: var(--tema-card-bg, #1b232c);
+$bg-body-safe: var(--tema-bg, #0d1117);
+$border-safe: var(--tema-border, rgba(255, 255, 255, 0.08));
+$accent-safe: var(--tema-accent, #2dd4bf);
 
 // ============================================================
 // POST CARD BASE
@@ -23,21 +27,19 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   padding: 20px;
   margin-bottom: 16px;
 
-  // Fondo oscuro semitransparente
-  background: rgba(19, 26, 34, 0.85); 
+  background: var(--tema-card-bg, rgba(19, 26, 34, 0.85));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 
-  border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid $border-safe;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   overflow: hidden;
-  
-  // Forzar color de texto base (claro)
-  color: $text-safe; 
+
+  color: $text-safe;
 
   &:hover {
-    border-color: rgba(45, 212, 191, 0.3);
+    border-color: color-mix(in srgb, $accent-safe 35%, transparent);
   }
 }
 
@@ -86,13 +88,13 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   text-decoration: none;
 
   &:hover {
-    color: $primary;
+    color: $accent-safe;
     text-decoration: underline;
   }
 }
 
 // ============================================================
-// BADGE (EL VERDE)
+// BADGE
 // ============================================================
 .post-card__badge {
   font-size: 0.55rem;
@@ -103,10 +105,9 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.3px;
-  
-  // ✅ FIX: Forzar texto OSCURO para que contraste con el fondo verde
-  // El fondo verde lo inyecta tu HTML con [style.background]
-  color: #0d1117 !important; 
+
+  // ✅ Texto oscuro para contrastar con fondo verde/acento
+  color: var(--tema-bg, #0d1117) !important;
 }
 
 .post-card__fecha {
@@ -141,13 +142,13 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   transition: none;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, $text-safe 8%, transparent);
+    border-color: $border-safe;
     color: $text-safe;
   }
 
   &:focus-visible {
-    outline: 2px solid $primary;
+    outline: 2px solid $accent-safe;
     outline-offset: 2px;
   }
 }
@@ -157,8 +158,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   top: calc(100% + 6px);
   right: 0;
   min-width: 220px;
-  background: var(--tema-bg-card, #1b232c);
-  border: 1px solid var(--tema-border, rgba(255, 255, 255, 0.1));
+  background: $bg-card-safe;
+  border: 1px solid $border-safe;
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   z-index: 50;
@@ -192,14 +193,14 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   }
 
   &:hover {
-    background: rgba(45, 212, 191, 0.1);
-    color: $primary;
+    background: color-mix(in srgb, $accent-safe 12%, transparent);
+    color: $accent-safe;
 
     svg { opacity: 1; }
   }
 
   &:focus-visible {
-    outline: 2px solid $primary;
+    outline: 2px solid $accent-safe;
     outline-offset: -2px;
   }
 }
@@ -216,7 +217,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid $border-safe;
 
   .avatar-inicial {
     color: #ffffff;
@@ -252,12 +253,10 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  
-  color: $text-safe; 
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5); 
+
+  color: $text-safe;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   font-family: $font-display;
-  
-  // ✅ FIX: Solo quitar el fondo azul si lo hubiera, sin tocar el resto
   background: transparent !important;
 }
 
@@ -269,11 +268,9 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  
-  color: $text-safe; 
-  opacity: 0.9; 
-  
-  // ✅ FIX: Solo quitar el fondo azul
+
+  color: $text-safe;
+  opacity: 0.9;
   background: transparent !important;
 }
 
@@ -339,7 +336,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   top: 10px;
   left: 10px;
   background: rgba(0, 0, 0, 0.7);
-  color: $primary;
+  color: $accent-safe;
 }
 
 .gif-badge {
@@ -372,7 +369,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   gap: 0.5rem;
   margin: 8px 0 12px;
   padding: 8px 0;
-  border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
+  border-top: 1px solid $border-safe;
 }
 
 .post-card__adjunto-link {
@@ -380,8 +377,8 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   align-items: center;
   gap: 0.4rem;
   padding: 4px 10px;
-  background: rgba(45, 212, 191, 0.05);
-  border: 1px solid rgba(45, 212, 191, 0.1);
+  background: color-mix(in srgb, $accent-safe 6%, transparent);
+  border: 1px solid color-mix(in srgb, $accent-safe 15%, transparent);
   border-radius: 6px;
   color: $text-muted-safe;
   font-size: 0.75rem;
@@ -389,9 +386,9 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   cursor: pointer;
 
   &:hover {
-    background: rgba(45, 212, 191, 0.1);
-    border-color: rgba(45, 212, 191, 0.3);
-    color: $primary;
+    background: color-mix(in srgb, $accent-safe 12%, transparent);
+    border-color: color-mix(in srgb, $accent-safe 35%, transparent);
+    color: $accent-safe;
     text-decoration: none;
   }
 }
@@ -399,7 +396,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 .post-card__adjunto-icono {
   font-size: 0.7rem;
   font-weight: 700;
-  color: $primary;
+  color: $accent-safe;
   font-family: $font-display;
 }
 
@@ -419,7 +416,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
   align-items: center;
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid var(--tema-border, rgba(255, 255, 255, 0.05));
+  border-top: 1px solid $border-safe;
 }
 
 .post-card__stats {
@@ -445,56 +442,102 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 // ============================================================
 .tema-light {
   .post-card {
-    background: rgba(255, 255, 255, 0.75);
-    border-color: rgba(0, 0, 0, 0.08);
-    color: #1a1a2e;
+    background: var(--tema-card-bg, rgba(255, 255, 255, 0.9));
+    border-color: $border-safe;
+    color: $text-safe;
 
     &:hover {
-      border-color: rgba(45, 212, 191, 0.4);
+      border-color: color-mix(in srgb, $accent-safe 40%, transparent);
     }
   }
 
   .post-card__username {
-    color: #1a1a2e;
+    color: $text-safe;
 
-    &:hover { color: $primary; }
+    &:hover { color: $accent-safe; }
   }
 
   .post-card__username--anonimo {
-    color: #666 !important;
+    color: $text-muted-safe !important;
 
-    &:hover { color: #666 !important; }
+    &:hover { color: $text-muted-safe !important; }
   }
 
-  .post-card__fecha { color: #666; }
-  
-  .post-card__titulo { color: #1a1a2e; text-shadow: none; } 
-  .post-card__desc { color: #555; }
-  
-  .post-card__stat { color: #666; }
-  .post-card__adjunto-link { color: #666; }
+  .post-card__fecha { color: $text-muted-safe; }
+
+  .post-card__titulo {
+    color: $text-safe;
+    text-shadow: none;
+  }
+
+  .post-card__desc {
+    color: $text-safe;
+    opacity: 0.85;
+  }
+
+  .post-card__stat { color: $text-muted-safe; }
+
+  .post-card__adjunto-link { color: $text-muted-safe; }
 
   .post-card__menu-btn {
-    color: #666;
+    color: $text-muted-safe;
 
     &:hover {
       background: rgba(0, 0, 0, 0.05);
-      color: #1a1a2e;
+      color: $text-safe;
     }
   }
 
   .post-card__menu {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.1);
+    background: var(--tema-card-bg, #ffffff);
+    border-color: $border-safe;
   }
 
   .post-card__menu-item {
-    color: #1a1a2e;
+    color: $text-safe;
 
     &:hover {
-      background: rgba(45, 212, 191, 0.1);
-      color: $primary;
+      background: color-mix(in srgb, $accent-safe 12%, transparent);
+      color: $accent-safe;
     }
+  }
+
+  // Guard sensible en light
+  .post-card__guard {
+    background: var(--tema-card-bg, #ffffff);
+    border: 1px dashed color-mix(in srgb, var(--tema-accent, #b45309) 45%, transparent);
+    color: $text-safe;
+  }
+
+  .post-card__guard-icon {
+    background: color-mix(in srgb, var(--tema-accent, #b45309) 12%, transparent);
+    color: var(--tema-accent, #b45309);
+  }
+
+  .post-card__guard-title {
+    color: var(--tema-accent, #b45309);
+  }
+
+  .post-card__guard-motivo {
+    color: $text-muted-safe;
+
+    strong { color: var(--tema-accent, #b45309); }
+  }
+
+  .post-card__guard-btn--ghost {
+    color: $text-safe;
+    border-color: $border-safe;
+  }
+
+  .post-card__guard-btn--primary {
+    background: var(--tema-accent, #b45309);
+    color: #ffffff;
+  }
+
+  .post-card__sensible-badge {
+    background: color-mix(in srgb, var(--tema-accent, #b45309) 10%, transparent);
+    border-color: color-mix(in srgb, var(--tema-accent, #b45309) 40%, transparent);
+    color: var(--tema-accent, #b45309);
   }
 }
 
@@ -541,7 +584,7 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 }
 
 // ============================================================
-// ACCESIBILIDAD (sin animaciones)
+// ACCESIBILIDAD
 // ============================================================
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -551,10 +594,141 @@ $text-muted-safe: var(--tema-text-muted, #8b98a5);
 }
 
 // ============================================================
-// 🔥 FIX FINAL: ARREGLAR SELECCIÓN DE TEXTO AZUL
+// SELECCIÓN DE TEXTO — dinámica
 // ============================================================
-// Este bloque soluciona el fondo azul que aparecía al hacer clic o seleccionar
 ::selection {
-  background: rgba(45, 212, 191, 0.3) !important; // Turquesa semitransparente
-  color: #ffffff !important;
+  background: color-mix(in srgb, var(--tema-accent, #2dd4bf) 30%, transparent) !important;
+  color: var(--tema-text, #ffffff) !important;
+}
+
+// ============================================================
+// GUARD DE CONTENIDO SENSIBLE (dinámico)
+// ============================================================
+.post-card__guard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+
+  background: var(--tema-card-bg, #1b232c);
+  border: 1px dashed color-mix(in srgb, var(--tema-accent, #fbbf24) 45%, transparent);
+  border-radius: $radius-sm;
+  color: $text-safe;
+}
+
+.post-card__guard-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+
+  background: color-mix(in srgb, var(--tema-accent, #fbbf24) 15%, transparent);
+  color: var(--tema-accent, #fbbf24);
+
+  svg { stroke: currentColor; }
+}
+
+.post-card__guard-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  font-family: $font-display;
+  color: var(--tema-accent, #fbbf24);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.post-card__guard-motivo {
+  font-size: 0.8rem;
+  margin: 0;
+  color: $text-muted-safe;
+
+  strong {
+    color: var(--tema-accent, #fbbf24);
+    font-weight: 600;
+  }
+}
+
+.post-card__guard-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.post-card__guard-btn {
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  min-height: 34px;
+  transition: none;
+
+  &--ghost {
+    background: transparent;
+    border-color: $border-safe;
+    color: $text-safe;
+
+    &:hover {
+      background: color-mix(in srgb, $text-safe 10%, transparent);
+    }
+  }
+
+  &--primary {
+    background: var(--tema-accent, #fbbf24);
+    color: var(--tema-bg, #0d1117);
+
+    &:hover {
+      background: color-mix(in srgb, var(--tema-accent, #fbbf24) 85%, #000);
+    }
+  }
+}
+
+// ============================================================
+// BADGE SENSIBLE (revelado)
+// ============================================================
+.post-card__sensible-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+
+  background: color-mix(in srgb, var(--tema-accent, #fbbf24) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tema-accent, #fbbf24) 40%, transparent);
+  border-radius: 12px;
+  color: var(--tema-accent, #fbbf24);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  svg { stroke: currentColor; flex-shrink: 0; }
+}
+
+// ============================================================
+// RESPONSIVE GUARD
+// ============================================================
+@media (max-width: 480px) {
+  .post-card__guard {
+    padding: 1rem 0.75rem;
+  }
+
+  .post-card__guard-icon { width: 44px; height: 44px; }
+  .post-card__guard-title { font-size: 0.85rem; }
+  .post-card__guard-btn { font-size: 0.75rem; padding: 0.4rem 0.8rem; }
+
+  .post-card__sensible-badge {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+  }
 }

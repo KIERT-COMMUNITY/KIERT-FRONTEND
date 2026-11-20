@@ -19,15 +19,47 @@ export class PostService {
   }
 
   // ============================================================
-  // CREAR POST - Envía FormData con categoría como string
+  // CREAR POST - Envía FormData con categoría y sensibilidad
   // ============================================================
   crear(formData: FormData): Observable<Post> {
+    // 1) Fallback categoría
     const categoria = formData.get('categoria');
-    console.log('PostService - Categoría enviada:', categoria);
-
     if (!categoria || typeof categoria !== 'string' || categoria.trim() === '') {
-      console.warn('Categoría vacía, usando "otro" por defecto');
+      if (typeof console !== 'undefined') {
+        console.warn('Categoría vacía, usando "otro" por defecto');
+      }
       formData.set('categoria', 'otro');
+    }
+
+    // 2) Fallback esAnonimo
+    if (formData.get('esAnonimo') === null) {
+      formData.set('esAnonimo', 'false');
+    }
+
+    // 3) Fallback esSensible
+    if (formData.get('esSensible') === null) {
+      formData.set('esSensible', 'false');
+    }
+
+    // 4) Si esSensible=true y no hay motivo, mandar "otro"
+    const esSensible = formData.get('esSensible') === 'true';
+    const motivo = formData.get('motivoSensibilidad');
+    if (esSensible && (!motivo || (typeof motivo === 'string' && motivo.trim() === ''))) {
+      formData.set('motivoSensibilidad', 'otro');
+    }
+
+    // 5) Si NO es sensible, eliminar motivo para no viajar basura
+    if (!esSensible) {
+      formData.delete('motivoSensibilidad');
+    }
+
+    if (typeof console !== 'undefined') {
+      console.log('PostService.crear →', {
+        categoria: formData.get('categoria'),
+        esAnonimo: formData.get('esAnonimo'),
+        esSensible: formData.get('esSensible'),
+        motivo: formData.get('motivoSensibilidad'),
+      });
     }
 
     return this.http.post<Post>(this.baseUrl, formData);
@@ -46,12 +78,8 @@ export class PostService {
   }
 
   // ============================================================
-  // SUBTÍTULOS
+  // SUBTÍTULOS (sin cambios)
   // ============================================================
-
-  /**
-   * Sube un archivo .vtt como subtítulo de un video adjunto.
-   */
   subirSubtitulo(
     adjuntoId: number,
     archivo: File,
@@ -71,27 +99,18 @@ export class PostService {
     );
   }
 
-  /**
-   * Lista los subtítulos disponibles de un video.
-   */
   listarSubtitulos(adjuntoId: number): Observable<Subtitulo[]> {
     return this.http.get<Subtitulo[]>(
       `${this.baseUrl}/adjuntos/${adjuntoId}/subtitulos`
     );
   }
 
-  /**
-   * Elimina un subtítulo.
-   */
   eliminarSubtitulo(adjuntoId: number, subtituloId: number): Observable<void> {
     return this.http.delete<void>(
       `${this.baseUrl}/adjuntos/${adjuntoId}/subtitulos/${subtituloId}`
     );
   }
 
-  /**
-   * Genera subtítulos automáticamente usando IA (Whisper, etc.).
-   */
   generarSubtitulosAutomaticos(
     adjuntoId: number,
     idioma: string

@@ -109,11 +109,44 @@
       </label>
     </div>
 
+    <!-- ✅ SENSIBILIDAD -->
+    <div class="field field--sensible" [class.field--sensible-active]="esSensible()">
+      <label class="checkbox-label" for="esSensible">
+        <input
+          id="esSensible"
+          type="checkbox"
+          [checked]="esSensible()"
+          (change)="toggleSensible($any($event.target).checked)"
+        >
+        <span class="checkbox-text">
+          <strong>Marcar como contenido sensible ⚠️</strong>
+          <small>El post se mostrara con una advertencia y podra ocultarse por defecto</small>
+        </span>
+      </label>
+
+      @if (esSensible()) {
+        <div class="motivo-select">
+          <label for="motivoSensibilidad">Motivo de sensibilidad</label>
+          <select
+            id="motivoSensibilidad"
+            [value]="motivoSensibilidad()"
+            (change)="cambiarMotivoSensibilidad($any($event.target).value)"
+          >
+            @for (m of motivosSensibilidad; track m.valor) {
+              <option [value]="m.valor">{{ m.etiqueta }}</option>
+            }
+          </select>
+          <span class="field-hint">
+            Este motivo se mostrara a los usuarios antes de revelar el contenido
+          </span>
+        </div>
+      }
+    </div>
+
     <!-- Archivos -->
     <div class="field">
       <label for="archivos">Adjuntar archivos <span class="optional">(opcional)</span></label>
-      
-      <!-- TEXTO DE AYUDA CLARO Y DETALLADO -->
+
       <p class="file-hint">
         <strong>Que puedes subir:</strong> Imagenes (JPG, PNG, WebP, GIF), Videos (MP4, WebM), y Documentos (PDF, DOC, DOCX, TXT, ZIP, RAR).<br>
         <strong>Limites de tamano:</strong> Imagenes hasta 15 MB (se optimizan automaticamente) | Videos hasta 50 MB | Documentos hasta 15 MB.<br>

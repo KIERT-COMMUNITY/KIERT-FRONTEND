@@ -408,22 +408,80 @@
           }
         </div>
 
-        <!-- POSTS OCULTOS -->
-        <div class="inline-selector">
-          <div class="inline-selector__header">
-            <div class="section-title">
-              <h3>Posts ocultos</h3>
-              <p class="section-desc">
-                Tienes <strong>{{ cantidadOcultos() }}</strong> publicaciones ocultas en tu feed.
-                Se guardan solo en este navegador.
-              </p>
-            </div>
-            <button type="button" class="btn-edit" [disabled]="cantidadOcultos() === 0" (click)="abrirModalOcultos()">
-              Mostrar todos
-            </button>
-          </div>
-        </div>
+       <!-- POSTS OCULTOS -->
+<div class="inline-selector">
+  <div class="inline-selector__header">
+    <div class="section-title">
+      <h3>Posts ocultos</h3>
+      <p class="section-desc">
+        Tienes <strong>{{ cantidadOcultos() }}</strong> publicación{{ cantidadOcultos() === 1 ? '' : 'es' }} oculta{{ cantidadOcultos() === 1 ? '' : 's' }}.
+      </p>
+    </div>
+    <button type="button" class="btn-edit" [disabled]="cantidadOcultos() === 0" (click)="abrirModalOcultos()">
+      Mostrar todos
+    </button>
+  </div>
 
+  @if (cantidadOcultos() === 0) {
+    <div class="bloqueados-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      <p>No tienes posts ocultos</p>
+      <span>Cuando ocultes una publicación, aparecerá aquí</span>
+    </div>
+  } @else {
+
+    @if (cantidadOcultos() > 3) {
+      <div class="bloqueados-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Buscar en posts ocultos..."
+               [value]="busquedaOculto()"
+               (input)="busquedaOculto.set($any($event.target).value)">
+        @if (busquedaOculto()) {
+          <button (click)="busquedaOculto.set('')">×</button>
+        }
+      </div>
+    }
+
+    <div class="posts-ocultos-list">
+      @for (post of postsOcultosFiltrados(); track post.id) {
+        <div class="post-oculto-item">
+          <div class="post-oculto-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </div>
+          <div class="post-oculto-info">
+            <span class="post-oculto-titulo">{{ post.titulo || '(sin título)' }}</span>
+            <span class="post-oculto-meta">
+              &#64;{{ post.autorNombre || 'anónimo' }} · oculto {{ formatearFechaOculto(post.fecha) }}
+            </span>
+          </div>
+          <button class="btn-desbloquear-item"
+                  (click)="desbloquearPost(post.id, post.titulo)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Mostrar</span>
+          </button>
+        </div>
+      }
+
+      @if (postsOcultosFiltrados().length === 0 && busquedaOculto()) {
+        <div class="bloqueados-empty-small">
+          <p>Sin resultados para "{{ busquedaOculto() }}"</p>
+        </div>
+      }
+    </div>
+  }
+</div>
         <!-- ZONA DE PELIGRO -->
         <div class="danger-zone">
           <div class="danger-zone__title">

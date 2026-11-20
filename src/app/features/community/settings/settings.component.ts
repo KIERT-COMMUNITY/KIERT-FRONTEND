@@ -56,8 +56,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public shortcuts = inject(KeyboardShortcutsService);
 
   private destroy$ = new Subject<void>();
-
-  // ✅ CLAVE: bloquea el effect mientras el usuario está eligiendo tema/marco/fondo
   private usuarioSeleccionandoTema = false;
 
   usuario = this.authService.usuario;
@@ -89,7 +87,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
   confirmacionTexto = signal('');
 
   mostrarModalOcultos = signal(false);
+
+  // ============================================================
+  // POSTS OCULTOS — listado y desbloqueo individual
+  // ============================================================
   cantidadOcultos = computed(() => this.postsOcultos.total());
+  postsOcultosLista = computed(() => this.postsOcultos.lista());
+
+  busquedaOculto = signal('');
+  postsOcultosFiltrados = computed(() => {
+    const q = this.busquedaOculto().toLowerCase().trim();
+    const lista = this.postsOcultosLista();
+    if (!q) return lista;
+    return lista.filter(p =>
+      (p.titulo ?? '').toLowerCase().includes(q) ||
+      (p.autorNombre ?? '').toLowerCase().includes(q)
+    );
+  });
 
   isRefreshing = signal(false);
   pullDistance = signal(0);
@@ -134,8 +148,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     effect(() => {
       const personalizacion = this.personalizacionStore.personalizacion();
       if (!personalizacion) return;
-
-      // ✅ FIX: si el usuario está eligiendo, NO pisar la selección
       if (this.usuarioSeleccionandoTema) return;
 
       const tema = personalizacion.temaId || 'default';
@@ -146,7 +158,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       if (this.selectedFrame() !== marco) this.selectedFrame.set(marco);
       if (this.selectedBackground() !== fondo) this.selectedBackground.set(fondo);
 
-      // ✅ FIX: aplicar SIEMPRE los 3 al DOM, no solo el tema
       this.aplicarTemaGlobal(tema);
       this.aplicarMarcoGlobal(marco);
       this.aplicarFondoGlobal(fondo);
@@ -164,9 +175,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   irALogin(): void {
     this.mostrarAvisoLogin.set(false);
-    this.router.navigate(['/login'], {
-      queryParams: { returnUrl: '/ajustes' }
-    });
+    this.router.navigate(['/login'], { queryParams: { returnUrl: '/ajustes' } });
   }
 
   cerrarAvisoLogin(): void {
@@ -178,6 +187,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.abrirAvisoLogin('Debes registrarte para acceder a los ajustes de tu cuenta.');
       return;
     }
+
+    // ✅ El servicio ya carga solo en el constructor (cargarDeStorage),
+    // no hace falta llamar a ningún "cargar()".
 
     this.cargarDatosUsuario();
     this.personalizacionStore.cargarPersonalizacion();
@@ -242,10 +254,62 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    // ⚠️ NO limpiamos el tema al salir: debe persistir en toda la app.
-    // El tema lo gestiona AppComponent / PersonalizacionStore al iniciar sesión.
   }
 
+  // ============================================================
+  // POSTS OCULTOS
+  // ============================================================
+  desbloquearPost(postId: number, titulo?: string): void {
+    if (!this.estaLogueado) {
+      this.abrirAvisoLogin('Debes registrarte para gestionar posts ocultos.');
+      return;
+    }
+
+    // ✅ Tu servicio real tiene "mostrar(postId)" para quitar uno
+    this.postsOcultos.mostrar(postId);
+
+    this.exitoMsg.set(`Post "${titulo || 'sin título'}" restaurado en tu feed`);
+    setTimeout(() => this.exitoMsg.set(null), 3000);
+  }
+
+  formatearFechaOculto(fecha: number): string {
+    const ahora = Date.now();
+    const diffDias = Math.floor((ahora - fecha) / (1000 * 60 * 60 * 24));
+
+    if (diffDias === 0) return 'hoy';
+    if (diffDias === 1) return 'ayer';
+    if (diffDias < 7) return `hace ${diffDias} días`;
+
+    return new Date(fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+  }
+
+  abrirModalOcultos(): void {
+    if (this.cantidadOcultos() === 0) return;
+    this.mostrarModalOcultos.set(true);
+  }
+
+  cerrarModalOcultos(): void {
+    this.mostrarModalOcultos.set(false);
+  }
+
+  confirmarMostrarOcultos(): void {
+    if (this.cantidadOcultos() === 0) {
+      this.cerrarModalOcultos();
+      return;
+    }
+    this.postsOcultos.mostrarTodos();
+    this.cerrarModalOcultos();
+    this.exitoMsg.set('Posts ocultos restaurados correctamente');
+    setTimeout(() => this.exitoMsg.set(null), 3000);
+  }
+
+  mostrarTodosLosOcultos(): void {
+    this.abrirModalOcultos();
+  }
+
+  // ============================================================
+  // RESTO DE MÉTODOS (sin cambios)
+  // ============================================================
   recargarTodo(): void {
     if (!this.estaLogueado) {
       this.finishRefresh();
@@ -271,7 +335,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.exitoMsg.set('Datos actualizados');
     setTimeout(() => this.exitoMsg.set(null), 2000);
-
     setTimeout(() => this.finishRefresh(), 600);
   }
 
@@ -279,31 +342,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.isRefreshing.set(false);
     this.pullDistance.set(0);
     this.pullOpacity.set(0);
-  }
-
-  abrirModalOcultos(): void {
-    if (this.cantidadOcultos() === 0) return;
-    this.mostrarModalOcultos.set(true);
-  }
-
-  cerrarModalOcultos(): void {
-    this.mostrarModalOcultos.set(false);
-  }
-
-  confirmarMostrarOcultos(): void {
-    if (this.cantidadOcultos() === 0) {
-      this.cerrarModalOcultos();
-      return;
-    }
-
-    this.postsOcultos.mostrarTodos();
-    this.cerrarModalOcultos();
-    this.exitoMsg.set('Posts ocultos restaurados correctamente');
-    setTimeout(() => this.exitoMsg.set(null), 3000);
-  }
-
-  mostrarTodosLosOcultos(): void {
-    this.abrirModalOcultos();
   }
 
   abrirModalEliminar(): void {
@@ -457,12 +495,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // ============================================================
   // APLICAR TEMA / MARCO / FONDO AL DOM GLOBAL
   // ============================================================
-
-  /**
-   * Aplica el tema a <html> y <body>.
-   * Esto hace que CUALQUIER componente (incl. notificaciones y chat-global)
-   * que use var(--tema-*) herede el tema correctamente.
-   */
   aplicarTemaGlobal(themeId: string): void {
     const html = document.documentElement;
     const body = document.body;
@@ -484,10 +516,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     body.classList.add(`tema-${tema}`);
   }
 
-  /**
-   * Aplica el marco al <html> y <body> con atributo data-marco.
-   * Los componentes usan :host-context([data-marco="neon"]) para estilos.
-   */
   aplicarMarcoGlobal(marcoId: string): void {
     const html = document.documentElement;
     const body = document.body;
@@ -496,9 +524,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     body.setAttribute('data-marco', marco);
   }
 
-  /**
-   * Aplica el fondo al <html> y <body> con atributo data-fondo.
-   */
   aplicarFondoGlobal(fondoId: string): void {
     const html = document.documentElement;
     const body = document.body;
@@ -689,10 +714,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.abrirAvisoLogin('Debes registrarte para cambiar el tema.');
       return;
     }
-    // ✅ FLAG: bloquea el effect para que no pise esta selección
     this.usuarioSeleccionandoTema = true;
     this.selectedTheme.set(themeId);
-    // ✅ FIX: aplicar al DOM YA (preview instantánea)
     this.aplicarTemaGlobal(themeId);
   }
 
@@ -703,7 +726,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     this.usuarioSeleccionandoTema = true;
     this.selectedFrame.set(frameId);
-    // ✅ FIX: preview instantánea del marco
     this.aplicarMarcoGlobal(frameId);
   }
 
@@ -714,15 +736,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     this.usuarioSeleccionandoTema = true;
     this.selectedBackground.set(bgId);
-    // ✅ FIX: preview instantánea del fondo
     this.aplicarFondoGlobal(bgId);
   }
 
-  /**
-   * Persiste la personalización en el backend.
-   * ✅ FIX: ahora espera la respuesta real (no setTimeout artificial)
-   * ✅ FIX: aplica tema + marco + fondo al DOM global
-   */
   aplicarPersonalizacion(): void {
     if (!this.estaLogueado) {
       this.abrirAvisoLogin('Debes registrarte para guardar tus preferencias.');
@@ -733,24 +749,20 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const marcoId = this.selectedFrame();
     const fondoId = this.selectedBackground();
 
-    // Aplicar al DOM inmediatamente (preview)
     this.aplicarTemaGlobal(temaId);
     this.aplicarMarcoGlobal(marcoId);
     this.aplicarFondoGlobal(fondoId);
 
     this.cargando.set(true);
 
-    // ✅ FIX: el store debe devolver un Observable para poder esperar
     this.personalizacionStore.guardarPersonalizacion(temaId, marcoId, fondoId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.cargando.set(false);
-          // ✅ CLAVE: liberar el flag AHORA que ya está guardado
           this.usuarioSeleccionandoTema = false;
           this.exitoMsg.set('Personalización aplicada correctamente');
           setTimeout(() => this.exitoMsg.set(null), 3000);
-          // Recargar por si el backend normalizó algo (ej: marco inexistente)
           this.personalizacionStore.recargar();
         },
         error: (err) => {

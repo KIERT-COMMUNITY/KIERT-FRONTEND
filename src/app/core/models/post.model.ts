@@ -29,12 +29,15 @@ export interface Adjunto {
   subtitulos?: Subtitulo[];     // subtítulos disponibles
 }
 
+/**
+ * Coincide con `AutorResumenDTO` del backend:
+ * { id, nombreUsuario, fotoPerfilUrl, marcoId }
+ */
 export interface Autor {
-  id: number;
-  nombreUsuario: string;
-  email?: string;
-  marcoId?: string;
+  id: number | null;            // null cuando el post es anónimo
+  nombreUsuario: string;        // "Anonimo" cuando esAnonimo = true
   fotoPerfilUrl?: string | null;
+  marcoId?: string;             // "none" por defecto
 }
 
 export interface Reacciones {
@@ -60,6 +63,17 @@ export interface UserReactions {
   angry?: boolean;
 }
 
+// ============================================================
+// POST
+// ============================================================
+/**
+ * Coincide 1:1 con `PostDTO.java` del backend:
+ * {
+ *   id, autor, titulo, descripcion, categoria, adjuntos,
+ *   totalComentarios, fechaCreacion,
+ *   esAnonimo, esSensible, motivoSensibilidad
+ * }
+ */
 export interface Post {
   id: number;
   autor: Autor;
@@ -69,34 +83,47 @@ export interface Post {
   adjuntos: Adjunto[];
   totalComentarios: number;
   fechaCreacion: string;
+
+  // ✅ NUEVOS: alineados con el backend
+  esAnonimo: boolean;
+  esSensible: boolean;
+  motivoSensibilidad: string | null; // 'nsfw' | 'violencia' | 'spoiler' | 'sangre' | 'otro' | null
+
+  // Opcionales de UI (los rellena el frontend, no el backend)
   reacciones?: Reacciones;
   userReactions?: UserReactions;
 }
 
+// ============================================================
+// COMENTARIO
+// ============================================================
 export interface Comentario {
   id: number;
   autor: Autor;
   contenido: string;
   fechaCreacion: string;
-  urlImagen?: string | null;      // ✅ NUEVO: el backend lo devuelve en ComentarioDTO
+  urlImagen?: string | null;
   reacciones?: Reacciones;
 
   userReactions?: UserReactions;
 
   // UI state (no viene del backend, se inicializa en cargarComentarios)
   respuestas?: Respuesta[];
-  totalRespuestas?: number;        // ✅ viene del backend (ComentarioDTO.totalRespuestas)
+  totalRespuestas?: number;        // opcional: solo si el backend lo expone
   mostrandoRespuestas?: boolean;
   mostrandoFormularioRespuesta?: boolean;
   cargandoRespuestas?: boolean;
 }
 
+// ============================================================
+// RESPUESTA
+// ============================================================
 export interface Respuesta {
   id: number;
   autor: Autor;
   contenido: string;
   fechaCreacion: string;
-  urlImagen?: string | null;       // ✅ NUEVO: por consistencia con Comentario
+  urlImagen?: string | null;
   reacciones?: Reacciones;
 
   userReactions?: UserReactions;
