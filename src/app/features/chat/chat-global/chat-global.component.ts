@@ -5,10 +5,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, finalize } from 'rxjs';
 
 import { ChatGlobalService, MensajeGlobal } from '../../../core/services/chat-global.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PersonalizacionService } from '../../../core/services/personalizacion.service';
+import { PersonalizacionStore } from '../../../core/services/personalizacion-store.service';
 import { AvisoLoginComponent } from '../../../shared/components/aviso-login/aviso-login.component';
 import { AvatarFrameComponent } from '../../../shared/components/avatar-frame/avatar-frame.component';
 import { safeUrl } from '../../../shared/utils/url-sanitizer';
@@ -30,6 +32,8 @@ import { PullToRefreshDirective } from '../../../shared/directives/pull-to-refre
 export class ChatGlobalComponent implements OnInit, OnDestroy {
   private readonly chatService = inject(ChatGlobalService);
   private readonly authService = inject(AuthService);
+  private readonly personalizacionService = inject(PersonalizacionService);
+  private readonly personalizacionStore = inject(PersonalizacionStore);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -47,6 +51,10 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
 
   /** Mensaje al que se está respondiendo (para mostrar la barra de cita) */
   readonly respondiendoA = signal<MensajeGlobal | null>(null);
+
+  /** ✅ Caché de marcos actuales por usuario: autorId -> marcoId */
+  private readonly marcosPorUsuario = signal<Record<number, string>>({});
+  private readonly marcosPendientes = new Set<number>();
 
   texto = '';
 
@@ -69,6 +77,7 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
       .subscribe(m => {
         this.ngZone.run(() => {
           this.mensajes.update(lista => [...lista, m]);
+          this.precargarMarcos([m]);
           this.scrollAbajo();
           this.cdr.detectChanges();
         });
@@ -98,18 +107,20 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
 
     const timeoutId = setTimeout(() => {
       this.timeouts.delete(timeoutId);
-      this.cargarHistorial();
+      this.cargarHistorial(true);
     }, 1000);
 
     this.timeouts.add(timeoutId);
   }
 
-  private cargarHistorial(): void {
+  private cargarHistorial(forzarMarcos = false): void {
     this.chatService.obtenerHistorial(0, 50)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: historial => {
-          this.mensajes.set([...historial].reverse());
+          const lista = [...historial].reverse();
+          this.mensajes.set(lista);
+          this.precargarMarcos(lista, forzarMarcos);
           this.scrollAbajo();
           this.finishRefresh();
         },
@@ -125,6 +136,45 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     if (this.pullToRefresh) this.pullToRefresh.finishRefresh();
     this.pullDistance.set(0);
     this.pullOpacity.set(0);
+  }
+
+  // ===== MARCOS DE USUARIOS =====
+  private normalizarMarco(valor: unknown): string {
+    const limpio = (valor ?? '').toString().trim().toLowerCase();
+    return limpio === '' || limpio === 'null' || limpio === 'undefined' ? 'none' : limpio;
+  }
+
+  /**
+   * Pide al backend el marco actual de cada autor (una sola vez por usuario)
+   * y lo guarda en caché. NO se llama desde el template.
+   */
+  private precargarMarcos(lista: MensajeGlobal[], forzar = false): void {
+    const miId = this.authService.getUser()?.id;
+    const cache = this.marcosPorUsuario();
+
+    const ids = new Set<number>();
+    for (const m of lista) {
+      const id = m.autorId;
+      if (!id || id === miId) continue;              // el propio se toma del store
+      if (this.marcosPendientes.has(id)) continue;
+      if (!forzar && cache[id] !== undefined) continue;
+      ids.add(id);
+    }
+
+    ids.forEach(id => {
+      this.marcosPendientes.add(id);
+      this.personalizacionService.obtenerPersonalizacionPorUsuario(id)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.marcosPendientes.delete(id))
+        )
+        .subscribe({
+          next: p => {
+            this.marcosPorUsuario.update(c => ({ ...c, [id]: this.normalizarMarco(p?.marcoId) }));
+          },
+          error: () => { /* si falla, se usa el marcoId que venga en el mensaje */ }
+        });
+    });
   }
 
   // ===== ENVIAR =====
@@ -248,8 +298,19 @@ export class ChatGlobalComponent implements OnInit, OnDestroy {
     this.router.navigate(['/usuario', usuarioId]);
   }
 
+  /**
+   * ✅ Marco a mostrar en el avatar:
+   *  1) Mensaje propio  -> marco del store (lo que aplicaste en Ajustes)
+   *  2) Otro usuario    -> marco actual cacheado desde el backend
+   *  3) Fallback        -> marcoId que venga en el propio mensaje
+   */
   getMarco(m: MensajeGlobal): string {
-    return (m.marcoId || 'none').toString().trim().toLowerCase() || 'none';
+    if (this.esPropio(m)) {
+      return this.normalizarMarco(this.personalizacionStore.marcoId());
+    }
+    const cacheado = m.autorId ? this.marcosPorUsuario()[m.autorId] : undefined;
+    if (cacheado !== undefined) return cacheado;
+    return this.normalizarMarco(m.marcoId);
   }
 
   getFoto(m: MensajeGlobal): string | null {
